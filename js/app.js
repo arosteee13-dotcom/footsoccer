@@ -4,35 +4,50 @@
 
 /* ============ DATA ============ */
 const POSITIONS = {
-  portero: { label: 'Portero', color: 'var(--color-portero)' },
-  cierre: { label: 'Cierre', color: 'var(--color-cierre)' },
-  ala: { label: 'Ala', color: 'var(--color-ala)' },
-  pivot: { label: 'Pívot', color: 'var(--color-pivot)' },
+  portero:         { label: 'POR', color: '#9B59B6' },
+  lateral_der:     { label: 'LD',  color: '#E74C3C' },
+  lateral_izq:     { label: 'LI',  color: '#E74C3C' },
+  carrilero_der:   { label: 'CAD', color: '#E74C3C' },
+  carrilero_izq:   { label: 'CAI', color: '#E74C3C' },
+  defensa_central: { label: 'DFC', color: '#E74C3C' },
+  medio_def:       { label: 'MCD', color: '#F39C12' },
+  mediocentro:     { label: 'MC',  color: '#F39C12' },
+  medio_ofensivo:  { label: 'MCO', color: '#F39C12' },
+  medio_der:       { label: 'MD',  color: '#F39C12' },
+  medio_izq:       { label: 'MI',  color: '#F39C12' },
+  extremo_der:     { label: 'ED',  color: '#2ECC71' },
+  extremo_izq:     { label: 'EI',  color: '#2ECC71' },
+  delantero:       { label: 'DC',  color: '#2ECC71' },
 }
 
-const POS_ORDER = ['portero', 'cierre', 'ala', 'pivot']
+const POS_ORDER = ['portero', 'cierre', 'ala', 'pivot', 'defensa_central', 'lateral_izq', 'lateral_der', 'carrilero_izq', 'carrilero_der', 'medio_def', 'mediocentro', 'medio_ofensivo', 'medio_izq', 'medio_der', 'extremo_izq', 'extremo_der', 'delantero']
 
 const FORMATIONS = {
-  '1-2-1': { label: '1-2-1', roles: ['portero', 'cierre', 'ala', 'pivot'], multiplier: 1.0 },
-  '2-2': { label: '2-2', roles: ['portero', 'cierre', 'cierre', 'ala'], multiplier: 0.9 },
-  '1-1-2': { label: '1-1-2', roles: ['portero', 'cierre', 'ala', 'ala'], multiplier: 1.1 },
-  '2-1-1': { label: '2-1-1', roles: ['portero', 'cierre', 'cierre', 'pivot'], multiplier: 0.95 },
-  '3-1': { label: '3-1', roles: ['portero', 'cierre', 'cierre', 'pivot'], multiplier: 0.85 },
+  '4-3-3': { label: '4-3-3', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_der', 'mediocentro', 'medio_izq', 'extremo_der', 'delantero', 'extremo_izq'], multiplier: 1.0 },
+  '4-4-2': { label: '4-4-2', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_der', 'mediocentro', 'mediocentro', 'medio_izq', 'delantero', 'delantero'], multiplier: 0.95 },
+  '4-2-3-1': { label: '4-2-3-1', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_def', 'medio_def', 'extremo_der', 'medio_ofensivo', 'extremo_izq', 'delantero'], multiplier: 1.05 },
+  '3-5-2': { label: '3-5-2', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_der', 'medio_der', 'mediocentro', 'medio_ofensivo', 'medio_izq', 'delantero', 'delantero'], multiplier: 0.9 },
+  '5-3-2': { label: '5-3-2', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_der', 'mediocentro', 'medio_izq', 'delantero', 'delantero'], multiplier: 0.85 },
+  '4-1-4-1': { label: '4-1-4-1', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_def', 'extremo_der', 'mediocentro', 'medio_ofensivo', 'extremo_izq', 'delantero'], multiplier: 0.95 },
 }
+
+const POS_ABBR = { portero: 'POR', cierre: 'DFC', ala: 'MC', pivot: 'DC', lateral_der: 'LD', lateral_izq: 'LI', carrilero_der: 'CAD', carrilero_izq: 'CAI', defensa_central: 'DFC', medio_def: 'MCD', mediocentro: 'MC', medio_ofensivo: 'MCO', medio_der: 'MD', medio_izq: 'MI', extremo_der: 'ED', extremo_izq: 'EI', delantero: 'DC' }
+
+const SIGLA_TO_POS = Object.fromEntries(Object.entries(POS_ABBR).map(([k, v]) => [v, k]))
 
 const GAME_PLANS = {
-  bloqueBajo:     { label: 'Bloque Bajo',   desc: 'Equipo replegado, defiende al borde del área. Ahorra energía pero cede el control.', attack: 0.6, defense: 1.4, drain: 1, events: 0.70 },
-  juegoCuatro:    { label: 'Juego de 4',    desc: 'Rotación constante de los 4 jugadores. Pases rápidos y mucha movilidad. Desgasta el doble.', attack: 1.2, defense: 0.9, drain: 6, events: 1.20 },
-  juegoPivot:     { label: 'Juego Pívot',   desc: 'Juego directo al pívot. Ideal si tienes un delantero fuerte. Ataques verticales y rápidos.', attack: 1.3, defense: 0.8, drain: 3, events: 1.00 },
-  roboTransicion: { label: 'Robo y Trans.', desc: 'Presión en media pista para robar y salir en transición. Requiere alas rápidas.', attack: 1.4, defense: 1.1, drain: 4, events: 0.80 },
-  porteroJugador: { label: 'Portero-Jug.',  desc: 'Superioridad numérica en ataque. Mucho riesgo: si pierdes el balón, gol seguro.', attack: 1.8, defense: 0.3, drain: 3, events: 1.40 },
+  defensivo:  { label: 'Park the Bus',       desc: 'Equipo replegado, defiende cerca del área. Ahorra energía pero cede el control del partido.', attack: 0.6, defense: 1.4, drain: 1, events: 0.65 },
+  tikitaka:   { label: 'Tiki-Taka',           desc: 'Posesión y pases cortos. Control del partido, desgaste moderado.', attack: 1.1, defense: 0.9, drain: 4, events: 1.15 },
+  contragolpe:{ label: 'Contragolpe',         desc: 'Salidas rápidas en transición. Ideal con extremos veloces. Poco desgaste.', attack: 1.3, defense: 1.0, drain: 2, events: 0.75 },
+  presionAlta:{ label: 'Presión Alta',        desc: 'Presión en campo rival para recuperar rápido. Mucho desgaste físico.', attack: 1.4, defense: 1.2, drain: 5, events: 1.20 },
+  juegoDirecto:{ label: 'Juego Directo',      desc: 'Balones largos al delantero. Ataques verticales y rápidos.', attack: 1.2, defense: 0.7, drain: 3, events: 0.90 },
 }
 
-const MAX_SQUAD = 22
-const MAX_CONVOCADOS = 14
-const MAX_TITULARES = 5
-const MAX_BENCH = 9
-const MAX_RESERVES = 8
+const MAX_SQUAD = 28
+const MAX_CONVOCADOS = 18
+const MAX_TITULARES = 11
+const MAX_BENCH = 7
+const MAX_RESERVES = 10
 
 const INJURIES = [
   { type: 'sprain',    description: 'Esguince de tobillo',     duration: 2, recoveryEnergy: 20 },
@@ -69,6 +84,11 @@ const STAFF_FIRST = {
   br: ['Carlos', 'José', 'Pedro', 'João', 'Antônio', 'Francisco', 'Luís', 'Paulo', 'Roberto', 'Marcos', 'Eduardo', 'Fábio', 'André', 'Diego', 'Rafael', 'Bruno', 'Thiago', 'Gustavo'],
   ar: ['Juan', 'Diego', 'Pablo', 'Carlos', 'José', 'Martín', 'Luis', 'Gustavo', 'Hernán', 'Mario', 'Sergio', 'Jorge', 'Alejandro', 'Gabriel', 'Leandro', 'Federico', 'Lautaro', 'Matías', 'Nicolás', 'Facundo'],
   pl: ['Jakub', 'Kacper', 'Mateusz', 'Michał', 'Piotr', 'Szymon', 'Bartosz', 'Dawid', 'Wojciech', 'Adam', 'Filip', 'Jan', 'Marcin', 'Tomasz', 'Łukasz', 'Rafał', 'Krzysztof', 'Paweł', 'Grzegorz', 'Artur'],
+  no: ['Erik', 'Lars', 'Magnus', 'Olav', 'Sander', 'Henrik', 'Jonas', 'Anders', 'Morten', 'Kristian', 'Thomas', 'Petter', 'Simen', 'Markus', 'Håkon'],
+  sk: ['Ján', 'Peter', 'Michal', 'Martin', 'Tomáš', 'Marek', 'Lukáš', 'Filip', 'Adam', 'Samuel', 'Patrik', 'Oliver', 'Jakub', 'Matej', 'Dávid'],
+  ee: ['Marten', 'Ragnar', 'Karl', 'Andres', 'Tarmo', 'Rain', 'Indrek', 'Ainar', 'Vladimir', 'Sergei', 'Dmitri', 'Mihkel', 'Sander', 'Henri', 'Markus'],
+  nl: ['Jan', 'Piet', 'Dirk', 'Bram', 'Thijs', 'Lars', 'Sander', 'Tim', 'Thomas', 'Jasper', 'Wout', 'Daan', 'Milan', 'Jesse', 'Ruben'],
+  by: ['Aleksei', 'Dzmitry', 'Ivan', 'Mikhail', 'Yahor', 'Pavel', 'Syarhey', 'Mikita', 'Uladzislau', 'Andrey', 'Artsyom', 'Maksim', 'Yevgeniy', 'Valeriy', 'Raman'],
 }
 
 const SURNAMES_BY_COUNTRY = {
@@ -78,6 +98,11 @@ const SURNAMES_BY_COUNTRY = {
   br: ['Silva', 'Santos', 'Oliveira', 'Souza', 'Pereira', 'Lima', 'Costa', 'Almeida', 'Rodrigues', 'Nascimento', 'Araújo', 'Ribeiro', 'Carvalho', 'Gomes', 'Martins', 'Barbosa', 'Rocha', 'Dias', 'Moreira', 'Teixeira'],
   ar: ['García', 'Rodríguez', 'Martínez', 'López', 'González', 'Fernández', 'Pérez', 'Sánchez', 'Romero', 'Torres', 'Álvarez', 'Díaz', 'Ruiz', 'Moreno', 'Muñoz', 'Sosa', 'Acosta', 'Medina', 'Castillo', 'Giménez'],
   pl: ['Kowalski', 'Wiśniewski', 'Dąbrowski', 'Lewandowski', 'Wójcik', 'Kamiński', 'Kowalczyk', 'Zieliński', 'Szymański', 'Woźniak', 'Kozłowski', 'Jankowski', 'Mazur', 'Kwiatkowski', 'Krawczyk', 'Piotrowicz', 'Grabowski', 'Pawlak', 'Zając', 'Nowak'],
+  no: ['Hansen', 'Johansen', 'Olsen', 'Larsen', 'Andersen', 'Pedersen', 'Nilsen', 'Kristiansen', 'Jensen', 'Karlsen', 'Johnsen', 'Eriksen', 'Berg', 'Haugen', 'Bakke'],
+  sk: ['Horváth', 'Kováč', 'Varga', 'Tóth', 'Nagy', 'Baláž', 'Szabó', 'Molnár', 'Németh', 'Farkaš', 'Lukáč', 'Krajčovič', 'Hudák', 'Oravec', 'Polák'],
+  ee: ['Tamm', 'Saar', 'Mägi', 'Sepp', 'Kask', 'Kull', 'Mets', 'Koppel', 'Aas', 'Pärn', 'Kuusk', 'Luik', 'Vaher', 'Ilves', 'Allik'],
+  nl: ['de Jong', 'Jansen', 'de Vries', 'van Dijk', 'Bakker', 'Visser', 'Smit', 'Meijer', 'Mulder', 'de Groot', 'Bos', 'Vos', 'Peters', 'Hendriks', 'Dekker'],
+  by: ['Ivanou', 'Kozlov', 'Volkov', 'Navitski', 'Klimovich', 'Petrov', 'Sidorov', 'Mikhailov', 'Kuznetsov', 'Smirnov', 'Popov', 'Belavusau', 'Karpovich', 'Savin', 'Bondar'],
 }
 
 const NATIONALITIES = {
@@ -87,6 +112,11 @@ const NATIONALITIES = {
   br: { flag: '🇧🇷', name: 'Brasil', label: '🇧🇷 Brasil' },
   ar: { flag: '🇦🇷', name: 'Argentina', label: '🇦🇷 Argentina' },
   pl: { flag: '🇵🇱', name: 'Polonia', label: '🇵🇱 Polonia' },
+  no: { flag: '🇳🇴', name: 'Noruega', label: '🇳🇴 Noruega' },
+  sk: { flag: '🇸🇰', name: 'Eslovaquia', label: '🇸🇰 Eslovaquia' },
+  ee: { flag: '🇪🇪', name: 'Estonia', label: '🇪🇪 Estonia' },
+  nl: { flag: '🇳🇱', name: 'Países Bajos', label: '🇳🇱 Países Bajos' },
+  by: { flag: '🇧🇾', name: 'Bielorrusia', label: '🇧🇾 Bielorrusia' },
 }
 
 function pickRandom(arr) {
@@ -140,7 +170,7 @@ function generateCpuSquad(teamId, countryId, teamRating) {
   const surPool = SURNAMES_BY_COUNTRY[cid] || SURNAMES_BY_COUNTRY.es
   const players = []
   let pid = 1
-  const countPerPos = { portero: 2, cierre: 2, ala: 4, pivot: 2 }
+  const countPerPos = { portero: 3, lateral_der: 2, lateral_izq: 2, carrilero_der: 1, carrilero_izq: 1, defensa_central: 4, medio_def: 2, mediocentro: 3, medio_ofensivo: 2, medio_der: 2, medio_izq: 2, extremo_der: 2, extremo_izq: 2, delantero: 3 }
   for (const pos of POS_ORDER) {
     const count = countPerPos[pos]
     for (let i = 0; i < count; i++) {
@@ -166,56 +196,24 @@ function generateCpuSquad(teamId, countryId, teamRating) {
 }
 
 const COUNTRIES = [
-  { id: 'pl', name: 'Polonia', flag: '🇵🇱',
-    leagues: [
-      { id: 'lpl', name: 'Liga Polaca',
-        teams: [
-          { id: 'p1', name: 'Wisła Kraków', rating: 82, logo: 'https://cdn.resfu.com/img_data/equipos/2757.png?size=120x&lossy=1' },
-          { id: 'p2', name: 'Legia Warszawa', rating: 80, logo: 'https://cdn.resfu.com/img_data/equipos/1465.png?size=120x&lossy=1' },
-          { id: 'p3', name: 'Lech Poznań', rating: 78, logo: 'https://cdn.resfu.com/img_data/equipos/10030.png?size=120x&lossy=1' },
-          { id: 'p4', name: 'Raków Częstochowa', rating: 76, logo: 'https://cdn.resfu.com/img_data/equipos/17740.png?size=120x&lossy=1' },
-          { id: 'p5', name: 'Pogoń Szczecin', rating: 74, logo: 'https://cdn.resfu.com/img_data/equipos/4559.png?size=120x&lossy=1' },
-          { id: 'p6', name: 'Górnik Zabrze', rating: 72, logo: 'https://cdn.resfu.com/img_data/equipos/1468.png?size=120x&lossy=1' },
-          { id: 'p7', name: 'Jagiellonia Białystok', rating: 70, logo: 'https://cdn.resfu.com/img_data/equipos/5816.png?size=120x&lossy=1' },
-          { id: 'p8', name: 'Śląsk Wrocław', rating: 68, logo: 'https://cdn.resfu.com/img_data/equipos/5813.png?size=120x&lossy=1' },
-          { id: 'p9', name: 'GKS Katowice', rating: 77, logo: 'https://cdn.resfu.com/img_data/equipos/13374.png?size=120x&lossy=1' },
-          { id: 'p10', name: 'KS Cracovia', rating: 76, logo: 'https://cdn.resfu.com/img_data/equipos/1703.png?size=120x&lossy=1' },
-          { id: 'p11', name: 'Zaglebie Lubin', rating: 74, logo: 'https://cdn.resfu.com/img_data/equipos/3974.png?size=120x&lossy=1' },
-          { id: 'p12', name: 'Piast Gliwice', rating: 74, logo: 'https://cdn.resfu.com/img_data/equipos/1239.png?size=120x&lossy=1' },
-          { id: 'p13', name: 'Widzew Łódź', rating: 73, logo: 'https://cdn.resfu.com/img_data/equipos/5811.png?size=120x&lossy=1' },
-          { id: 'p14', name: 'Korona Kielce', rating: 72, logo: 'https://cdn.resfu.com/img_data/equipos/3973.png?size=120x&lossy=1' },
-          { id: 'p15', name: 'Wisła Płock', rating: 72, logo: 'https://cdn.resfu.com/img_data/equipos/13364.png?size=120x&lossy=1' },
-          { id: 'p16', name: 'Radomiak Radom', rating: 71, logo: 'https://cdn.resfu.com/img_data/equipos/13380.png?size=120x&lossy=1' },
-          { id: 'p17', name: 'Motor Lublin', rating: 70, logo: 'https://cdn.resfu.com/img_data/equipos/13430.png?size=120x&lossy=1' },
-          { id: 'p18', name: 'Wieczysta Kraków', rating: 66, logo: 'https://cdn.resfu.com/img_data/equipos/140934.png?size=120x&lossy=1' },
-        ] },
-    ] },
+  { id: 'poland', name: 'Polonia', flag: '🇵🇱' },
+  { id: 'spain', name: 'España', flag: '🇪🇸' },
+  { id: 'portugal', name: 'Portugal', flag: '🇵🇹' },
+  { id: 'italy', name: 'Italia', flag: '🇮🇹' },
+  { id: 'brazil', name: 'Brasil', flag: '🇧🇷' },
+  { id: 'argentina', name: 'Argentina', flag: '🇦🇷' },
 ]
 
-const REAL_SQUADS = {}
+window.DB = window.DB || {}
 
-/* ============ BASE DE DATOS DE EQUIPOS ============ */
-const baseDatosEquipos = [
-  // --- Liga Polaca (division_id: 5) ---
-  { id: 'p1', nombre: 'Wisla Krakow',        division_id: 5, rating: 82, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p2', nombre: 'Legia Warszawa',      division_id: 5, rating: 80, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p3', nombre: 'Lech Poznan',         division_id: 5, rating: 78, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p4', nombre: 'Raków Czestochowa',   division_id: 5, rating: 76, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p5', nombre: 'Pogon Szczecin',      division_id: 5, rating: 74, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p6', nombre: 'Górnik Zabrze',       division_id: 5, rating: 72, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p7', nombre: 'Jagiellonia Bialystok', division_id: 5, rating: 70, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p8', nombre: 'Slask Wroclaw',       division_id: 5, rating: 68, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p9', nombre: 'GKS Katowice',        division_id: 5, rating: 77, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p10', nombre: 'KS Cracovia',        division_id: 5, rating: 76, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p11', nombre: 'Zaglebie Lubin',     division_id: 5, rating: 74, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p12', nombre: 'Piast Gliwice',      division_id: 5, rating: 74, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p13', nombre: 'Widzew Lodz',        division_id: 5, rating: 73, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p14', nombre: 'Korona Kielce',      division_id: 5, rating: 72, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p15', nombre: 'Wisla Plock',        division_id: 5, rating: 72, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p16', nombre: 'Radomiak Radom',     division_id: 5, rating: 71, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p17', nombre: 'Motor Lublin',       division_id: 5, rating: 70, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-  { id: 'p18', nombre: 'Wieczysta Krakow',   division_id: 5, rating: 66, puntos: 0, gf: 0, gc: 0, forma: ["","","","",""] },
-]
+function loadCountryData(countryId, callback) {
+  if (window.DB[countryId]) { callback(window.DB[countryId]); return }
+  const script = document.createElement('script')
+  script.src = `js/data/${countryId}.js`
+  script.onload = () => callback(window.DB[countryId])
+  script.onerror = () => { console.error('Failed to load data for', countryId); callback(null) }
+  document.head.appendChild(script)
+}
 
 /* ============ ENGINE ============ */
 const EVENTS_POOL = {
@@ -297,7 +295,7 @@ class MatchEngine {
 
   _tickSecond() {
     this.gameSeconds++
-    const MAX_SEC = 1200
+    const MAX_SEC = 2700
 
     if (this.half === 1 && this.gameSeconds >= MAX_SEC) {
       this.gameSeconds = MAX_SEC
@@ -467,7 +465,7 @@ const state = {
 
 /* ============ HELPERS ============ */
 function getInitials(name) {
-  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+  return name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()
 }
 
 function formatMoney(amount) {
@@ -477,6 +475,14 @@ function formatMoney(amount) {
 
 function formatValue(val) {
   return `${val.toLocaleString('es-ES', { useGrouping: true })} €`
+}
+
+function formatShort(val) {
+  if (!val) return '0'
+  if (val >= 1000000000) return (val / 1000000000).toFixed(1) + 'B'
+  if (val >= 1000000) return (val / 1000000).toFixed(1) + 'M'
+  if (val >= 1000) return (val / 1000).toFixed(1) + 'K'
+  return String(val)
 }
 
 function formatTimestamp(isoString) {
@@ -585,7 +591,7 @@ function getTeamName(id) {
   if (id === state.teamId) return state.team
   let t = state.leagueTeams.find(x => x.teamId === id)
   if (t) return t.name
-  const db = baseDatosEquipos.find(e => e.id === id)
+  const db = getBaseDato(id)
   if (db) return db.nombre
   for (const c of COUNTRIES) {
     for (const l of c.leagues) {
@@ -609,12 +615,12 @@ function getTeamLogo(id) {
 
 function getTeamRating(id) {
   if (id === state.teamId) return Math.round(avgSkill(state.players))
-  const t = baseDatosEquipos.find(e => e.id === id)
+  const t = getBaseDato(id)
   return t ? t.rating : 70
 }
 
 function getTeamFormation(id) {
-  const t = baseDatosEquipos.find(e => e.id === id)
+  const t = getBaseDato(id)
   return t?.defaultFormation || '1-2-1'
 }
 
@@ -630,8 +636,8 @@ function getTeamObj(id) {
     for (const l of c.leagues) {
       const team = l.teams.find(x => x.id === id)
       if (team) {
-        if (REAL_SQUADS[team.id]) {
-          return { name: team.name, players: REAL_SQUADS[team.id].map(p => ({ ...p })), teamId: team.id, staff: team.staff }
+        if (getRealSquad(team.id)) {
+          return { name: team.name, players: getRealSquad(team.id).map(p => ({ ...p })), teamId: team.id, staff: team.staff }
         }
         /* Generate CPU squad on-the-fly for teams without real squads */
         const generated = generateCpuSquad(team.id, c.id, team.rating || 50)
@@ -787,7 +793,11 @@ function simularJornadaEnTodasLasLigas(matchday) {
 function renderSquad(players) {
   const container = document.getElementById('club-squad-content')
   if (!container) return
-  const ordered = [...players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || a.number - b.number)
+  const ordered = [...players].sort((a, b) => {
+    const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
+    const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
+    return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
+  })
   document.getElementById('club-player-count').textContent = `${players.length}/${MAX_SQUAD} jugadores`
   let html = ''
   const roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
@@ -803,7 +813,7 @@ function renderSquad(players) {
   container.innerHTML = html + ordered.map(p => {
     const pos = POSITIONS[p.position]
     const initials = getInitials(p.name)
-    const avatarStyle = p.avatar ? `background-image:url(${p.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
+    const avatarStyle = `background-image:url(${p.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
     const val = p.value || calcValue(p.skill)
     return `
       <div class="player-card" data-player-id="${p.id}">
@@ -840,9 +850,12 @@ function renderSquad(players) {
 
 /* ============ TACTICS ============ */
 const formationRoles = {
-  '1-2-1': [{ role: 'portero', label: '1' }, { role: 'cierre', label: '2' }, { role: 'ala', label: '3' }, { role: 'pivot', label: '4' }],
-  '2-2': [{ role: 'portero', label: '1' }, { role: 'cierre', label: '2' }, { role: 'cierre', label: '3' }, { role: 'ala', label: '4' }],
-  '1-1-2': [{ role: 'portero', label: '1' }, { role: 'cierre', label: '2' }, { role: 'ala', label: '3' }, { role: 'ala', label: '4' }],
+  '4-3-3': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_der', label: 'MD' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_izq', label: 'MI' }, { role: 'extremo_der', label: 'ED' }, { role: 'delantero', label: 'DC' }, { role: 'extremo_izq', label: 'EI' }],
+  '4-4-2': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_der', label: 'MD' }, { role: 'mediocentro', label: 'MC' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_izq', label: 'MI' }, { role: 'delantero', label: 'DC' }, { role: 'delantero', label: 'DC' }],
+  '4-2-3-1': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_def', label: 'MCD' }, { role: 'medio_def', label: 'MCD' }, { role: 'extremo_der', label: 'ED' }, { role: 'medio_ofensivo', label: 'MCO' }, { role: 'extremo_izq', label: 'EI' }, { role: 'delantero', label: 'DC' }],
+  '3-5-2': [{ role: 'portero', label: 'POR' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'carrilero_der', label: 'CAD' }, { role: 'medio_der', label: 'MD' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_ofensivo', label: 'MCO' }, { role: 'medio_izq', label: 'MI' }, { role: 'delantero', label: 'DC' }, { role: 'delantero', label: 'DC' }],
+  '5-3-2': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_der', label: 'MD' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_izq', label: 'MI' }, { role: 'delantero', label: 'DC' }, { role: 'delantero', label: 'DC' }],
+  '4-1-4-1': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_def', label: 'MCD' }, { role: 'extremo_der', label: 'ED' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_ofensivo', label: 'MCO' }, { role: 'extremo_izq', label: 'EI' }, { role: 'delantero', label: 'DC' }],
 }
 
 function renderHome() {
@@ -954,9 +967,7 @@ function renderClub() {
 
 function renderBenchCard(player, extraClass) {
   const pos = POSITIONS[player.position]
-  const avatarStyle = player.avatar
-    ? `background-image:url(${player.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}`
-    : `background:${pos.color}`
+  const avatarStyle = `background-image:url(${player.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
   return `<div class="bench-card ${extraClass}" data-player-id="${player.id}">
     <div class="bc-avatar" style="${avatarStyle}">${player.avatar ? '' : getInitials(player.name)}</div>
     <div class="bc-info">
@@ -977,16 +988,29 @@ function getEneColor(energy) {
 }
 
 const POS_MULTIPLIER = {
-  portero: { portero: 1.0, cierre: 0.5, ala: 0.3, pivot: 0.2 },
-  cierre:  { portero: 0.3, cierre: 1.0, ala: 0.7, pivot: 0.5 },
-  ala:     { portero: 0.2, cierre: 0.6, ala: 1.0, pivot: 0.7 },
-  pivot:   { portero: 0.2, cierre: 0.5, ala: 0.7, pivot: 1.0 },
+  portero:         { portero: 1.0, lateral_der: 0.2, lateral_izq: 0.2, carrilero_der: 0.2, carrilero_izq: 0.2, defensa_central: 0.3, medio_def: 0.2, mediocentro: 0.2, medio_ofensivo: 0.2, medio_der: 0.2, medio_izq: 0.2, extremo_der: 0.1, extremo_izq: 0.1, delantero: 0.2 },
+  lateral_der:     { portero: 0.2, lateral_der: 1.0, lateral_izq: 0.5, carrilero_der: 0.7, carrilero_izq: 0.4, defensa_central: 0.6, medio_def: 0.4, mediocentro: 0.3, medio_ofensivo: 0.3, medio_der: 0.5, medio_izq: 0.3, extremo_der: 0.4, extremo_izq: 0.3, delantero: 0.3 },
+  lateral_izq:     { portero: 0.2, lateral_der: 0.5, lateral_izq: 1.0, carrilero_der: 0.4, carrilero_izq: 0.7, defensa_central: 0.6, medio_def: 0.4, mediocentro: 0.3, medio_ofensivo: 0.3, medio_der: 0.3, medio_izq: 0.5, extremo_der: 0.3, extremo_izq: 0.4, delantero: 0.3 },
+  carrilero_der:   { portero: 0.1, lateral_der: 0.6, lateral_izq: 0.3, carrilero_der: 1.0, carrilero_izq: 0.3, defensa_central: 0.4, medio_def: 0.4, mediocentro: 0.4, medio_ofensivo: 0.4, medio_der: 0.6, medio_izq: 0.3, extremo_der: 0.5, extremo_izq: 0.3, delantero: 0.3 },
+  carrilero_izq:   { portero: 0.1, lateral_der: 0.3, lateral_izq: 0.6, carrilero_der: 0.3, carrilero_izq: 1.0, defensa_central: 0.4, medio_def: 0.4, mediocentro: 0.4, medio_ofensivo: 0.4, medio_der: 0.3, medio_izq: 0.6, extremo_der: 0.3, extremo_izq: 0.5, delantero: 0.3 },
+  defensa_central: { portero: 0.3, lateral_der: 0.5, lateral_izq: 0.5, carrilero_der: 0.3, carrilero_izq: 0.3, defensa_central: 1.0, medio_def: 0.5, mediocentro: 0.3, medio_ofensivo: 0.2, medio_der: 0.3, medio_izq: 0.3, extremo_der: 0.2, extremo_izq: 0.2, delantero: 0.2 },
+  medio_def:       { portero: 0.2, lateral_der: 0.4, lateral_izq: 0.4, carrilero_der: 0.4, carrilero_izq: 0.4, defensa_central: 0.5, medio_def: 1.0, mediocentro: 0.7, medio_ofensivo: 0.5, medio_der: 0.5, medio_izq: 0.5, extremo_der: 0.3, extremo_izq: 0.3, delantero: 0.4 },
+  mediocentro:     { portero: 0.1, lateral_der: 0.3, lateral_izq: 0.3, carrilero_der: 0.3, carrilero_izq: 0.3, defensa_central: 0.3, medio_def: 0.6, mediocentro: 1.0, medio_ofensivo: 0.7, medio_der: 0.6, medio_izq: 0.6, extremo_der: 0.4, extremo_izq: 0.4, delantero: 0.5 },
+  medio_ofensivo:  { portero: 0.1, lateral_der: 0.3, lateral_izq: 0.3, carrilero_der: 0.3, carrilero_izq: 0.3, defensa_central: 0.2, medio_def: 0.4, mediocentro: 0.6, medio_ofensivo: 1.0, medio_der: 0.5, medio_izq: 0.5, extremo_der: 0.6, extremo_izq: 0.6, delantero: 0.6 },
+  medio_der:       { portero: 0.1, lateral_der: 0.5, lateral_izq: 0.3, carrilero_der: 0.5, carrilero_izq: 0.3, defensa_central: 0.3, medio_def: 0.4, mediocentro: 0.6, medio_ofensivo: 0.5, medio_der: 1.0, medio_izq: 0.4, extremo_der: 0.6, extremo_izq: 0.3, delantero: 0.4 },
+  medio_izq:       { portero: 0.1, lateral_der: 0.3, lateral_izq: 0.5, carrilero_der: 0.3, carrilero_izq: 0.5, defensa_central: 0.3, medio_def: 0.4, mediocentro: 0.6, medio_ofensivo: 0.5, medio_der: 0.4, medio_izq: 1.0, extremo_der: 0.3, extremo_izq: 0.6, delantero: 0.4 },
+  extremo_der:     { portero: 0.1, lateral_der: 0.4, lateral_izq: 0.2, carrilero_der: 0.4, carrilero_izq: 0.2, defensa_central: 0.2, medio_def: 0.2, mediocentro: 0.3, medio_ofensivo: 0.5, medio_der: 0.5, medio_izq: 0.2, extremo_der: 1.0, extremo_izq: 0.3, delantero: 0.6 },
+  extremo_izq:     { portero: 0.1, lateral_der: 0.2, lateral_izq: 0.4, carrilero_der: 0.2, carrilero_izq: 0.4, defensa_central: 0.2, medio_def: 0.2, mediocentro: 0.3, medio_ofensivo: 0.5, medio_der: 0.2, medio_izq: 0.5, extremo_der: 0.3, extremo_izq: 1.0, delantero: 0.6 },
+  delantero:       { portero: 0.1, lateral_der: 0.2, lateral_izq: 0.2, carrilero_der: 0.2, carrilero_izq: 0.2, defensa_central: 0.2, medio_def: 0.3, mediocentro: 0.4, medio_ofensivo: 0.5, medio_der: 0.3, medio_izq: 0.3, extremo_der: 0.5, extremo_izq: 0.5, delantero: 1.0 },
 }
 
 const SLOT_ROLES = {
-  '1-2-1': ['portero', 'cierre', 'ala', 'ala', 'pivot'],
-  '2-2':   ['portero', 'cierre', 'cierre', 'pivot', 'pivot'],
-  '1-1-2': ['portero', 'cierre', 'ala', 'pivot', 'pivot'],
+  '4-3-3': FORMATIONS['4-3-3'].roles,
+  '4-4-2': FORMATIONS['4-4-2'].roles,
+  '4-2-3-1': FORMATIONS['4-2-3-1'].roles,
+  '3-5-2': FORMATIONS['3-5-2'].roles,
+  '5-3-2': FORMATIONS['5-3-2'].roles,
+  '4-1-4-1': FORMATIONS['4-1-4-1'].roles,
 }
 
 function getPositionMultiplier(naturalPosition, assignedRole) {
@@ -1029,15 +1053,15 @@ function renderTactics(tactic) {
     const p = state.players.find(x => x.id === id)
     return p && p.position === 'portero'
   })
-  const enoughAvailable = available.length >= 5
+  const enoughAvailable = available.length >= 11
 
   /* Build HTML */
   let html = `<div class="tactics-section">
     <label class="tactics-label">Formación</label>
     <div class="tactics-options" id="formation-options">
-      <button class="tactics-btn ${tactic.formation === '1-2-1' ? 'active' : ''}" data-formation="1-2-1">1-2-1</button>
-      <button class="tactics-btn ${tactic.formation === '2-2' ? 'active' : ''}" data-formation="2-2">2-2</button>
-      <button class="tactics-btn ${tactic.formation === '1-1-2' ? 'active' : ''}" data-formation="1-1-2">1-1-2</button>
+      ${Object.keys(FORMATIONS).map(fk =>
+        `<button class="tactics-btn ${tactic.formation === fk ? 'active' : ''}" data-formation="${fk}">${fk}</button>`
+      ).join('')}
     </div>
   </div>
   <div class="tactics-section">
@@ -1050,32 +1074,9 @@ function renderTactics(tactic) {
     <div class="gameplan-desc" id="gameplan-desc">${GAME_PLANS[tactic.gamePlan].desc}</div>
   </div>`
 
-  /* Vertical pitch: attack top → goalkeeper bottom */
-  const FORMATION_GRID = {
-    '1-2-1': [
-      [null, null, null, null],
-      [null, null,    2, null],
-      [   0,    1, null,    4],
-      [null, null,    3, null],
-      [null, null, null, null],
-    ],
-    '2-2': [
-      [null, null, null, null],
-      [null,    1, null,    3],
-      [   0, null, null, null],
-      [null,    2, null,    4],
-      [null, null, null, null],
-    ],
-    '1-1-2': [
-      [null, null, null, null],
-      [null, null, null,    3],
-      [   0,    1,    2, null],
-      [null, null, null,    4],
-      [null, null, null, null],
-    ],
-  }
-
-  function renderPitchSlot(i) {
+  /* Vertical pitch: simple row-based layout for 11 slots */
+  html += `<div class="pitch-grid-11">`
+  for (let i = 0; i < roles.length; i++) {
     const role = roles[i]
     const pid = slots[i]
     const player = pid ? state.players.find(p => p.id === pid) : null
@@ -1083,59 +1084,21 @@ function renderTactics(tactic) {
     if (player) {
       const mult = getPositionMultiplier(player.position, role)
       const penalty = mult < 1 ? '⚠️' : ''
-      const avatarStyle = player.avatar ? `background-image:url(${player.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
-      return `<div class="pitch-slot-wrap">
-        <div class="pitch-slot filled" data-slot="${i}" style="border-color:${pos.color};background:${pos.color}">
+      const unavailable = player.injury ? ' unavailable' : ''
+      const avatarStyle = `background-image:url(${player.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
+      html += `<div class="p11-slot-wrap">
+        <div class="p11-slot filled${unavailable}" data-slot="${i}" style="border-color:${pos.color};background:${pos.color}">
           <div class="slot-avatar" style="${avatarStyle}">${player.avatar ? '' : getInitials(player.name)}</div>
         </div>
-        <span class="pitch-slot-role" style="color:#fff" ${penalty ? `data-penalty="${penalty}"` : ''}>${pos.label}</span>
-        <span class="pitch-slot-name">${player.injury ? '🩹 ' : ''}${player.name}</span>
+        <span class="p11-slot-role" style="color:#fff">${pos.label}${penalty}</span>
+        <span class="p11-slot-name">${player.injury ? '🩹 ' : ''}${player.name.split(' ').slice(-1)[0]}</span>
         <div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${player.energy}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>
       </div>`
-    }
-    return `<div class="pitch-slot-wrap">
-      <div class="pitch-slot empty" data-slot="${i}">+</div>
-      <span class="pitch-slot-role">${pos.label}</span>
-    </div>`
-  }
-
-  html += `<div class="pitch-grid">
-    <div class="pitch-col-label" style="grid-area:1/1">POR</div>
-    <div class="pitch-col-label" style="grid-area:1/2">CIE</div>
-    <div class="pitch-col-label" style="grid-area:1/3">ALA</div>
-    <div class="pitch-col-label" style="grid-area:1/4">PIV</div>`
-  const gridData = FORMATION_GRID[tactic.formation] || FORMATION_GRID['1-2-1']
-  for (let row = 0; row < 5; row++) {
-    for (let col = 0; col < 4; col++) {
-      const slotIdx = gridData[row][col]
-      if (slotIdx === null) continue
-      const cssRow = row + 2
-      const cssCol = col + 1
-      const area = `${cssRow}/${cssCol}`
-      const role = roles[slotIdx]
-      const pid = slots[slotIdx]
-      const player = pid ? state.players.find(p => p.id === pid) : null
-      const pos = POSITIONS[role]
-      if (player) {
-        const mult = getPositionMultiplier(player.position, role)
-        const penalty = mult < 1 ? '⚠️' : ''
-        const unavailable = player.injury ? ' unavailable' : ''
-        const avatarStyle = player.avatar ? `background-image:url(${player.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
-        html += `<div class="pitch-slot-wrap" style="grid-area:${area}">
-          <div class="pitch-slot filled${unavailable}" data-slot="${slotIdx}" style="border-color:${pos.color};background:${pos.color}">
-            <div class="slot-avatar" style="${avatarStyle}">${player.avatar ? '' : getInitials(player.name)}</div>
-            ${player.injury ? '<span class="unavailable-badge">🚑</span>' : ''}
-          </div>
-          <span class="pitch-slot-role" style="color:#fff" ${penalty ? `data-penalty="${penalty}"` : ''}>${pos.label}</span>
-          <span class="pitch-slot-name">${player.injury ? '🩹 ' : ''}${player.name}</span>
-          <div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${player.energy}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>
-        </div>`
-      } else {
-        html += `<div class="pitch-slot-wrap" style="grid-area:${area}">
-          <div class="pitch-slot empty" data-slot="${slotIdx}">+</div>
-          <span class="pitch-slot-role">${pos.label}</span>
-        </div>`
-      }
+    } else {
+      html += `<div class="p11-slot-wrap">
+        <div class="p11-slot empty" data-slot="${i}">+</div>
+        <span class="p11-slot-role">${pos.label}</span>
+      </div>`
     }
   }
   html += `</div>`
@@ -1149,7 +1112,7 @@ function renderTactics(tactic) {
     if (player) {
       const pos = POSITIONS[player.position]
       const unavailable = player.injury ? ' unavailable' : ''
-      const avatarStyle = player.avatar ? `background-image:url(${player.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
+      const avatarStyle = `background-image:url(${player.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
       html += `<div class="bench-slot-wrap">
         <div class="bench-slot filled${unavailable}" data-bench="${i}" style="border-color:${pos.color}">
           <div class="slot-avatar" style="${avatarStyle}">${player.avatar ? '' : getInitials(player.name)}</div>
@@ -1177,7 +1140,7 @@ function renderTactics(tactic) {
     if (player) {
       const pos = POSITIONS[player.position]
       const unavailable = player.injury ? ' unavailable' : ''
-      const avatarStyle = player.avatar ? `background-image:url(${player.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
+      const avatarStyle = `background-image:url(${player.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
       html += `<div class="bench-slot-wrap">
         <div class="bench-slot filled${unavailable}" data-reserve="${i}" style="border-color:${pos.color}">
           <div class="slot-avatar" style="${avatarStyle}">${player.avatar ? '' : getInitials(player.name)}</div>
@@ -1208,14 +1171,14 @@ function renderTactics(tactic) {
     if (descEl) descEl.textContent = GAME_PLANS[tactic.gamePlan].desc
     renderTactics(tactic)
   }
-  document.querySelectorAll('.pitch-slot, .bench-slot').forEach(el => {
+  document.querySelectorAll('.p11-slot, .bench-slot').forEach(el => {
     el.onclick = () => handleSlotClick(el, tactic)
   })
   /* Clear selection on click outside */
   document.getElementById('club-tactics-content').onclick = (e) => {
-    if (e.target.closest('.pitch-slot') || e.target.closest('.bench-slot')) return
+    if (e.target.closest('.p11-slot') || e.target.closest('.bench-slot')) return
     state.selectedPlayerId = null
-    document.querySelectorAll('.pitch-slot.selected, .bench-slot.selected').forEach(s => s.classList.remove('selected'))
+    document.querySelectorAll('.p11-slot.selected, .bench-slot.selected').forEach(s => s.classList.remove('selected'))
   }
   /* Auto-validate whenever formation is complete */
   if (complete && hasGK && enoughAvailable) {
@@ -1229,7 +1192,7 @@ function renderTactics(tactic) {
 
   /* Re-apply selected class after re-render */
   if (state.selectedPlayerId) {
-    document.querySelectorAll('.pitch-slot, .bench-slot').forEach(el => {
+    document.querySelectorAll('.p11-slot, .bench-slot').forEach(el => {
       const sid = getPlayerIdFromSlot(el)
       if (sid === state.selectedPlayerId) el.classList.add('selected')
     })
@@ -1502,7 +1465,6 @@ let matchPaused = false
 const matchData = { homeScore: 0, awayScore: 0, homeFouls: 0, awayFouls: 0, rivalName: '' }
 let matchStats = { homeShots: 0, awayShots: 0, homeYellow: 0, awayYellow: 0, homeRed: 0, awayRed: 0, homeEvents: 0, awayEvents: 0 }
 let posesion = 50
-let expulsadoLocal = false, expulsadoVisitante = false
 let tickExpulsionLocal = 0, tickExpulsionVisitante = 0
 
 function irAlPartido() {
@@ -1516,7 +1478,6 @@ function irAlPartido() {
   parteActual = 1
   faltasLocal = 0
   faltasVisitante = 0
-  expulsadoLocal = false; expulsadoVisitante = false
   tickExpulsionLocal = 0; tickExpulsionVisitante = 0
   if (intervaloCrono) { clearInterval(intervaloCrono); intervaloCrono = null }
   document.getElementById('cronometro').innerText = '00:00'
@@ -1561,33 +1522,6 @@ function empezarPartido() {
     /* Actualizar UI de stamina cada 10 ticks */
     if (tiempoSegundos % 10 === 0) renderPlayerRatings()
 
-    /* Expulsiones: retorno tras 120 ticks o gol rival */
-    function intentarVuelta5() {
-      const sustituto = state.players.find(p => p.convocado && !p.enPista && !p._redThisMatch && !p.injury)
-      if (sustituto) {
-        sustituto.enPista = true
-        return true
-      }
-      return false
-    }
-    if (expulsadoLocal) {
-      const ticks = tiempoSegundos - tickExpulsionLocal
-      const golRival = matchData.awayScore > (window._golesLocalExpulsion || 0)
-      if (ticks >= 120 || golRival) {
-        if (intentarVuelta5()) {
-          expulsadoLocal = false
-          addFeedEvent({ text: `🔄 Vuelve a 5 jugadores (inferioridad cumplida)`, type: 'sub' })
-        }
-      }
-    }
-    if (expulsadoVisitante) {
-      const ticks = tiempoSegundos - tickExpulsionVisitante
-      const golLocal = matchData.homeScore > (window._golesVisitanteExpulsion || 0)
-      if (ticks >= 120 || golLocal) {
-        expulsadoVisitante = false
-      }
-    }
-
     /* Tarjetas */
     for (const p of state.players.filter(x => x.enPista)) {
       if (Math.random() < 0.008 / 60) {
@@ -1601,9 +1535,6 @@ function empezarPartido() {
           p.redCards = (p.redCards || 0) + 1
           p._redThisMatch = true
           p.enPista = false
-          expulsadoLocal = true
-          tickExpulsionLocal = tiempoSegundos
-          window._golesLocalExpulsion = matchData.awayScore
           matchStats.homeRed++
           addFeedEvent({ text: `🟨🟨 Doble amarilla: ${p.name} — Expulsado`, type: 'red-card' })
         } else {
@@ -1612,9 +1543,6 @@ function empezarPartido() {
             p.redCards = (p.redCards || 0) + 1
             p._redThisMatch = true
             p.enPista = false
-            expulsadoLocal = true
-            tickExpulsionLocal = tiempoSegundos
-            window._golesLocalExpulsion = matchData.awayScore
             matchStats.homeRed++
             addFeedEvent({ text: `🟥 Roja directa: ${p.name} — Expulsado`, type: 'red-card' })
           }
@@ -1639,48 +1567,11 @@ function empezarPartido() {
         matchStats.homeEvents++
         const culprit = pickRandom(state.players.filter(p => p.enPista))
         addFeedEvent({ text: `Falta: ${culprit ? culprit.name : state.team}`, type: 'sub' })
-        if (faltasLocal <= 5) {
-          if (Math.random() < 0.15) {
-            matchData.awayScore++
-            document.getElementById('score-away').textContent = matchData.awayScore
-            addFeedEvent({ text: `⚽ ${matchData.rivalName} (libre directo)`, type: 'awayGoal' })
-          }
-        } else {
-          addFeedEvent({ text: '🚨 ¡Sexta falta! ¡DOBLE PENALTI en contra!', type: 'double-penalty' })
-          if (Math.random() < 0.7) {
-            matchData.awayScore++
-            document.getElementById('score-away').textContent = matchData.awayScore
-            addFeedEvent({ text: `⚽ ${matchData.rivalName} (penalti)`, type: 'awayGoal' })
-          }
-        }
       } else {
         faltasVisitante++
         document.getElementById('fouls-away').textContent = faltasVisitante
         matchStats.awayEvents++
         addFeedEvent({ text: `Falta de ${matchData.rivalName}`, type: 'sub' })
-        if (faltasVisitante <= 5) {
-          if (Math.random() < 0.15) {
-            matchData.homeScore++
-            document.getElementById('score-home').textContent = matchData.homeScore
-            const g = pickRandom(state.players.filter(p => p.enPista))
-            if (g) { g._goalsInMatch = (g._goalsInMatch || 0) + 1; g.goals = (g.goals || 0) + 1 }
-            let goalText = `⚽ ${g ? g.name + ' (' + state.team + ')' : state.team} (libre directo)`
-            if (Math.random() < 0.35) {
-              const ass = pickRandom(state.players.filter(p => p.enPista && p.id !== g?.id))
-              if (ass) { ass.assists = (ass.assists || 0) + 1; goalText += ` 🅰️ ${ass.name}` }
-            }
-            addFeedEvent({ text: goalText, type: 'homeGoal' })
-          }
-        } else {
-          addFeedEvent({ text: `🚨 ¡Sexta falta de ${matchData.rivalName}! ¡DOBLE PENALTI a favor!`, type: 'double-penalty' })
-          if (Math.random() < 0.7) {
-            matchData.homeScore++
-            document.getElementById('score-home').textContent = matchData.homeScore
-            const g = pickRandom(state.players.filter(p => p.enPista))
-            if (g) { g._goalsInMatch = (g._goalsInMatch || 0) + 1; g.goals = (g.goals || 0) + 1 }
-            addFeedEvent({ text: `⚽ ${g ? g.name + ' (' + state.team + ')' : state.team} (penalti)`, type: 'homeGoal' })
-          }
-        }
       }
     }
 
@@ -1702,7 +1593,7 @@ function empezarPartido() {
 
     actualizarStats()
 
-    if ((parteActual === 1 && tiempoSegundos >= 1200) || (parteActual === 2 && tiempoSegundos >= 2400)) {
+    if ((parteActual === 1 && tiempoSegundos >= 2700) || (parteActual === 2 && tiempoSegundos >= 5400)) {
       clearInterval(intervaloCrono)
       intervaloCrono = null
       if (parteActual === 1) {
@@ -1765,13 +1656,13 @@ function startMatchFromLeague(rivalId, fixture) {
   if (!rival) return
   const tactic = state.tactic
 
-  /* Set starting five */
-  let five = state.startingFive.length > 0 ? state.startingFive : state.tacticsSlots.filter(Boolean)
-  five = five.filter(id => state.players.find(p => p.id === id))
-  if (five.length === 0) {
-    const roles = ['portero', 'cierre', 'ala', 'ala', 'pivot']
+  /* Set starting eleven */
+  let eleven = state.startingFive.length > 0 ? state.startingFive : state.tacticsSlots.filter(Boolean)
+  eleven = eleven.filter(id => state.players.find(p => p.id === id))
+  if (eleven.length === 0) {
+    const roles = ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_der', 'mediocentro', 'medio_izq', 'extremo_der', 'delantero', 'extremo_izq']
     const assigned = []
-    five = roles.map(role => {
+    eleven = roles.map(role => {
       const candidates = state.players.filter(p => !p.injury && !assigned.includes(p.id))
       const best = candidates.sort((a, b) => {
         const multA = getPositionMultiplier(a.position, role)
@@ -1783,7 +1674,7 @@ function startMatchFromLeague(rivalId, fixture) {
     }).filter(Boolean)
   }
   state.players.forEach(p => { p.enPista = false; p.convocado = false })
-  five.forEach(id => { const p = state.players.find(x => x.id === id); if (p) { p.enPista = true; p.convocado = true } })
+  eleven.forEach(id => { const p = state.players.find(x => x.id === id); if (p) { p.enPista = true; p.convocado = true } })
   state.benchIds.forEach(id => { const p = state.players.find(x => x.id === id); if (p) p.convocado = true })
 
   /* Match data */
@@ -1837,7 +1728,7 @@ function addFeedEvent(event) {
     else if (event.type === 'injury') extra = ' injury'
     else if (event.type === 'yellow-card') extra = ' yellow-card'
     else if (event.type === 'red-card') extra = ' red-card'
-    else if (event.type === 'double-penalty') extra = ' double-penalty'
+    else if (event.type === 'penalty') extra = ' penalty'
     el.className = `feed-event${extra}`
     const cleanText = event.text.replace(/[⚽🟨🟥🚨🅰️🩹]/g, '').trim()
     el.innerHTML = `<strong>${time}</strong> ${cleanText}`
@@ -1882,7 +1773,7 @@ function renderPlayerRatings() {
   enPista.sort((a, b) => (posOrder[a.position] ?? 99) - (posOrder[b.position] ?? 99))
   container.innerHTML = enPista.map(p => {
     const pos = POSITIONS[p.position]
-    const avatarStyle = p.avatar ? `background-image:url(${p.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
+    const avatarStyle = `background-image:url(${p.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
     let cardBadge = ''
     if (p._redThisMatch) cardBadge = '<span class="card-indicator card-red"></span>'
     else if (p._yellowsInThisMatch) cardBadge = '<span class="card-indicator card-yellow"></span>'
@@ -1937,61 +1828,45 @@ function abrirTacticasModal() {
   gpDesc.textContent = GAME_PLANS[tactic.gamePlan].desc
 
   /* Pitch grid — same as Club renderTactics() */
-  const roles = SLOT_ROLES[tactic.formation] || SLOT_ROLES['1-2-1']
+  const roles = SLOT_ROLES[tactic.formation] || SLOT_ROLES['4-3-3']
   if (!state.tacticsSlots || state.tacticsSlots.length !== roles.length) {
     state.tacticsSlots = roles.map(() => null)
   }
 
   const swapId = window._tacticsSwap || null
 
-  const FORMATION_GRID = {
-    '1-2-1': [[null, null, null, null], [null, null, 2, null], [0, 1, null, 4], [null, null, 3, null], [null, null, null, null]],
-    '2-2':   [[null, null, null, null], [null, 1, null, 3], [0, null, null, null], [null, 2, null, 4], [null, null, null, null]],
-    '1-1-2': [[null, null, null, null], [null, null, null, 3], [0, 1, 2, null], [null, null, null, 4], [null, null, null, null]],
-  }
+  let html = `<div class="pitch-grid-11" id="pitch-grid-modal">`
 
-  let html = `<div class="pitch-col-label" style="grid-area:1/1">POR</div>
-    <div class="pitch-col-label" style="grid-area:1/2">CIE</div>
-    <div class="pitch-col-label" style="grid-area:1/3">ALA</div>
-    <div class="pitch-col-label" style="grid-area:1/4">PIV</div>`
+  for (let i = 0; i < roles.length; i++) {
+    const role = roles[i]
+    const pid = state.tacticsSlots[i] || null
+    const player = pid ? state.players.find(p => p.id === pid) : null
+    const pos = POSITIONS[role]
+    const isSelected = pid && pid === swapId
 
-  const gridData = FORMATION_GRID[tactic.formation] || FORMATION_GRID['1-2-1']
-  for (let row = 0; row < 5; row++) {
-    for (let col = 0; col < 4; col++) {
-      const slotIdx = gridData[row][col]
-      if (slotIdx === null) continue
-      const cssRow = row + 2
-      const cssCol = col + 1
-      const area = `${cssRow}/${cssCol}`
-      const role = roles[slotIdx]
-      const pid = state.tacticsSlots[slotIdx] || null
-      const player = pid ? state.players.find(p => p.id === pid) : null
-      const pos = POSITIONS[role]
-      const isSelected = pid && pid === swapId
-
-      if (player) {
-        const isRed = player._redThisMatch
-        const avatarStyle = player.avatar ? `background-image:url(${player.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
-        html += `<div class="pitch-slot-wrap" style="grid-area:${area}">
-          <div class="pitch-slot filled ${isSelected ? 'selected' : ''}" data-slot="${slotIdx}" style="border-color:${isRed ? '#EF4444' : pos.color};background:${isRed ? '#EF4444' : pos.color}">
-            <div class="slot-avatar" style="${avatarStyle}">${player.avatar ? '' : getInitials(player.name)}</div>
-          </div>
-          <span class="pitch-slot-role" style="color:${isRed ? '#EF4444' : '#fff'}">${isRed ? '🟥' : pos.label}</span>
-          <span class="pitch-slot-name">${isRed ? '🟥 Expulsado' : player.name}</span>
-          ${isRed ? '' : `<div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${player.energy}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>`}
-        </div>`
-      } else {
-        html += `<div class="pitch-slot-wrap" style="grid-area:${area}">
-          <div class="pitch-slot empty ${swapId ? 'swap-target' : ''}" data-slot="${slotIdx}">+</div>
-          <span class="pitch-slot-role">${pos.label}</span>
-        </div>`
-      }
+    if (player) {
+      const isRed = player._redThisMatch
+      const avatarStyle = `background-image:url(${player.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
+      html += `<div class="p11-slot-wrap">
+        <div class="p11-slot filled ${isSelected ? 'selected' : ''}" data-slot="${i}" style="border-color:${isRed ? '#EF4444' : pos.color};background:${isRed ? '#EF4444' : pos.color}">
+          <div class="slot-avatar" style="${avatarStyle}">${player.avatar ? '' : getInitials(player.name)}</div>
+        </div>
+        <span class="p11-slot-role" style="color:${isRed ? '#EF4444' : '#fff'}">${isRed ? '🟥' : pos.label}</span>
+        <span class="p11-slot-name">${isRed ? '🟥 Expulsado' : player.name.split(' ').slice(-1)[0]}</span>
+        ${isRed ? '' : `<div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${player.energy}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>`}
+      </div>`
+    } else {
+      html += `<div class="p11-slot-wrap">
+        <div class="p11-slot empty ${swapId ? 'swap-target' : ''}" data-slot="${i}">+</div>
+        <span class="p11-slot-role">${pos.label}</span>
+      </div>`
     }
   }
+  html += '</div>'
   pitch.innerHTML = html
 
   /* Click on filled slot → select/swap */
-  pitch.querySelectorAll('.pitch-slot.filled').forEach(el => {
+  pitch.querySelectorAll('.p11-slot.filled').forEach(el => {
     el.onclick = () => {
       const slotIdx = parseInt(el.dataset.slot)
       const pid = state.tacticsSlots[slotIdx]
@@ -2047,7 +1922,7 @@ function abrirTacticasModal() {
   })
 
   /* Click on empty slot → assign player or clear selection */
-  pitch.querySelectorAll('.pitch-slot.empty').forEach(el => {
+  pitch.querySelectorAll('.p11-slot.empty').forEach(el => {
     el.onclick = () => {
       const slotIdx = parseInt(el.dataset.slot)
       if (swapId) {
@@ -2097,7 +1972,7 @@ function abrirTacticasModal() {
     bench.innerHTML = benchPlayers.map(p => {
       const pos = POSITIONS[p.position]
       const isSelected = p.id === swapId
-      const avatarStyle = p.avatar ? `background-image:url(${p.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
+      const avatarStyle = `background-image:url(${p.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
       return `<div class="bench-slot-wrap">
         <div class="bench-slot filled ${isSelected ? 'selected' : ''}" data-pid="${p.id}" style="border-color:${pos.color}">
           <div class="slot-avatar" style="${avatarStyle}">${p.avatar ? '' : getInitials(p.name)}</div>
@@ -2185,7 +2060,7 @@ function abrirTacticasModal() {
 function resumeMatchTimer() {
   if (intervaloCrono) return
   /* Don't auto-resume at halftime (parteActual=2, time at 20:00) */
-  if (parteActual === 2 && tiempoSegundos === 1200) return
+  if (parteActual === 2 && tiempoSegundos >= 2700) return
   empezarPartido()
 }
 
@@ -2475,7 +2350,7 @@ function procesarFinTemporada(skipAging, skipStandings) {
     return {
       teamId: t.id, name: t.name,
       players: existing ? existing.players.map(p => ({ ...p, energy: 100, injury: null, goals: 0, matches: 0 }))
-        : (REAL_SQUADS[t.id] || []).map(p => ({ ...p, value: calcValue(p.skill), wage: calcWage(p.skill), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 })),
+        : (getRealSquad(t.id) || []).map(p => ({ ...p, value: calcValue(p.skill), wage: calcWage(p.skill), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 })),
       staff: t.staff || existing?.staff || [],
     }
   })
@@ -2789,7 +2664,7 @@ function renderMarketContent() {
     container.innerHTML = filtered.map(p => {
       const pos = POSITIONS[p.position]
       const canBuy = state.players.length < MAX_SQUAD && state.finances.balance >= p.value
-      const avatarStyle = p.avatar ? `background-image:url(${p.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
+      const avatarStyle = `background-image:url(${p.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
       return `
         <div class="market-card" data-player-id="${p.id}" data-team-id="${p.teamId}">
           <div class="player-avatar" style="width:36px;height:36px;font-size:12px;${avatarStyle}">${p.avatar ? '' : getInitials(p.name)}</div>
@@ -2839,7 +2714,7 @@ function renderMarketContent() {
     }
     container.innerHTML = filtered.map(p => {
       const pos = POSITIONS[p.position]
-      const avatarStyle = p.avatar ? `background-image:url(${p.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
+      const avatarStyle = `background-image:url(${p.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
       return `
         <div class="market-card" data-player-id="${p.id}">
           <div class="player-avatar" style="width:36px;height:36px;font-size:12px;${avatarStyle}">${p.avatar ? '' : getInitials(p.name)}</div>
@@ -3377,8 +3252,9 @@ function getDivisionMatchReward(leagueId) {
 
 /* ============ GAME INIT ============ */
 function newGame(coach) {
-  const country = COUNTRIES.find(c => c.id === selectedCountry.id)
-  const league = country.leagues.find(l => l.id === selectedLeague.id)
+  const countryData = window.DB[selectedCountry.id]
+  const country = countryData ? countryData.country : null
+  const league = country ? country.leagues.find(l => l.id === selectedLeague.id) : null
   state.coach = coach
   state.team = selectedTeam.name
   state.teamId = selectedTeam.id
@@ -3408,7 +3284,7 @@ function newGame(coach) {
   state.inbox = []
 
   /* Assign user squad based on selected team */
-  const userSquad = REAL_SQUADS[state.teamId] || generateCpuSquad(state.teamId, state.countryId, selectedTeam.rating)
+  const userSquad = getRealSquad(state.teamId) || generateCpuSquad(state.teamId, state.countryId, selectedTeam.rating)
   const teamCap = selectedTeam.rating || 99
   state.players = userSquad.map(p => ({
     ...p, skill: Math.min(teamCap, p.skill), value: calcValue(p.skill), wage: calcWage(p.skill),
@@ -3419,8 +3295,8 @@ function newGame(coach) {
   /* Initialize filial squad if the team has one */
   const myFilialId = getFilialId(state.teamId)
   if (myFilialId) {
-    state.filialSquad = (REAL_SQUADS[myFilialId] || []).map(p => {
-      const bp = baseDatosEquipos.find(e => e.id === myFilialId)
+    state.filialSquad = (getRealSquad(myFilialId) || []).map(p => {
+      const bp = getBaseDato(myFilialId)
       const fCap = bp ? bp.rating : 99
       return { ...p, skill: Math.min(fCap, p.skill), id: `filial-${p.id}`, value: calcValue(p.skill), wage: calcWage(p.skill), energy: 100, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matches: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false }
     })
@@ -3433,7 +3309,7 @@ function newGame(coach) {
   const allTeamIds = [state.teamId]
   for (const t of league.teams) {
     if (t.id === state.teamId) continue
-    const base = REAL_SQUADS[t.id]
+    const base = getRealSquad(t.id)
     const cap = t.rating || 99
     const squad = base
       ? base.map(p => ({ ...p, skill: Math.min(cap, p.skill), value: calcValue(p.skill), wage: calcWage(p.skill), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null }))
@@ -3621,8 +3497,7 @@ function renderCountryGrid() {
       <div class="ng-country-name">${c.name}</div>
       <div class="ng-country-flag">${c.flag}</div>
       <div class="ng-country-leagues">
-        ${c.leagues.slice(0, 4).map(l => l.logo ? `<img src="${l.logo}" alt="${l.name}" title="${l.name}">` : '').join('')}
-        ${c.leagues.length > 4 ? `<span>+${c.leagues.length - 4}</span>` : ''}
+        <span>${window.DB[c.id] ? (window.DB[c.id].country.leagues.length + ' ligas') : ''}</span>
       </div>
     </div>
   `).join('')
@@ -3637,26 +3512,29 @@ function renderCountryGrid() {
 
 function showTeamSelectionStep() {
   if (!selectedCountry) return
+  const countryId = selectedCountry.id
 
-  /* Hide countries, show teams */
-  document.getElementById('ng-step-countries').classList.add('hidden')
-  document.getElementById('ng-step-teams').classList.remove('hidden')
+  loadCountryData(countryId, function(data) {
+    if (!data) return
 
-  selectedLeague = null
-  selectedTeam = null
+    document.getElementById('ng-step-countries').classList.add('hidden')
+    document.getElementById('ng-step-teams').classList.remove('hidden')
 
-  const leagues = selectedCountry.leagues
-  renderLeagueSelector(leagues)
+    selectedLeague = null
+    selectedTeam = null
 
-  if (leagues.length > 0) {
-    selectedLeague = leagues[0]
-    renderTeamList(selectedLeague)
-  }
+    const leagues = data.country.leagues || []
+    renderLeagueSelector(leagues)
 
-  /* Progress: step 1 done, step 2 active */
-  document.querySelectorAll('.ng-step').forEach((s, i) => {
-    s.classList.toggle('done', i === 0)
-    s.classList.toggle('active', i === 1)
+    if (leagues.length > 0) {
+      selectedLeague = leagues[0]
+      renderTeamList(selectedLeague)
+    }
+
+    document.querySelectorAll('.ng-step').forEach((s, i) => {
+      s.classList.toggle('done', i === 0)
+      s.classList.toggle('active', i === 1)
+    })
   })
 }
 
@@ -3668,20 +3546,44 @@ function renderLeagueSelector(leagues) {
       <span>${l.name}</span>
     </div>
   `).join('')
+  const dbData = window.DB[selectedCountry ? selectedCountry.id : state.countryId]
   container.querySelectorAll('.ng-league-item').forEach(el => {
     el.onclick = () => {
       const lid = el.dataset.lid
-      selectedLeague = selectedCountry.leagues.find(l => l.id === lid)
+      selectedLeague = (dbData ? dbData.country.leagues : []).find(l => l.id === lid)
       renderTeamList(selectedLeague)
       container.querySelectorAll('.ng-league-item').forEach(x => x.classList.toggle('active', x.dataset.lid === lid))
     }
   })
 }
 
+function getDB() {
+  const cid = (selectedCountry && selectedCountry.id) || state.countryId
+  return window.DB[cid] || null
+}
+
+function getRealSquad(teamId) {
+  if (!teamId) return null
+  for (const cid in window.DB) {
+    const sq = window.DB[cid].realSquads
+    if (sq && sq[teamId]) return sq[teamId]
+  }
+  return null
+}
+
+function getBaseDato(teamId) {
+  if (!teamId) return null
+  for (const cid in window.DB) {
+    const arr = window.DB[cid].baseDatos
+    if (arr) { const f = arr.find(e => e.id === teamId); if (f) return f }
+  }
+  return null
+}
+
 function renderTeamList(league) {
   const list = document.getElementById('ng-teams-list')
   const countEl = document.getElementById('ng-team-count')
-  const teams = league.teams || []
+  const teams = [...(league.teams || [])].sort((a, b) => (b.rating || 0) - (a.rating || 0))
   countEl.textContent = `Equipo (${teams.length})`
 
   if (teams.length === 0) {
@@ -3695,14 +3597,16 @@ function renderTeamList(league) {
   </div>`
 
   for (const t of teams) {
-    const db = baseDatosEquipos.find(e => e.id === t.id)
+    const db = getBaseDato(t.id)
     const rating = db ? db.rating : t.rating || 70
+    const rs = getRealSquad(t.id)
+    const squadCount = rs ? rs.length : 10
     const isSelected = selectedTeam && selectedTeam.id === t.id
     html += `<div class="ng-team-row${isSelected ? ' selected' : ''}" data-tid="${t.id}">
       <img class="ng-team-logo" src="${t.logo || NOPHOTO}" alt="" loading="lazy" onerror="this.src='${NOPHOTO}'">
       <span class="ng-team-name">${t.name}</span>
       <button class="ng-team-preview" data-pid="${t.id}">Ver</button>
-      <span class="ng-team-players">29</span>
+      <span class="ng-team-players">${squadCount}</span>
       <span class="ng-team-rating">${rating}</span>
     </div>`
   }
@@ -3750,84 +3654,99 @@ function updateTeamBadge(team) {
 function showTeamPreview(teamId) {
   console.log('[PREVIEW] teamId:', teamId)
   let team = null
-  let foundCountryId = 'es'
-  for (const c of COUNTRIES) {
-    for (const l of c.leagues) {
+  let foundCountryId = 'poland'
+  let foundLeague = null
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
       const t = l.teams.find(x => x.id === teamId)
-      if (t) { team = t; foundCountryId = c.id; break }
+      if (t) { team = t; foundCountryId = cid; foundLeague = l; break }
     }
     if (team) break
   }
   if (!team) return
 
-  const db = baseDatosEquipos.find(e => e.id === teamId)
+  const db = getBaseDato(teamId)
   const rating = db ? db.rating : 70
-  const rawSquad = REAL_SQUADS[teamId] || generateCpuSquad(teamId, foundCountryId, rating)
-  const realSquad = rawSquad.map(p => ({ ...p, skill: Math.min(rating || 99, p.skill) }))
+  const rawSquad = getRealSquad(teamId) || generateCpuSquad(teamId, foundCountryId, rating)
+  const realSquad = rawSquad.map(p => ({ ...p, skill: Math.min(rating || 99, p.skill), value: p.value || calcValue(p.skill), wage: p.wage || calcWage(p.skill) }))
   const staff = team.staff || []
   const logo = team.logo || ''
+  const coachName = staff.find(s => s.role === 'headCoach')?.name || '—'
 
-  let html = `
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      ${logo ? `<img src="${logo}" style="width:32px;height:32px">` : ''}
-      <div>
-        <div style="font-size:18px;font-weight:700">${team.name}</div>
-        <div style="font-size:13px;color:var(--text-muted)">Rating: ${rating}</div>
-      </div>
-    </div>`
+  /* Set header title */
+  document.getElementById('tp-header-title').textContent = team.name
 
-  if (staff.length > 0) {
-    html += `<div class="tactics-subsection-label">Staff técnico (${staff.length})</div>`
-    const roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
-    const noface = 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
-    staff.forEach(s => {
-      const avatar = s.avatar || noface
-      html += `<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="background:var(--bg-surface)"><img src="${avatar}" onerror="this.src='${noface}'" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:50%"></div><div class="staff-card-info"><div class="staff-card-name">${s.name}</div><div class="staff-card-meta">${s.nationality || ''}</div></div><span class="staff-card-role" data-role="${s.role}">${roleLabels[s.role] || s.role}</span></div>`
-    })
-  }
+  /* Identity block */
+  const idHtml = `
+    <img class="tp-identity-crest" src="${logo || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
+    <div class="tp-identity-info">
+      <div class="tp-identity-name">${team.name}</div>
+      <div class="tp-identity-coach">Entrenador: ${coachName}</div>
+    </div>
+    ${foundLeague && foundLeague.logo ? `<img class="tp-identity-league" src="${foundLeague.logo}" alt="">` : ''}
+  `
+  document.getElementById('tp-identity').innerHTML = idHtml
 
-  if (realSquad.length > 0) {
-    html += `<div class="tactics-subsection-label">PLANTILLA (${realSquad.length})</div><div class="squad-grid">`
-    const ordered = [...realSquad].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || a.number - b.number)
-    ordered.forEach(p => {
-      const pos = POSITIONS[p.position]
-      const initials = getInitials(p.name)
-      const avatarStyle = p.avatar ? `background-image:url(${p.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
-      const val = p.value || calcValue(p.skill)
-      html += `<div class="player-card">
-        <div class="player-avatar" style="${avatarStyle}">${p.avatar ? '' : initials}</div>
-        <div class="player-info">
-          <div class="player-row1">
-            <span class="player-name">${p.name}</span>
-            <span class="player-stat-num">${p.age ? p.age + 'y' : '-'}</span>
-            <span class="player-stat-num">${formatValue(val)}</span>
-            <span class="player-rating-num">${p.skill}</span>
-          </div>
-          <div class="player-row2">
-            <span class="player-position" style="background:${pos.color}">${pos.label}</span>
-            <span class="player-foot">${p.foot || 'DER'}</span>
-            <span class="player-nation">${p.nationality}</span>
-          </div>
+  /* Stats panel */
+  const totalVal = realSquad.reduce((s, p) => s + (p.value || 0), 0)
+  const reputation = rating <= 20 ? 1 : rating <= 40 ? 2 : rating <= 60 ? 3 : rating <= 80 ? 4 : 5
+  const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
+  const countryFlag = window.DB[foundCountryId] ? window.DB[foundCountryId].country.flag : ''
+  const statsHtml = `
+    <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>
+    <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
+    <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${countryFlag}</span></div>
+    <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${rating}</span></div>
+    <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
+  `
+  document.getElementById('tp-stats').innerHTML = statsHtml
+
+  /* Player rows */
+  const ordered = [...realSquad].sort((a, b) => {
+    const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
+    const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
+    return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
+  })
+  const listHtml = ordered.map(p => {
+    const valShort = formatShort(p.value || 0)
+    return `<div class="tp-row">
+      <div class="tp-cell">
+        <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
+        <div class="tp-cell-info">
+          <span class="tp-cell-name">${p.name}</span>
+          <span class="tp-cell-value">${p.nationality || ''}</span>
         </div>
-      </div>`
-    })
-    html += `</div>`
-  } else {
-    html += `<div style="text-align:center;padding:20px;color:var(--text-muted)">🖥️ Plantilla generada por CPU</div>`
-  }
+      </div>
+      <span class="tp-cell-pos-badge" style="background:${(POSITIONS[SIGLA_TO_POS[p.position]]?.color || '#6B7280')};color:#fff">${POS_ABBR[p.position] || p.position}</span>
+      <span class="tp-cell-age">${p.age || '-'}</span>
+      <span class="tp-cell-market">${valShort}</span>
+      <span class="tp-cell-power">${p.skill}</span>
+    </div>`
+  }).join('')
+  document.getElementById('tp-list').innerHTML = listHtml
 
-  document.getElementById('team-preview-content').innerHTML = html
-  document.getElementById('team-preview-modal').classList.add('open')
+  /* Row click → player detail modal */
+  document.querySelectorAll('#tp-list .tp-row').forEach((row, idx) => {
+    row.onclick = () => openPlayerDetail(ordered[idx])
+  })
+
+  /* Show fullscreen */
+  document.getElementById('tp-fullscreen').classList.remove('hidden')
   selectedTeam = team
-  document.getElementById('tp-choose').onclick = () => {
-    document.getElementById('team-preview-modal').classList.remove('open')
+
+  /* Button handlers */
+  const closePreview = () => {
+    document.getElementById('tp-fullscreen').classList.add('hidden')
     updateTeamBadge(selectedTeam)
     if (selectedLeague) {
       document.querySelectorAll('.ng-team-row').forEach(r => r.classList.toggle('selected', r.dataset.tid === selectedTeam.id))
     }
   }
-  document.getElementById('tp-close').onclick = () => { document.getElementById('team-preview-modal').classList.remove('open') }
-  document.getElementById('team-preview-modal').onclick = (e) => { if (e.target === e.currentTarget) document.getElementById('team-preview-modal').classList.remove('open') }
+  document.getElementById('tp-header-back').onclick = closePreview
+  document.getElementById('tp-footer-back').onclick = closePreview
+  document.getElementById('tp-footer-choose').onclick = closePreview
 }
 
 function startNewGame() {
@@ -3837,7 +3756,8 @@ function startNewGame() {
     document.getElementById('ng-coach-input').focus()
     return
   }
-  if (!selectedLeague) selectedLeague = selectedCountry.leagues[0]
+  const db = window.DB[selectedCountry.id]
+  if (!selectedLeague && db) selectedLeague = db.country.leagues[0]
 
   /* For custom team, create a temp team entry */
   if (selectedTeam.id === 'custom') {
@@ -4067,11 +3987,15 @@ function showTeamInfo(teamId) {
     }).join('')}` : ''}
     <div class="tactics-subsection-label">PLANTILLA (${team.players.length})</div>
     <div class="squad-grid">`
-  const orderedPlayers = [...team.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || a.number - b.number)
+  const orderedPlayers = [...team.players].sort((a, b) => {
+    const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
+    const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
+    return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
+  })
   orderedPlayers.forEach(p => {
     const pos = POSITIONS[p.position]
     const initials = getInitials(p.name)
-    const avatarStyle = p.avatar ? `background-image:url(${p.avatar}), url(${NOPHOTO});background-size:cover,cover;background-position:center,center;background-color:${pos.color}` : `background:${pos.color}`
+    const avatarStyle = `background-image:url(${p.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
     const val = p.value || calcValue(p.skill)
     html += `<div class="player-card" data-player-id="${p.id}">
       <div class="player-avatar" style="${avatarStyle}">${p.avatar ? '' : initials}</div>
@@ -4477,6 +4401,107 @@ function hideLoading() {
   setTimeout(() => { overlay.style.display = 'none' }, 250)
 }
 
+/* ============ PLAYER DETAIL ============ */
+function openPlayerDetail(player) {
+  if (!player) return
+
+  document.getElementById('pd-name').textContent = player.name
+  document.getElementById('pd-rating').textContent = player.skill
+
+  const photo = document.getElementById('pd-photo')
+  if (player.avatar) {
+    photo.innerHTML = `<img src="${player.avatar}" onerror="this.src='${NOPHOTO}'">`
+  } else {
+    photo.innerHTML = `<div class="pd-photo-placeholder">${getInitials(player.name)}</div>`
+  }
+
+  document.getElementById('pd-team-logo').src = (selectedTeam && selectedTeam.logo) || NOPHOTO
+  document.getElementById('pd-team').textContent = selectedTeam ? selectedTeam.name : '\u2014'
+  const posLabel = POSITIONS[player.position] ? POSITIONS[player.position].label : player.position
+  document.getElementById('pd-position').textContent = posLabel + ' (' + (POS_ABBR[player.position] || player.position) + ')'
+  document.getElementById('pd-flag').textContent = (player.nationality || '').split(' ')[0] || ''
+  const natName = (player.nationality || '').replace(/^[^\s]+\s/, '') || '\u2014'
+  document.getElementById('pd-nationality').textContent = natName
+  document.getElementById('pd-foot').textContent = player.foot === 'IZQ' ? 'Izq' : 'Der'
+  document.getElementById('pd-height').textContent = player.height ? (player.height / 100).toFixed(2) + 'm' : '\u2014'
+  document.getElementById('pd-age').textContent = player.age || '\u2014'
+  document.getElementById('pd-value').textContent = '\u20AC ' + formatShort(player.value || calcValue(player.skill))
+
+  /* Adaptability: main position 99%, other positions from data */
+  const mainAbbr = POS_ABBR[player.position] || player.position
+  const otherPositions = player.otherPositions || []
+  const PITCH_POS = {
+    /* Línea 1 — Portero */
+    POR: [85, 50],
+
+    /* Línea 2 — Defensas */
+    LI:  [68, 15],
+    DFC: [68, 50],
+    LD:  [68, 85],
+
+    /* Línea 3 — Carrileros + Medio defensivo */
+    CAI: [52, 15],
+    MCD: [52, 50],
+    CAD: [52, 85],
+
+    /* Línea 4 — Medios */
+    MI:  [38, 20],
+    MC:  [38, 50],
+    MD:  [38, 80],
+
+    /* Línea 5 — Extremos + Delantero */
+    EI:  [20, 15],
+    DC:  [15, 50],
+    ED:  [20, 85],
+
+    MCO: [30, 50],
+
+    /* Retrocompatibilidad */
+    portero: [85, 50],
+    lateral_izq: [68, 15], defensa_central: [68, 50], lateral_der: [68, 85],
+    carrilero_izq: [52, 15], medio_def: [52, 50], carrilero_der: [52, 85],
+    medio_izq: [38, 20], mediocentro: [38, 50], medio_der: [38, 80],
+    extremo_izq: [20, 15], delantero: [15, 50], extremo_der: [20, 85],
+    medio_ofensivo: [30, 50],
+    cierre: [68, 50], ala: [38, 50], pivot: [15, 50],
+  }
+  const MAIN_PCT = player.mainPct !== undefined ? player.mainPct : 99
+  let adaptHtml = `<div class="pd-pos-label">Posici\u00f3n principal</div>
+    <div class="pd-pos-row main">
+      <span>${posLabel} (${mainAbbr})</span>
+      <span>${MAIN_PCT}%</span>
+    </div>`
+  if (otherPositions.length > 0) {
+    adaptHtml += `<div class="pd-pos-label">Otras posiciones</div>`
+    for (const alt of otherPositions) {
+      const altPos = alt.pos || alt
+      const altPct = alt.pct !== undefined ? alt.pct : 1
+      const altLabel = POSITIONS[altPos] ? POSITIONS[altPos].label : altPos
+      const altAbbr = POS_ABBR[altPos] || altPos
+      adaptHtml += `<div class="pd-pos-row">
+        <span>${altLabel} (${altAbbr})</span>
+        <span>${altPct}%</span>
+      </div>`
+    }
+  }
+  document.getElementById('pd-adapt-list').innerHTML = adaptHtml
+
+  /* Pitch badges */
+  const pitch = document.getElementById('pd-pitch')
+  let pitchHtml = ''
+  const mainCoords = PITCH_POS[player.position] || [50, 50]
+  pitchHtml += `<span class="pd-pitch-badge main" style="top:${mainCoords[0]}%;left:${mainCoords[1]}%">${mainAbbr}</span>`
+  for (const alt of otherPositions) {
+    const altPos = alt.pos || alt
+    const altCoords = PITCH_POS[altPos] || [50, 50]
+    const altAbbr = POS_ABBR[altPos] || altPos
+    pitchHtml += `<span class="pd-pitch-badge alt" style="top:${altCoords[0]}%;left:${altCoords[1]}%">${altAbbr}</span>`
+  }
+  pitch.innerHTML = pitchHtml
+
+  document.getElementById('player-detail-modal').classList.add('open')
+}
+
 /* ============ INIT ============ */
 document.getElementById('btn-new-game').onclick = showNewGameScreen
 document.getElementById('btn-load-game').onclick = showLoadMenu
@@ -4512,6 +4537,10 @@ document.getElementById('settings-sound-toggle').onchange = (e) => {
   if (state.soundEnabled) {
     playSound('click')
   }
+}
+document.getElementById('pd-close').onclick = () => document.getElementById('player-detail-modal').classList.remove('open')
+document.getElementById('player-detail-modal').onclick = (e) => {
+  if (e.target === e.currentTarget) document.getElementById('player-detail-modal').classList.remove('open')
 }
 
 showMainMenu()

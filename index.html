@@ -179,38 +179,6 @@
             </div>
             <span class="player-count" id="club-player-count" style="display:none">0/22 jugadores</span>
           </div>
-          <div id="team-status-bar">
-            <div class="status-item">
-              <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-              <span class="status-label">Jugadores</span>
-              <span class="status-value" id="player-count">0 / 11</span>
-            </div>
-            <div class="status-divider"></div>
-            <div class="status-item">
-              <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-              </svg>
-              <span class="status-label">Valoración</span>
-              <span class="status-value" id="team-rating">—</span>
-            </div>
-            <div class="status-divider"></div>
-            <div class="status-item">
-              <button class="btn-view-squad" id="btn-view-squad" disabled>
-                <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/>
-                  <line x1="16" y1="17" x2="8" y2="17"/>
-                </svg>
-                <span>Ver Plantilla</span>
-              </button>
-            </div>
-          </div>
           <div id="club-team-info"></div>
           <div class="sub-tabs">
             <button class="sub-tab active" data-subtab="squad">Plantilla</button>
@@ -529,11 +497,30 @@
   </div>
 
   <!-- TEAM PREVIEW MODAL -->
-  <div id="team-preview-modal" class="modal-overlay">
-      <div class="modal-content">
-      <div class="modal-scroll" id="team-preview-content"></div>
-      <button class="btn-primary" id="tp-choose" style="width:calc(100% - 40px);max-width:310px;height:45px;margin:0 auto 8px;display:block">SELECCIONAR</button>
-      <button class="btn-secondary" id="tp-close" style="width:calc(100% - 40px);max-width:310px;height:45px;margin:0 auto 16px;display:block">VOLVER</button>
+  <div id="tp-fullscreen" class="hidden">
+    <div class="tp-header">
+      <button class="btn-back" id="tp-header-back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="tp-header-title" id="tp-header-title">GKS Katowice</span>
+    </div>
+
+    <div class="tp-identity" id="tp-identity"></div>
+    <div class="tp-stats" id="tp-stats"></div>
+
+    <div class="tp-table-header">
+      <span class="tp-th-name">Nombre</span>
+      <span class="tp-th-pos">Posición</span>
+      <span class="tp-th-age">Edad</span>
+      <span class="tp-th-value">Valor</span>
+      <span class="tp-th-power">Poder</span>
+    </div>
+
+    <div class="tp-list" id="tp-list"></div>
+
+    <div class="tp-footer">
+      <button class="btn-secondary" id="tp-footer-back">Atrás</button>
+      <button class="btn-primary" id="tp-footer-choose">SELECCIONAR</button>
     </div>
   </div>
 
@@ -577,6 +564,58 @@
             </div>
           </label>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYER DETAIL MODAL -->
+  <div id="player-detail-modal" class="modal-overlay">
+    <div class="modal-content pd-modal">
+      <div class="pd-close-wrap">
+        <button class="pd-close" id="pd-close">✕</button>
+        <div class="pd-rating" id="pd-rating">—</div>
+      </div>
+      <div class="pd-top">
+        <div class="pd-name" id="pd-name">Jugador</div>
+      </div>
+
+      <div class="pd-mid">
+        <div class="pd-photo" id="pd-photo"></div>
+        <div class="pd-info">
+          <div class="pd-info-row">
+            <img class="pd-team-logo" id="pd-team-logo" src="" alt="">
+            <span id="pd-team">—</span>
+          </div>
+          <div class="pd-info-row">
+            <svg class="pd-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span id="pd-position">—</span>
+          </div>
+          <div class="pd-info-row">
+            <span class="pd-flag" id="pd-flag"></span>
+            <span id="pd-nationality">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pd-stats">
+        <div class="pd-stat"><span class="pd-stat-label">Perfil</span><span class="pd-stat-val" id="pd-foot">—</span></div>
+        <div class="pd-stat"><span class="pd-stat-label">Altura</span><span class="pd-stat-val" id="pd-height">—</span></div>
+        <div class="pd-stat"><span class="pd-stat-label">Edad</span><span class="pd-stat-val" id="pd-age">—</span></div>
+        <div class="pd-stat"><span class="pd-stat-label">Valor</span><span class="pd-stat-val pd-val-highlight" id="pd-value">—</span></div>
+      </div>
+
+      <div class="pd-adapt">
+        <div class="pd-adapt-title">Posición en el Campo</div>
+        <div class="pd-adapt-cols">
+          <div class="pd-adapt-left" id="pd-adapt-list"></div>
+          <div class="pd-adapt-right">
+            <div class="pd-pitch" id="pd-pitch"></div>
+          </div>
+        </div>
+        <div class="pd-adapt-note">A menor edad (más joven), mayor es el porcentaje de adaptabilidad y aprendizaje en esta posición.</div>
       </div>
     </div>
   </div>
