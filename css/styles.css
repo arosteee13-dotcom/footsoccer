@@ -4067,6 +4067,513 @@ html, body {
 .badge-lt { background: #2563EB; }
 .badge-lc { background: #10B981; }
 
+/* Team Status Bar */
+#team-status-bar {
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 14px;
+  padding: 8px 4px;
+  margin: 8px 12px;
+  gap: 0;
+}
+.status-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 2px;
+}
+.status-icon {
+  width: 18px;
+  height: 18px;
+  stroke: #94A3B8;
+  margin-bottom: 2px;
+  flex-shrink: 0;
+}
+.status-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748B;
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+}
+.status-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #F1F5F9;
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+  line-height: 1;
+}
+.status-value.complete {
+  color: #22C55E;
+}
+.status-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(148, 163, 184, 0.15);
+  flex-shrink: 0;
+}
+.btn-view-squad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: 1.5px solid var(--accent, #3B82F6);
+  border-radius: 10px;
+  padding: 6px 12px;
+  color: var(--accent, #3B82F6);
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-view-squad:hover:not(:disabled) {
+  background: var(--accent, #3B82F6);
+  color: #fff;
+}
+.btn-view-squad:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: #475569;
+  color: #64748B;
+}
+.btn-view-squad .status-icon {
+  stroke: currentColor;
+}
+
+/* ─── Nueva Partida / Team Selector ─── */
+#menu-newgame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  z-index: 10;
+}
+
+/* Header */
+.ng-header {
+  flex-shrink: 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 12px 10px;
+}
+.ng-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 8px;
+}
+.ng-nav .btn-back {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+}
+.ng-title {
+  font-size: 17px;
+  font-weight: 800;
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.ng-manager {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ng-team-badge {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1.5px dashed rgba(148,163,184,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.ng-badge-placeholder {
+  font-size: 8px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.2;
+  padding: 2px;
+}
+.ng-team-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+}
+.ng-manager-inputs {
+  flex: 1;
+}
+.ng-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 10px;
+  height: 40px;
+}
+.ng-coach-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-body), Inter, sans-serif;
+  padding: 0;
+}
+.ng-coach-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.ng-flag {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.ng-edit-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+}
+
+/* League Selector (Horizontal Scroll) */
+.ng-leagues {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 12px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border-bottom: 1px solid var(--border);
+}
+.ng-leagues::-webkit-scrollbar { display: none; }
+.ng-league-item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 20px;
+  background: var(--bg-card);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+}
+.ng-league-item:hover {
+  border-color: rgba(37,99,235,0.3);
+  color: var(--text);
+}
+.ng-league-item.active {
+  border-color: #2663EB;
+  color: #fff;
+  background: rgba(37,99,235,0.12);
+}
+.ng-league-item img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Teams Sub-header */
+.ng-teams-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 6px;
+  border-bottom: 1px solid var(--border);
+}
+.ng-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+}
+.ng-cols {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ng-col-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 44px;
+  text-align: center;
+}
+
+/* Teams List (Scrollable) */
+.ng-teams-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0 80px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Team Row */
+.ng-team-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid rgba(148,163,184,0.06);
+}
+.ng-team-row:hover {
+  background: rgba(148,163,184,0.04);
+}
+.ng-team-row.selected {
+  background: rgba(37,99,235,0.08);
+  border-left: 3px solid #2663EB;
+  padding-left: 9px;
+}
+.ng-team-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+.ng-team-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ng-team-preview {
+  background: none;
+  border: 1px solid rgba(148,163,184,0.2);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+.ng-team-preview:hover {
+  border-color: #2663EB;
+  color: #2663EB;
+}
+.ng-team-players {
+  width: 28px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+  flex-shrink: 0;
+}
+.ng-team-rating {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #2663EB;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+  flex-shrink: 0;
+}
+
+/* Create Team Row */
+.ng-create-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid rgba(148,163,184,0.06);
+  color: var(--accent);
+}
+.ng-create-row:hover {
+  background: rgba(37,99,235,0.06);
+}
+.ng-create-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(37,99,235,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.ng-create-text {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+}
+
+/* Footer */
+.ng-footer {
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 8px 12px 16px;
+}
+.ng-progress {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.ng-step {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(148,163,184,0.2);
+  transition: all 0.3s;
+}
+.ng-step.active {
+  background: #2663EB;
+  box-shadow: 0 0 6px rgba(37,99,235,0.5);
+}
+.ng-step.done {
+  background: #2663EB;
+}
+.ng-actions {
+  display: flex;
+  gap: 10px;
+}
+.ng-btn-back {
+  flex: 3;
+  height: 44px;
+  font-size: 14px;
+}
+.ng-btn-continue {
+  flex: 7;
+  height: 44px;
+  font-size: 15px;
+}
+
+/* Steps Container */
+#ng-step-countries,
+#ng-step-teams {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#ng-step-teams.hidden,
+#ng-step-countries.hidden {
+  display: none;
+}
+
+/* Country Grid */
+.ng-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px;
+  overflow-y: auto;
+  align-content: start;
+  -webkit-overflow-scrolling: touch;
+}
+.ng-country-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 8px 10px;
+  border-radius: 14px;
+  background: var(--bg-card);
+  border: 1.5px solid rgba(148,163,184,0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ng-country-card:hover {
+  border-color: rgba(37,99,235,0.3);
+}
+.ng-country-card.selected {
+  border-color: #2663EB;
+  background: rgba(37,99,235,0.08);
+}
+.ng-country-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--font-display), 'Barlow Condensed', sans-serif;
+  text-align: center;
+  line-height: 1.2;
+}
+.ng-country-flag {
+  font-size: 40px;
+  line-height: 1;
+  margin: 4px 0;
+}
+.ng-country-leagues {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  min-height: 20px;
+}
+.ng-country-leagues img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  opacity: 0.7;
+}
+.ng-country-leagues span {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
 /* Utilities */
 .hidden {
   display: none !important;

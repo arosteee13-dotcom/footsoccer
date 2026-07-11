@@ -30,12 +30,54 @@
           <button class="btn-secondary menu-btn" id="btn-load-game">Cargar Partida</button>
         </div>
       </div>
-      <div id="menu-browser" class="hidden">
-        <div class="menu-browser-header">
-          <button class="btn-back" id="btn-browser-back">← Volver</button>
-          <span id="menu-browser-title">Selecciona un país</span>
+      <div id="menu-newgame" class="hidden">
+        <div class="ng-header">
+          <div class="ng-nav">
+            <button class="btn-back" id="btn-ng-back">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="ng-title">Nueva partida</span>
+          </div>
+          <div class="ng-manager">
+            <div class="ng-team-badge" id="ng-team-badge">
+              <span class="ng-badge-placeholder">Sin equipo seleccionado...</span>
+            </div>
+            <div class="ng-manager-inputs">
+              <div class="ng-input-wrap">
+                <input class="ng-coach-input" id="ng-coach-input" type="text" placeholder="Mister" maxlength="30" autocomplete="off">
+                <span class="ng-flag" id="ng-flag">🇵🇱</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="menu-browser-content" class="menu-list"></div>
+
+        <div id="ng-step-countries">
+          <div class="ng-grid" id="ng-country-grid"></div>
+        </div>
+
+        <div id="ng-step-teams" class="hidden">
+          <div class="ng-leagues" id="ng-leagues"></div>
+          <div class="ng-teams-header">
+            <span class="ng-count" id="ng-team-count">Equipo (0)</span>
+            <div class="ng-cols">
+              <span class="ng-col-label">Plantilla</span>
+              <span class="ng-col-label">Valoración</span>
+            </div>
+          </div>
+          <div class="ng-teams-list" id="ng-teams-list"></div>
+        </div>
+
+        <div class="ng-footer">
+          <div class="ng-progress">
+            <div class="ng-step active"></div>
+            <div class="ng-step"></div>
+            <div class="ng-step"></div>
+          </div>
+          <div class="ng-actions">
+            <button class="btn-secondary ng-btn-back" id="btn-ng-back-action">Atrás</button>
+            <button class="btn-primary ng-btn-continue" id="btn-ng-continue">Continuar</button>
+          </div>
+        </div>
       </div>
       <div id="menu-load" class="hidden">
         <div class="load-header">
@@ -46,18 +88,6 @@
         </div>
         <div class="load-footer">
           <button class="load-footer-btn" id="btn-load-cancel">CANCELAR</button>
-        </div>
-      </div>
-      <div id="menu-coach" class="hidden">
-        <div class="menu-browser-header">
-          <button class="btn-back" id="btn-coach-back">← Volver</button>
-          <span>Nuevo entrenador</span>
-        </div>
-        <div class="coach-section">
-          <p class="coach-summary" id="coach-summary"></p>
-          <label class="coach-label">Nombre del entrenador</label>
-          <input class="coach-input" id="coach-input" type="text" placeholder="Ej: Carlos" maxlength="30" autocomplete="off">
-          <button class="btn-primary menu-btn" id="btn-start-game">¡Empezar!</button>
         </div>
       </div>
     </div>
@@ -147,7 +177,39 @@
               <span id="club-logo"></span>
               <h2 id="club-title">Barça</h2>
             </div>
-            <span class="player-count" id="club-player-count">0/22 jugadores</span>
+            <span class="player-count" id="club-player-count" style="display:none">0/22 jugadores</span>
+          </div>
+          <div id="team-status-bar">
+            <div class="status-item">
+              <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <span class="status-label">Jugadores</span>
+              <span class="status-value" id="player-count">0 / 11</span>
+            </div>
+            <div class="status-divider"></div>
+            <div class="status-item">
+              <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              <span class="status-label">Valoración</span>
+              <span class="status-value" id="team-rating">—</span>
+            </div>
+            <div class="status-divider"></div>
+            <div class="status-item">
+              <button class="btn-view-squad" id="btn-view-squad" disabled>
+                <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <span>Ver Plantilla</span>
+              </button>
+            </div>
           </div>
           <div id="club-team-info"></div>
           <div class="sub-tabs">

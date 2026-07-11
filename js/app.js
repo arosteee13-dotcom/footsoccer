@@ -835,6 +835,7 @@ function renderSquad(players) {
   container.querySelectorAll('.staff-card').forEach((card, i) => {
     card.onclick = () => openStaffModal(state.staff[i])
   })
+  updateTeamStatusBar()
 }
 
 /* ============ TACTICS ============ */
@@ -2733,9 +2734,35 @@ function showMatchdayResults(userScore, rivalScore, rivalName) {
 }
 
 /* ============ MARKET VIEW ============ */
+function updateTeamStatusBar() {
+  const players = state.players || []
+  const count = players.length
+  const max = 11
+
+  const countEl = document.getElementById('player-count')
+  if (countEl) {
+    countEl.textContent = `${count} / ${max}`
+    countEl.classList.toggle('complete', count === max)
+  }
+
+  const ratingEl = document.getElementById('team-rating')
+  if (ratingEl) {
+    if (count === 0) {
+      ratingEl.textContent = '\u2014'
+    } else {
+      const total = players.reduce((sum, p) => sum + (p.skill || 0), 0)
+      ratingEl.textContent = Math.round(total / count)
+    }
+  }
+
+  const btn = document.getElementById('btn-view-squad')
+  if (btn) btn.disabled = count === 0
+}
+
 function renderMarket() {
   const tab = state.marketTab
   document.querySelectorAll('#view-market .sub-tab').forEach(b => b.classList.toggle('active', b.dataset.marketTab === tab))
+  updateTeamStatusBar()
   renderMarketContent()
 }
 
@@ -3542,7 +3569,6 @@ function startGame() {
 }
 
 /* ============ MENU ============ */
-let menuStep = null
 let selectedCountry = null
 let selectedLeague = null
 let selectedTeam = null
@@ -3551,111 +3577,173 @@ function showMainMenu() {
   document.getElementById('menu-screen').classList.remove('hidden')
   document.getElementById('game-screen').classList.add('hidden')
   document.getElementById('menu-main').classList.remove('hidden')
-  document.getElementById('menu-browser').classList.add('hidden')
+  document.getElementById('menu-newgame').classList.add('hidden')
   document.getElementById('menu-load').classList.add('hidden')
-  document.getElementById('menu-coach').classList.add('hidden')
-  menuStep = null
+  selectedCountry = null
+  selectedLeague = null
+  selectedTeam = null
 }
 
-function getBaseTeamName(name) {
-  let base = name.trim()
-  base = base.replace(/ (?:Juvenil|Cadet|Cadete|Infantil) [A-Z]$/i, '')
-  base = base.replace(/ [A-Z]$/, '')
-  return base
-}
-
-function showBrowser(step) {
+function showNewGameScreen() {
   document.getElementById('menu-main').classList.add('hidden')
   document.getElementById('menu-load').classList.add('hidden')
-  document.getElementById('menu-coach').classList.add('hidden')
-  document.getElementById('menu-browser').classList.remove('hidden')
-  menuStep = step
-  const title = document.getElementById('menu-browser-title')
-  const content = document.getElementById('menu-browser-content')
-  if (step === 'countries') {
-    title.textContent = 'Selecciona un país'
-    content.innerHTML = COUNTRIES.map(c => `<div class="menu-list-item" data-id="${c.id}"><span class="menu-item-flag">${c.flag}</span><span class="menu-item-text">${c.name}</span><span class="menu-item-arrow">›</span></div>`).join('')
-    content.querySelectorAll('.menu-list-item').forEach(el => {
-      el.onclick = () => { selectedCountry = COUNTRIES.find(c => c.id === el.dataset.id); selectedLeague = null; selectedTeam = null; showBrowser('leagues') }
-    })
-  } else if (step === 'leagues') {
-    title.textContent = `${selectedCountry.flag} ${selectedCountry.name}`
-    content.innerHTML = selectedCountry.leagues.map(l => `<div class="menu-list-item" data-id="${l.id}"><span class="menu-item-text">${l.name}</span><span class="menu-item-arrow">›</span></div>`).join('')
-    content.querySelectorAll('.menu-list-item').forEach(el => {
-      el.onclick = () => { selectedLeague = selectedCountry.leagues.find(l => l.id === el.dataset.id); selectedTeam = null; showBrowser('teams') }
-    })
-  } else if (step === 'teams') {
-    title.textContent = selectedLeague.name
-    if (selectedLeague.teams.length === 0) {
-      content.innerHTML = '<div style="padding:40px 20px;text-align:center;color:#94A3B8;font-size:14px">No hay equipos disponibles. Añade equipos desde el menú de administración.</div>'
-      return
+  const el = document.getElementById('menu-newgame')
+  el.classList.remove('hidden')
+  el.style.display = 'flex'
+
+  /* Reset state */
+  selectedCountry = null
+  selectedLeague = null
+  selectedTeam = null
+
+  /* Show country step, hide teams step */
+  document.getElementById('ng-step-countries').classList.remove('hidden')
+  document.getElementById('ng-step-teams').classList.add('hidden')
+
+  /* Render country grid */
+  renderCountryGrid()
+
+  /* Clear inputs */
+  document.getElementById('ng-coach-input').value = ''
+  updateTeamBadge(null)
+
+  /* Update progress: step 1 active */
+  document.querySelectorAll('.ng-step').forEach((s, i) => {
+    s.classList.toggle('active', i === 0)
+    s.classList.toggle('done', false)
+  })
+}
+
+function renderCountryGrid() {
+  const grid = document.getElementById('ng-country-grid')
+  grid.innerHTML = COUNTRIES.map(c => `
+    <div class="ng-country-card${selectedCountry && selectedCountry.id === c.id ? ' selected' : ''}" data-cid="${c.id}">
+      <div class="ng-country-name">${c.name}</div>
+      <div class="ng-country-flag">${c.flag}</div>
+      <div class="ng-country-leagues">
+        ${c.leagues.slice(0, 4).map(l => l.logo ? `<img src="${l.logo}" alt="${l.name}" title="${l.name}">` : '').join('')}
+        ${c.leagues.length > 4 ? `<span>+${c.leagues.length - 4}</span>` : ''}
+      </div>
+    </div>
+  `).join('')
+
+  grid.querySelectorAll('.ng-country-card').forEach(card => {
+    card.onclick = () => {
+      selectedCountry = COUNTRIES.find(c => c.id === card.dataset.cid)
+      grid.querySelectorAll('.ng-country-card').forEach(c => c.classList.toggle('selected', c.dataset.cid === selectedCountry.id))
     }
-    /* Group teams by base name */
-    const groups = {}
-    for (const t of selectedLeague.teams) {
-      const base = getBaseTeamName(t.name)
-      if (!groups[base]) groups[base] = []
-      groups[base].push(t)
+  })
+}
+
+function showTeamSelectionStep() {
+  if (!selectedCountry) return
+
+  /* Hide countries, show teams */
+  document.getElementById('ng-step-countries').classList.add('hidden')
+  document.getElementById('ng-step-teams').classList.remove('hidden')
+
+  selectedLeague = null
+  selectedTeam = null
+
+  const leagues = selectedCountry.leagues
+  renderLeagueSelector(leagues)
+
+  if (leagues.length > 0) {
+    selectedLeague = leagues[0]
+    renderTeamList(selectedLeague)
+  }
+
+  /* Progress: step 1 done, step 2 active */
+  document.querySelectorAll('.ng-step').forEach((s, i) => {
+    s.classList.toggle('done', i === 0)
+    s.classList.toggle('active', i === 1)
+  })
+}
+
+function renderLeagueSelector(leagues) {
+  const container = document.getElementById('ng-leagues')
+  container.innerHTML = leagues.map(l => `
+    <div class="ng-league-item${l.id === (selectedLeague && selectedLeague.id) ? ' active' : ''}" data-lid="${l.id}">
+      ${l.logo ? `<img src="${l.logo}" alt="">` : ''}
+      <span>${l.name}</span>
+    </div>
+  `).join('')
+  container.querySelectorAll('.ng-league-item').forEach(el => {
+    el.onclick = () => {
+      const lid = el.dataset.lid
+      selectedLeague = selectedCountry.leagues.find(l => l.id === lid)
+      renderTeamList(selectedLeague)
+      container.querySelectorAll('.ng-league-item').forEach(x => x.classList.toggle('active', x.dataset.lid === lid))
     }
-    const entries = Object.entries(groups)
-    entries.sort((a, b) => a[0].localeCompare(b[0]))
-    let html = ''
-    for (const [base, teams] of entries) {
-      if (teams.length === 1) {
-        const t = teams[0]
-        const logoHtml = t.logo ? `<img class="team-logo" src="${t.logo}" style="width:24px;height:24px;margin-right:8px">` : ''
-        html += `<div class="menu-list-item menu-team-item" data-id="${t.id}">${logoHtml}<span class="menu-item-text">${t.name}</span><span class="team-preview-btn">VER PLANTILLA</span><span class="menu-item-arrow">›</span></div>`
-      } else {
-        html += `<div class="menu-group-header" data-group="${base}">
-          <span class="menu-group-toggle">▶</span>
-          <span class="menu-item-text">${base}</span>
-          <span class="menu-group-count">${teams.length} eq.</span>
-        </div>
-        <div class="menu-group-body" data-group="${base}">`
-        for (const t of teams) {
-          const logoHtml = t.logo ? `<img class="team-logo" src="${t.logo}" style="width:24px;height:24px;margin-right:8px">` : ''
-          html += `<div class="menu-list-item menu-team-item" data-id="${t.id}">${logoHtml}<span class="menu-item-text">${t.name}</span><span class="team-preview-btn">VER PLANTILLA</span><span class="menu-item-arrow">›</span></div>`
-        }
-        html += '</div>'
-      }
+  })
+}
+
+function renderTeamList(league) {
+  const list = document.getElementById('ng-teams-list')
+  const countEl = document.getElementById('ng-team-count')
+  const teams = league.teams || []
+  countEl.textContent = `Equipo (${teams.length})`
+
+  if (teams.length === 0) {
+    list.innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--text-muted);font-size:13px">No hay equipos disponibles.</div>'
+    return
+  }
+
+  let html = `<div class="ng-create-row" id="ng-create-team">
+    <div class="ng-create-icon">＋</div>
+    <span class="ng-create-text">Crear mi propio club</span>
+  </div>`
+
+  for (const t of teams) {
+    const db = baseDatosEquipos.find(e => e.id === t.id)
+    const rating = db ? db.rating : t.rating || 70
+    const isSelected = selectedTeam && selectedTeam.id === t.id
+    html += `<div class="ng-team-row${isSelected ? ' selected' : ''}" data-tid="${t.id}">
+      <img class="ng-team-logo" src="${t.logo || NOPHOTO}" alt="" loading="lazy" onerror="this.src='${NOPHOTO}'">
+      <span class="ng-team-name">${t.name}</span>
+      <button class="ng-team-preview" data-pid="${t.id}">Ver</button>
+      <span class="ng-team-players">29</span>
+      <span class="ng-team-rating">${rating}</span>
+    </div>`
+  }
+
+  list.innerHTML = html
+
+  /* Team row click */
+  list.querySelectorAll('.ng-team-row').forEach(row => {
+    row.onclick = () => {
+      const tid = row.dataset.tid
+      selectedTeam = teams.find(t => t.id === tid)
+      list.querySelectorAll('.ng-team-row').forEach(r => r.classList.toggle('selected', r.dataset.tid === tid))
+      updateTeamBadge(selectedTeam)
     }
-    content.innerHTML = html
-    /* Single team click */
-    content.querySelectorAll('.menu-team-item').forEach(el => {
-      el.onclick = () => { selectedTeam = selectedLeague.teams.find(t => t.id === el.dataset.id); showCoachInput() }
-    })
-    /* Preview button */
-    content.querySelectorAll('.team-preview-btn').forEach(el => {
-      el.onclick = (e) => {
-        e.stopPropagation()
-        const parentId = el.closest('.menu-team-item').dataset.id
-        showTeamPreview(parentId)
-      }
-    })
-    /* Group toggle */
-    content.querySelectorAll('.menu-group-header').forEach(el => {
-      el.onclick = () => {
-        const base = el.dataset.group
-        const body = content.querySelector(`.menu-group-body[data-group="${base}"]`)
-        const toggle = el.querySelector('.menu-group-toggle')
-        if (body.classList.contains('open')) {
-          body.classList.remove('open')
-          toggle.textContent = '▶'
-        } else {
-          body.classList.add('open')
-          toggle.textContent = '▼'
-        }
-      }
-    })
-    /* Open first group by default */
-    const firstBody = content.querySelector('.menu-group-body')
-    if (firstBody) {
-      firstBody.classList.add('open')
-      const parent = firstBody.previousElementSibling
-      if (parent && parent.classList.contains('menu-group-header')) {
-        parent.querySelector('.menu-group-toggle').textContent = '▼'
-      }
+  })
+
+  /* Create team */
+  document.getElementById('ng-create-team').onclick = () => {
+    selectedTeam = { id: 'custom', name: 'Mi Club', rating: 70, logo: '' }
+    updateTeamBadge(selectedTeam)
+    list.querySelectorAll('.ng-team-row').forEach(r => r.classList.remove('selected'))
+  }
+
+  /* Preview buttons */
+  list.querySelectorAll('.ng-team-preview').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation()
+      const pid = btn.dataset.pid
+      showTeamPreview(pid)
     }
+  })
+}
+
+function updateTeamBadge(team) {
+  const badge = document.getElementById('ng-team-badge')
+  if (team) {
+    badge.innerHTML = team.logo
+      ? `<img src="${team.logo}" alt="${team.name}">`
+      : `<span class="ng-badge-placeholder">${team.name}</span>`
+  } else {
+    badge.innerHTML = '<span class="ng-badge-placeholder">Sin equipo seleccionado...</span>'
   }
 }
 
@@ -3731,39 +3819,41 @@ function showTeamPreview(teamId) {
   document.getElementById('team-preview-content').innerHTML = html
   document.getElementById('team-preview-modal').classList.add('open')
   selectedTeam = team
-  document.getElementById('tp-choose').onclick = () => { document.getElementById('team-preview-modal').classList.remove('open'); showCoachInput() }
+  document.getElementById('tp-choose').onclick = () => {
+    document.getElementById('team-preview-modal').classList.remove('open')
+    updateTeamBadge(selectedTeam)
+    if (selectedLeague) {
+      document.querySelectorAll('.ng-team-row').forEach(r => r.classList.toggle('selected', r.dataset.tid === selectedTeam.id))
+    }
+  }
   document.getElementById('tp-close').onclick = () => { document.getElementById('team-preview-modal').classList.remove('open') }
   document.getElementById('team-preview-modal').onclick = (e) => { if (e.target === e.currentTarget) document.getElementById('team-preview-modal').classList.remove('open') }
 }
 
-function showCoachInput() {
-  document.getElementById('menu-browser').classList.add('hidden')
-  document.getElementById('menu-main').classList.add('hidden')
-  document.getElementById('menu-coach').classList.remove('hidden')
-  document.getElementById('coach-summary').innerHTML = `${selectedCountry.flag} ${selectedLeague.name}<br><strong>${selectedTeam.name}</strong>`
-  const input = document.getElementById('coach-input')
-  input.value = ''; input.style.borderColor = ''; input.placeholder = 'Ej: Carlos'
-  document.getElementById('btn-coach-back').onclick = () => { document.getElementById('menu-coach').classList.add('hidden'); showBrowser('teams') }
-  document.getElementById('btn-start-game').onclick = () => {
-    const coachName = input.value.trim()
-    if (!coachName) { input.style.borderColor = '#EF4444'; input.placeholder = 'Escribe tu nombre'; return }
-    newGame(coachName)
+function startNewGame() {
+  const coachName = document.getElementById('ng-coach-input').value.trim()
+  if (!selectedTeam) return
+  if (!coachName) {
+    document.getElementById('ng-coach-input').focus()
+    return
   }
-  input.onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('btn-start-game').click() }
-  setTimeout(() => input.focus(), 100)
-}
+  if (!selectedLeague) selectedLeague = selectedCountry.leagues[0]
 
-function handleBrowserBack() {
-  if (menuStep === 'leagues') { selectedCountry = null; showBrowser('countries') }
-  else if (menuStep === 'teams') { selectedLeague = null; showBrowser('leagues') }
-  else { showMainMenu() }
+  /* For custom team, create a temp team entry */
+  if (selectedTeam.id === 'custom') {
+    const tmpId = 'custom-' + Date.now()
+    selectedTeam.id = tmpId
+    selectedTeam.logo = ''
+    selectedTeam.rating = 70
+  }
+
+  newGame(coachName)
 }
 
 /* ============ LOAD MENU ============ */
 function showLoadMenu() {
   document.getElementById('menu-main').classList.add('hidden')
-  document.getElementById('menu-browser').classList.add('hidden')
-  document.getElementById('menu-coach').classList.add('hidden')
+  document.getElementById('menu-newgame').classList.add('hidden')
   document.getElementById('menu-load').classList.remove('hidden')
   const saves = getSaves()
   const content = document.getElementById('load-content')
@@ -4388,10 +4478,29 @@ function hideLoading() {
 }
 
 /* ============ INIT ============ */
-document.getElementById('btn-new-game').onclick = () => showBrowser('countries')
+document.getElementById('btn-new-game').onclick = showNewGameScreen
 document.getElementById('btn-load-game').onclick = showLoadMenu
-document.getElementById('btn-browser-back').onclick = handleBrowserBack
 document.getElementById('btn-load-cancel').onclick = showMainMenu
+document.getElementById('btn-ng-back').onclick = () => {
+  if (document.getElementById('ng-step-teams').classList.contains('hidden') === false) {
+    document.getElementById('ng-step-teams').classList.add('hidden')
+    document.getElementById('ng-step-countries').classList.remove('hidden')
+    document.querySelectorAll('.ng-step').forEach((s, i) => {
+      s.classList.toggle('done', false)
+      s.classList.toggle('active', i === 0)
+    })
+  } else {
+    showMainMenu()
+  }
+}
+document.getElementById('btn-ng-back-action').onclick = () => document.getElementById('btn-ng-back').click()
+document.getElementById('btn-ng-continue').onclick = () => {
+  if (document.getElementById('ng-step-teams').classList.contains('hidden') === false) {
+    startNewGame()
+  } else if (selectedCountry) {
+    showTeamSelectionStep()
+  }
+}
 document.getElementById('btn-tactica').onclick = abrirTacticasModal
 document.getElementById('inbox-close-btn').onclick = () => { hideInboxDetail(); document.getElementById('inbox-modal').classList.remove('open') }
 document.getElementById('inbox-detail-back').onclick = hideInboxDetail
