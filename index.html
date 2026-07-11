@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Footsoccer</title>
+  <link rel="stylesheet" href="css/styles.css?v=2">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="apple-touch-icon" href="app_icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="app_icon.png">
+</head>
+<body>
+  <div id="app">
+
+    <!-- MENU SCREEN -->
+    <div id="menu-screen">
+      <canvas id="menu-particles"></canvas>
+      <div id="menu-main">
+        <div class="menu-hero">
+          <img class="menu-logo" src="app_icon.png" alt="Footsoccer">
+          <h1 class="menu-title">Footsoccer</h1>
+          <span class="menu-subtitle">Fútbol Manager</span>
+        </div>
+        <div class="menu-buttons">
+          <button class="btn-primary menu-btn" id="btn-new-game">Nueva Partida</button>
+          <button class="btn-secondary menu-btn" id="btn-load-game">Cargar Partida</button>
+        </div>
+      </div>
+      <div id="menu-browser" class="hidden">
+        <div class="menu-browser-header">
+          <button class="btn-back" id="btn-browser-back">← Volver</button>
+          <span id="menu-browser-title">Selecciona un país</span>
+        </div>
+        <div id="menu-browser-content" class="menu-list"></div>
+      </div>
+      <div id="menu-load" class="hidden">
+        <div class="load-header">
+          <span class="load-title">CARGAR PARTIDA</span>
+        </div>
+        <div id="load-scroll">
+          <div id="load-content"></div>
+        </div>
+        <div class="load-footer">
+          <button class="load-footer-btn" id="btn-load-cancel">CANCELAR</button>
+        </div>
+      </div>
+      <div id="menu-coach" class="hidden">
+        <div class="menu-browser-header">
+          <button class="btn-back" id="btn-coach-back">← Volver</button>
+          <span>Nuevo entrenador</span>
+        </div>
+        <div class="coach-section">
+          <p class="coach-summary" id="coach-summary"></p>
+          <label class="coach-label">Nombre del entrenador</label>
+          <input class="coach-input" id="coach-input" type="text" placeholder="Ej: Carlos" maxlength="30" autocomplete="off">
+          <button class="btn-primary menu-btn" id="btn-start-game">¡Empezar!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="hidden">
+      <header id="app-header">
+        <div class="header-left">
+          <button class="header-menu-btn" id="btn-header-menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- SIDE MENU OVERLAY -->
+      <div id="dropdown-overlay" class="dropdown-overlay"></div>
+
+      <!-- SIDE MENU -->
+      <div id="header-dropdown" class="header-dropdown">
+        <div class="dropdown-header">
+          <img class="dd-team-logo" id="dd-team-logo" src="" alt="">
+          <span class="dd-team-name" id="dd-team-name"></span>
+        </div>
+        <div class="dropdown-item" data-action="inbox">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+            <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
+          </svg>
+          Bandeja de entrada
+          <span class="inbox-badge" id="inbox-badge" style="display:none">0</span>
+        </div>
+        <div class="dropdown-item" data-action="calendar">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Calendario
+        </div>
+        <div class="dropdown-item" data-action="history">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="10" width="4" height="10" rx="1"/>
+            <rect x="10" y="6" width="4" height="14" rx="1"/>
+            <rect x="16" y="12" width="4" height="8" rx="1"/>
+          </svg>
+          Historial / Palmarés
+        </div>
+        <div id="dropdown-family" style="display:none">
+          <div class="dropdown-label">OTROS EQUIPOS DEL CLUB</div>
+          <div id="dropdown-family-list"></div>
+        </div>
+        <div class="dropdown-item" data-action="settings">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="8" x2="20" y2="8"/>
+            <line x1="4" y1="16" x2="20" y2="16"/>
+            <circle cx="8" cy="8" r="2"/>
+            <circle cx="16" cy="16" r="2"/>
+          </svg>
+          Ajustes / Sonido
+        </div>
+        <div class="dropdown-item" data-action="save">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="7 13 10 16 17 9"/>
+          </svg>
+          Guardar partida
+        </div>
+        <div class="dropdown-item" data-action="quit" style="border-top:1px solid var(--border);margin-top:4px;padding-top:12px;color:#EF4444">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Volver al menú
+        </div>
+      </div>
+
+      <main id="app-content">
+
+        <!-- CLUB -->
+        <section id="view-club" class="view active">
+          <div class="view-header">
+            <div class="view-header-left">
+              <span id="club-logo"></span>
+              <h2 id="club-title">Barça</h2>
+            </div>
+            <span class="player-count" id="club-player-count">0/22 jugadores</span>
+          </div>
+          <div id="club-team-info"></div>
+          <div class="sub-tabs">
+            <button class="sub-tab active" data-subtab="squad">Plantilla</button>
+            <button class="sub-tab" data-subtab="tactics">Táctica</button>
+          </div>
+          <div id="club-squad-content"></div>
+          <div id="club-tactics-content" class="hidden"></div>
+        </section>
+
+        <!-- LIGA -->
+        <section id="view-league" class="view">
+          <div class="league-header">
+            <select id="league-selector" class="league-select"></select>
+          </div>
+          <div id="league-content">
+            <div id="league-table-wrap"></div>
+            <div id="league-results-wrap" class="hidden">
+              <h3 class="results-title">Resultados Jornada</h3>
+              <div id="league-results-list" class="results-list"></div>
+              <div id="league-standings-change" class="results-standings"></div>
+              <button class="btn-primary" id="btn-advance-matchday">Continuar →</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- GENERAL -->
+        <section id="view-home" class="view">
+          <div class="view-header">
+            <h2>General</h2>
+          </div>
+          <div id="home-content"></div>
+        </section>
+
+        <!-- CALENDARIO -->
+        <section id="view-calendar" class="view">
+          <div id="calendar-content"></div>
+        </section>
+
+        <!-- MERCADO -->
+        <section id="view-market" class="view">
+          <div class="view-header">
+            <h2>Mercado</h2>
+          </div>
+          <div class="sub-tabs">
+            <button class="sub-tab active" data-market-tab="buy">Disponibles</button>
+            <button class="sub-tab" data-market-tab="sell">Transferibles</button>
+            <button class="sub-tab" data-market-tab="staff">Staff Técnico</button>
+          </div>
+          <div class="market-search-wrap">
+            <input class="market-search" id="market-search" type="text" placeholder="🔍 Buscar jugador...">
+          </div>
+          <div id="market-content"></div>
+        </section>
+
+        <!-- ECONOMÍA -->
+        <section id="view-finances" class="view">
+          <div class="view-header">
+            <h2>Economía</h2>
+          </div>
+          <div class="finance-card">
+            <span class="finance-label">Balance Total</span>
+            <span class="finance-balance" id="finance-balance">€5,000</span>
+          </div>
+          <div class="finance-resumen" id="finance-resumen">
+            <div class="finance-rstat"><span class="finance-rstat-lbl">Ingresos</span><span class="finance-rstat-val positive" id="finance-ingresos">€0</span></div>
+            <div class="finance-rstat"><span class="finance-rstat-lbl">Gastos</span><span class="finance-rstat-val negative" id="finance-gastos">€0</span></div>
+            <div class="finance-rstat"><span class="finance-rstat-lbl">Semanal</span><span class="finance-rstat-val" id="finance-semanal">€0</span></div>
+          </div>
+          <div class="finance-section-title">MOVIMIENTOS</div>
+          <div id="finance-history"></div>
+        </section>
+
+        <!-- PARTIDO -->
+        <section id="view-match" class="view">
+          <div class="scoreboard">
+            <div class="scoreboard-bg"></div>
+            <div class="score-team score-home">
+              <img class="score-logo" id="match-home-logo" src="" alt="">
+              <span class="score-name" id="match-home-name">Local</span>
+              <span class="score-value" id="score-home">0</span>
+            </div>
+            <div class="score-clock">
+              <span class="clock-time" id="cronometro">00:00</span>
+              <span class="clock-label">2º PARTE</span>
+            </div>
+            <div class="score-team score-away">
+              <img class="score-logo" id="match-away-logo" src="" alt="">
+              <span class="score-name" id="match-away-name">Visitante</span>
+              <span class="score-value" id="score-away">0</span>
+            </div>
+            <div class="fouls-bar">
+              <div class="fouls-team">
+                <span class="fouls-count" id="fouls-home">0</span>
+                <span class="fouls-label">Faltas</span>
+              </div>
+              <span class="fouls-vs">/5</span>
+              <div class="fouls-team">
+                <span class="fouls-count" id="fouls-away">0</span>
+                <span class="fouls-label">Faltas</span>
+              </div>
+            </div>
+          </div>
+          <div id="match-stats" class="match-stats" style="display:none">
+            <div class="stats-header">ESTADÍSTICAS</div>
+            <div class="stats-row">
+              <span class="stats-val" id="stats-pos-local">50%</span>
+              <div class="stats-bar-wrap"><div class="stats-bar"><div class="stats-fill" id="stats-fill-pos" style="width:50%"></div></div></div>
+              <span class="stats-val" id="stats-pos-visit">50%</span>
+              <span class="stats-label">Posesión</span>
+            </div>
+            <div class="stats-row">
+              <span class="stats-val" id="stats-tir-local">0</span>
+              <span class="stats-divider">-</span>
+              <span class="stats-val" id="stats-tir-visit">0</span>
+              <span class="stats-label">Tiros</span>
+            </div>
+            <div class="stats-row">
+              <span class="stats-val" id="stats-tar-local">
+                <span class="stats-card-dot yellow"></span><span id="stats-amar-local">0</span>
+                <span class="stats-card-dot red"></span><span id="stats-roja-local">0</span>
+              </span>
+              <span class="stats-divider">-</span>
+              <span class="stats-val" id="stats-tar-visit">
+                <span class="stats-card-dot yellow"></span><span id="stats-amar-visit">0</span>
+                <span class="stats-card-dot red"></span><span id="stats-roja-visit">0</span>
+              </span>
+              <span class="stats-label">Tarjetas</span>
+            </div>
+          </div>
+          <div class="match-planes" id="match-planes" style="display:none"></div>
+          <div class="feed-event minute" id="eventos-header"><svg class="evt-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Eventos</div>
+          <div class="match-feed" id="log-partido"></div>
+          <div class="feed-event minute" id="quinteto-header"><svg class="evt-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Quinteto titular</div>
+          <div class="match-players" id="match-players"></div>
+          <div class="match-bottom-bar">
+            <button id="btn-start-match" style="display:none" onclick="empezarPartido()">JUGAR</button>
+            <button id="btn-end-match" style="display:none">FINALIZAR</button>
+            <button id="btn-tactica">TÁCTICA</button>
+          </div>
+          <div id="match-result-area" class="hidden">
+            <div class="result-card">
+              <h3 class="results-title">Resultado Final</h3>
+              <div class="result-score">
+                <span id="result-home-display">0</span>
+                <span class="result-divider">-</span>
+                <span id="result-away-display">0</span>
+              </div>
+              <button class="btn-primary" id="btn-match-back">Volver a Liga</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- TEAM INFO -->
+        <section id="view-team" class="view">
+          <div id="team-info-content"></div>
+        </section>
+
+      </main>
+
+      <nav id="bottom-nav">
+        <button class="nav-item active" data-tab="club">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span class="nav-label">Club</span>
+        </button>
+        <button class="nav-item" data-tab="league">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 7 7 9 7"/>
+            <path d="M18 9h1.5a2.5 2.5 0 000-5C17 4 17 7 15 7"/>
+            <line x1="4" y1="22" x2="14" y2="22"/>
+            <line x1="9" y1="14" x2="9" y2="22"/>
+            <line x1="14" y1="17" x2="14" y2="22"/>
+            <path d="M5 16a9 9 0 1114 0"/>
+          </svg>
+          <span class="nav-label">Liga</span>
+        </button>
+        <button class="nav-item" data-tab="home">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          <span class="nav-label">General</span>
+        </button>
+        <button class="nav-item" data-tab="market">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+          </svg>
+          <span class="nav-label">Mercado</span>
+        </button>
+        <button class="nav-item" data-tab="finances">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+          </svg>
+          <span class="nav-label">Economía</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- PLAYER MODAL -->
+    <div id="player-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-scroll" style="gap:0">
+          <div class="modal-avatar-wrap" id="modal-avatar-wrap">
+            <div class="player-avatar modal-avatar" id="modal-avatar"></div>
+          </div>
+          <div class="modal-name" id="modal-name"></div>
+          <div class="modal-nationality" id="modal-nationality"></div>
+          <div class="modal-meta" id="modal-meta"></div>
+          <div class="modal-position" id="modal-position"></div>
+          <div class="modal-injury" id="modal-injury" style="display:none"></div>
+          <div class="modal-stats-row">
+            <div class="modal-stat">
+              <span class="modal-stat-label">HAB</span>
+              <span class="modal-stat-value" id="modal-skill"></span>
+              <div class="modal-stat-bar"><div class="modal-stat-fill" id="modal-skill-fill"></div></div>
+            </div>
+            <div class="modal-stat">
+              <span class="modal-stat-label">ENE</span>
+              <span class="modal-stat-value" id="modal-energy"></span>
+              <div class="modal-stat-bar"><div class="modal-stat-fill" id="modal-energy-fill"></div></div>
+            </div>
+            <div class="modal-stat">
+              <span class="modal-stat-label">VALOR</span>
+              <span class="modal-stat-value modal-stat-money" id="modal-value"></span>
+            </div>
+            <div class="modal-stat">
+              <span class="modal-stat-label">SALARIO</span>
+              <span class="modal-stat-value modal-stat-money" id="modal-wage"></span>
+            </div>
+          </div>
+          <div class="modal-season-stats">
+            <div class="modal-sstat"><span class="modal-sstat-icon">⚽</span><span class="modal-sstat-val" id="modal-g">0</span><span class="modal-sstat-lbl">Goles</span></div>
+            <div class="modal-sstat"><span class="modal-sstat-icon">🎯</span><span class="modal-sstat-val" id="modal-a">0</span><span class="modal-sstat-lbl">Asist.</span></div>
+            <div class="modal-sstat"><span class="modal-sstat-icon" style="color:#F59E0B">🟨</span><span class="modal-sstat-val" id="modal-ta">0</span><span class="modal-sstat-lbl">Amar.</span></div>
+            <div class="modal-sstat"><span class="modal-sstat-icon" style="color:#EF4444">🟥</span><span class="modal-sstat-val" id="modal-tr">0</span><span class="modal-sstat-lbl">Roja</span></div>
+            <div class="modal-sstat"><span class="modal-sstat-icon">🏆</span><span class="modal-sstat-val" id="modal-mvp">0</span><span class="modal-sstat-lbl">MVP</span></div>
+            <div class="modal-sstat"><span class="modal-sstat-icon">📊</span><span class="modal-sstat-val" id="modal-pj">0</span><span class="modal-sstat-lbl">Part.</span></div>
+          </div>
+          <div class="modal-history-title">Últimos partidos</div>
+          <div id="modal-history"></div>
+          <div class="modal-bottom-actions">
+            <div class="modal-market-actions" id="modal-market-actions"></div>
+            <button class="btn-secondary modal-action-btn" id="modal-close">CERRAR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLOT PICKER MODAL -->
+    <div id="slot-picker-modal" class="modal-overlay hidden">
+      <div class="modal-content" style="max-width:320px">
+        <div class="modal-scroll">
+          <div style="text-align:center;font-size:15px;font-weight:700;margin-bottom:8px" id="slot-picker-title">Elegir jugador</div>
+          <div id="slot-picker-list" style="width:100%"></div>
+        </div>
+        <button class="btn-secondary modal-close" id="slot-picker-close">CANCELAR</button>
+      </div>
+    </div>
+
+    <!-- STAFF MODAL -->
+    <div id="staff-modal" class="modal-overlay">
+      <div class="modal-content" style="position:absolute;inset:0;border-radius:0;background:#0F172A;max-width:100%;width:100%;height:100%;max-height:100%">
+        <div class="modal-scroll" style="gap:0;padding:16px 20px 8px">
+          <div class="modal-avatar-wrap" id="staff-avatar-wrap">
+            <img class="modal-avatar" id="staff-modal-avatar" src="" style="border-radius:50%;object-fit:cover">
+          </div>
+          <div class="modal-name" id="staff-modal-name"></div>
+          <div class="modal-nationality" id="staff-modal-nationality"></div>
+          <div class="modal-position" id="staff-modal-role" style="background:var(--accent)"></div>
+          <div class="modal-history-title">HISTORIAL COMO TÉCNICO</div>
+          <div id="staff-modal-career"></div>
+          <div id="staff-modal-total"></div>
+        </div>
+        <div style="padding:0 20px 16px;width:100%;flex-shrink:0">
+          <button class="btn-secondary modal-action-btn" id="staff-modal-close">CERRAR</button>
+        </div>
+      </div>
+    </div>
+    <!-- TACTICS MODAL -->
+    <div id="tactics-modal" class="modal-overlay">
+      <div class="modal-content" style="max-width:380px">
+        <div class="modal-scroll" style="gap:6px">
+          <div style="font-size:16px;font-weight:700">Táctica</div>
+          <div class="tactics-section">
+            <label class="tactics-label">Formación</label>
+            <div class="tactics-options" id="tm-formation"></div>
+          </div>
+          <div class="tactics-section">
+            <label class="tactics-label">Modelo</label>
+            <select class="tactics-select" id="tm-gameplan"></select>
+            <div class="gameplan-desc" id="tm-gameplan-desc"></div>
+          </div>
+          <div class="tactics-subsection-label">EN PISTA</div>
+          <div class="pitch-grid" id="tm-pitch"></div>
+          <div class="tactics-subsection-label" id="tm-bench-label">BANQUILLO</div>
+          <div class="bench-grid" id="tm-bench"></div>
+          <div class="tactics-subsection-label" id="tm-reserves-label">RESERVAS</div>
+          <div class="bench-grid" id="tm-reserves"></div>
+        </div>
+        <button class="btn-primary" id="tm-apply" style="margin:0 20px 8px">APLICAR CAMBIOS</button>
+        <button class="btn-secondary modal-close" id="tm-close">← VOLVER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loading-overlay" class="loading-overlay" style="display:none">
+    <div class="loading-spinner">
+      <div class="loading-ring"></div>
+      <span class="loading-text">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- TEAM PREVIEW MODAL -->
+  <div id="team-preview-modal" class="modal-overlay">
+      <div class="modal-content">
+      <div class="modal-scroll" id="team-preview-content"></div>
+      <button class="btn-primary" id="tp-choose" style="width:calc(100% - 40px);max-width:310px;height:45px;margin:0 auto 8px;display:block">SELECCIONAR</button>
+      <button class="btn-secondary" id="tp-close" style="width:calc(100% - 40px);max-width:310px;height:45px;margin:0 auto 16px;display:block">VOLVER</button>
+    </div>
+  </div>
+
+  <!-- INBOX MODAL -->
+  <div id="inbox-modal" class="modal-overlay">
+    <div class="modal-content" style="position:absolute;inset:0;max-width:100%;width:100%;height:100%;max-height:100%;border-radius:0;background:#0F172A">
+      <div class="inbox-header">
+        <div class="inbox-header-title">
+          <svg class="inbox-header-icon" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+          <h2>Bandeja de entrada</h2>
+          <span class="inbox-header-count" id="inbox-count">0</span>
+        </div>
+        <button class="inbox-close" id="inbox-close-btn">✕</button>
+      </div>
+      <div class="inbox-list" id="inbox-list"></div>
+      <div class="inbox-detail" id="inbox-detail" style="display:none">
+        <div class="inbox-detail-header">
+          <button class="inbox-detail-back" id="inbox-detail-back">← Volver</button>
+        </div>
+        <div class="inbox-detail-body" id="inbox-detail-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settings-modal" class="modal-overlay">
+    <div class="modal-content" style="position:absolute;inset:0;max-width:100%;width:100%;height:auto;max-height:100%;border-radius:16px 16px 0 0;background:#0F172A;top:auto;bottom:0;padding-bottom:env(safe-area-inset-bottom)">
+      <div class="settings-handle"></div>
+      <div class="settings-header">
+        <h2 style="font-size:18px;font-weight:700;color:#F1F5F9;font-family:var(--font-display)">Ajustes</h2>
+        <button class="inbox-close" id="settings-close-btn">✕</button>
+      </div>
+      <div class="settings-body">
+        <div class="settings-group">
+          <div class="settings-group-title">SONIDO</div>
+          <label class="settings-row">
+            <span class="settings-label">Efectos de sonido</span>
+            <div class="settings-toggle">
+              <input type="checkbox" id="settings-sound-toggle">
+              <span class="settings-slider"></span>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
