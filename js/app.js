@@ -2482,7 +2482,8 @@ function procesarFinTemporada(skipAging, skipStandings) {
   let cambioDivision = false
   let pos = 0
   let esPrimera = false, esSegunda = false, esSegundaB = false, esTercera = false, esHonor = false, esPrimeraCat = false, esSegonaCat = false, esTerceraCat = false
-  let esPlayoffTercera = false
+  let esPolaca1 = false, esPolaca2 = false, esPolaca3 = false, esPolaca4 = false
+  let esPlayoffTercera = false, esPlayoffPolaca2 = false, esPlayoffPolaca3 = false
   let msg = ''
 
   if (!skipStandings) {
@@ -2496,6 +2497,10 @@ function procesarFinTemporada(skipAging, skipStandings) {
     esPrimeraCat = state.leagueId && state.leagueId.startsWith('lc')
     esSegonaCat = state.leagueId && state.leagueId.startsWith('l2c')
     esTerceraCat = state.leagueId && state.leagueId.startsWith('l3c')
+    esPolaca1 = state.leagueId === 'lpl'
+    esPolaca2 = state.leagueId === 'lpl2'
+    esPolaca3 = state.leagueId === 'lpl3'
+    esPolaca4 = state.leagueId && state.leagueId.startsWith('lpl4g')
 
     const esTerceraCatalana = state.leagueId === 'l3g1' || state.leagueId === 'l3g2'
     const totalTeams = standings.length
@@ -2549,6 +2554,29 @@ function procesarFinTemporada(skipAging, skipStandings) {
       const grupos2a = ['l2c1','l2c2','l2c3','l2c4','l2c5','l2c6','l2c7','l2c9','l2c11','l2c12','l2c13','l2c14']
       state.leagueId = pickRandom(grupos2a)
       cambioDivision = true
+    } else if (esPolaca1 && pos >= 15) {
+      state.leagueId = 'lpl2'
+      cambioDivision = true
+    } else if (esPolaca2 && pos <= 2) {
+      state.leagueId = 'lpl'
+      cambioDivision = true
+    } else if (esPolaca2 && pos >= 3 && pos <= 6) {
+      esPlayoffPolaca2 = true
+    } else if (esPolaca2 && pos >= 16) {
+      state.leagueId = 'lpl3'
+      cambioDivision = true
+    } else if (esPolaca3 && pos <= 2) {
+      state.leagueId = 'lpl2'
+      cambioDivision = true
+    } else if (esPolaca3 && pos >= 3 && pos <= 6) {
+      esPlayoffPolaca3 = true
+    } else if (esPolaca3 && pos >= 16) {
+      const grupos4 = ['lpl4g1','lpl4g2','lpl4g3','lpl4g4']
+      state.leagueId = pickRandom(grupos4)
+      cambioDivision = true
+    } else if (esPolaca4 && pos === 1) {
+      state.leagueId = 'lpl3'
+      cambioDivision = true
     }
 
     msg = `📊 Temporada finalizada. Posición: ${pos}º`
@@ -2566,12 +2594,24 @@ function procesarFinTemporada(skipAging, skipStandings) {
     else if (cambioDivision && esSegonaCat && pos <= 2) msg += '\n🎉 ¡ASCENSO a 1a Divisió Catalana!'
     else if (cambioDivision && esSegonaCat) msg += '\n⚠️ DESCENSO a 3a Divisió Catalana'
     else if (cambioDivision && esTerceraCat) msg += '\n🎉 ¡ASCENSO a 2a Divisió Catalana!'
+    else if (cambioDivision && esPolaca1) msg += '\n⚠️ DESCENSO a Segunda Polaca'
+    else if (cambioDivision && esPolaca2 && pos <= 2) msg += '\n🎉 ¡ASCENSO a Liga Polaca!'
+    else if (cambioDivision && esPolaca2) msg += '\n⚠️ DESCENSO a Tercera Polaca'
+    else if (esPlayoffPolaca2) msg += '\n🏆 Accedes a la Fase de Ascenso a Liga Polaca'
+    else if (cambioDivision && esPolaca3 && pos <= 2) msg += '\n🎉 ¡ASCENSO a Segunda Polaca!'
+    else if (cambioDivision && esPolaca3) msg += '\n⚠️ DESCENSO a Cuarta Polaca'
+    else if (esPlayoffPolaca3) msg += '\n🏆 Accedes a la Fase de Ascenso a Segunda Polaca'
+    else if (cambioDivision && esPolaca4) msg += '\n🎉 ¡ASCENSO a Tercera Polaca!'
     else if (esTercera) msg += '\nPermanencia en 3ª División Nacional'
     else if (esSegundaB) msg += '\nPermanencia en 2ª División B'
     else if (esHonor) msg += '\nPermanencia en Divisió d\'Honor Catalana'
     else if (esPrimeraCat) msg += '\nPermanencia en 1a Divisió Catalana'
     else if (esSegonaCat) msg += '\nPermanencia en 2a Divisió Catalana'
     else if (esTerceraCat) msg += '\nPermanencia en 3a Divisió Catalana'
+    else if (esPolaca1) msg += '\nPermanencia en Liga Polaca'
+    else if (esPolaca2) msg += '\nPermanencia en Segunda Polaca'
+    else if (esPolaca3) msg += '\nPermanencia en Tercera Polaca'
+    else if (esPolaca4) msg += '\nPermanencia en Cuarta Polaca'
     else msg += '\nPermanencia en la categoría'
   }
 
@@ -2583,6 +2623,28 @@ function procesarFinTemporada(skipAging, skipStandings) {
     saveGame()
     addNotification('match', `🏆 ${msg}`, 'Fase de Ascenso a Segunda División B')
     setTimeout(() => { alert(msg); iniciarPlayoffTercera() }, 100)
+    return
+  }
+
+  if (esPlayoffPolaca2) {
+    /* lpl2 positions 3-6 — enter promotion playoff to lpl */
+    state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
+    document.getElementById('league-results-wrap').classList.add('hidden')
+    renderLeague()
+    saveGame()
+    addNotification('match', `🏆 ${msg}`, 'Playoff de Ascenso a Liga Polaca')
+    setTimeout(() => { alert(msg); iniciarPlayoffPolaca2() }, 100)
+    return
+  }
+
+  if (esPlayoffPolaca3) {
+    /* lpl3 positions 3-6 — enter promotion playoff to lpl2 */
+    state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
+    document.getElementById('league-results-wrap').classList.add('hidden')
+    renderLeague()
+    saveGame()
+    addNotification('match', `🏆 ${msg}`, 'Playoff de Ascenso a Segunda Polaca')
+    setTimeout(() => { alert(msg); iniciarPlayoffPolaca3() }, 100)
     return
   }
 
@@ -2626,10 +2688,10 @@ function procesarFinTemporada(skipAging, skipStandings) {
   saveGame()
 
   if (!skipStandings) {
-    addNotification('general', msg, `Nueva temporada en ${state.leagueId.startsWith('l3c') ? '3a Divisió Catalana' : state.leagueId.startsWith('l2c') ? '2a Divisió Catalana' : state.leagueId.startsWith('lc') ? '1a Divisió Catalana' : state.leagueId.startsWith('lhc') ? 'Divisió d\'Honor Catalana' : state.leagueId.startsWith('l3g') ? '3ª División Nacional' : state.leagueId.startsWith('l2b') ? '2ª División B' : state.leagueId === 'lnfs2' ? 'Segunda División' : state.leagueId === 'lnfs1' ? 'Primera División' : state.leagueId === 'lpl' ? 'Liga Polaca' : state.leagueId === 'lpl2' ? 'Segunda Polaca' : 'la categoría'}`)
+    addNotification('general', msg, `Nueva temporada en ${state.leagueId.startsWith('l3c') ? '3a Divisió Catalana' : state.leagueId.startsWith('l2c') ? '2a Divisió Catalana' : state.leagueId.startsWith('lc') ? '1a Divisió Catalana' : state.leagueId.startsWith('lhc') ? 'Divisió d\'Honor Catalana' : state.leagueId.startsWith('l3g') ? '3ª División Nacional' : state.leagueId.startsWith('l2b') ? '2ª División B' : state.leagueId === 'lnfs2' ? 'Segunda División' : state.leagueId === 'lnfs1' ? 'Primera División' : state.leagueId === 'lpl' ? 'Liga Polaca' : state.leagueId === 'lpl2' ? 'Segunda Polaca' : state.leagueId === 'lpl3' ? 'Tercera Polaca' : state.leagueId.startsWith('lpl4g') ? 'Cuarta Polaca' : 'la categoría'}`)
     setTimeout(() => alert(msg), 100)
   } else {
-    const divName = state.leagueId.startsWith('l3c') ? '3a Divisió Catalana' : state.leagueId.startsWith('l2c') ? '2a Divisió Catalana' : state.leagueId.startsWith('lc') ? '1a Divisió Catalana' : state.leagueId.startsWith('lhc') ? 'Divisió d\'Honor Catalana' : state.leagueId.startsWith('l3g') ? '3ª División Nacional' : state.leagueId.startsWith('l2b') ? '2ª División B' : state.leagueId === 'lnfs2' ? 'Segunda División' : state.leagueId === 'lnfs1' ? 'Primera División' : state.leagueId === 'lpl' ? 'Liga Polaca' : state.leagueId === 'lpl2' ? 'Segunda Polaca' : 'la categoría'
+    const divName = state.leagueId.startsWith('l3c') ? '3a Divisió Catalana' : state.leagueId.startsWith('l2c') ? '2a Divisió Catalana' : state.leagueId.startsWith('lc') ? '1a Divisió Catalana' : state.leagueId.startsWith('lhc') ? 'Divisió d\'Honor Catalana' : state.leagueId.startsWith('l3g') ? '3ª División Nacional' : state.leagueId.startsWith('l2b') ? '2ª División B' : state.leagueId === 'lnfs2' ? 'Segunda División' : state.leagueId === 'lnfs1' ? 'Primera División' : state.leagueId === 'lpl' ? 'Liga Polaca' : state.leagueId === 'lpl2' ? 'Segunda Polaca' : state.leagueId === 'lpl3' ? 'Tercera Polaca' : state.leagueId.startsWith('lpl4g') ? 'Cuarta Polaca' : 'la categoría'
     addNotification('general', `📋 Nueva temporada en ${divName}`, `Comienza una nueva campaña en ${divName}`)
   }
 }
@@ -2666,7 +2728,39 @@ function avanzarRondaPlayoff() {
 
   const winners = pf.fixtures.map(f => (f.homeScore > f.awayScore ? f.home : f.away))
 
-  if (pf.esTercera && pf.round === 'SF') {
+  if (pf.esPolaca3 && pf.round === 'SF') {
+    /* Polish 3rd div: SF done → check promotion, then F */
+    const userFixture = pf.fixtures.find(f => f.home === state.teamId || f.away === state.teamId)
+    if (userFixture) {
+      const userScore = userFixture.home === state.teamId ? userFixture.homeScore : userFixture.awayScore
+      const rivalScore = userFixture.home === state.teamId ? userFixture.awayScore : userFixture.homeScore
+      pf.promoted = userScore > rivalScore
+    }
+    pf.round = 'F'
+    pf.fixtures = [
+      { round: 'F', home: winners[0], away: winners[1], homeScore: null, awayScore: null, played: false },
+    ]
+    if (pf.promoted) {
+      addNotification('match', '🎉 ¡ASCENSO a Segunda Polaca!', 'Ganaste la semifinal del Playoff de Ascenso')
+      setTimeout(() => alert('🎉 ¡ASCENSO a Segunda Polaca!\n\nGanaste la semifinal y consigues el ascenso de categoría.'), 200)
+    }
+  } else if (pf.esPolaca2 && pf.round === 'SF') {
+    /* Polish 2nd div: SF done → check promotion, then F */
+    const userFixture = pf.fixtures.find(f => f.home === state.teamId || f.away === state.teamId)
+    if (userFixture) {
+      const userScore = userFixture.home === state.teamId ? userFixture.homeScore : userFixture.awayScore
+      const rivalScore = userFixture.home === state.teamId ? userFixture.awayScore : userFixture.homeScore
+      pf.promoted = userScore > rivalScore
+    }
+    pf.round = 'F'
+    pf.fixtures = [
+      { round: 'F', home: winners[0], away: winners[1], homeScore: null, awayScore: null, played: false },
+    ]
+    if (pf.promoted) {
+      addNotification('match', '🎉 ¡ASCENSO a Liga Polaca!', 'Ganaste la semifinal del Playoff de Ascenso')
+      setTimeout(() => alert('🎉 ¡ASCENSO a Liga Polaca!\n\nGanaste la semifinal y consigues el ascenso de categoría.'), 200)
+    }
+  } else if (pf.esTercera && pf.round === 'SF') {
     /* Tercera: SF done → check promotion, then F */
     const userFixture = pf.fixtures.find(f => f.home === state.teamId || f.away === state.teamId)
     if (userFixture) {
@@ -2698,11 +2792,39 @@ function avanzarRondaPlayoff() {
     const subcampeon = winners[0] === pf.fixtures[0].home ? pf.fixtures[0].away : pf.fixtures[0].home
     const esCampeon = campeon === state.teamId
     const esTercera = pf.esTercera
+    const esPolaca2 = pf.esPolaca2
+    const esPolaca3 = pf.esPolaca3
     const promovio = pf.promoted
     const msg = `🏆 ${esCampeon ? '¡CAMPEÓN!' : 'Subcampeón'} — ${esCampeon ? 'Ganaste el título' : 'El campeón es ' + getTeamName(campeon)}`
     addNotification('match', msg, 'Playoff finalizado')
     state.playoffs = null
-    if (esTercera) {
+    if (esPolaca3) {
+      if (promovio) {
+        state.leagueId = 'lpl2'
+        setTimeout(() => {
+          alert(`${msg}\n\n${esCampeon ? '¡Ascenso a Segunda Polaca y título!' : 'Ascenso a Segunda Polaca conseguido'}`)
+          procesarFinTemporada(true, true)
+        }, 300)
+      } else {
+        setTimeout(() => {
+          alert(`${msg}\n\nNo lograste el ascenso. Una temporada más en Tercera Polaca.`)
+          procesarFinTemporada(true, true)
+        }, 300)
+      }
+    } else if (esPolaca2) {
+      if (promovio) {
+        state.leagueId = 'lpl'
+        setTimeout(() => {
+          alert(`${msg}\n\n${esCampeon ? '¡Ascenso a Liga Polaca y título!' : 'Ascenso a Liga Polaca conseguido'}`)
+          procesarFinTemporada(true, true)
+        }, 300)
+      } else {
+        setTimeout(() => {
+          alert(`${msg}\n\nNo lograste el ascenso. Una temporada más en Segunda Polaca.`)
+          procesarFinTemporada(true, true)
+        }, 300)
+      }
+    } else if (esTercera) {
       /* Tercera playoff complete */
       if (promovio) {
         const gruposB = ['l2b1','l2b2','l2b3','l2b4','l2b5','l2b6']
@@ -2748,6 +2870,41 @@ function iniciarPlayoffTercera() {
   }
   const rivalName = getTeamName(selectedOthers[0])
   addNotification('match', '🏆 Fase de Ascenso — Semifinal', `Te enfrentas a ${rivalName} por el ascenso a 2ª División B`)
+  saveGame()
+}
+
+function iniciarPlayoffPolaca2() {
+  const standings = updateLeagueStandings()
+  const teamIds = standings.map(s => s.teamId)
+  /* Positions 3-6 enter the promotion playoff */
+  state.playoffs = {
+    round: 'SF',
+    fixtures: [
+      { round: 'SF', home: teamIds[2], away: teamIds[5], homeScore: null, awayScore: null, played: false },
+      { round: 'SF', home: teamIds[3], away: teamIds[4], homeScore: null, awayScore: null, played: false },
+    ],
+    esPolaca2: true,
+    promoted: false,
+  }
+  const rivalName = getTeamName(teamIds[2] === state.teamId ? teamIds[5] : teamIds[2])
+  addNotification('match', '🏆 Playoff Ascenso — Semifinal', `Te enfrentas a ${rivalName} por el ascenso a Liga Polaca`)
+  saveGame()
+}
+
+function iniciarPlayoffPolaca3() {
+  const standings = updateLeagueStandings()
+  const teamIds = standings.map(s => s.teamId)
+  state.playoffs = {
+    round: 'SF',
+    fixtures: [
+      { round: 'SF', home: teamIds[2], away: teamIds[5], homeScore: null, awayScore: null, played: false },
+      { round: 'SF', home: teamIds[3], away: teamIds[4], homeScore: null, awayScore: null, played: false },
+    ],
+    esPolaca3: true,
+    promoted: false,
+  }
+  const rivalName = getTeamName(teamIds[2] === state.teamId ? teamIds[5] : teamIds[2])
+  addNotification('match', '🏆 Playoff Ascenso — Semifinal', `Te enfrentas a ${rivalName} por el ascenso a Segunda Polaca`)
   saveGame()
 }
 
@@ -3397,6 +3554,8 @@ function getDivisionBaseBudget(leagueId) {
   if (leagueId === 'lnfs2') return 30000
   if (leagueId === 'lpl') return 25000
   if (leagueId === 'lpl2') return 12000
+  if (leagueId === 'lpl3') return 6000
+  if (leagueId.startsWith('lpl4g')) return 3000
   if (leagueId.startsWith('l2b')) return 15000
   if (leagueId.startsWith('l3g')) return 8000
   if (leagueId.startsWith('lhc')) return 5000
@@ -3417,6 +3576,8 @@ function getDivisionMatchReward(leagueId) {
   if (leagueId === 'lnfs2') return { win: 1200, draw: 500, loss: -200 }
   if (leagueId === 'lpl') return { win: 1000, draw: 400, loss: -150 }
   if (leagueId === 'lpl2') return { win: 500, draw: 200, loss: -80 }
+  if (leagueId === 'lpl3') return { win: 250, draw: 100, loss: -30 }
+  if (leagueId.startsWith('lpl4g')) return { win: 100, draw: 40, loss: -10 }
   if (leagueId.startsWith('l2b')) return { win: 600, draw: 250, loss: -100 }
   if (leagueId.startsWith('l3g')) return { win: 400, draw: 150, loss: -50 }
   if (leagueId.startsWith('lhc')) return { win: 250, draw: 100, loss: -30 }
@@ -3727,9 +3888,8 @@ function showTeamSelectionStep() {
 function renderLeagueSelector(leagues) {
   const container = document.getElementById('ng-leagues')
   container.innerHTML = leagues.map(l => `
-    <div class="ng-league-item${l.id === (selectedLeague && selectedLeague.id) ? ' active' : ''}" data-lid="${l.id}">
-      ${l.logo ? `<img src="${l.logo}" alt="">` : ''}
-      <span>${l.name}</span>
+    <div class="ng-league-item${l.id === (selectedLeague && selectedLeague.id) ? ' active' : ''}" data-lid="${l.id}" title="${l.name}">
+      ${l.logo ? `<img class="ng-league-logo" src="${l.logo}" alt="${l.name}">` : `<span>${l.name}</span>`}
     </div>
   `).join('')
   const dbData = window.DB[selectedCountry ? selectedCountry.id : state.countryId]
@@ -4184,7 +4344,7 @@ function showTeamInfo(teamId) {
       <span class="tp-th-value">Valor</span>
       <span class="tp-th-power">Pod</span>
     </div>
-    <div class="tp-list" style="border:1px solid var(--border);border-radius:8px;overflow:hidden">`
+    <div class="tp-list">`
   const orderedPlayers = [...team.players].sort((a, b) => {
     const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
     const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)

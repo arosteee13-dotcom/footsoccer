@@ -4244,33 +4244,27 @@ html, body {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px 6px 8px;
-  border-radius: 20px;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 8px;
   background: var(--bg-card);
   border: 1.5px solid transparent;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  font-family: var(--font-display);
 }
 .ng-league-item:hover {
   border-color: rgba(38,99,235,0.3);
-  color: var(--text);
 }
 .ng-league-item.active {
   border-color: #2663EB;
-  color: #fff;
   background: rgba(38,99,235,0.12);
 }
-.ng-league-item img {
-  width: 18px;
-  height: 18px;
+.ng-league-logo {
+  width: 32px;
+  height: 32px;
   object-fit: contain;
   flex-shrink: 0;
+  display: block;
 }
 
 /* Teams Sub-header */
@@ -4671,7 +4665,9 @@ html, body {
   padding: 8px 14px;
   gap: 6px;
   background: var(--bg-surface);
-  border-bottom: 1px solid var(--border);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
@@ -4688,10 +4684,10 @@ html, body {
 .tp-list {
   flex: 1 1 0;
   min-height: 0;
-  overflow: hidden;
   padding: 0;
+  overflow-y: auto;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 0 0 8px 8px;
   -webkit-overflow-scrolling: touch;
 }
 .tp-row {
@@ -4787,9 +4783,13 @@ html, body {
 #club-squad-content > .tp-table-header {
   padding-left: 14px;
   padding-right: 14px;
+  border-radius: 0;
 }
 #club-squad-content > .tp-list {
   border-radius: 0;
+}
+.tp-table-header + .tp-list {
+  border-top: none;
 }
 
 /* Preview footer */
