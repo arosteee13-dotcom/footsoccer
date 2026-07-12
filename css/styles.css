@@ -5122,6 +5122,78 @@ html, body {
 .ls-delete { background: none; border: none; cursor: pointer; padding: 4px; display: flex; opacity: 0.5; }
 .ls-delete:hover { opacity: 1; }
 
+/* Match Result Modal */
+.match-result-content {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  max-width: 340px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px 20px;
+  gap: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+.mr-header { text-align: center; }
+.mr-title { font-size: 18px; font-weight: 800; font-family: var(--font-display); color: var(--text); }
+.mr-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 2px; display: block; }
+.mr-teams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}
+.mr-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+.mr-logo { width: 48px; height: 48px; object-fit: contain; border-radius: 8px; }
+.mr-name { font-size: 12px; font-weight: 700; color: var(--text); text-align: center; font-family: var(--font-display); }
+.mr-score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.mr-score-val {
+  font-size: 36px;
+  font-weight: 900;
+  font-family: var(--font-display);
+  color: var(--text);
+  min-width: 40px;
+  text-align: center;
+}
+.mr-score-div { font-size: 28px; font-weight: 300; color: var(--text-muted); }
+.mr-scorers-wrap {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+.mr-scorers-col {
+  flex: 1;
+  text-align: center;
+}
+.mr-scorers-title {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.mr-goal { padding: 2px 0; font-weight: 600; color: var(--text); font-size: 11px; }
+.mr-assist { font-weight: 400; color: var(--accent); font-size: 10px; }
+.mr-btns { display: flex; gap: 8px; width: 100%; }
+.mr-btns button { flex: 1; padding: 12px; font-size: 13px; }
+
+/* Simulate button */
+#btn-home-simulate { margin-top: 8px; width: 100%; }
+
 /* Utilities */
 .hidden {
   display: none !important;

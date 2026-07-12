@@ -638,9 +638,10 @@ window.SaveSystem = {
         tactic: state.tactic,
         finances: state.finances, stats: state.stats,
         leagueTeams: (state.leagueTeams || []).map(t => ({
-          teamId: t.teamId, name: t.name, players: (t.players || []).map(cleanup), staff: t.staff
+          teamId: t.teamId, name: t.name, logo: t.logo || '', players: (t.players || []).map(cleanup), staff: t.staff
         })),
         currentMatchday: state.currentMatchday, totalMatchdays: state.totalMatchdays, fixtures: state.fixtures,
+        allLeagueData: state.allLeagueData,
         tacticsSlots: state.tacticsSlots,
         benchIds: state.benchIds,
         reserveIds: state.reserveIds,
@@ -769,12 +770,24 @@ function getTeamName(id) {
 
 function getTeamLogo(id) {
   if (id === state.teamId) return state.teamLogo
+  /* Search in window.DB (static country data) */
   for (const cid in window.DB) {
     const data = window.DB[cid]
     if (!data) continue
     for (const l of data.country.leagues || []) {
       const t = l.teams.find(x => x.id === id)
       if (t && t.logo) return t.logo
+    }
+  }
+  /* Fallback: search in leagueTeams (AI teams in user's league) */
+  const lt = state.leagueTeams && state.leagueTeams.find(x => x.teamId === id)
+  if (lt && lt.logo) return lt.logo
+  /* Fallback: search in other countries' baseDatos */
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (data && data.baseDatos) {
+      const entry = data.baseDatos.find(e => e.id === id)
+      if (entry && entry.logo) return entry.logo
     }
   }
   return ''
@@ -949,12 +962,43 @@ function simularJornadaEnTodasLasLigas(matchday) {
   if (!state.allLeagueData) return
   for (const [lid, data] of Object.entries(state.allLeagueData)) {
     if (lid === state.leagueId) continue
-    const dayFixtures = data.fixtures.filter(f => f.matchday === matchday && !f.played)
-    for (const f of dayFixtures) {
-      const r = simularPartidoPorRating(f.home, f.away)
-      f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+    if (!data || !data.fixtures) continue
+    try {
+      const dayFixtures = data.fixtures.filter(f => f.matchday === matchday && !f.played)
+      for (const f of dayFixtures) {
+        const r = simularPartidoPorRating(f.home, f.away)
+        f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+      }
+      data.currentMatchday = matchday
+    } catch (e) { console.warn('[SIM] Error simulating', lid, 'matchday', matchday, e) }
+  }
+}
+
+function initAllLeagueData() {
+  if (!state.allLeagueData) state.allLeagueData = {}
+  const existing = Object.keys(state.allLeagueData).length
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
+      if (state.allLeagueData[l.id]) continue
+      const teamIds = l.teams.map(t => t.id)
+      if (teamIds.length < 2) continue
+      try {
+        const fx = generateFixtures(teamIds)
+        state.allLeagueData[l.id] = {
+          fixtures: fx,
+          currentMatchday: 0,
+          totalMatchdays: Math.max(...fx.map(f => f.matchday))
+        }
+      } catch (e) { console.warn('[INIT] Error generating fixtures for', l.id, e) }
     }
-    data.currentMatchday = matchday
+  }
+  if (existing < Object.keys(state.allLeagueData).length) {
+    /* Simulate up to the current matchday for newly added leagues */
+    for (let md = 1; md <= (state.currentMatchday || 1); md++) {
+      simularJornadaEnTodasLasLigas(md)
+    }
   }
 }
 
@@ -1158,10 +1202,13 @@ function renderHome() {
       }
       <div class="home-match-location">${isHome ? '🏠 Local' : '✈️ Visitante'}</div>
       <button class="btn-primary" id="btn-home-play">▶ IR AL PARTIDO</button>
+      <button class="btn-secondary" id="btn-home-simulate"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Simular Partido</button>
     </div>` : '<div class="home-card home-match"><div class="home-section-title">🏆 Temporada completada</div></div>'}
   `
   const playBtn = document.getElementById('btn-home-play')
   if (playBtn) playBtn.onclick = () => startMatchFromLeague(rivalId, fixture)
+  const simBtn = document.getElementById('btn-home-simulate')
+  if (simBtn) simBtn.onclick = () => simularPartidoRapido(fixture, rivalId)
 }
 
 function renderClub() {
@@ -1638,6 +1685,9 @@ function renderLeague() {
   const resultsWrap = document.getElementById('league-results-wrap')
 
   resultsWrap.classList.add('hidden')
+
+  /* Ensure all league data exists */
+  initAllLeagueData()
 
   /* Save selected league before rebuilding dropdown */
   const selectedLeagueId = selector.value || state.leagueId
@@ -2399,6 +2449,9 @@ function finishMatch(isHome, fixture, rival) {
     f.played = true
   }
 
+  /* Simulate all other leagues for this matchday */
+  simularJornadaEnTodasLasLigas(state.currentMatchday)
+
   updateLeagueStandings()
   document.getElementById('score-home').textContent = '0'
   document.getElementById('score-away').textContent = '0'
@@ -2665,20 +2718,7 @@ function procesarFinTemporada(skipAging, skipStandings) {
   state.currentMatchday = 1
   /* Regenerate fixtures for all leagues for the new season */
   state.allLeagueData = {}
-  for (const cid in window.DB) {
-    const data = window.DB[cid]
-    if (!data) continue
-    for (const l of data.country.leagues || []) {
-      const teamIds = l.teams.map(t => t.id)
-      if (teamIds.length < 2) continue
-      const fx = generateFixtures(teamIds)
-      state.allLeagueData[l.id] = {
-        fixtures: fx,
-        currentMatchday: 0,
-        totalMatchdays: Math.max(...fx.map(f => f.matchday))
-      }
-    }
-  }
+  initAllLeagueData()
   simularJornadaEnTodasLasLigas(1)
   state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
   state.playoffs = null
@@ -2914,6 +2954,210 @@ function getPlayoffRival() {
   return f ? (f.home === state.teamId ? f.away : f.home) : null
 }
 
+/* ============ QUICK SIMULATION ============ */
+function simularPartidoRapido(fixture, rivalId) {
+  if (!fixture || !rivalId) return
+  const slots = state.tacticsSlots || []
+  const startingIds = slots.filter(Boolean)
+  if (startingIds.length < 11) {
+    alert('⚠️ Alineación incompleta.\nAsigna 11 jugadores titulares en Táctica antes de simular.')
+    return
+  }
+
+  showLoading('Simulando partido...')
+
+  setTimeout(() => {
+    /* Read current lineup and calculate user power */
+    const roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
+    let totalEff = 0
+    let userGoals = 0
+    for (let i = 0; i < roles.length; i++) {
+      const pid = startingIds[i]
+      const p = state.players.find(x => x.id === pid)
+      if (!p) continue
+      const eff = getHabilidadEfectiva(p, roles[i])
+      totalEff += eff
+    }
+    const userPower = totalEff / 11
+
+    /* Opponent power */
+    const rivalTeam = getTeamObj(rivalId)
+    let rivalPower = 0
+    if (rivalTeam && rivalTeam.players && rivalTeam.players.length > 0) {
+      rivalPower = getTop11Average(rivalTeam.players)
+    } else {
+      const db = getBaseDato(rivalId)
+      rivalPower = db ? db.rating : 70
+    }
+
+    /* Determine home/away */
+    const isHome = fixture.home === state.teamId
+
+    /* Apply home advantage and randomness */
+    const homeFactor = isHome ? 1.05 : 1.0
+    const awayFactor = isHome ? 0.97 : 1.0
+
+    const userFinal = userPower * (0.8 + Math.random() * 0.4) * homeFactor
+    const rivalFinal = rivalPower * (0.8 + Math.random() * 0.4) * awayFactor
+
+    /* Goal calculation */
+    const totalGoals = 2 + Math.floor(Math.random() * 5) /* 2-6 goals */
+    const probUser = userFinal / (userFinal + rivalFinal)
+    let rawUserGoals = Math.round(totalGoals * probUser)
+    let rawRivalGoals = totalGoals - rawUserGoals
+
+    /* Ensure at least 1 goal scored between both teams if total >= 2 */
+    if (rawUserGoals === 0 && rawRivalGoals === 0 && totalGoals >= 2) {
+      if (Math.random() < 0.5) { rawUserGoals++ } else { rawRivalGoals++ }
+    }
+
+    /* Clamp */
+    const us = Math.min(10, Math.max(0, rawUserGoals))
+    const them = Math.min(10, Math.max(0, rawRivalGoals))
+
+    /* Set matchData for finishMatch compatibility */
+    matchData.homeScore = isHome ? us : them
+    matchData.awayScore = isHome ? them : us
+    matchData.rivalName = getTeamName(rivalId)
+
+    /* Assign to fixture */
+    if (isHome) {
+      fixture.homeScore = us; fixture.awayScore = them
+    } else {
+      fixture.homeScore = them; fixture.awayScore = us
+    }
+    fixture.played = true
+
+    /* Setup player match tracking for finishMatch */
+    state.players.forEach(p => {
+      p.enPista = false; p.convocado = false; p.titular = false
+      p.minutosEnPista = 0
+      p._goalsInMatch = 0; p._assistThisMatch = 0; p._yellowsInThisMatch = 0; p._redThisMatch = false
+    })
+    startingIds.forEach((pid, i) => {
+      const p = state.players.find(x => x.id === pid)
+      if (p) {
+        p.minutosEnPista = 90
+        p.enPista = true
+        p.convocado = true
+        p.titular = true
+      }
+    })
+    /* Assign user goals via _goalsInMatch, with assists */
+    const userGoalEntries = []
+    for (let g = 0; g < us; g++) {
+      const valid = state.players.filter(p => startingIds.includes(p.id) && p.position !== 'POR' && !p.injury)
+      if (valid.length === 0) break
+      const scorer = valid[Math.floor(Math.random() * valid.length)]
+      scorer._goalsInMatch = (scorer._goalsInMatch || 0) + 1
+
+      let assistName = null
+      if (Math.random() < 0.35) {
+        const assistPool = state.players.filter(p => startingIds.includes(p.id) && p.id !== scorer.id && !p.injury)
+        if (assistPool.length > 0) {
+          const assister = assistPool[Math.floor(Math.random() * assistPool.length)]
+          assister._assistThisMatch = (assister._assistThisMatch || 0) + 1
+          assistName = assister.name
+        }
+      }
+      userGoalEntries.push({ scorerName: scorer.name, assistName })
+    }
+
+    /* Generate rival goalscorers */
+    const rivalGoalEntries = []
+    const rivalTeamObj = getTeamObj(rivalId)
+    const rivalPlayers = (rivalTeamObj && rivalTeamObj.players) ? rivalTeamObj.players.filter(p => p.position !== 'POR') : []
+    for (let g = 0; g < them; g++) {
+      if (rivalPlayers.length === 0) {
+        rivalGoalEntries.push({ scorerName: `Jugador rival`, assistName: null })
+      } else {
+        const scorer = rivalPlayers[Math.floor(Math.random() * rivalPlayers.length)]
+        let assistName = null
+        if (Math.random() < 0.35) {
+          const assistPool = rivalPlayers.filter(p => p.id !== scorer.id)
+          if (assistPool.length > 0) {
+            assistName = assistPool[Math.floor(Math.random() * assistPool.length)].name
+          }
+        }
+        rivalGoalEntries.push({ scorerName: scorer.name, assistName })
+      }
+    }
+
+    /* Fatigue */
+    state.players.forEach(p => {
+      if (!p.injury && startingIds.includes(p.id)) p.energy = Math.max(10, p.energy - 5)
+    })
+
+    const rivalObj = { name: getTeamName(rivalId), id: rivalId }
+    window._simulationMode = true
+    finishMatch(isHome, fixture, rivalObj)
+    window._simulationMode = false
+    showMatchResultModal(us, them, rivalObj.name, fixture, isHome, userGoalEntries, rivalGoalEntries)
+    hideLoading()
+  }, 400)
+}
+
+function showMatchResultModal(us, them, rivalName, fixture, isHome, userScorers, rivalScorers) {
+  const modal = document.getElementById('match-result-modal')
+  document.getElementById('mr-matchday').textContent = `Jornada ${state.currentMatchday}`
+  document.getElementById('mr-home-name').textContent = state.team
+  document.getElementById('mr-away-name').textContent = rivalName
+  document.getElementById('mr-home-logo').src = state.teamLogo || ''
+  document.getElementById('mr-away-logo').src = getTeamLogo(fixture.home === state.teamId ? fixture.away : fixture.home) || ''
+  document.getElementById('mr-home-score').textContent = isHome ? us : them
+  document.getElementById('mr-away-score').textContent = isHome ? them : us
+
+  const fmt = (entries) => {
+    if (entries.length === 0) return '<div style="color:var(--text-muted);font-size:11px">—</div>'
+    return entries.map(g => {
+      const a = g.assistName ? `<span class="mr-assist"> (${g.assistName})</span>` : ''
+      return `<div class="mr-goal">⚽ ${g.scorerName}${a}</div>`
+    }).join('')
+  }
+  document.getElementById('mr-home-scorers').innerHTML = fmt(isHome ? userScorers : rivalScorers)
+  document.getElementById('mr-away-scorers').innerHTML = fmt(isHome ? rivalScorers : userScorers)
+
+  modal.style.display = 'flex'
+  modal.classList.add('open')
+
+  /* "Ver Clasificación" → go to league view */
+  const standingsBtn = document.getElementById('mr-btn-standings')
+  const closeBtn = document.getElementById('mr-btn-close')
+
+  const goToStandings = () => {
+    modal.style.display = 'none'
+    modal.classList.remove('open')
+    document.getElementById('view-match').classList.remove('active')
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
+    document.getElementById('view-league').classList.add('active')
+
+    const rw = document.getElementById('league-results-wrap')
+    if (rw) rw.classList.remove('hidden')
+
+    state.currentTab = 'league'
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
+    document.querySelector('[data-tab="league"]').classList.add('active')
+  }
+
+  const justClose = () => {
+    modal.style.display = 'none'
+    modal.classList.remove('open')
+    /* Go back to the home/general view */
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
+    const homeTab = document.querySelector('[data-tab="home"]')
+    if (homeTab) {
+      homeTab.classList.add('active')
+      renderTab('home')
+    }
+    state.currentTab = 'home'
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
+    if (homeTab) homeTab.classList.add('active')
+  }
+
+  if (standingsBtn) standingsBtn.onclick = goToStandings
+  if (closeBtn) closeBtn.onclick = justClose
+}
+
 /* ============ MATCHDAY RESULTS ============ */
 function showMatchdayResults(userScore, rivalScore, rivalName) {
   document.getElementById('btn-end-match').style.display = 'none'
@@ -2922,11 +3166,13 @@ function showMatchdayResults(userScore, rivalScore, rivalName) {
   renderLeague()
 
   /* Go directly to league results view */
-  document.getElementById('view-match').classList.remove('active')
-  document.getElementById('view-league').classList.add('active')
-  document.getElementById('bottom-nav').style.display = ''
-  document.getElementById('app-header').style.display = ''
-  document.getElementById('btn-header-menu').style.display = ''
+  if (!window._simulationMode) {
+    document.getElementById('view-match').classList.remove('active')
+    document.getElementById('view-league').classList.add('active')
+    document.getElementById('bottom-nav').style.display = ''
+    document.getElementById('app-header').style.display = ''
+    document.getElementById('btn-header-menu').style.display = ''
+  }
 
   const fixtures = state.fixtures.filter(f => f.matchday === state.currentMatchday)
   const list = document.getElementById('league-results-list')
@@ -2972,6 +3218,12 @@ function showMatchdayResults(userScore, rivalScore, rivalName) {
         hideLoading()
         procesarFinTemporada()
         return
+      }
+      /* Simulate ALL remaining AI matches in the user's league for all matchdays up to current */
+      const unplayedAll = state.fixtures.filter(f => f.matchday <= state.currentMatchday && !f.played && f.home !== state.teamId && f.away !== state.teamId)
+      for (const f of unplayedAll) {
+        const r = autoSimulateOtherMatch(f.home, f.away)
+        f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
       }
       state.currentMatchday++
       simularJornadaEnTodasLasLigas(state.currentMatchday)
@@ -3145,67 +3397,6 @@ function renderMarketContent() {
         player.transferListed = false
         player.transferPrice = 0
         renderMarketContent()
-      })
-    })
-  } else if (state.marketTab === 'staff') {
-    const allStaff = []
-    for (const t of state.leagueTeams) {
-      for (const s of (t.staff || [])) {
-        allStaff.push({ ...s, teamName: t.name, teamId: t.teamId })
-      }
-    }
-    /* Add unemployed staff available for hire */
-    const roles = ['headCoach', 'assistantCoach', 'delegate', 'goalkeeperCoach', 'fitnessCoach']
-    const countryIds = Object.keys(NATIONALITIES)
-    for (let i = 0; i < 12; i++) {
-      const cid = pickRandom(countryIds)
-      const role = pickRandom(roles)
-      const m = generateStaffMember('— Sin equipo —', cid, role)
-      allStaff.push({ ...m, teamName: '— Sin equipo —', teamId: null })
-    }
-    const roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
-    const visibleStaff = allStaff.filter(s => !(s.role === 'headCoach' && s.teamId !== null))
-    const filtered = search ? visibleStaff.filter(s => s.name.toLowerCase().includes(search)) : visibleStaff
-    if (filtered.length === 0) {
-      container.innerHTML = '<div class="market-empty">No hay personal técnico disponible</div>'
-      return
-    }
-    container.innerHTML = filtered.map(s => {
-      const avatarStyle = s.avatar ? `background-image:url(${s.avatar});background-size:cover;background-position:center;background-color:var(--bg-surface)` : `background:var(--bg-surface)`
-      const alreadyHas = state.staff.some(x => x.role === s.role)
-      const canHire = state.finances.balance >= 2000 && !alreadyHas
-      return `
-        <div class="market-card" data-staff-name="${s.name}" data-team-id="${s.teamId}">
-          <div class="staff-card-avatar" style="width:36px;height:36px;${avatarStyle}">${s.avatar ? '' : getInitials(s.name)}</div>
-          <div class="market-card-info">
-            <div class="market-card-name">${s.name}</div>
-            <div class="market-card-detail">${roleLabels[s.role] || s.role} · ${s.teamName}</div>
-          </div>
-          <div class="market-card-right">
-            <div class="market-card-value">2.000 €</div>
-            <button class="market-card-btn ${canHire ? 'hire' : 'disabled'}">${canHire ? 'CONTRATAR' : (alreadyHas ? 'YA TIENES UNO' : 'SIN FONDOS')}</button>
-          </div>
-        </div>
-      `
-    }).join('')
-    container.querySelectorAll('.market-card').forEach(card => {
-      card.onclick = () => {
-        const name = card.dataset.staffName
-        const tid = card.dataset.teamId
-        const team = state.leagueTeams.find(t => t.teamId === tid)
-        if (team) {
-          const staff = team.staff.find(s => s.name === name)
-
-        }
-      }
-      card.querySelector('.market-card-btn.hire')?.addEventListener('click', (e) => {
-        e.stopPropagation()
-        const name = card.dataset.staffName
-        const tid = card.dataset.teamId
-        const team = tid ? state.leagueTeams.find(t => t.teamId === tid) : null
-        const staffMember = team ? team.staff.find(s => s.name === name) : allStaff.find(s => s.name === name && s.teamId === null)
-        if (!staffMember) return
-        hireStaff(staffMember, team)
       })
     })
   }
@@ -3652,7 +3843,7 @@ function newGame(coach) {
       ? base.map(p => ({ ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill), wage: p.wage || calcWage(p.skill), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null }))
       : generateCpuSquad(t.id, state.countryId, t.rating)
     const defaultStaff = t.staff || generateStaff(t.name, state.countryId)
-    state.leagueTeams.push({ teamId: t.id, name: t.name, players: squad, staff: defaultStaff })
+    state.leagueTeams.push({ teamId: t.id, name: t.name, logo: t.logo || '', players: squad, staff: defaultStaff })
     allTeamIds.push(t.id)
   }
   console.log('[INIT] leagueTeams:', state.leagueTeams.map(t => t.name + ': ' + t.players.length + ' players').join(', '))
@@ -3665,22 +3856,15 @@ function newGame(coach) {
 
   /* Generate fixtures for all leagues */
   state.allLeagueData = {}
-  for (const cid in window.DB) {
-    const data = window.DB[cid]
-    if (!data) continue
-    for (const l of data.country.leagues || []) {
-      const teamIds = l.teams.map(t => t.id)
-      if (teamIds.length < 2) continue
-      const fx = generateFixtures(teamIds)
-      state.allLeagueData[l.id] = {
-        fixtures: fx,
-        currentMatchday: 0,
-        totalMatchdays: Math.max(...fx.map(f => f.matchday))
-      }
-    }
-  }
+  initAllLeagueData()
   /* Simulate matchday 1 for all leagues so tables show results from the start */
   simularJornadaEnTodasLasLigas(1)
+  /* Also simulate AI matches in the user's league for MD1 so teams have played matches */
+  const userLeagueMds = state.fixtures.filter(f => f.matchday === 1 && !f.played && f.home !== state.teamId && f.away !== state.teamId)
+  for (const f of userLeagueMds) {
+    const r = autoSimulateOtherMatch(f.home, f.away)
+    f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+  }
 
   /* Assign dates and schedules */
   const WEEKEND_DAYS = [
@@ -3762,6 +3946,8 @@ function loadGame(id) {
   state.currentMatchday = data.currentMatchday || 1
   state.totalMatchdays = data.totalMatchdays || 0
   state.fixtures = data.fixtures || []
+  state.allLeagueData = data.allLeagueData || {}
+  initAllLeagueData()
   state.tacticsSlots = data.tacticsSlots || []
   state.benchIds = data.benchIds || []
   state.reserveIds = data.reserveIds || []
@@ -4117,14 +4303,7 @@ function showLoadMenu() {
   document.getElementById('menu-load').classList.remove('hidden')
   const slots = window.SaveSystem.getEmptySlots()
   const content = document.getElementById('load-content')
-  content.innerHTML = slots.map((save, idx) => {
-    if (!save) {
-      return `<div class="ls-slot ls-empty">
-        <div class="ls-empty-icon">📂</div>
-        <div class="ls-empty-text">Slot disponible</div>
-        <button class="btn-primary ls-empty-btn" data-slot="${idx}">NUEVA PARTIDA</button>
-      </div>`
-    }
+  content.innerHTML = slots.filter(Boolean).map((save, idx) => {
     const m = save.meta || {}
     const mgrName = m.managerName || save.coach || '—'
     const teamName = m.teamName || save.team || '—'
@@ -4157,9 +4336,6 @@ function showLoadMenu() {
   })
   content.querySelectorAll('.ls-delete').forEach(btn => {
     btn.onclick = (e) => { e.stopPropagation(); window.SaveSystem.deleteGame(Number(btn.dataset.id)) }
-  })
-  content.querySelectorAll('.ls-empty-btn').forEach(btn => {
-    btn.onclick = () => { document.getElementById('menu-load').classList.add('hidden'); showNewGameScreen() }
   })
 }
 

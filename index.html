@@ -218,7 +218,6 @@
           <div class="sub-tabs">
             <button class="sub-tab active" data-market-tab="buy">Disponibles</button>
             <button class="sub-tab" data-market-tab="sell">Transferibles</button>
-            <button class="sub-tab" data-market-tab="staff">Staff Técnico</button>
           </div>
           <div class="market-search-wrap">
             <input class="market-search" id="market-search" type="text" placeholder="🔍 Buscar jugador...">
@@ -590,6 +589,45 @@
           </div>
         </div>
         <div class="pd-adapt-note">A menor edad (más joven), mayor es el porcentaje de adaptabilidad y aprendizaje en esta posición.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATCH RESULT MODAL -->
+  <div id="match-result-modal" class="modal-overlay" style="display:none">
+    <div class="match-result-content">
+      <div class="mr-header">
+        <span class="mr-title">Resultado Final</span>
+        <span class="mr-subtitle" id="mr-matchday">Jornada 1</span>
+      </div>
+      <div class="mr-teams">
+        <div class="mr-team mr-home">
+          <img class="mr-logo" id="mr-home-logo" src="" alt="">
+          <span class="mr-name" id="mr-home-name">Local</span>
+        </div>
+        <div class="mr-score">
+          <span class="mr-score-val" id="mr-home-score">0</span>
+          <span class="mr-score-div">-</span>
+          <span class="mr-score-val" id="mr-away-score">0</span>
+        </div>
+        <div class="mr-team mr-away">
+          <img class="mr-logo" id="mr-away-logo" src="" alt="">
+          <span class="mr-name" id="mr-away-name">Visitante</span>
+        </div>
+      </div>
+      <div class="mr-scorers-wrap">
+        <div class="mr-scorers-col">
+          <div class="mr-scorers-title">Goleadores</div>
+          <div id="mr-home-scorers"></div>
+        </div>
+        <div class="mr-scorers-col">
+          <div class="mr-scorers-title">Goleadores</div>
+          <div id="mr-away-scorers"></div>
+        </div>
+      </div>
+      <div class="mr-btns">
+        <button class="btn-secondary" id="mr-btn-close">Cerrar</button>
+        <button class="btn-primary" id="mr-btn-standings">Ver Clasificación</button>
       </div>
     </div>
   </div>
