@@ -3166,15 +3166,6 @@ html, body {
   gap: 10px;
 }
 
-/* ───────── STAFF MODAL ───────── */
-
-  padding: 6px 8px;
-  font-size: 11px;
-  font-weight: 700;
-  width: 100%;
-  margin: 0;
-}
-
 /* ───────── TACTICS MODAL ───────── */
 #tactics-modal .modal-content { max-height: 95vh; }
 #tactics-modal .modal-scroll { padding: 16px; overflow-y: auto; max-height: 80vh; }
@@ -4666,7 +4657,6 @@ html, body {
   gap: 6px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  border-bottom: none;
   border-radius: 8px 8px 0 0;
   font-size: 9px;
   font-weight: 700;
