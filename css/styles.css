@@ -2783,6 +2783,36 @@ html, body {
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
+/* Squad sub-toggle (Info / Rendimiento) */
+.sq-toggle {
+  display: flex;
+  gap: 0;
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 2px;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+.sq-tab {
+  padding: 4px 14px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-family: var(--font-display);
+}
+.sq-tab.active {
+  background: rgba(38,99,235,0.12);
+  color: var(--accent);
+}
+
 .player-card {
   cursor: pointer;
 }
@@ -3137,91 +3167,7 @@ html, body {
 }
 
 /* ───────── STAFF MODAL ───────── */
-#staff-modal .modal-scroll { gap: 0; padding: 16px 20px 8px; }
-#staff-modal .modal-avatar-wrap { margin: 4px 0 12px; }
-#staff-modal .modal-position { letter-spacing: 0.5px; }
 
-#staff-modal .staff-bonus {
-  text-align: center;
-  padding: 8px 12px;
-  margin: 4px 0 8px;
-  background: rgba(0,0,0,0.01);
-  border: 1px solid rgba(0,0,0,0.03);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  color: var(--text);
-  line-height: 1.4;
-  width: 100%;
-}
-
-#staff-modal .staff-career-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(0,0,0,0.02);
-  font-size: 12px;
-  width: 100%;
-}
-
-#staff-modal .staff-career-item:last-child { border-bottom: none; }
-
-#staff-modal .staff-career-item:nth-child(odd) {
-  background: rgba(0,0,0,0.01);
-}
-
-#staff-modal .staff-career-team {
-  flex: 1;
-  font-weight: 600;
-  color: var(--text);
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-#staff-modal .staff-career-dates {
-  font-size: 10px;
-  color: rgba(0,0,0,0.15);
-  min-width: 65px;
-  text-align: center;
-}
-
-#staff-modal .staff-career-record {
-  font-weight: 700;
-  min-width: 55px;
-  text-align: right;
-}
-
-#staff-modal .staff-career-record .wins { color: #10B981; }
-#staff-modal .staff-career-record .draws { color: #F59E0B; }
-#staff-modal .staff-career-record .losses { color: #EF4444; }
-
-#staff-modal .staff-career-matches {
-  font-size: 10px;
-  color: rgba(0,0,0,0.15);
-  min-width: 40px;
-  text-align: right;
-}
-
-#staff-modal .staff-career-total {
-  text-align: center;
-  padding: 10px 12px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-  background: rgba(0,0,0,0.01);
-  border: 1px solid rgba(0,0,0,0.03);
-  border-radius: var(--radius-sm);
-  width: 100%;
-  margin: 12px 0 4px;
-}
-
-#staff-modal .modal-action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 36px;
   padding: 6px 8px;
   font-size: 11px;
   font-weight: 700;
@@ -4353,7 +4299,7 @@ html, body {
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  width: 44px;
+  width: 65px;
   text-align: center;
 }
 
@@ -4742,8 +4688,10 @@ html, body {
 .tp-list {
   flex: 1 1 0;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
   padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   -webkit-overflow-scrolling: touch;
 }
 .tp-row {
@@ -4818,6 +4766,30 @@ html, body {
   font-weight: 800;
   font-family: var(--font-display);
   flex-shrink: 0;
+}
+
+/* Full-width lists in club squad view */
+#club-squad-content {
+  margin-left: -16px;
+  margin-right: -16px;
+}
+#club-squad-content > .sq-toggle {
+  margin-left: 16px;
+}
+#club-squad-content > .staff-card {
+  margin-left: 16px;
+  margin-right: 16px;
+}
+#club-squad-content > .tactics-subsection-label {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+#club-squad-content > .tp-table-header {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+#club-squad-content > .tp-list {
+  border-radius: 0;
 }
 
 /* Preview footer */
@@ -5114,6 +5086,51 @@ html, body {
   align-items: flex-end;
   padding: 0;
 }
+
+/* ─── Load Menu ─── */
+#menu-load {
+  position: absolute; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+}
+.ls-grid {
+  flex: 1; overflow-y: auto; padding: 12px;
+  display: flex; flex-direction: column; gap: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+.ls-slot {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px; border-radius: 14px;
+  background: var(--bg-card); border: 1px solid var(--border);
+}
+.ls-slot.ls-empty {
+  flex-direction: column; gap: 8px; padding: 24px; justify-content: center;
+  border-style: dashed; opacity: 0.6;
+}
+.ls-empty-icon { font-size: 28px; }
+.ls-empty-text { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.ls-empty-btn { max-width: 200px; height: 38px; font-size: 12px; }
+.ls-crest { width: 44px; height: 44px; flex-shrink: 0; }
+.ls-crest img { width: 100%; height: 100%; object-fit: contain; }
+.ls-crest-fallback {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: var(--bg-surface); display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: var(--text-muted); font-family: var(--font-display);
+}
+.ls-info { flex: 1; min-width: 0; }
+.ls-team { font-size: 15px; font-weight: 800; color: var(--text); font-family: var(--font-display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ls-manager { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+.ls-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.ls-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.ls-time { font-size: 9px; color: var(--text-muted); white-space: nowrap; }
+.ls-btns { display: flex; gap: 6px; align-items: center; }
+.ls-load {
+  background: var(--accent); color: #fff; border: none; border-radius: 8px;
+  padding: 6px 14px; font-size: 12px; font-weight: 700; font-family: var(--font-display);
+  cursor: pointer; white-space: nowrap;
+}
+.ls-delete { background: none; border: none; cursor: pointer; padding: 4px; display: flex; opacity: 0.5; }
+.ls-delete:hover { opacity: 1; }
 
 /* Utilities */
 .hidden {

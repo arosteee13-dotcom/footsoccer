@@ -89,6 +89,22 @@ const STAFF_FIRST = {
   ee: ['Marten', 'Ragnar', 'Karl', 'Andres', 'Tarmo', 'Rain', 'Indrek', 'Ainar', 'Vladimir', 'Sergei', 'Dmitri', 'Mihkel', 'Sander', 'Henri', 'Markus'],
   nl: ['Jan', 'Piet', 'Dirk', 'Bram', 'Thijs', 'Lars', 'Sander', 'Tim', 'Thomas', 'Jasper', 'Wout', 'Daan', 'Milan', 'Jesse', 'Ruben'],
   by: ['Aleksei', 'Dzmitry', 'Ivan', 'Mikhail', 'Yahor', 'Pavel', 'Syarhey', 'Mikita', 'Uladzislau', 'Andrey', 'Artsyom', 'Maksim', 'Yevgeniy', 'Valeriy', 'Raman'],
+  ch: ['Lukas', 'Noah', 'Nico', 'Leandro', 'Fabian', 'Yannick', 'Kevin', 'Roman', 'Silvan', 'Raphael', 'Dominik', 'Manuel', 'Sven', 'Marco', 'Patrick'],
+  at: ['Lukas', 'David', 'Michael', 'Christoph', 'Stefan', 'Andreas', 'Thomas', 'Philipp', 'Markus', 'Daniel', 'Alexander', 'Martin', 'Florian', 'Manuel', 'Patrick'],
+  ng: ['Emeka', 'Chinedu', 'Ola', 'Segun', 'Tunde', 'Kayode', 'Musa', 'Adekunle', 'Femi', 'Chidi', 'Uche', 'Kelechi', 'Ebuka', 'Ifeanyi', 'Nnamdi'],
+  fr: ['Lucas', 'Hugo', 'Gabriel', 'Léo', 'Raphaël', 'Louis', 'Arthur', 'Jules', 'Adam', 'Maël', 'Ethan', 'Nathan', 'Clément', 'Antoine', 'Alexandre'],
+  ro: ['Andrei', 'Mihai', 'Ionut', 'Alexandru', 'Cristian', 'Marius', 'George', 'Florin', 'Dan', 'Cosmin', 'Bogdan', 'Vlad', 'Adrian', 'Stefan', 'Razvan'],
+  hr: ['Luka', 'Ivan', 'Mateo', 'Marko', 'Ante', 'Josip', 'Tomislav', 'Dominik', 'Mislav', 'Mario', 'Petar', 'Duje', 'Filip', 'Borna', 'Lovro'],
+  si: ['Luka', 'Jan', 'Nejc', 'Miha', 'Zan', 'Tim', 'Matic', 'Alen', 'Jaka', 'Domen', 'Mitja', 'Blaz', 'Rene', 'Vid', 'Gasper'],
+  am: ['Armen', 'Arman', 'Hayk', 'Gor', 'Artur', 'Vahan', 'Narek', 'Tigran', 'Sargis', 'David', 'Erik', 'Hovhannes', 'Varuzhan', 'Arsen', 'Gevorg'],
+  dk: ['Mads', 'Christian', 'Rasmus', 'Andreas', 'Emil', 'Mathias', 'Kasper', 'Mikkel', 'Nikolaj', 'Oliver', 'Victor', 'Jonas', 'Simon', 'Alexander', 'Frederik'],
+  se: ['Erik', 'Lars', 'Karl', 'Anders', 'Mikael', 'Johan', 'Henrik', 'Gustav', 'Magnus', 'Fredrik', 'Emil', 'Oskar', 'Victor', 'Simon', 'Anton'],
+  gh: ['Kwame', 'Yaw', 'Kofi', 'Emmanuel', 'Samuel', 'Michael', 'Daniel', 'David', 'Joseph', 'John', 'Stephen', 'Isaac', 'Godwin', 'Eric', 'Patrick'],
+  hn: ['Carlos', 'Jose', 'Luis', 'Rony', 'Alberth', 'Brayan', 'Kevin', 'Jorge', 'Danilo', 'Oscar', 'Angel', 'Edwin', 'Jonathan', 'Ramon', 'Marcelo'],
+  ir: ['Ali', 'Mohammad', 'Reza', 'Amir', 'Hossein', 'Saeid', 'Mehdi', 'Majid', 'Hamid', 'Kaveh', 'Omid', 'Ehsan', 'Saman', 'Mojtaba', 'Payam'],
+  ci: ['Didier', 'Yaya', 'Kolo', 'Salomon', 'Gervais', 'Wilfried', 'Serge', 'Frank', 'Cheick', 'Seydou', 'Lacina', 'Moussa', 'Bakari', 'Abou', 'Igor'],
+  fi: ['Mika', 'Jussi', 'Teemu', 'Markus', 'Petri', 'Antti', 'Jukka', 'Mikko', 'Sami', 'Jari', 'Timo', 'Janne', 'Ville', 'Toni', 'Jarkko'],
+  is: ['Aron', 'Birkir', 'Jon', 'Gylfi', 'Hordur', 'Ragnar', 'Alfreð', 'Runar', 'Johann', 'Kari', 'Haukur', 'Elias', 'Sveinn', 'Olafur', 'Bjorn'],
 }
 
 const SURNAMES_BY_COUNTRY = {
@@ -103,6 +119,22 @@ const SURNAMES_BY_COUNTRY = {
   ee: ['Tamm', 'Saar', 'Mägi', 'Sepp', 'Kask', 'Kull', 'Mets', 'Koppel', 'Aas', 'Pärn', 'Kuusk', 'Luik', 'Vaher', 'Ilves', 'Allik'],
   nl: ['de Jong', 'Jansen', 'de Vries', 'van Dijk', 'Bakker', 'Visser', 'Smit', 'Meijer', 'Mulder', 'de Groot', 'Bos', 'Vos', 'Peters', 'Hendriks', 'Dekker'],
   by: ['Ivanou', 'Kozlov', 'Volkov', 'Navitski', 'Klimovich', 'Petrov', 'Sidorov', 'Mikhailov', 'Kuznetsov', 'Smirnov', 'Popov', 'Belavusau', 'Karpovich', 'Savin', 'Bondar'],
+  ch: ['Müller', 'Schmid', 'Keller', 'Weber', 'Huber', 'Baumann', 'Fischer', 'Gerber', 'Stocker', 'Lehmann', 'Brunner', 'Frei', 'Arnold', 'Burkhardt', 'Roth'],
+  at: ['Gruber', 'Huber', 'Bauer', 'Wagner', 'Müller', 'Pichler', 'Steiner', 'Moser', 'Hofer', 'Leitner', 'Berger', 'Fuchs', 'Eder', 'Fischer', 'Schneider'],
+  ng: ['Okafor', 'Nwosu', 'Adeyemi', 'Ogunleye', 'Okonkwo', 'Eze', 'Nnamdi', 'Olawale', 'Chukwu', 'Okafor', 'Nwachukwu', 'Ibrahim', 'Abubakar', 'Adegoke', 'Okoro'],
+  fr: ['Martin', 'Bernard', 'Dubois', 'Thomas', 'Robert', 'Richard', 'Petit', 'Durand', 'Leroy', 'Moreau', 'Simon', 'Laurent', 'Lefebvre', 'Michel', 'Garcia'],
+  ro: ['Popescu', 'Ionescu', 'Dumitrescu', 'Stoica', 'Dinu', 'Gheorghiu', 'Radu', 'Constantin', 'Stan', 'Marinescu', 'Munteanu', 'Petrescu', 'Barbu', 'Diaconu', 'Nicolae'],
+  hr: ['Horvat', 'Kovačević', 'Babić', 'Novak', 'Knežević', 'Petrović', 'Lovrić', 'Bošnjak', 'Marić', 'Vuković', 'Tomić', 'Blažević', 'Grgić', 'Vidović', 'Pavlović'],
+  si: ['Novak', 'Horvat', 'Krajnc', 'Kovačič', 'Zupančič', 'Potočnik', 'Mlakar', 'Kos', 'Vidmar', 'Hribar', 'Koren', 'Božič', 'Rozman', 'Golob', 'Turk'],
+  am: ['Hakobyan', 'Sargsyan', 'Petrosyan', 'Mkrtchyan', 'Grigoryan', 'Karapetyan', 'Avetisyan', 'Harutyunyan', 'Stepanyan', 'Khachatryan', 'Vardanyan', 'Simonyan', 'Ohanyan', 'Movsesyan', 'Ghazaryan'],
+  dk: ['Jensen', 'Nielsen', 'Hansen', 'Pedersen', 'Andersen', 'Christensen', 'Larsen', 'Sørensen', 'Rasmussen', 'Jørgensen', 'Madsen', 'Petersen', 'Olsen', 'Thomsen', 'Kristensen'],
+  se: ['Johansson', 'Andersson', 'Karlsson', 'Nilsson', 'Eriksson', 'Larsson', 'Olsson', 'Persson', 'Svensson', 'Gustafsson', 'Pettersson', 'Jonsson', 'Hansson', 'Bengtsson', 'Lindqvist'],
+  gh: ['Mensah', 'Asante', 'Agyeman', 'Owusu', 'Osei', 'Boateng', 'Adomah', 'Nkrumah', 'Annan', 'Quaye', 'Agyapong', 'Tetteh', 'Amankwah', 'Sarpong', 'Kwarteng'],
+  hn: ['Lopez', 'Garcia', 'Hernandez', 'Martinez', 'Rodriguez', 'Gonzalez', 'Flores', 'Cruz', 'Valle', 'Reyes', 'Mejia', 'Diaz', 'Castro', 'Vargas', 'Ramos'],
+  ir: ['Ahmadi', 'Mohammadi', 'Hosseini', 'Rezaei', 'Karimi', 'Mousavi', 'Jafari', 'Ghasemi', 'Akbari', 'Taghavi', 'Moradi', 'Mirzaei', 'Ebrahimi', 'Hedayati', 'Salehi'],
+  ci: ['Traoré', 'Touré', 'Koné', 'Cissé', 'Diallo', 'Bamba', 'Coulibaly', 'Zakri', 'Sangaré', 'Fofana', 'Kamara', 'Ouattara', 'Konaté', 'Keita', 'Dembélé'],
+  fi: ['Korhonen', 'Virtanen', 'Mäkinen', 'Nieminen', 'Mäkelä', 'Hämäläinen', 'Laine', 'Heikkinen', 'Koskinen', 'Salminen', 'Nurmi', 'Järvinen', 'Lehtonen', 'Salo', 'Rantanen'],
+  is: ['Jónsson', 'Guðmundsson', 'Sigurðsson', 'Kristjánsson', 'Björnsson', 'Magnússon', 'Pálsson', 'Ólafsson', 'Einarsson', 'Harðarson', 'Þorvaldsson', 'Þórðarson', 'Víkingsson', 'Þráinsson', 'Þórarinsson'],
 }
 
 const NATIONALITIES = {
@@ -117,6 +149,29 @@ const NATIONALITIES = {
   ee: { flag: '🇪🇪', name: 'Estonia', label: '🇪🇪 Estonia' },
   nl: { flag: '🇳🇱', name: 'Países Bajos', label: '🇳🇱 Países Bajos' },
   by: { flag: '🇧🇾', name: 'Bielorrusia', label: '🇧🇾 Bielorrusia' },
+  /* Aliases para data file IDs */
+  poland: { flag: '🇵🇱', name: 'Polonia', label: '🇵🇱 Polonia' },
+  spain: { flag: '🇪🇸', name: 'España', label: '🇪🇸 España' },
+  portugal: { flag: '🇵🇹', name: 'Portugal', label: '🇵🇹 Portugal' },
+  italy: { flag: '🇮🇹', name: 'Italia', label: '🇮🇹 Italia' },
+  brazil: { flag: '🇧🇷', name: 'Brasil', label: '🇧🇷 Brasil' },
+  argentina: { flag: '🇦🇷', name: 'Argentina', label: '🇦🇷 Argentina' },
+  ch: { flag: '🇨🇭', name: 'Suiza', label: '🇨🇭 Suiza' },
+  at: { flag: '🇦🇹', name: 'Austria', label: '🇦🇹 Austria' },
+  ng: { flag: '🇳🇬', name: 'Nigeria', label: '🇳🇬 Nigeria' },
+  fr: { flag: '🇫🇷', name: 'Francia', label: '🇫🇷 Francia' },
+  ro: { flag: '🇷🇴', name: 'Rumanía', label: '🇷🇴 Rumanía' },
+  hr: { flag: '🇭🇷', name: 'Croacia', label: '🇭🇷 Croacia' },
+  si: { flag: '🇸🇮', name: 'Eslovenia', label: '🇸🇮 Eslovenia' },
+  am: { flag: '🇦🇲', name: 'Armenia', label: '🇦🇲 Armenia' },
+  dk: { flag: '🇩🇰', name: 'Dinamarca', label: '🇩🇰 Dinamarca' },
+  se: { flag: '🇸🇪', name: 'Suecia', label: '🇸🇪 Suecia' },
+  gh: { flag: '🇬🇭', name: 'Ghana', label: '🇬🇭 Ghana' },
+  hn: { flag: '🇭🇳', name: 'Honduras', label: '🇭🇳 Honduras' },
+  ir: { flag: '🇮🇷', name: 'Irán', label: '🇮🇷 Irán' },
+  ci: { flag: '🇨🇮', name: 'Costa de Marfil', label: '🇨🇮 Costa de Marfil' },
+  fi: { flag: '🇫🇮', name: 'Finlandia', label: '🇫🇮 Finlandia' },
+  is: { flag: '🇮🇸', name: 'Islandia', label: '🇮🇸 Islandia' },
 }
 
 function pickRandom(arr) {
@@ -152,13 +207,7 @@ function generateStaffMember(teamName, countryId, role) {
 
 function generateStaff(teamName, countryId) {
   const cid = countryId || 'es'
-  return [
-    generateStaffMember(teamName, cid, 'headCoach'),
-    generateStaffMember(teamName, cid, 'assistantCoach'),
-    generateStaffMember(teamName, cid, 'delegate'),
-    generateStaffMember(teamName, cid, 'goalkeeperCoach'),
-    generateStaffMember(teamName, cid, 'fitnessCoach'),
-  ]
+  return [ generateStaffMember(teamName, cid, 'headCoach') ]
 }
 
 function generateCpuSquad(teamId, countryId, teamRating) {
@@ -443,7 +492,7 @@ const state = {
   matchdaySquad: [], startingFive: [], subsBench: [], convocatoriaValidada: false,
   stats: { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
   players: [],
-  tactic: { formation: '1-2-1', gamePlan: 'juegoCuatro' },
+  tactic: { formation: '4-3-3', gamePlan: 'tikitaka' },
   finances: { balance: 5000, history: [] },
   leagueTeams: [],
   currentMatchday: 1,
@@ -499,46 +548,160 @@ function formatTime(minute) {
 }
 
 /* ============ SAVE / LOAD ============ */
-function getSaves() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [] } catch { return [] }
+function storageSafe(method, key, value) {
+  try {
+    if (method === 'get') {
+      const v = localStorage.getItem(key)
+      if (v !== null) return v
+    } else {
+      localStorage.setItem(key, value)
+      return true
+    }
+  } catch(e) { /* localStorage not available */ }
+  try {
+    if (method === 'get') {
+      const v = sessionStorage.getItem(key)
+      return v
+    } else {
+      sessionStorage.setItem(key, value)
+      return true
+    }
+  } catch(e) { return null }
 }
-function setSaves(saves) { localStorage.setItem(STORAGE_KEY, JSON.stringify(saves)) }
 
-function saveGame() {
-  const saves = getSaves()
-  const idx = saves.findIndex(s => s.id === state.gameId)
-  const matchday = state.stats.wins + state.stats.draws + state.stats.losses + 1
-  const data = {
-    id: state.gameId, name: `${state.coach} - ${state.team}`, coach: state.coach, team: state.team, teamId: state.teamId, teamLogo: state.teamLogo,
-    countryId: state.countryId, leagueId: state.leagueId,
-    date: new Date().toISOString(), matchday, players: state.players, tactic: state.tactic,
-    finances: state.finances, stats: state.stats, leagueTeams: state.leagueTeams,
-    currentMatchday: state.currentMatchday, totalMatchdays: state.totalMatchdays, fixtures: state.fixtures,
-    tacticsSlots: state.tacticsSlots,
-    benchIds: state.benchIds,
-    reserveIds: state.reserveIds,
-    staff: state.staff,
-    inbox: state.inbox,
-    soundEnabled: state.soundEnabled,
-    filialSquad: state.filialSquad,
-  }
-  if (idx >= 0) saves[idx] = data; else saves.unshift(data)
-  setSaves(saves)
-  autoSaveTactics()
+function getTop11Average(players) {
+  if (!players || players.length === 0) return 0
+  const top = [...players].sort((a, b) => (b.skill || 0) - (a.skill || 0)).slice(0, 11)
+  return Math.round(top.reduce((s, p) => s + (p.skill || 0), 0) / top.length)
 }
+
+const MAX_SLOTS = 4
+
+function getSaves() {
+  try {
+    const raw = storageSafe('get', STORAGE_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch { return [] }
+}
+function setSaves(saves) { storageSafe('set', STORAGE_KEY, JSON.stringify(saves)) }
+
+function timeAgo(iso) {
+  if (!iso) return ''
+  const now = Date.now()
+  const diff = now - new Date(iso).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'Ahora'
+  if (mins < 60) return `Hace ${mins} min`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `Hace ${hrs}h`
+  const days = Math.floor(hrs / 24)
+  if (days < 7) return `Hace ${days}d`
+  return new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+window.SaveSystem = {
+  saveGame() {
+    try {
+      const gameId = state.gameId || Date.now()
+      state.gameId = gameId
+      let saves = getSaves()
+      if (saves.length >= MAX_SLOTS) saves = saves.slice(0, MAX_SLOTS - 1)
+      const idx = saves.findIndex(s => Number(s.id) === Number(gameId))
+      const matchday = state.stats.wins + state.stats.draws + state.stats.losses + 1
+      const cleanup = p => {
+        const { enPista, minutosEnPista, convocado, titular, _yellowsInThisMatch, _redThisMatch, _goalsInMatch, ...rest } = p
+        return rest
+      }
+      const teamLogoUrl = state.teamLogo || ''
+      const db = window.DB[state.countryId]
+      let leagueName = ''
+      if (db) {
+        const league = db.country.leagues.find(l => l.id === state.leagueId)
+        if (league) leagueName = league.name
+      }
+      const data = {
+        id: Number(gameId),
+        meta: {
+          managerName: state.coach || 'Manager',
+          nationality: state.staff && state.staff[0] ? state.staff[0].nationality || '' : '',
+          teamName: state.team || 'Equipo',
+          teamLogo: teamLogoUrl,
+          leagueName: leagueName,
+          countryDatabase: state.countryId || '',
+          gameDate: `Jornada ${matchday}`,
+          saveDate: new Date().toISOString(),
+        },
+        coach: state.coach, team: state.team, teamId: state.teamId, teamLogo: teamLogoUrl,
+        countryId: state.countryId, leagueId: state.leagueId,
+        date: new Date().toISOString(), matchday,
+        players: (state.players || []).map(cleanup),
+        tactic: state.tactic,
+        finances: state.finances, stats: state.stats,
+        leagueTeams: (state.leagueTeams || []).map(t => ({
+          teamId: t.teamId, name: t.name, players: (t.players || []).map(cleanup), staff: t.staff
+        })),
+        currentMatchday: state.currentMatchday, totalMatchdays: state.totalMatchdays, fixtures: state.fixtures,
+        tacticsSlots: state.tacticsSlots,
+        benchIds: state.benchIds,
+        reserveIds: state.reserveIds,
+        staff: state.staff,
+        inbox: state.inbox,
+        soundEnabled: state.soundEnabled,
+        filialSquad: (state.filialSquad || []).map(cleanup),
+      }
+      if (idx >= 0) saves[idx] = data; else saves.unshift(data)
+      setSaves(saves)
+      autoSaveTactics()
+      console.log('[SAVE] OK - slot:', saves.indexOf(data), 'gameId:', gameId)
+    } catch(e) { console.warn('[SAVE] Error:', e) }
+  },
+
+  loadGame(id) {
+    const saves = getSaves()
+    const data = saves.find(s => Number(s.id) === Number(id))
+    if (!data) { console.warn('[LOAD] Not found:', id); return null }
+    return data
+  },
+
+  deleteGame(id) {
+    let saves = getSaves()
+    saves = saves.filter(s => Number(s.id) !== Number(id))
+    setSaves(saves)
+    showLoadMenu()
+  },
+
+  listGames() { return getSaves() },
+
+  getEmptySlots() {
+    const saves = getSaves()
+    const slots = []
+    for (let i = 0; i < MAX_SLOTS; i++) {
+      slots.push(saves[i] || null)
+    }
+    return slots
+  }
+}
+
+function saveGame() { window.SaveSystem.saveGame() }
 function autoSave() { saveGame() }
-function deleteSave(id) { let s = getSaves(); setSaves(s.filter(x => x.id !== id)) }
+function deleteSave(id) { window.SaveSystem.deleteGame(id) }
 
 function autoSaveTactics() {
   if (!state.gameId) return
   const data = { formation: state.tactic.formation, gamePlan: state.tactic.gamePlan, tacticsSlots: state.tacticsSlots, benchIds: state.benchIds, reserveIds: state.reserveIds }
-  try { const all = JSON.parse(localStorage.getItem(TACTICS_KEY)) || {}; all[state.gameId] = data; localStorage.setItem(TACTICS_KEY, JSON.stringify(all)) } catch {}
+  try {
+    const raw = storageSafe('get', TACTICS_KEY)
+    const all = raw ? JSON.parse(raw) : {}
+    all[state.gameId] = data
+    storageSafe('set', TACTICS_KEY, JSON.stringify(all))
+  } catch {}
 }
 
 function loadTactics() {
   if (!state.gameId) return
   try {
-    const all = JSON.parse(localStorage.getItem(TACTICS_KEY)) || {}
+    const raw = storageSafe('get', TACTICS_KEY)
+    const all = raw ? JSON.parse(raw) : {}
     const data = all[state.gameId]
     if (data) {
       state.tactic.formation = data.formation || state.tactic.formation
@@ -593,8 +756,10 @@ function getTeamName(id) {
   if (t) return t.name
   const db = getBaseDato(id)
   if (db) return db.nombre
-  for (const c of COUNTRIES) {
-    for (const l of c.leagues) {
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
       t = l.teams.find(x => x.id === id)
       if (t) return t.name
     }
@@ -604,8 +769,10 @@ function getTeamName(id) {
 
 function getTeamLogo(id) {
   if (id === state.teamId) return state.teamLogo
-  for (const c of COUNTRIES) {
-    for (const l of c.leagues) {
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
       const t = l.teams.find(x => x.id === id)
       if (t && t.logo) return t.logo
     }
@@ -621,7 +788,7 @@ function getTeamRating(id) {
 
 function getTeamFormation(id) {
   const t = getBaseDato(id)
-  return t?.defaultFormation || '1-2-1'
+  return t?.defaultFormation || '4-3-3'
 }
 
 function getTeamObj(id) {
@@ -632,16 +799,18 @@ function getTeamObj(id) {
   }
   let t = state.leagueTeams.find(x => x.teamId === id)
   if (t) return t
-  for (const c of COUNTRIES) {
-    for (const l of c.leagues) {
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
       const team = l.teams.find(x => x.id === id)
       if (team) {
         if (getRealSquad(team.id)) {
           return { name: team.name, players: getRealSquad(team.id).map(p => ({ ...p })), teamId: team.id, staff: team.staff }
         }
         /* Generate CPU squad on-the-fly for teams without real squads */
-        const generated = generateCpuSquad(team.id, c.id, team.rating || 50)
-        return { name: team.name, players: generated.map(p => ({ ...p })), teamId: team.id, staff: team.staff || [] }
+        const rating = team.rating || getBaseDato(id)?.rating || 70
+        return { name: team.name, players: generateCpuSquad(id, state.countryId, rating), teamId: id, staff: team.staff || generateStaff(team.name, state.countryId) }
       }
     }
   }
@@ -793,6 +962,25 @@ function simularJornadaEnTodasLasLigas(matchday) {
 function renderSquad(players) {
   const container = document.getElementById('club-squad-content')
   if (!container) return
+  if (!state.squadView) state.squadView = 'info'
+  let html = `<div class="sq-toggle">
+    <button class="sq-tab${state.squadView === 'info' ? ' active' : ''}" data-sq="info">Info</button>
+    <button class="sq-tab${state.squadView === 'performance' ? ' active' : ''}" data-sq="performance">Rendimiento</button>
+  </div>`
+  container.innerHTML = html
+  if (state.squadView === 'info') renderSquadInfo(players)
+  else renderPerformance(players)
+  container.querySelectorAll('.sq-tab').forEach(btn => {
+    btn.onclick = () => {
+      state.squadView = btn.dataset.sq
+      renderSquad(state.players)
+    }
+  })
+}
+
+function renderSquadInfo(players) {
+  const container = document.getElementById('club-squad-content')
+  if (!container) return
   const ordered = [...players].sort((a, b) => {
     const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
     const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
@@ -809,43 +997,92 @@ function renderSquad(players) {
       html += `<div class="staff-card"><div class="staff-card-avatar" style="${avatarStyle}"></div><div class="staff-card-info"><div class="staff-card-name">${s.name}</div><div class="staff-card-meta">${s.nationality}</div></div><span class="staff-card-role" data-role="${s.role}">${roleLabels[s.role] || s.role}</span></div>`
     })
   }
-  html += `<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (${players.length})</div>`
-  container.innerHTML = html + ordered.map(p => {
-    const pos = POSITIONS[p.position]
-    const initials = getInitials(p.name)
-    const avatarStyle = `background-image:url(${p.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
-    const val = p.value || calcValue(p.skill)
-    return `
-      <div class="player-card" data-player-id="${p.id}">
-        <div class="player-avatar" style="${avatarStyle}">${p.avatar ? '' : initials}</div>
-        <div class="player-info">
-          <div class="player-row1">
-            <span class="player-name">${p.name}</span>
-            <span class="player-stat-num">${p.age ? `${p.age}y` : '-'}</span>
-            <span class="player-stat-num">${formatValue(val)}</span>
-            <span class="player-rating-num">${p.skill}</span>
-          </div>
-          <div class="player-row2">
-            <span class="player-position" style="background:${pos.color}">${pos.label}</span>
-            <span class="player-foot">${p.foot || 'DER'}</span>
-            <span class="player-nation">${p.nationality}</span>
-            ${p.transferListed || p.loanListed ? `<span class="player-badges">${p.transferListed ? '<span class="player-badge badge-lt">LT</span>' : ''}${p.loanListed ? '<span class="player-badge badge-lc">LC</span>' : ''}</span>` : ''}
-          </div>
+  container.innerHTML += html
+  html = `<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (${players.length})</div>
+    <div class="tp-table-header" style="padding:6px 14px">
+      <span class="tp-th-name">Nombre</span>
+      <span class="tp-th-pos">Pos</span>
+      <span class="tp-th-age">Edad</span>
+      <span class="tp-th-value">Valor</span>
+      <span class="tp-th-power">Pod</span>
+    </div>
+    <div class="tp-list">`
+  html += ordered.map(p => {
+    const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')
+    const valShort = formatShort(p.value || calcValue(p.skill))
+    return `<div class="tp-row" data-player-id="${p.id}">
+      <div class="tp-cell">
+        <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
+        <div class="tp-cell-info">
+          <span class="tp-cell-name">${p.name}</span>
+          <span class="tp-cell-value">${p.nationality || ''} ${p.transferListed ? '<span class="player-badge badge-lt" style="font-size:8px">TR</span>' : ''}${p.loanListed ? '<span class="player-badge badge-lc" style="font-size:8px">CED</span>' : ''}</span>
         </div>
       </div>
-    `
+      <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
+      <span class="tp-cell-age">${p.age || '-'}</span>
+      <span class="tp-cell-market">${valShort}</span>
+      <span class="tp-cell-power">${p.skill}</span>
+    </div>`
   }).join('')
-  container.querySelectorAll('.player-card').forEach(card => {
-    card.onclick = () => {
-      const pid = card.dataset.playerId
+  html += '</div>'
+  container.innerHTML += html
+  container.querySelectorAll('.tp-row').forEach(row => {
+    row.onclick = () => {
+      const pid = row.dataset.playerId
       const player = state.players.find(p => p.id === pid)
-      if (player) openPlayerModal(player, 'own')
+      if (player) openPlayerDetail(player)
     }
   })
-  container.querySelectorAll('.staff-card').forEach((card, i) => {
-    card.onclick = () => openStaffModal(state.staff[i])
-  })
+
   updateTeamStatusBar()
+}
+
+function renderPerformance(players) {
+  const container = document.getElementById('club-squad-content')
+  if (!container) return
+  const ordered = [...players].sort((a, b) => {
+    const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
+    const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
+    return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
+  })
+  let html = `<div class="tactics-subsection-label">RENDIMIENTO (${players.length})</div>
+    <div class="tp-table-header" style="padding:6px 14px">
+      <span class="tp-th-name">Nombre</span>
+      <span class="tp-th-pos">Pos</span>
+      <span class="tp-cell-market" style="width:28px;text-align:center">PJ</span>
+      <span class="tp-cell-market" style="width:38px;text-align:center">⚽</span>
+      <span class="tp-cell-market" style="width:38px;text-align:center">👟</span>
+      <span class="tp-cell-market" style="width:30px;text-align:center">🟨</span>
+      <span class="tp-cell-market" style="width:28px;text-align:center">🟥</span>
+    </div>
+    <div class="tp-list">`
+  html += ordered.map(p => {
+    const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')
+    return `<div class="tp-row" data-player-id="${p.id}">
+      <div class="tp-cell">
+        <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
+        <div class="tp-cell-info">
+          <span class="tp-cell-name">${p.name}</span>
+          <span class="tp-cell-value">${p.nationality || ''}</span>
+        </div>
+      </div>
+      <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
+      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.matches || 0}</span>
+      <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.goals || 0}</span>
+      <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.assists || 0}</span>
+      <span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">${p.yellowCards || 0}</span>
+      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">${p.redCards || 0}</span>
+    </div>`
+  }).join('')
+  html += '</div>'
+  container.innerHTML += html
+  container.querySelectorAll('.tp-row').forEach(row => {
+    row.onclick = () => {
+      const pid = row.dataset.playerId
+      const player = state.players.find(p => p.id === pid)
+      if (player) openPlayerDetail(player)
+    }
+  })
 }
 
 /* ============ TACTICS ============ */
@@ -934,23 +1171,19 @@ function renderClub() {
   if (logoEl) {
     logoEl.innerHTML = state.teamLogo ? `<img class="team-logo" src="${state.teamLogo}" alt="${state.team}">` : ''
   }
-  /* Team info card */
-  const standings = updateLeagueStandings()
-  const pos = standings.findIndex(s => s.teamId === state.teamId) + 1
+  /* Team stats panel */
+  const displayPower = getTop11Average(state.players)
+  const reputation = displayPower <= 20 ? 1 : displayPower <= 40 ? 2 : displayPower <= 60 ? 3 : displayPower <= 80 ? 4 : 5
+  const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
+  const countryFlag = window.DB[state.countryId]?.country.flag || ''
+  const totalVal = state.players.reduce((s, p) => s + (p.value || 0), 0)
   document.getElementById('club-team-info').innerHTML = `
-    <div class="team-info-card" style="display:flex;justify-content:space-around;padding:8px 0;margin-bottom:8px">
-      <div style="text-align:center">
-        <div class="finance-label" style="margin-bottom:2px">Posición en liga</div>
-        <div class="finance-balance">${pos}º</div>
-      </div>
-      <div style="text-align:center">
-        <div class="finance-label" style="margin-bottom:2px">Rating</div>
-        <div class="finance-balance">${getTeamRating(state.teamId)}</div>
-      </div>
-      <div style="text-align:center">
-        <div class="finance-label" style="margin-bottom:2px">Formación</div>
-        <div class="finance-balance">${getTeamFormation(state.teamId)}</div>
-      </div>
+    <div class="tp-stats" style="margin-bottom:12px">
+      <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${countryFlag}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
     </div>`
 
   document.getElementById('club-squad-content').classList.add('hidden')
@@ -1202,7 +1435,7 @@ function renderTactics(tactic) {
 }
 
 function autoAssignSquad() {
-  const roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['1-2-1']
+  const roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
   const assigned = []
   const available = state.players.filter(p => !p.injury)
 
@@ -1390,8 +1623,10 @@ function simularLesion() {
 
 /* ============ LEAGUE VIEW ============ */
 function getLeagueTeams(leagueId) {
-  for (const c of COUNTRIES) {
-    const league = c.leagues.find(l => l.id === leagueId)
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    const league = data.country.leagues.find(l => l.id === leagueId)
     if (league) return league.teams || []
   }
   return []
@@ -1408,10 +1643,15 @@ function renderLeague() {
   const selectedLeagueId = selector.value || state.leagueId
 
   /* Dropdown */
-  const country = COUNTRIES.find(c => c.id === state.countryId)
   let opts = ''
   const allLeagues = []
-  for (const c of COUNTRIES) for (const l of c.leagues) allLeagues.push({ ...l, country: c })
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
+      allLeagues.push({ ...l, country: data.country })
+    }
+  }
   for (const l of allLeagues) {
     const isOwn = l.id === state.leagueId
     opts += `<option value="${l.id}" data-country="${l.country.id}" ${isOwn ? 'selected' : ''}>${l.country.flag} ${l.name}</option>`
@@ -1430,7 +1670,7 @@ function renderLeague() {
           teamId: t.id, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, pts: 0,
           name: t.name, logo: t.logo
         }))
-  let tableHtml = `<table class="league-table"><tr><th>#</th><th>Equipo</th><th>PJ</th><th>V</th><th>E</th><th>D</th><th>GF</th><th>GC</th><th>Pts</th></tr>`
+  let tableHtml = `<table class="league-table"><tr><th>#</th><th>Equipo</th><th>Pts</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th></tr>`
   standings.forEach((s, i) => {
     const isUser = isOwnLeague && s.teamId === state.teamId
     const totalTeams = standings.length
@@ -1439,11 +1679,13 @@ function renderLeague() {
     const zonaClass = i < zonaPlayoff ? 'zona-playoff' : i < totalTeams - zonaDescenso ? 'zona-permanencia' : 'zona-descenso'
     const logo = s.logo || getTeamLogo(s.teamId)
     const name = s.name || getTeamName(s.teamId)
+    const dg = s.gf - s.ga
     tableHtml += `<tr class="${isUser ? 'league-row-user ' : ''}${zonaClass}" data-team-id="${s.teamId}" style="${!isUser ? 'cursor:pointer' : ''}">
       <td><span class="league-pos ${i < 3 ? 'p' + (i+1) : ''}">${i + 1}</span></td>
       <td>${logo ? `<img class="team-logo" src="${logo}" style="width:18px;height:18px;vertical-align:middle;margin-right:6px">` : ''}${name}</td>
+      <td><strong>${s.pts}</strong></td>
       <td>${s.played}</td><td>${s.won}</td><td>${s.drawn}</td><td>${s.lost}</td>
-      <td>${s.gf}</td><td>${s.ga}</td><td><strong>${s.pts}</strong></td>
+      <td>${s.gf}</td><td>${s.ga}</td><td>${dg}</td>
     </tr>`
   })
   tableHtml += '</table>'
@@ -2198,8 +2440,10 @@ function resetSeason() {
 
 /* ============ FIN DE TEMPORADA ============ */
 function getLeagueFromId(leagueId) {
-  for (const c of COUNTRIES) {
-    const league = c.leagues.find(l => l.id === leagueId)
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    const league = data.country.leagues.find(l => l.id === leagueId)
     if (league) return league
   }
   return null
@@ -2359,8 +2603,10 @@ function procesarFinTemporada(skipAging, skipStandings) {
   state.currentMatchday = 1
   /* Regenerate fixtures for all leagues for the new season */
   state.allLeagueData = {}
-  for (const c of COUNTRIES) {
-    for (const l of c.leagues) {
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
       const teamIds = l.teams.map(t => t.id)
       if (teamIds.length < 2) continue
       const fx = generateFixtures(teamIds)
@@ -2380,10 +2626,10 @@ function procesarFinTemporada(skipAging, skipStandings) {
   saveGame()
 
   if (!skipStandings) {
-    addNotification('general', msg, `Nueva temporada en ${state.leagueId.startsWith('l3c') ? '3a Divisió Catalana' : state.leagueId.startsWith('l2c') ? '2a Divisió Catalana' : state.leagueId.startsWith('lc') ? '1a Divisió Catalana' : state.leagueId.startsWith('lhc') ? 'Divisió d\'Honor Catalana' : state.leagueId.startsWith('l3g') ? '3ª División Nacional' : state.leagueId.startsWith('l2b') ? '2ª División B' : state.leagueId === 'lnfs2' ? 'Segunda División' : state.leagueId === 'lnfs1' ? 'Primera División' : 'la categoría'}`)
+    addNotification('general', msg, `Nueva temporada en ${state.leagueId.startsWith('l3c') ? '3a Divisió Catalana' : state.leagueId.startsWith('l2c') ? '2a Divisió Catalana' : state.leagueId.startsWith('lc') ? '1a Divisió Catalana' : state.leagueId.startsWith('lhc') ? 'Divisió d\'Honor Catalana' : state.leagueId.startsWith('l3g') ? '3ª División Nacional' : state.leagueId.startsWith('l2b') ? '2ª División B' : state.leagueId === 'lnfs2' ? 'Segunda División' : state.leagueId === 'lnfs1' ? 'Primera División' : state.leagueId === 'lpl' ? 'Liga Polaca' : state.leagueId === 'lpl2' ? 'Segunda Polaca' : 'la categoría'}`)
     setTimeout(() => alert(msg), 100)
   } else {
-    const divName = state.leagueId.startsWith('l3c') ? '3a Divisió Catalana' : state.leagueId.startsWith('l2c') ? '2a Divisió Catalana' : state.leagueId.startsWith('lc') ? '1a Divisió Catalana' : state.leagueId.startsWith('lhc') ? 'Divisió d\'Honor Catalana' : state.leagueId.startsWith('l3g') ? '3ª División Nacional' : state.leagueId.startsWith('l2b') ? '2ª División B' : state.leagueId === 'lnfs2' ? 'Segunda División' : state.leagueId === 'lnfs1' ? 'Primera División' : 'la categoría'
+    const divName = state.leagueId.startsWith('l3c') ? '3a Divisió Catalana' : state.leagueId.startsWith('l2c') ? '2a Divisió Catalana' : state.leagueId.startsWith('lc') ? '1a Divisió Catalana' : state.leagueId.startsWith('lhc') ? 'Divisió d\'Honor Catalana' : state.leagueId.startsWith('l3g') ? '3ª División Nacional' : state.leagueId.startsWith('l2b') ? '2ª División B' : state.leagueId === 'lnfs2' ? 'Segunda División' : state.leagueId === 'lnfs1' ? 'Primera División' : state.leagueId === 'lpl' ? 'Liga Polaca' : state.leagueId === 'lpl2' ? 'Segunda Polaca' : 'la categoría'
     addNotification('general', `📋 Nueva temporada en ${divName}`, `Comienza una nueva campaña en ${divName}`)
   }
 }
@@ -2732,7 +2978,7 @@ function renderMarketContent() {
       card.onclick = () => {
         const pid = card.dataset.playerId
         const player = state.players.find(p => p.id === pid)
-        if (player) openPlayerModal(player, 'own')
+      if (player) openPlayerDetail(player)
       }
       card.querySelector('.market-card-btn.sell')?.addEventListener('click', (e) => {
         e.stopPropagation()
@@ -2792,7 +3038,7 @@ function renderMarketContent() {
         const team = state.leagueTeams.find(t => t.teamId === tid)
         if (team) {
           const staff = team.staff.find(s => s.name === name)
-          if (staff) openStaffModal(staff)
+
         }
       }
       card.querySelector('.market-card-btn.hire')?.addEventListener('click', (e) => {
@@ -3046,80 +3292,8 @@ function envejecerYProgresar() {
   })
 }
 
-function openStaffModal(staff) {
-  const avatar = staff.avatar || 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
-  const roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
-  const img = document.getElementById('staff-modal-avatar')
-  img.src = avatar
-  img.onerror = () => { img.src = 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1' }
-  document.getElementById('staff-modal-name').textContent = staff.name
-  document.getElementById('staff-modal-nationality').textContent = staff.nationality || '🇪🇸 España'
-  document.getElementById('staff-modal-role').textContent = roleLabels[staff.role] || staff.role
 
-  /* Staff bonus */
-  const bonusMap = {
-    headCoach: 'Mejora el rendimiento del plan de juego en los partidos',
-    assistantCoach: '+5 energía extra por jornada para todos los jugadores',
-    delegate: '-10% en el precio de compra de jugadores',
-    goalkeeperCoach: 'Probabilidad de +2 skill permanente para porteros al final de temporada según partidos jugados',
-    fitnessCoach: '-10% de probabilidad de lesión en los partidos',
-  }
-  const existingBonus = document.getElementById('staff-modal-bonus')
-  if (existingBonus) existingBonus.remove()
-  if (bonusMap[staff.role]) {
-    const bonusEl = document.createElement('div')
-    bonusEl.id = 'staff-modal-bonus'
-    bonusEl.className = 'staff-bonus'
-    bonusEl.textContent = bonusMap[staff.role]
-    document.getElementById('staff-modal-role').after(bonusEl)
-  }
 
-  const isHeadCoach = staff.role === 'headCoach'
-  const career = staff.career || [{ team: state.team, from: '—', to: 'Actualidad', matches: 0, won: 0, drawn: 0, lost: 0 }]
-  const total = { matches: 0, won: 0, drawn: 0, lost: 0 }
-
-  document.getElementById('staff-modal-career').innerHTML = career.map(c => {
-    total.matches += c.matches; total.won += c.won; total.drawn += c.drawn; total.lost += c.lost
-    return `<div class="staff-career-item">
-      <span class="staff-career-team">${c.team}</span>
-      <span class="staff-career-dates">${c.from} → ${c.to}</span>
-      ${isHeadCoach ? `<span class="staff-career-record"><span class="wins">${c.won}V</span> <span class="draws">${c.drawn}E</span> <span class="losses">${c.lost}D</span></span><span class="staff-career-matches">${c.matches} part.</span>` : ''}
-    </div>`
-  }).join('')
-
-  document.getElementById('staff-modal-total').innerHTML = career.length > 0 && isHeadCoach
-    ? `<div class="staff-career-total">TOTAL · ${total.matches} part. · <span class="wins">${total.won}V</span> <span class="draws">${total.drawn}E</span> <span class="losses">${total.lost}D</span> (${total.matches > 0 ? Math.round((total.won / total.matches) * 100) : 0}% victorias)</div>`
-    : ''
-
-  /* Fire staff button */
-  const oldFire = document.getElementById('staff-modal-fire')
-  if (oldFire) oldFire.remove()
-  if (!isHeadCoach) {
-    const compensation = 2000
-    const canFire = state.finances.balance >= compensation
-    const fireDiv = document.createElement('div')
-    fireDiv.id = 'staff-modal-fire'
-    fireDiv.style.cssText = 'width:100%;padding:8px 0'
-    fireDiv.innerHTML = `<button class="btn-primary" id="btn-fire-staff" style="background:#EF4444;height:36px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px" ${canFire ? '' : 'disabled'}>${canFire ? `DESPEDIR (${formatMoney(compensation)})` : `SIN FONDOS (${formatMoney(compensation)})`}</button>`
-    document.getElementById('staff-modal-total').after(fireDiv)
-    const fireBtn = document.getElementById('btn-fire-staff')
-    if (fireBtn && canFire) {
-      fireBtn.onclick = () => {
-        const idx = state.staff.indexOf(staff)
-        if (idx >= 0) state.staff.splice(idx, 1)
-        state.finances.balance -= compensation
-        state.finances.history.push({ reason: `Despido: ${staff.name} (${roleLabels[staff.role] || staff.role})`, amount: -compensation })
-        addNotification('general', `Despido: ${staff.name}`, `${roleLabels[staff.role] || staff.role} · Indemnización: ${formatMoney(compensation)}`)
-        document.getElementById('staff-modal').classList.remove('open')
-        renderSquad(state.players)
-      }
-    }
-  }
-
-  document.getElementById('staff-modal').classList.add('open')
-}
-
-/* ============ FINANCES VIEW ============ */
 function renderFinances() {
   document.getElementById('finance-balance').textContent = formatMoney(state.finances.balance)
 
@@ -3200,9 +3374,7 @@ function setupNavigation() {
   /* Modal close */
   document.getElementById('modal-close').onclick = closeModal
   document.getElementById('player-modal').onclick = (e) => { if (e.target === e.currentTarget) closeModal() }
-  document.getElementById('staff-modal-close').onclick = () => { document.getElementById('staff-modal').classList.remove('open') }
-  document.getElementById('staff-modal').onclick = (e) => { if (e.target === e.currentTarget) document.getElementById('staff-modal').classList.remove('open') }
-}
+    }
 
 function renderTab(tab) {
   state.currentTab = tab
@@ -3223,6 +3395,8 @@ function getDivisionBaseBudget(leagueId) {
   if (!leagueId) return 5000
   if (leagueId === 'lnfs1') return 50000
   if (leagueId === 'lnfs2') return 30000
+  if (leagueId === 'lpl') return 25000
+  if (leagueId === 'lpl2') return 12000
   if (leagueId.startsWith('l2b')) return 15000
   if (leagueId.startsWith('l3g')) return 8000
   if (leagueId.startsWith('lhc')) return 5000
@@ -3241,6 +3415,8 @@ function getCountryBudgetMult(countryId) {
 function getDivisionMatchReward(leagueId) {
   if (leagueId === 'lnfs1') return { win: 2000, draw: 800, loss: -300 }
   if (leagueId === 'lnfs2') return { win: 1200, draw: 500, loss: -200 }
+  if (leagueId === 'lpl') return { win: 1000, draw: 400, loss: -150 }
+  if (leagueId === 'lpl2') return { win: 500, draw: 200, loss: -80 }
   if (leagueId.startsWith('l2b')) return { win: 600, draw: 250, loss: -100 }
   if (leagueId.startsWith('l3g')) return { win: 400, draw: 150, loss: -50 }
   if (leagueId.startsWith('lhc')) return { win: 250, draw: 100, loss: -30 }
@@ -3261,21 +3437,21 @@ function newGame(coach) {
   state.teamLogo = selectedTeam.logo || ''
   const noface = 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
   const countryId = selectedCountry.id
+  const natLabel = countryData ? (countryData.country.flag + ' ' + countryData.country.name) : '🇵🇱 Polonia'
   state.staff = [
-    { name: coach, nationality: NATIONALITIES[countryId]?.label || '🇪🇸 España', role: 'headCoach', avatar: noface, career: [{ team: selectedTeam.name, from: new Date().toLocaleDateString('es-ES'), to: 'Actualidad', matches: 0, won: 0, drawn: 0, lost: 0 }] },
-    ...generateStaff(selectedTeam.name, countryId).slice(1),
+    { name: coach, nationality: natLabel, role: 'headCoach', avatar: noface, career: [{ team: selectedTeam.name, from: new Date().toLocaleDateString('es-ES'), to: 'Actualidad', matches: 0, won: 0, drawn: 0, lost: 0 }] },
   ]
   state.countryId = selectedCountry.id
   state.leagueId = selectedLeague.id
   state.gameId = Date.now()
   state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
-  state.tactic = { formation: '1-2-1', gamePlan: 'juegoCuatro' }
+  state.tactic = { formation: '4-3-3', gamePlan: 'tikitaka' }
   state.tacticsSlots = []
   state.benchIds = []
   state.reserveIds = []
   state.convocatoriaValidada = false
   /* Clear old tactics save */
-  try { const all = JSON.parse(localStorage.getItem(TACTICS_KEY)) || {}; delete all[state.gameId]; localStorage.setItem(TACTICS_KEY, JSON.stringify(all)) } catch {}
+  try { const raw = storageSafe('get', TACTICS_KEY); const all = raw ? JSON.parse(raw) : {}; delete all[state.gameId]; storageSafe('set', TACTICS_KEY, JSON.stringify(all)) } catch {}
   const baseBudget = getDivisionBaseBudget(state.leagueId)
   const countryMult = getCountryBudgetMult(state.countryId)
   const ratingMult = (selectedTeam.rating || 50) / 50
@@ -3287,7 +3463,7 @@ function newGame(coach) {
   const userSquad = getRealSquad(state.teamId) || generateCpuSquad(state.teamId, state.countryId, selectedTeam.rating)
   const teamCap = selectedTeam.rating || 99
   state.players = userSquad.map(p => ({
-    ...p, skill: Math.min(teamCap, p.skill), value: calcValue(p.skill), wage: calcWage(p.skill),
+    ...p, skill: Math.min(teamCap, p.skill), value: p.value || calcValue(p.skill), wage: p.wage || calcWage(p.skill),
     enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null,
   }))
   state.players.forEach(p => { p.energy = 100 })
@@ -3312,7 +3488,7 @@ function newGame(coach) {
     const base = getRealSquad(t.id)
     const cap = t.rating || 99
     const squad = base
-      ? base.map(p => ({ ...p, skill: Math.min(cap, p.skill), value: calcValue(p.skill), wage: calcWage(p.skill), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null }))
+      ? base.map(p => ({ ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill), wage: p.wage || calcWage(p.skill), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null }))
       : generateCpuSquad(t.id, state.countryId, t.rating)
     const defaultStaff = t.staff || generateStaff(t.name, state.countryId)
     state.leagueTeams.push({ teamId: t.id, name: t.name, players: squad, staff: defaultStaff })
@@ -3328,8 +3504,10 @@ function newGame(coach) {
 
   /* Generate fixtures for all leagues */
   state.allLeagueData = {}
-  for (const c of COUNTRIES) {
-    for (const l of c.leagues) {
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
       const teamIds = l.teams.map(t => t.id)
       if (teamIds.length < 2) continue
       const fx = generateFixtures(teamIds)
@@ -3406,8 +3584,8 @@ function newGame(coach) {
 
 function loadGame(id) {
   const saves = getSaves()
-  const data = saves.find(s => s.id === id)
-  if (!data) return
+  const data = saves.find(s => Number(s.id) === Number(id))
+  if (!data) { console.warn('[LOAD] Save not found for id:', id, 'saves:', saves.length); return }
   state.coach = data.coach
   state.team = data.team
   state.teamId = data.teamId
@@ -3417,7 +3595,7 @@ function loadGame(id) {
   state.gameId = data.id
   state.stats = data.stats || { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
   state.players = (data.players || []).map(p => ({ ...p, age: p.age || randInt(22, 34) }))
-  state.tactic = data.tactic || { formation: '1-2-1', gamePlan: 'juegoCuatro' }
+  state.tactic = data.tactic || { formation: '4-3-3', gamePlan: 'tikitaka' }
   state.finances = data.finances || { balance: 5000, history: [] }
   state.leagueTeams = data.leagueTeams || []
   state.currentMatchday = data.currentMatchday || 1
@@ -3435,6 +3613,7 @@ function loadGame(id) {
 
 function startGame() {
   document.getElementById('menu-screen').classList.add('hidden')
+  document.getElementById('menu-newgame').classList.add('hidden')
   document.getElementById('game-screen').classList.remove('hidden')
   loadTactics()
   setupNavigation()
@@ -3448,6 +3627,13 @@ function startGame() {
 let selectedCountry = null
 let selectedLeague = null
 let selectedTeam = null
+
+function getBaseTeamName(name) {
+  let base = name.trim()
+  base = base.replace(/ (?:Juvenil|Cadet|Cadete|Infantil) [A-Z]$/i, '')
+  base = base.replace(/ [A-Z]$/, '')
+  return base
+}
 
 function showMainMenu() {
   document.getElementById('menu-screen').classList.remove('hidden')
@@ -3583,7 +3769,12 @@ function getBaseDato(teamId) {
 function renderTeamList(league) {
   const list = document.getElementById('ng-teams-list')
   const countEl = document.getElementById('ng-team-count')
-  const teams = [...(league.teams || [])].sort((a, b) => (b.rating || 0) - (a.rating || 0))
+  const teams = [...(league.teams || [])].sort((a, b) => {
+    const rsA = getRealSquad(a.id), rsB = getRealSquad(b.id)
+    const pA = rsA ? getTop11Average(rsA) : (a.rating || 0)
+    const pB = rsB ? getTop11Average(rsB) : (b.rating || 0)
+    return pB - pA
+  })
   countEl.textContent = `Equipo (${teams.length})`
 
   if (teams.length === 0) {
@@ -3598,8 +3789,8 @@ function renderTeamList(league) {
 
   for (const t of teams) {
     const db = getBaseDato(t.id)
-    const rating = db ? db.rating : t.rating || 70
     const rs = getRealSquad(t.id)
+    const rating = rs ? getTop11Average(rs) : (db ? db.rating : t.rating || 70)
     const squadCount = rs ? rs.length : 10
     const isSelected = selectedTeam && selectedTeam.id === t.id
     html += `<div class="ng-team-row${isSelected ? ' selected' : ''}" data-tid="${t.id}">
@@ -3613,7 +3804,7 @@ function renderTeamList(league) {
 
   list.innerHTML = html
 
-  /* Team row click */
+  /* Team row click → select team */
   list.querySelectorAll('.ng-team-row').forEach(row => {
     row.onclick = () => {
       const tid = row.dataset.tid
@@ -3623,7 +3814,7 @@ function renderTeamList(league) {
     }
   })
 
-  /* Create team */
+  /* Create team → select custom */
   document.getElementById('ng-create-team').onclick = () => {
     selectedTeam = { id: 'custom', name: 'Mi Club', rating: 70, logo: '' }
     updateTeamBadge(selectedTeam)
@@ -3678,30 +3869,19 @@ function showTeamPreview(teamId) {
   /* Set header title */
   document.getElementById('tp-header-title').textContent = team.name
 
-  /* Identity block */
-  const idHtml = `
-    <img class="tp-identity-crest" src="${logo || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
-    <div class="tp-identity-info">
-      <div class="tp-identity-name">${team.name}</div>
-      <div class="tp-identity-coach">Entrenador: ${coachName}</div>
-    </div>
-    ${foundLeague && foundLeague.logo ? `<img class="tp-identity-league" src="${foundLeague.logo}" alt="">` : ''}
-  `
-  document.getElementById('tp-identity').innerHTML = idHtml
-
-  /* Stats panel */
+  /* Stats panel — same as Club view */
   const totalVal = realSquad.reduce((s, p) => s + (p.value || 0), 0)
-  const reputation = rating <= 20 ? 1 : rating <= 40 ? 2 : rating <= 60 ? 3 : rating <= 80 ? 4 : 5
+  const displayPower = getTop11Average(realSquad)
+  const reputation = displayPower <= 20 ? 1 : displayPower <= 40 ? 2 : displayPower <= 60 ? 3 : displayPower <= 80 ? 4 : 5
   const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
   const countryFlag = window.DB[foundCountryId] ? window.DB[foundCountryId].country.flag : ''
-  const statsHtml = `
+  document.getElementById('tp-stats').innerHTML = `
     <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>
     <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
     <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${countryFlag}</span></div>
-    <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${rating}</span></div>
+    <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
     <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
   `
-  document.getElementById('tp-stats').innerHTML = statsHtml
 
   /* Player rows */
   const ordered = [...realSquad].sort((a, b) => {
@@ -3719,7 +3899,7 @@ function showTeamPreview(teamId) {
           <span class="tp-cell-value">${p.nationality || ''}</span>
         </div>
       </div>
-      <span class="tp-cell-pos-badge" style="background:${(POSITIONS[SIGLA_TO_POS[p.position]]?.color || '#6B7280')};color:#fff">${POS_ABBR[p.position] || p.position}</span>
+      <span class="tp-cell-pos-badge" style="background:${((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')};color:#fff">${POS_ABBR[p.position] || p.position}</span>
       <span class="tp-cell-age">${p.age || '-'}</span>
       <span class="tp-cell-market">${valShort}</span>
       <span class="tp-cell-power">${p.skill}</span>
@@ -3751,11 +3931,11 @@ function showTeamPreview(teamId) {
 
 function startNewGame() {
   const coachName = document.getElementById('ng-coach-input').value.trim()
-  if (!selectedTeam) return
   if (!coachName) {
     document.getElementById('ng-coach-input').focus()
     return
   }
+  if (!selectedTeam) return
   const db = window.DB[selectedCountry.id]
   if (!selectedLeague && db) selectedLeague = db.country.leagues[0]
 
@@ -3775,42 +3955,51 @@ function showLoadMenu() {
   document.getElementById('menu-main').classList.add('hidden')
   document.getElementById('menu-newgame').classList.add('hidden')
   document.getElementById('menu-load').classList.remove('hidden')
-  const saves = getSaves()
+  const slots = window.SaveSystem.getEmptySlots()
   const content = document.getElementById('load-content')
-  if (saves.length === 0) {
-    content.innerHTML = '<div class="empty-state">No hay partidas guardadas</div>'
-    return
-  }
-  content.innerHTML = saves.map(s => {
-    const st = s.stats || { wins: 0, draws: 0, losses: 0 }
-    const record = `${st.wins}V · ${st.draws}E · ${st.losses}D`
-    const ts = s.date ? formatTimestamp(s.date) : ''
-    const matchday = s.matchday || 1
-    return `
-      <div class="save-card" data-id="${s.id}">
-        <div class="save-crest">${s.teamLogo ? `<img src="${s.teamLogo}" style="width:48px;height:48px;object-fit:contain" alt="${s.team}">` : `<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#E5E7EB"/><text x="24" y="24" text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="700" fill="#6B7280">${getInitials(s.team)}</text></svg>`}</div>
-        <div class="save-body">
-          <div class="save-team">${s.team}</div>
-          <div class="save-manager">Manager: ${s.coach}</div>
-          <div class="save-matchday">Jornada ${matchday}</div>
-          <div class="save-timestamp">${ts}</div>
-        </div>
-        <div class="save-actions">
-          <button class="save-delete" data-id="${s.id}"><svg viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
-          <button class="save-load" data-id="${s.id}">CARGAR</button>
+  content.innerHTML = slots.map((save, idx) => {
+    if (!save) {
+      return `<div class="ls-slot ls-empty">
+        <div class="ls-empty-icon">📂</div>
+        <div class="ls-empty-text">Slot disponible</div>
+        <button class="btn-primary ls-empty-btn" data-slot="${idx}">NUEVA PARTIDA</button>
+      </div>`
+    }
+    const m = save.meta || {}
+    const mgrName = m.managerName || save.coach || '—'
+    const teamName = m.teamName || save.team || '—'
+    const logo = m.teamLogo || save.teamLogo || ''
+    const leagueName = m.leagueName || ''
+    const gameDate = m.gameDate || `Jornada ${save.matchday || 1}`
+    const saveDate = m.saveDate || save.date || ''
+    const ago = timeAgo(saveDate)
+    const initials = getInitials(teamName)
+    return `<div class="ls-slot ls-filled" data-id="${save.id}">
+      <div class="ls-crest">${logo ? `<img src="${logo}" alt="${teamName}">` : `<div class="ls-crest-fallback">${initials}</div>`}</div>
+      <div class="ls-info">
+        <div class="ls-team">${teamName}</div>
+        <div class="ls-manager">${mgrName}</div>
+        <div class="ls-meta">${gameDate}${leagueName ? ` · ${leagueName}` : ''}</div>
+      </div>
+      <div class="ls-actions">
+        <span class="ls-time">${ago}</span>
+        <div class="ls-btns">
+          <button class="ls-load" data-id="${save.id}">CARGAR</button>
+          <button class="ls-delete" data-id="${save.id}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          </button>
         </div>
       </div>
-    `
+    </div>`
   }).join('')
-  content.querySelectorAll('.save-load').forEach(btn => { btn.onclick = (e) => { e.stopPropagation(); loadGame(Number(btn.dataset.id)) } })
-  content.querySelectorAll('.save-delete').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation()
-      const id = Number(btn.dataset.id)
-      const card = document.querySelector(`.save-card[data-id="${id}"]`)
-      if (card) { card.style.transition = 'transform 0.2s ease, opacity 0.2s ease'; card.style.transform = 'translateX(-100%)'; card.style.opacity = '0'; setTimeout(() => { deleteSave(id); showLoadMenu() }, 250) }
-      else { deleteSave(id); showLoadMenu() }
-    }
+  content.querySelectorAll('.ls-load').forEach(btn => {
+    btn.onclick = (e) => { e.stopPropagation(); loadGame(Number(btn.dataset.id)) }
+  })
+  content.querySelectorAll('.ls-delete').forEach(btn => {
+    btn.onclick = (e) => { e.stopPropagation(); window.SaveSystem.deleteGame(Number(btn.dataset.id)) }
+  })
+  content.querySelectorAll('.ls-empty-btn').forEach(btn => {
+    btn.onclick = () => { document.getElementById('menu-load').classList.add('hidden'); showNewGameScreen() }
   })
 }
 
@@ -3957,6 +4146,10 @@ function showTeamInfo(teamId) {
   const pos = standings.findIndex(s => s.teamId === teamId) + 1
   const logo = getTeamLogo(teamId)
   const posDisplay = pos > 0 ? `${pos}º` : (team.players.length > 0 ? '—' : 'Otra liga')
+  const displayPower = getTop11Average(team.players)
+  const reputation = displayPower <= 20 ? 1 : displayPower <= 40 ? 2 : displayPower <= 60 ? 3 : displayPower <= 80 ? 4 : 5
+  const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
+  const totalVal = team.players.reduce((s, p) => s + (p.value || 0), 0)
   let html = `
     <div class="view-header">
       <div class="view-header-left">
@@ -3965,71 +4158,64 @@ function showTeamInfo(teamId) {
       </div>
       <button class="btn-back" id="btn-team-back">← Volver</button>
     </div>
-    <div class="team-info-card" style="display:flex;justify-content:space-around;padding:12px 0">
-      <div style="text-align:center">
-        <div class="finance-label" style="margin-bottom:4px">Posición en liga</div>
-        <div class="finance-balance">${posDisplay}</div>
-      </div>
-      <div style="text-align:center">
-        <div class="finance-label" style="margin-bottom:4px">Rating</div>
-        <div class="finance-balance">${getTeamRating(teamId)}</div>
-      </div>
-      <div style="text-align:center">
-        <div class="finance-label" style="margin-bottom:4px">Formación</div>
-        <div class="finance-balance">${getTeamFormation(teamId)}</div>
-      </div>
-    </div>
-    ${team.staff && team.staff.length > 0 ? `<div class="tactics-subsection-label">Staff técnico (${team.staff.length})</div>${team.staff.map(s => {
-    const roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
+    <div class="tp-stats" style="margin-bottom:12px">
+      <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">${posDisplay}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${logo ? '🇵🇱' : ''}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
+    </div>`
+  /* Staff */
+  const roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
+  if (team.staff && team.staff.length > 0) {
+    html += `<div class="tactics-subsection-label">Staff t\u00e9cnico (${team.staff.length})</div>`
+    team.staff.forEach(s => {
       const avatar = s.avatar || 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
       const avatarStyle = `background-image:url(${avatar});background-size:cover;background-position:center;background-color:var(--bg-surface)`
-      return `<div class="staff-card staff-card-team" data-staff-name="${s.name}"><div class="staff-card-avatar" style="${avatarStyle}"></div><div class="staff-card-info"><div class="staff-card-name">${s.name}</div><div class="staff-card-meta">${s.nationality}</div></div><span class="staff-card-role" data-role="${s.role}">${roleLabels[s.role] || s.role}</span></div>`
-    }).join('')}` : ''}
-    <div class="tactics-subsection-label">PLANTILLA (${team.players.length})</div>
-    <div class="squad-grid">`
+      html += `<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="${avatarStyle}"></div><div class="staff-card-info"><div class="staff-card-name">${s.name}</div><div class="staff-card-meta">${s.nationality}</div></div><span class="staff-card-role" data-role="${s.role}">${roleLabels[s.role] || s.role}</span></div>`
+    })
+  }
+  /* Player table */
+  html += `<div class="tactics-subsection-label">PLANTILLA (${team.players.length})</div>
+    <div class="tp-table-header" style="padding:6px 14px">
+      <span class="tp-th-name">Nombre</span>
+      <span class="tp-th-pos">Pos</span>
+      <span class="tp-th-age">Edad</span>
+      <span class="tp-th-value">Valor</span>
+      <span class="tp-th-power">Pod</span>
+    </div>
+    <div class="tp-list" style="border:1px solid var(--border);border-radius:8px;overflow:hidden">`
   const orderedPlayers = [...team.players].sort((a, b) => {
     const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
     const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
     return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
   })
   orderedPlayers.forEach(p => {
-    const pos = POSITIONS[p.position]
-    const initials = getInitials(p.name)
-    const avatarStyle = `background-image:url(${p.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
-    const val = p.value || calcValue(p.skill)
-    html += `<div class="player-card" data-player-id="${p.id}">
-      <div class="player-avatar" style="${avatarStyle}">${p.avatar ? '' : initials}</div>
-      <div class="player-info">
-        <div class="player-row1">
-          <span class="player-name">${p.name}</span>
-          <span class="player-stat-num">${p.age ? `${p.age}y` : '-'}</span>
-          <span class="player-stat-num">${formatValue(val)}</span>
-          <span class="player-rating-num">${p.skill}</span>
-        </div>
-        <div class="player-row2">
-          <span class="player-position" style="background:${pos.color}">${pos.label}</span>
-          <span class="player-foot">${p.foot || 'DER'}</span>
-          <span class="player-nation">${p.nationality}</span>
+    const posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
+    const valShort = formatShort(p.value || 0)
+    html += `<div class="tp-row" data-player-id="${p.id}">
+      <div class="tp-cell">
+        <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
+        <div class="tp-cell-info">
+          <span class="tp-cell-name">${p.name}</span>
+          <span class="tp-cell-value">${p.nationality || ''}</span>
         </div>
       </div>
+      <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
+      <span class="tp-cell-age">${p.age || '-'}</span>
+      <span class="tp-cell-market">${valShort}</span>
+      <span class="tp-cell-power">${p.skill}</span>
     </div>`
   })
-  html += `</div><button class="btn-secondary" id="btn-team-back-2" style="margin-top:12px">← Volver</button>`
+  html += '</div><button class="btn-secondary" id="btn-team-back-2" style="margin-top:12px">← Volver</button>'
   document.getElementById('team-info-content').innerHTML = html
   document.getElementById('btn-team-back').onclick = goBackFromTeam
   document.getElementById('btn-team-back-2').onclick = goBackFromTeam
-  document.querySelectorAll('#team-info-content .staff-card-team').forEach(card => {
-    const name = card.dataset.staffName
-    if (team.staff) {
-      const staff = team.staff.find(s => s.name === name)
-      if (staff) card.onclick = () => openStaffModal(staff)
-    }
-  })
-  document.querySelectorAll('#team-info-content .player-card').forEach(card => {
-    card.onclick = () => {
-      const pid = card.dataset.playerId
+  document.querySelectorAll('#team-info-content .tp-row').forEach(row => {
+    row.onclick = () => {
+      const pid = row.dataset.playerId
       const player = team.players.find(p => p.id === pid)
-      if (player) openPlayerModal({ ...player, _teamId: teamId }, 'cpu')
+      if (player) openPlayerDetail(player)
     }
   })
 }
@@ -4041,8 +4227,10 @@ function goBackFromTeam() {
 }
 
 function getTeamLeagueName(teamId) {
-  for (const c of COUNTRIES) {
-    for (const l of c.leagues) {
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
       if (l.teams.some(t => t.id === teamId)) return l.name
     }
   }
@@ -4052,8 +4240,10 @@ function getTeamLeagueName(teamId) {
 function getClubFamily(teamId) {
   let baseName = ''
   let thisName = ''
-  for (const c of COUNTRIES) {
-    for (const l of c.leagues) {
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
       const t = l.teams.find(x => x.id === teamId)
       if (t) { thisName = t.name; baseName = getBaseTeamName(t.name); break }
     }
@@ -4061,8 +4251,10 @@ function getClubFamily(teamId) {
   }
   if (!baseName) return []
   const family = []
-  for (const c of COUNTRIES) {
-    for (const l of c.leagues) {
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
       for (const t of l.teams) {
         if (t.id === teamId) continue
         if (getBaseTeamName(t.name) === baseName) {
@@ -4074,8 +4266,10 @@ function getClubFamily(teamId) {
   /* Also add FILIAL_MAP relations (e.g. Barça → Barça Atlètic) */
   const filialId = getFilialId(teamId)
   if (filialId && !family.some(f => f.id === filialId)) {
-    for (const c of COUNTRIES) {
-      for (const l of c.leagues) {
+    for (const cid in window.DB) {
+      const data = window.DB[cid]
+      if (!data) continue
+      for (const l of data.country.leagues || []) {
         const t = l.teams.find(x => x.id === filialId)
         if (t) { family.push({ ...t, leagueId: l.id, leagueName: l.name }); break }
       }
@@ -4085,8 +4279,10 @@ function getClubFamily(teamId) {
   /* Also check reverse: if this team IS a filial, find the parent */
   const parentId = getParentTeamId(teamId)
   if (parentId && !family.some(f => f.id === parentId)) {
-    for (const c of COUNTRIES) {
-      for (const l of c.leagues) {
+    for (const cid in window.DB) {
+      const data = window.DB[cid]
+      if (!data) continue
+      for (const l of data.country.leagues || []) {
         const t = l.teams.find(x => x.id === parentId)
         if (t) { family.push({ ...t, leagueId: l.id, leagueName: l.name }); break }
       }
@@ -4248,48 +4444,43 @@ function showInboxModal() {
 }
 
 /* ============ SIDE MENU EVENTS ============ */
-document.getElementById('btn-header-menu').onclick = (e) => {
-  e.stopPropagation()
-  if (document.getElementById('header-dropdown').classList.contains('open')) {
-    hideSideMenu()
-  } else {
-    showSideMenu()
-  }
-}
-
-document.getElementById('dropdown-overlay').onclick = hideSideMenu
-
-document.querySelectorAll('.dropdown-item').forEach(item => {
-  item.onclick = () => {
-    hideSideMenu()
-    const action = item.dataset.action
-    if (action === 'quit') {
-      saveGame()
-      hideSideMenu()
-      showMainMenu()
-      initMenuParticles()
-    } else if (action === 'save') {
-      saveGame()
-      hideSideMenu()
-      const btn = document.getElementById('btn-header-menu')
-      btn.innerHTML = '✓'
-      setTimeout(() => {
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>'
-      }, 1500)
-    } else if (action === 'inbox') {
-      hideSideMenu()
-      showInboxModal()
-    } else if (action === 'calendar') {
-      hideSideMenu()
-      showCalendar()
-    } else if (action === 'history') {
-      alert('📊 Historial — Próximamente')
-    } else if (action === 'settings') {
-      hideSideMenu()
-      showSettingsModal()
+try {
+  const menuBtn = document.getElementById('btn-header-menu')
+  if (menuBtn) {
+    menuBtn.onclick = (e) => {
+      e.stopPropagation()
+      const dd = document.getElementById('header-dropdown')
+      if (dd && dd.classList.contains('open')) {
+        hideSideMenu()
+      } else {
+        showSideMenu()
+      }
     }
   }
-})
+
+  const overlay = document.getElementById('dropdown-overlay')
+  if (overlay) overlay.onclick = hideSideMenu
+
+  document.querySelectorAll('.dropdown-item').forEach(item => {
+    item.onclick = () => {
+      hideSideMenu()
+      const action = item.dataset.action
+      if (action === 'quit') {
+        saveGame()
+        showMainMenu()
+        initMenuParticles()
+      } else if (action === 'inbox') {
+        showInboxModal()
+      } else if (action === 'calendar') {
+        showCalendar()
+      } else if (action === 'history') {
+        alert('📊 Historial — Próximamente')
+      } else if (action === 'settings') {
+        showSettingsModal()
+      }
+    }
+  })
+} catch(e) { console.warn('[MENU] Error:', e) }
 
 /* ============ SOUNDS ============ */
 let audioCtx = null
@@ -4415,8 +4606,9 @@ function openPlayerDetail(player) {
     photo.innerHTML = `<div class="pd-photo-placeholder">${getInitials(player.name)}</div>`
   }
 
-  document.getElementById('pd-team-logo').src = (selectedTeam && selectedTeam.logo) || NOPHOTO
-  document.getElementById('pd-team').textContent = selectedTeam ? selectedTeam.name : '\u2014'
+  const team = selectedTeam || { name: state.team, logo: state.teamLogo }
+  document.getElementById('pd-team-logo').src = team.logo || NOPHOTO
+  document.getElementById('pd-team').textContent = team.name || '\u2014'
   const posLabel = POSITIONS[player.position] ? POSITIONS[player.position].label : player.position
   document.getElementById('pd-position').textContent = posLabel + ' (' + (POS_ABBR[player.position] || player.position) + ')'
   document.getElementById('pd-flag').textContent = (player.nationality || '').split(' ')[0] || ''
@@ -4503,44 +4695,54 @@ function openPlayerDetail(player) {
 }
 
 /* ============ INIT ============ */
-document.getElementById('btn-new-game').onclick = showNewGameScreen
-document.getElementById('btn-load-game').onclick = showLoadMenu
-document.getElementById('btn-load-cancel').onclick = showMainMenu
-document.getElementById('btn-ng-back').onclick = () => {
-  if (document.getElementById('ng-step-teams').classList.contains('hidden') === false) {
-    document.getElementById('ng-step-teams').classList.add('hidden')
-    document.getElementById('ng-step-countries').classList.remove('hidden')
-    document.querySelectorAll('.ng-step').forEach((s, i) => {
-      s.classList.toggle('done', false)
-      s.classList.toggle('active', i === 0)
-    })
-  } else {
-    showMainMenu()
-  }
-}
-document.getElementById('btn-ng-back-action').onclick = () => document.getElementById('btn-ng-back').click()
-document.getElementById('btn-ng-continue').onclick = () => {
-  if (document.getElementById('ng-step-teams').classList.contains('hidden') === false) {
-    startNewGame()
-  } else if (selectedCountry) {
-    showTeamSelectionStep()
-  }
-}
-document.getElementById('btn-tactica').onclick = abrirTacticasModal
-document.getElementById('inbox-close-btn').onclick = () => { hideInboxDetail(); document.getElementById('inbox-modal').classList.remove('open') }
-document.getElementById('inbox-detail-back').onclick = hideInboxDetail
-document.getElementById('inbox-modal').onclick = (e) => { if (e.target === e.currentTarget) { hideInboxDetail(); document.getElementById('inbox-modal').classList.remove('open') } }
-document.getElementById('settings-close-btn').onclick = () => document.getElementById('settings-modal').classList.remove('open')
-document.getElementById('settings-modal').onclick = (e) => { if (e.target === e.currentTarget) document.getElementById('settings-modal').classList.remove('open') }
-document.getElementById('settings-sound-toggle').onchange = (e) => {
-  state.soundEnabled = e.target.checked
-  if (state.soundEnabled) {
-    playSound('click')
-  }
-}
-document.getElementById('pd-close').onclick = () => document.getElementById('player-detail-modal').classList.remove('open')
-document.getElementById('player-detail-modal').onclick = (e) => {
-  if (e.target === e.currentTarget) document.getElementById('player-detail-modal').classList.remove('open')
-}
+try {
+  const el = id => document.getElementById(id)
+  el('btn-new-game') && (el('btn-new-game').onclick = showNewGameScreen)
+  el('btn-load-game') && (el('btn-load-game').onclick = showLoadMenu)
+  el('btn-load-back') && (el('btn-load-back').onclick = showMainMenu)
+  el('btn-ng-back') && (el('btn-ng-back').onclick = () => {
+    const teams = el('ng-step-teams')
+    if (teams && teams.classList.contains('hidden') === false) {
+      teams.classList.add('hidden')
+      const countries = el('ng-step-countries')
+      if (countries) countries.classList.remove('hidden')
+      document.querySelectorAll('.ng-step').forEach((s, i) => {
+        s.classList.toggle('done', false)
+        s.classList.toggle('active', i === 0)
+      })
+    } else {
+      showMainMenu()
+    }
+  })
+  el('btn-ng-back-action') && (el('btn-ng-back-action').onclick = () => { const b = el('btn-ng-back'); if (b) b.click() })
+  el('btn-ng-continue') && (el('btn-ng-continue').onclick = () => {
+    const coachInput = el('ng-coach-input')
+    if (!coachInput || !coachInput.value.trim()) {
+      if (coachInput) { coachInput.focus(); coachInput.style.borderColor = '#EF4444' }
+      return
+    }
+    coachInput.style.borderColor = ''
+    const teams = el('ng-step-teams')
+    if (teams && teams.classList.contains('hidden') === false) {
+      startNewGame()
+    } else if (selectedCountry) {
+      showTeamSelectionStep()
+    }
+  })
+  const coachInput = el('ng-coach-input')
+  if (coachInput) coachInput.oninput = function() { this.style.borderColor = '' }
+  el('btn-tactica') && (el('btn-tactica').onclick = abrirTacticasModal)
+  el('inbox-close-btn') && (el('inbox-close-btn').onclick = () => { hideInboxDetail(); const m = el('inbox-modal'); if (m) m.classList.remove('open') })
+  el('inbox-detail-back') && (el('inbox-detail-back').onclick = hideInboxDetail)
+  el('inbox-modal') && (el('inbox-modal').onclick = (e) => { if (e.target === e.currentTarget) { hideInboxDetail(); e.currentTarget.classList.remove('open') } })
+  el('settings-close-btn') && (el('settings-close-btn').onclick = () => { const m = el('settings-modal'); if (m) m.classList.remove('open') })
+  el('settings-modal') && (el('settings-modal').onclick = (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open') })
+  el('settings-sound-toggle') && (el('settings-sound-toggle').onchange = (e) => {
+    state.soundEnabled = e.target.checked
+    if (state.soundEnabled) playSound('click')
+  })
+  el('pd-close') && (el('pd-close').onclick = () => { const m = el('player-detail-modal'); if (m) m.classList.remove('open') })
+  el('player-detail-modal') && (el('player-detail-modal').onclick = (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open') })
+} catch(e) { console.warn('[INIT] Error:', e) }
 
 showMainMenu()
