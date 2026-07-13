@@ -51,11 +51,12 @@
           </div>
         </div>
 
-        <div id="ng-step-countries">
+        <div id="ng-step-wrapper">
+        <div id="ng-step-countries" class="ng-step-panel">
           <div class="ng-grid" id="ng-country-grid"></div>
         </div>
 
-        <div id="ng-step-teams" class="hidden">
+        <div id="ng-step-teams" class="ng-step-panel ng-hidden">
           <div class="ng-leagues" id="ng-leagues"></div>
           <div class="ng-teams-header">
             <span class="ng-count" id="ng-team-count">Equipo (0)</span>
@@ -65,6 +66,7 @@
             </div>
           </div>
           <div class="ng-teams-list" id="ng-teams-list"></div>
+        </div>
         </div>
 
         <div class="ng-footer">
@@ -215,10 +217,6 @@
           <div class="view-header">
             <h2>Mercado</h2>
           </div>
-          <div class="sub-tabs">
-            <button class="sub-tab active" data-market-tab="buy">Disponibles</button>
-            <button class="sub-tab" data-market-tab="sell">Transferibles</button>
-          </div>
           <div class="market-search-wrap">
             <input class="market-search" id="market-search" type="text" placeholder="🔍 Buscar jugador...">
           </div>
@@ -293,55 +291,6 @@
       </nav>
     </div>
 
-    <!-- PLAYER MODAL -->
-    <div id="player-modal" class="modal-overlay">
-      <div class="modal-content">
-        <div class="modal-scroll" style="gap:0">
-          <div class="modal-avatar-wrap" id="modal-avatar-wrap">
-            <div class="player-avatar modal-avatar" id="modal-avatar"></div>
-          </div>
-          <div class="modal-name" id="modal-name"></div>
-          <div class="modal-nationality" id="modal-nationality"></div>
-          <div class="modal-meta" id="modal-meta"></div>
-          <div class="modal-position" id="modal-position"></div>
-          <div class="modal-injury" id="modal-injury" style="display:none"></div>
-          <div class="modal-stats-row">
-            <div class="modal-stat">
-              <span class="modal-stat-label">HAB</span>
-              <span class="modal-stat-value" id="modal-skill"></span>
-              <div class="modal-stat-bar"><div class="modal-stat-fill" id="modal-skill-fill"></div></div>
-            </div>
-            <div class="modal-stat">
-              <span class="modal-stat-label">ENE</span>
-              <span class="modal-stat-value" id="modal-energy"></span>
-              <div class="modal-stat-bar"><div class="modal-stat-fill" id="modal-energy-fill"></div></div>
-            </div>
-            <div class="modal-stat">
-              <span class="modal-stat-label">VALOR</span>
-              <span class="modal-stat-value modal-stat-money" id="modal-value"></span>
-            </div>
-            <div class="modal-stat">
-              <span class="modal-stat-label">SALARIO</span>
-              <span class="modal-stat-value modal-stat-money" id="modal-wage"></span>
-            </div>
-          </div>
-          <div class="modal-season-stats">
-            <div class="modal-sstat"><span class="modal-sstat-icon">⚽</span><span class="modal-sstat-val" id="modal-g">0</span><span class="modal-sstat-lbl">Goles</span></div>
-            <div class="modal-sstat"><span class="modal-sstat-icon">🎯</span><span class="modal-sstat-val" id="modal-a">0</span><span class="modal-sstat-lbl">Asist.</span></div>
-            <div class="modal-sstat"><span class="modal-sstat-icon" style="color:#F59E0B">🟨</span><span class="modal-sstat-val" id="modal-ta">0</span><span class="modal-sstat-lbl">Amar.</span></div>
-            <div class="modal-sstat"><span class="modal-sstat-icon" style="color:#EF4444">🟥</span><span class="modal-sstat-val" id="modal-tr">0</span><span class="modal-sstat-lbl">Roja</span></div>
-            <div class="modal-sstat"><span class="modal-sstat-icon">🏆</span><span class="modal-sstat-val" id="modal-mvp">0</span><span class="modal-sstat-lbl">MVP</span></div>
-            <div class="modal-sstat"><span class="modal-sstat-icon">📊</span><span class="modal-sstat-val" id="modal-pj">0</span><span class="modal-sstat-lbl">Part.</span></div>
-          </div>
-          <div class="modal-history-title">Últimos partidos</div>
-          <div id="modal-history"></div>
-          <div class="modal-bottom-actions">
-            <div class="modal-market-actions" id="modal-market-actions"></div>
-            <button class="btn-secondary modal-action-btn" id="modal-close">CERRAR</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- SLOT PICKER MODAL -->
     <div id="slot-picker-modal" class="modal-overlay hidden">
@@ -405,7 +354,7 @@
 
       <div class="tactics-subsection-label" id="tp-squad-label" style="margin-top:4px;padding:0 10px"></div>
       <div class="tp-table-header">
-      <span class="tp-th-pos">Posición</span>
+      <span class="tp-th-pos">Pos</span>
       <span class="tp-th-name">Nombre</span>
       <span class="tp-th-age">Edad</span>
       <span class="tp-th-value">Valor</span>
@@ -498,15 +447,32 @@
         <div class="pd-stat"><span class="pd-stat-label">Valor</span><span class="pd-stat-val pd-val-highlight" id="pd-value">—</span></div>
       </div>
 
-      <div class="pd-adapt">
-        <div class="pd-adapt-title">Posición en el Campo</div>
-        <div class="pd-adapt-cols">
-          <div class="pd-adapt-left" id="pd-adapt-list"></div>
-          <div class="pd-adapt-right">
-            <div class="pd-pitch" id="pd-pitch"></div>
+      <div class="pd-tabs">
+        <button class="pd-tab active" data-pd-tab="info">INFORMACIÓN</button>
+        <button class="pd-tab" data-pd-tab="rend">RENDIMIENTO</button>
+        <button class="pd-tab" data-pd-tab="merc">MERCADO</button>
+      </div>
+
+      <div id="pd-info-content" class="pd-tab-content">
+        <div class="pd-adapt">
+          <div class="pd-adapt-title">Posición en el Campo</div>
+          <div class="pd-adapt-cols">
+            <div class="pd-adapt-left" id="pd-adapt-list"></div>
+            <div class="pd-adapt-right">
+              <div class="pd-pitch" id="pd-pitch"></div>
+            </div>
           </div>
+          <div class="pd-adapt-note">A menor edad (más joven), mayor es el porcentaje de adaptabilidad y aprendizaje en esta posición.</div>
         </div>
-        <div class="pd-adapt-note">A menor edad (más joven), mayor es el porcentaje de adaptabilidad y aprendizaje en esta posición.</div>
+      </div>
+
+      <div id="pd-rend-content" class="pd-tab-content hidden">
+        <div class="pd-rend-stats" id="pd-rend-stats"></div>
+        <div class="pd-rend-history" id="pd-rend-history"></div>
+      </div>
+
+      <div id="pd-merc-content" class="pd-tab-content hidden">
+        <div class="pd-market-actions" id="pd-market-actions"></div>
       </div>
     </div>
   </div>
