@@ -117,14 +117,6 @@
           <img class="dd-team-logo" id="dd-team-logo" src="" alt="">
           <span class="dd-team-name" id="dd-team-name"></span>
         </div>
-        <div class="dropdown-item" data-action="inbox">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
-            <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
-          </svg>
-          Bandeja de entrada
-          <span class="inbox-badge" id="inbox-badge" style="display:none">0</span>
-        </div>
         <div class="dropdown-item" data-action="calendar">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -186,16 +178,16 @@
           <div class="sub-tabs">
             <button class="sub-tab active" data-subtab="squad">Plantilla</button>
             <button class="sub-tab" data-subtab="tactics">Táctica</button>
+            <button class="sub-tab" data-subtab="inbox">Bandeja<span class="inbox-badge" id="inbox-badge" style="display:none">0</span></button>
           </div>
           <div id="club-squad-content"></div>
           <div id="club-tactics-content" class="hidden"></div>
+          <div id="club-inbox-content" class="hidden"></div>
         </section>
 
         <!-- LIGA -->
         <section id="view-league" class="view">
-          <div class="league-header">
-            <select id="league-selector" class="league-select"></select>
-          </div>
+          <div class="league-logos" id="league-logos"></div>
           <div id="league-content">
             <div id="league-table-wrap"></div>
             <div id="league-results-wrap" class="hidden">
@@ -372,26 +364,6 @@
     <div class="tp-list" id="tp-list"></div>
   </div>
 
-  <!-- INBOX MODAL -->
-  <div id="inbox-modal" class="modal-overlay">
-    <div class="modal-content" style="position:absolute;inset:0;max-width:100%;width:100%;height:100%;max-height:100%;border-radius:0;background:#0F172A">
-      <div class="inbox-header">
-        <div class="inbox-header-title">
-          <svg class="inbox-header-icon" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
-          <h2>Bandeja de entrada</h2>
-          <span class="inbox-header-count" id="inbox-count">0</span>
-        </div>
-        <button class="inbox-close" id="inbox-close-btn">✕</button>
-      </div>
-      <div class="inbox-list" id="inbox-list"></div>
-      <div class="inbox-detail" id="inbox-detail" style="display:none">
-        <div class="inbox-detail-header">
-          <button class="inbox-detail-back" id="inbox-detail-back">← Volver</button>
-        </div>
-        <div class="inbox-detail-body" id="inbox-detail-body"></div>
-      </div>
-    </div>
-  </div>
 
   <!-- SETTINGS MODAL -->
   <div id="settings-modal" class="modal-overlay">

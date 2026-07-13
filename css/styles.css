@@ -2333,46 +2333,40 @@ html, body {
   line-height: 1;
 }
 
-#inbox-modal.modal-overlay {
-  padding: 0;
-}
-
-#inbox-modal .inbox-header {
+/* Inbox inside club view */
+#club-inbox-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
-  flex-shrink: 0;
+  flex-direction: column;
+  min-height: 0;
+}
+#club-inbox-content .inbox-item { padding: 14px 16px; }
+
+.pressure-card:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 4px 16px rgba(38,99,235,0.15) !important;
+}
+.pressure-card:active {
+  transform: scale(0.96);
 }
 
-#inbox-modal .inbox-header-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-.inbox-header-icon {
-  width: 22px;
-  height: 22px;
+.sub-tab[data-subtab="inbox"] {
+  position: relative;
 }
-
-#inbox-modal .inbox-header-title h2 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-  font-family: var(--font-display);
-}
-
-.inbox-header-count {
-  background: #2563EB;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 10px;
-  min-width: 20px;
-  text-align: center;
+.sub-tab[data-subtab="inbox"] .inbox-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  margin-left: 0;
 }
 
 .inbox-close {
@@ -2780,26 +2774,16 @@ html, body {
 }
 
 /* ───────── LEAGUE ───────── */
-.league-header {
-  margin-bottom: 12px;
+.league-logos {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  margin-bottom: 10px;
 }
-
-.league-select {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-card);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-}
+.league-logos::-webkit-scrollbar { display: none; }
 
 .league-table {
   width: 100%;

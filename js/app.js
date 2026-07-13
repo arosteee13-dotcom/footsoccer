@@ -29,6 +29,8 @@ const FORMATIONS = {
   '3-5-2': { label: '3-5-2', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_der', 'medio_der', 'mediocentro', 'medio_ofensivo', 'medio_izq', 'delantero', 'delantero'], multiplier: 0.9 },
   '5-3-2': { label: '5-3-2', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_der', 'mediocentro', 'medio_izq', 'delantero', 'delantero'], multiplier: 0.85 },
   '4-1-4-1': { label: '4-1-4-1', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_def', 'extremo_der', 'mediocentro', 'medio_ofensivo', 'extremo_izq', 'delantero'], multiplier: 0.95 },
+  '3-4-3': { label: '3-4-3', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_der', 'mediocentro', 'mediocentro', 'carrilero_izq', 'extremo_der', 'delantero', 'extremo_izq'], multiplier: 0.95 },
+  '3-4-2-1': { label: '3-4-2-1', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_der', 'mediocentro', 'medio_def', 'carrilero_izq', 'medio_ofensivo', 'medio_ofensivo', 'delantero'], multiplier: 1.0 },
 }
 
 const POS_ABBR = { portero: 'POR', cierre: 'DFC', ala: 'MC', pivot: 'DC', lateral_der: 'LD', lateral_izq: 'LI', carrilero_der: 'CAD', carrilero_izq: 'CAI', defensa_central: 'DFC', medio_def: 'MCD', mediocentro: 'MC', medio_ofensivo: 'MCO', medio_der: 'MD', medio_izq: 'MI', extremo_der: 'ED', extremo_izq: 'EI', delantero: 'DC' }
@@ -49,6 +51,9 @@ const GAME_PLANS = {
   contragolpe:{ label: 'Contragolpe',         desc: 'Salidas rápidas en transición. Ideal con extremos veloces. Poco desgaste.', attack: 1.3, defense: 1.0, drain: 2, events: 0.75 },
   presionAlta:{ label: 'Presión Alta',        desc: 'Presión en campo rival para recuperar rápido. Mucho desgaste físico.', attack: 1.4, defense: 1.2, drain: 5, events: 1.20 },
   juegoDirecto:{ label: 'Juego Directo',      desc: 'Balones largos al delantero. Ataques verticales y rápidos.', attack: 1.2, defense: 0.7, drain: 3, events: 0.90 },
+  pesado:     { label: 'Pesada',     desc: 'Presión intensa y constante sobre el rival.', attack: 1.3, defense: 1.3, drain: 5, events: 1.15 },
+  extremo:    { label: 'Extrema',    desc: 'Estilo muy intenso, todo o nada.', attack: 1.5, defense: 0.8, drain: 6, events: 1.30 },
+  suave:      { label: 'Suave',      desc: 'Estilo relajado, prioriza la conservación de energía.', attack: 0.8, defense: 1.1, drain: 2, events: 0.80 },
 }
 
 const MAX_SQUAD = 30
@@ -463,7 +468,7 @@ window.SaveSystem = {
         tactic: state.tactic,
         finances: state.finances, stats: state.stats,
         leagueTeams: (state.leagueTeams || []).map(t => ({
-          teamId: t.teamId, name: t.name, logo: t.logo || '', players: (t.players || []).map(cleanup), staff: t.staff
+          teamId: t.teamId, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: (t.players || []).map(cleanup), staff: t.staff
         })),
         currentMatchday: state.currentMatchday, totalMatchdays: state.totalMatchdays, fixtures: state.fixtures,
         allLeagueData: state.allLeagueData,
@@ -478,7 +483,8 @@ window.SaveSystem = {
       }
       if (idx >= 0) saves[idx] = data; else saves.unshift(data)
       setSaves(saves)
-      autoSaveTactics()
+    document.getElementById('tc-pressure-btn')?.addEventListener('click', showPressureModal)
+    autoSaveTactics()
       console.log('[SAVE] OK - slot:', saves.indexOf(data), 'gameId:', gameId)
     } catch(e) { console.warn('[SAVE] Error:', e) }
   },
@@ -663,11 +669,11 @@ function getTeamObj(id) {
       const team = l.teams.find(x => x.id === id)
       if (team) {
         if (getRealSquad(team.id)) {
-          return { name: team.name, players: getRealSquad(team.id).map(p => ({ ...p })), teamId: team.id, staff: team.staff }
+          return { name: team.name, players: getRealSquad(team.id).map(p => ({ ...p })), teamId: team.id, staff: team.staff, formation: team.formation, gamePlan: team.gamePlan }
         }
         /* Generate CPU squad on-the-fly for teams without real squads */
         const rating = team.rating || getBaseDato(id)?.rating || 70
-        return { name: team.name, players: generateCpuSquad(id, state.countryId, rating), teamId: id, staff: team.staff || generateStaff(team.name, state.countryId) }
+        return { name: team.name, players: generateCpuSquad(id, state.countryId, rating), teamId: id, staff: team.staff || generateStaff(team.name, state.countryId), formation: team.formation, gamePlan: team.gamePlan }
       }
     }
   }
@@ -678,8 +684,10 @@ function autoSimulateOtherMatch(homeId, awayId) {
   const home = getTeamObj(homeId)
   const away = getTeamObj(awayId)
   if (!home || !away) return { homeScore: 0, awayScore: 0 }
-  const homeSkill = avgSkill(home.players) * randInt(80, 120) / 100 * 1.05
-  const awaySkill = avgSkill(away.players) * randInt(80, 120) / 100
+  const homeTact = calcTacticMultiplier(home.formation, home.gamePlan)
+  const awayTact = calcTacticMultiplier(away.formation, away.gamePlan)
+  const homeSkill = avgSkill(home.players) * randInt(80, 120) / 100 * 1.05 * homeTact
+  const awaySkill = avgSkill(away.players) * randInt(80, 120) / 100 * awayTact
   let homeScore = 0, awayScore = 0
   for (let m = 0; m < 40; m++) {
     if (Math.random() > 0.35) continue
@@ -1059,23 +1067,33 @@ function renderClub() {
   const countryFlag = window.DB[state.countryId]?.country.flag || ''
   const totalVal = state.players.reduce((s, p) => s + (p.value || 0), 0)
   document.getElementById('club-team-info').innerHTML = `
-    <div class="tp-stats" style="margin-bottom:12px">
+    <div class="tp-stats" style="margin-bottom:6px">
       <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${countryFlag}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
+    </div>
+    <div class="tp-stats" style="margin-bottom:12px">
+      <div class="tp-stat"><span class="tp-stat-label">Formación</span><span class="tp-stat-value">${state.tactic.formation || '\u2014'}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Presión</span><span class="tp-stat-value">${(GAME_PLANS[state.tactic.gamePlan] || {}).label || state.tactic.gamePlan || '\u2014'}</span></div>
+      <div class="tp-stat" style="flex:2"></div>
     </div>`
 
   document.getElementById('club-squad-content').classList.add('hidden')
   document.getElementById('club-tactics-content').classList.add('hidden')
+  document.getElementById('club-inbox-content').classList.add('hidden')
   document.querySelectorAll('#view-club .sub-tab').forEach(b => b.classList.toggle('active', b.dataset.subtab === state.clubSubTab))
   if (state.clubSubTab === 'squad') {
     document.getElementById('club-squad-content').classList.remove('hidden')
     renderSquad(state.players)
-  } else {
+  } else if (state.clubSubTab === 'tactics') {
     document.getElementById('club-tactics-content').classList.remove('hidden')
     renderTactics(state.tactic)
+  } else if (state.clubSubTab === 'inbox') {
+    document.getElementById('club-inbox-content').classList.remove('hidden')
+    hideInboxDetail()
+    renderInbox()
   }
 }
 
@@ -1125,6 +1143,8 @@ const SLOT_ROLES = {
   '3-5-2': FORMATIONS['3-5-2'].roles,
   '5-3-2': FORMATIONS['5-3-2'].roles,
   '4-1-4-1': FORMATIONS['4-1-4-1'].roles,
+  '3-4-3': FORMATIONS['3-4-3'].roles,
+  '3-4-2-1': FORMATIONS['3-4-2-1'].roles,
 }
 
 function getPositionMultiplier(naturalPosition, assignedRole) {
@@ -1211,7 +1231,7 @@ function renderTactics(tactic) {
     var gpLabel = GAME_PLANS[tactic.gamePlan] ? GAME_PLANS[tactic.gamePlan].label : tactic.gamePlan
     html += '<div class="tc-top-cards">' +
       '<div class="tc-card"><span class="tc-card-label">Capit\u00e1n</span><span class="tc-card-value">' + (captain ? captain.name.split(' ').slice(-1)[0] : '---') + '</span></div>' +
-      '<div class="tc-card"><span class="tc-card-label">Presi\u00f3n</span><span class="tc-card-value tc-accent">' + gpLabel + '</span></div>' +
+      '<div class="tc-card" id="tc-pressure-btn" style="cursor:pointer"><span class="tc-card-label">Presi\u00f3n</span><span class="tc-card-value tc-accent">' + gpLabel + '</span></div>' +
       '<div class="tc-card"><span class="tc-card-label">Formaci\u00f3n</span><span class="tc-card-value tc-accent">' + tactic.formation + '</span></div>' +
     '</div>'
 
@@ -1318,6 +1338,7 @@ function renderTactics(tactic) {
       })
     }
 
+    document.getElementById('tc-pressure-btn')?.addEventListener('click', showPressureModal)
     autoSaveTactics()
   } catch (e) {
     console.warn('[TACTICS] Error:', e)
@@ -1466,8 +1487,7 @@ function getLeagueTeams(leagueId) {
   return []
 }
 
-function renderLeague() {
-  const selector = document.getElementById('league-selector')
+function renderLeague(viewedLeagueId) {
   const tableWrap = document.getElementById('league-table-wrap')
   const resultsWrap = document.getElementById('league-results-wrap')
 
@@ -1476,36 +1496,29 @@ function renderLeague() {
   /* Safety net: ensure league data exists without breaking if it fails */
   try { initAllLeagueData() } catch (e) { console.warn('[LEAGUE] initAllLeagueData error:', e) }
 
-  /* Dropdown */
-  let opts = ''
-  const allLeagues = []
-  try {
-    for (const cid in window.DB) {
-      const data = window.DB[cid]
-      if (!data || !data.country) continue
-      for (const l of data.country.leagues || []) {
-        if (l && l.id) allLeagues.push({ ...l, country: data.country })
-      }
-    }
-  } catch (e) { console.warn('[LEAGUE] error reading leagues:', e) }
+  const displayLid = viewedLeagueId || state.leagueId
 
-  for (const l of allLeagues) {
-    const isOwn = l.id === state.leagueId
-    opts += `<option value="${l.id}" data-country="${l.country.id}" ${isOwn ? 'selected' : ''}>${l.country.flag || ''} ${l.name || l.id}</option>`
-  }
-  if (!opts) opts = '<option value="">— Sin ligas disponibles —</option>'
-  selector.innerHTML = opts
-  selector.value = state.leagueId
-  const selectedLeagueId = state.leagueId
+  /* League logos — only from current country */
+  const countryData = window.DB[state.countryId]
+  const leagues = countryData ? (countryData.country.leagues || []) : []
+  const logosContainer = document.getElementById('league-logos')
+  logosContainer.innerHTML = leagues.map(l => `
+    <div class="ng-league-item${l.id === displayLid ? ' active' : ''}" data-lid="${l.id}" title="${l.name}">
+      ${l.logo ? `<img class="ng-league-logo" src="${l.logo}" alt="${l.name}">` : `<span>${l.name}</span>`}
+    </div>
+  `).join('')
+  logosContainer.querySelectorAll('.ng-league-item').forEach(el => {
+    el.onclick = () => renderLeague(el.dataset.lid)
+  })
 
   /* Table */
-  const isOwnLeague = selectedLeagueId === state.leagueId
+  const isOwnLeague = displayLid === state.leagueId
   const standings = isOwnLeague
     ? updateLeagueStandings()
-    : state.allLeagueData && state.allLeagueData[selectedLeagueId]
-      ? computeStandings(state.allLeagueData[selectedLeagueId].fixtures,
-          getLeagueTeams(selectedLeagueId).map(t => t.id))
-      : getLeagueTeams(selectedLeagueId).map(t => ({
+    : state.allLeagueData && state.allLeagueData[displayLid]
+      ? computeStandings(state.allLeagueData[displayLid].fixtures,
+          getLeagueTeams(displayLid).map(t => t.id))
+      : getLeagueTeams(displayLid).map(t => ({
           teamId: t.id, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, pts: 0,
           name: t.name, logo: t.logo
         }))
@@ -3109,24 +3122,23 @@ function setupNavigation() {
       btn.classList.add('active')
       document.getElementById('club-squad-content').classList.add('hidden')
       document.getElementById('club-tactics-content').classList.add('hidden')
+      document.getElementById('club-inbox-content').classList.add('hidden')
       if (state.clubSubTab === 'squad') {
         document.getElementById('club-squad-content').classList.remove('hidden')
         renderSquad(state.players)
-      } else {
+      } else if (state.clubSubTab === 'tactics') {
         document.getElementById('club-tactics-content').classList.remove('hidden')
         renderTactics(state.tactic)
+      } else if (state.clubSubTab === 'inbox') {
+        document.getElementById('club-inbox-content').classList.remove('hidden')
+        hideInboxDetail()
+        renderInbox()
       }
     }
   })
 
   /* Market search */
   document.getElementById('market-search').oninput = () => renderMarketContent()
-
-  /* League selector */
-  document.getElementById('league-selector').onchange = (e) => {
-    state.leagueId = e.target.value
-    renderLeague()
-  }
 
   }
 
@@ -3250,7 +3262,7 @@ function newGame(coach) {
       ? base.map(p => ({ ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null }))
       : generateCpuSquad(t.id, state.countryId, t.rating)
     const defaultStaff = t.staff || generateStaff(t.name, state.countryId)
-    state.leagueTeams.push({ teamId: t.id, name: t.name, logo: t.logo || '', players: squad, staff: defaultStaff })
+    state.leagueTeams.push({ teamId: t.id, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: squad, staff: defaultStaff })
     allTeamIds.push(t.id)
   }
   console.log('[INIT] leagueTeams:', state.leagueTeams.map(t => t.name + ': ' + t.players.length + ' players').join(', '))
@@ -3378,7 +3390,7 @@ function loadGame(id) {
   state.soundEnabled = data.soundEnabled !== false
   state.filialSquad = data.filialSquad || []
   state.globalPlayers = data.globalPlayers || []
-  startGame()
+  loadCountryData(state.countryId, function() { startGame() })
 }
 
 function startGame() {
@@ -3646,13 +3658,19 @@ function showTeamPreview(teamId) {
   const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
   const countryFlag = window.DB[foundCountryId] ? window.DB[foundCountryId].country.flag : ''
   document.getElementById('tp-stats').innerHTML = `
-    <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>
-    <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
-    <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${countryFlag}</span></div>
-    <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
-    <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
+    <div class="tp-stats" style="margin-bottom:6px;padding:8px 10px">
+      <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${countryFlag}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
+    </div>
+    <div class="tp-stats" style="padding:8px 10px">
+      <div class="tp-stat"><span class="tp-stat-label">Formación</span><span class="tp-stat-value">${team.formation || '\u2014'}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Presión</span><span class="tp-stat-value">${(GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014'}</span></div>
+      <div class="tp-stat" style="flex:2"></div>
+    </div>
   `
-
   /* Staff section – cards in its own container after tp-stats */
   if (staff.length > 0) {
     var roleLabels = { headCoach: 'Entrenador', assistantCoach: '2\u00ba Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador f\u00edsico' }
@@ -3922,12 +3940,17 @@ function showTeamInfo(teamId) {
       </div>
       <button class="btn-back" id="btn-team-back">← Volver</button>
     </div>
-    <div class="tp-stats" style="margin-bottom:12px">
+    <div class="tp-stats" style="margin-bottom:6px">
       <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">${posDisplay}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${teamFlag}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
+    </div>
+    <div class="tp-stats" style="margin-bottom:12px">
+      <div class="tp-stat"><span class="tp-stat-label">Formación</span><span class="tp-stat-value">${team.formation || '\u2014'}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Presión</span><span class="tp-stat-value">${(GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014'}</span></div>
+      <div class="tp-stat" style="flex:2"></div>
     </div>`
   /* Staff */
   const roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
@@ -4100,6 +4123,80 @@ function hideSideMenu() {
   document.getElementById('dropdown-overlay').classList.remove('open')
 }
 
+/* ============ PRESSURE MODAL ============ */
+function showPressureModal() {
+  const overlay = document.createElement('div')
+  overlay.className = 'modal-overlay'
+  overlay.style.cssText = 'align-items:flex-start;padding:0'
+
+  const current = state.tactic.gamePlan
+  const plans = ['suave', 'pesado', 'extremo']
+  const labels = { suave: 'Suave', pesado: 'Pesado', extremo: 'Extremo' }
+  const icons = { suave: '\uD83D\uDEB6', pesado: '\uD83C\uDFC3', extremo: '\uD83D\uDEB4' }
+  const traits = {
+    suave: [
+      { text: 'Bajo cansancio', type: 'pro' },
+      { text: 'Juego m\u00e1s t\u00e1ctico', type: 'pro' },
+      { text: 'Poca ofensiva', type: 'con' },
+      { text: 'Juego pasivo', type: 'con' },
+    ],
+    pesado: [
+      { text: 'Juego balanceado', type: 'pro' },
+      { text: 'Menos errores', type: 'pro' },
+      { text: 'Cansancio normal', type: 'con' },
+      { text: 'Juego predecible', type: 'con' },
+    ],
+    extremo: [
+      { text: 'Mejor ofensiva', type: 'pro' },
+      { text: 'Juego r\u00e1pido', type: 'pro' },
+      { text: 'Cansancio extremo', type: 'con' },
+      { text: 'Posibles lesiones', type: 'con' },
+    ],
+  }
+
+  let html = '<div class="modal-content" style="width:100%;border-radius:0 0 16px 16px;padding:20px;display:flex;flex-direction:column;gap:16px;background:var(--bg-card);animation:slideDown 0.3s ease;box-shadow:0 4px 20px rgba(0,0,0,0.15)">' +
+    '<h3 style="text-align:center;font-size:16px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px">Tipo de presi\u00f3n</h3>' +
+    '<div style="display:flex;gap:10px">'
+
+  plans.forEach(function(p) {
+    const isActive = current === p
+    html += '<div class="pressure-card' + (isActive ? ' active' : '') + '" data-plan="' + p + '" style="flex:1;background:#fff;border-radius:12px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;border:2px solid ' + (isActive ? 'var(--accent)' : 'rgba(0,0,0,0.06)') + ';box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:all 0.2s ease">' +
+      '<span style="font-size:13px;font-weight:700;color:#1E293B">' + labels[p] + '</span>' +
+      '<span style="font-size:28px">' + icons[p] + '</span>' +
+      '<div style="width:100%;display:flex;flex-direction:column;gap:3px">'
+    traits[p].forEach(function(t) {
+      html += '<span style="font-size:10px;color:' + (t.type === 'pro' ? '#10B981' : '#EF4444') + ';font-weight:600">' + (t.type === 'pro' ? '\u2713' : '\u2717') + ' ' + t.text + '</span>'
+    })
+    html += '</div></div>'
+  })
+
+  html += '</div></div>'
+  overlay.innerHTML = html
+  document.body.appendChild(overlay)
+  requestAnimationFrame(function() { overlay.classList.add('open') })
+
+  overlay.querySelectorAll('.pressure-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      overlay.classList.remove('open')
+      var plan = card.dataset.plan
+      setTimeout(function() {
+        document.body.removeChild(overlay)
+        state.tactic.gamePlan = plan
+        renderTactics(state.tactic)
+      }, 250)
+    })
+  })
+
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.classList.remove('open')
+      setTimeout(function() {
+        document.body.removeChild(overlay)
+      }, 250)
+    }
+  })
+}
+
 /* ============ INBOX ============ */
 function addNotification(type, title, body) {
   if (!state.inbox) state.inbox = []
@@ -4124,87 +4221,76 @@ function updateInboxBadge() {
 }
 
 function renderInbox() {
-  const list = document.getElementById('inbox-list')
-  if (!list) return
+  const container = document.getElementById('club-inbox-content')
+  if (!container) return
+  const senderLabels = {
+    match: { label: 'Resultado', icon: '\u26BD' },
+    injury: { label: 'Servicio M\u00e9dico', icon: '\uD83D\uDC79' },
+    transfer: { label: 'Mercado', icon: '\uD83D\uDCB0' },
+    general: { label: 'Notificaci\u00f3n', icon: '\uD83D\uDCCC' },
+  }
   if (!state.inbox || state.inbox.length === 0) {
-    list.innerHTML = '<div class="inbox-empty">📭 No hay notificaciones</div>'
+    container.innerHTML = '<div class="inbox-empty">\uD83D\uDCED No hay notificaciones</div>'
     return
   }
-  const senderLabels = {
-    match: { label: 'Resultado', icon: '⚽' },
-    injury: { label: 'Servicio Médico', icon: '🩹' },
-    transfer: { label: 'Mercado', icon: '💰' },
-    general: { label: 'Notificación', icon: '📌' },
-  }
-  list.innerHTML = state.inbox.map(n => {
+  let html = '<div class="inbox-list" id="inbox-list">'
+  html += state.inbox.map(n => {
     const t = senderLabels[n.type] || senderLabels.general
     const date = new Date(n.createdAt)
     const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })
     const timeStr = String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0')
-    return `<div class="inbox-item${n.read ? '' : ' unread'}" data-inbox-id="${n.id}">
-      <div class="inbox-avatar ${n.type}">${t.icon}</div>
-      <div class="inbox-body">
-        <div class="inbox-row1">
-          <span class="inbox-sender">${t.label}</span>
-          <span class="inbox-date">${dateStr} ${timeStr}</span>
-        </div>
-        <div class="inbox-subject">${n.title}</div>
-        ${n.body ? '<div class="inbox-preview">' + n.body + '</div>' : ''}
-      </div>
-    </div>`
+    return '<div class="inbox-item' + (n.read ? '' : ' unread') + '" data-inbox-id="' + n.id + '">' +
+      '<div class="inbox-avatar ' + n.type + '">' + t.icon + '</div>' +
+      '<div class="inbox-body">' +
+        '<div class="inbox-row1"><span class="inbox-sender">' + t.label + '</span><span class="inbox-date">' + dateStr + ' ' + timeStr + '</span></div>' +
+        '<div class="inbox-subject">' + n.title + '</div>' +
+        (n.body ? '<div class="inbox-preview">' + n.body + '</div>' : '') +
+      '</div></div>'
   }).join('')
-  list.querySelectorAll('.inbox-item').forEach(el => {
-    el.onclick = () => {
+  html += '</div><div class="inbox-detail" id="inbox-detail" style="display:none"><div class="inbox-detail-header"><button class="inbox-detail-back" id="inbox-detail-back">\u2190 Volver</button></div><div class="inbox-detail-body" id="inbox-detail-body"></div></div>'
+  container.innerHTML = html
+  container.querySelectorAll('.inbox-item').forEach(function(el) {
+    el.onclick = function() {
       const id = parseFloat(el.dataset.inboxId)
-      const n = state.inbox.find(x => x.id === id)
+      const n = state.inbox.find(function(x) { return x.id === id })
       if (!n) return
       n.read = true
       updateInboxBadge()
       showInboxDetail(n)
     }
   })
+  document.getElementById('inbox-detail-back') && (document.getElementById('inbox-detail-back').onclick = hideInboxDetail)
 }
 
 function showInboxDetail(n) {
-  document.getElementById('inbox-list').style.display = 'none'
+  const list = document.getElementById('inbox-list')
   const detail = document.getElementById('inbox-detail')
+  if (!list || !detail) return
+  list.style.display = 'none'
   detail.style.display = 'flex'
   const senderLabels = {
-    match: { label: 'Resultado', icon: '⚽' },
-    injury: { label: 'Servicio Médico', icon: '🩹' },
-    transfer: { label: 'Mercado', icon: '💰' },
-    general: { label: 'Notificación', icon: '📌' },
+    match: { label: 'Resultado', icon: '\u26BD' },
+    injury: { label: 'Servicio M\u00e9dico', icon: '\uD83D\uDC79' },
+    transfer: { label: 'Mercado', icon: '\uD83D\uDCB0' },
+    general: { label: 'Notificaci\u00f3n', icon: '\uD83D\uDCCC' },
   }
   const t = senderLabels[n.type] || senderLabels.general
   const date = new Date(n.createdAt)
   const dateStr = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
   const timeStr = String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0')
-  const estado = n.read ? '✅ Leído' : '📬 No leído'
-  document.getElementById('inbox-detail-body').innerHTML = `
-    <div class="inbox-detail-type">
-      <div class="inbox-detail-type-icon ${n.type}">${t.icon}</div>
-      <span class="inbox-detail-type-label">${t.label}</span>
-    </div>
-    <div class="inbox-detail-title">${n.title}</div>
-    <div class="inbox-detail-meta">Jornada ${n.matchday} · ${dateStr} · ${timeStr} · ${estado}</div>
-    <div class="inbox-detail-text">${n.body || 'Sin contenido adicional'}</div>
-  `
+  const estado = n.read ? '\u2705 Le\u00eddo' : '\uD83D\uDCEB No le\u00eddo'
+  document.getElementById('inbox-detail-body').innerHTML = '' +
+    '<div class="inbox-detail-type"><div class="inbox-detail-type-icon ' + n.type + '">' + t.icon + '</div><span class="inbox-detail-type-label">' + t.label + '</span></div>' +
+    '<div class="inbox-detail-title">' + n.title + '</div>' +
+    '<div class="inbox-detail-meta">Jornada ' + n.matchday + ' \u00b7 ' + dateStr + ' \u00b7 ' + timeStr + ' \u00b7 ' + estado + '</div>' +
+    '<div class="inbox-detail-text">' + (n.body || 'Sin contenido adicional') + '</div>'
 }
 
 function hideInboxDetail() {
-  document.getElementById('inbox-detail').style.display = 'none'
-  document.getElementById('inbox-list').style.display = ''
-  renderInbox()
-}
-
-function showInboxModal() {
-  const modal = document.getElementById('inbox-modal')
-  if (!modal) return
-  hideInboxDetail()
-  renderInbox()
-  const countEl = document.getElementById('inbox-count')
-  if (countEl) countEl.textContent = state.inbox ? state.inbox.length : 0
-  modal.classList.add('open')
+  const list = document.getElementById('inbox-list')
+  const detail = document.getElementById('inbox-detail')
+  if (list) list.style.display = ''
+  if (detail) detail.style.display = 'none'
 }
 
 /* ============ SIDE MENU EVENTS ============ */
@@ -4237,8 +4323,6 @@ try {
         saveGame()
         addNotification('general', '\uD83D\uDCBE Partida guardada', 'Progreso guardado correctamente')
         updateInboxBadge()
-      } else if (action === 'inbox') {
-        showInboxModal()
       } else if (action === 'calendar') {
         showCalendar()
       } else if (action === 'history') {
@@ -4696,9 +4780,6 @@ try {
   const coachInput = el('ng-coach-input')
   if (coachInput) coachInput.oninput = function() { this.style.borderColor = '' }
   el('btn-tactica') && (el('btn-tactica').onclick = abrirTacticasModal)
-  el('inbox-close-btn') && (el('inbox-close-btn').onclick = () => { hideInboxDetail(); const m = el('inbox-modal'); if (m) m.classList.remove('open') })
-  el('inbox-detail-back') && (el('inbox-detail-back').onclick = hideInboxDetail)
-  el('inbox-modal') && (el('inbox-modal').onclick = (e) => { if (e.target === e.currentTarget) { hideInboxDetail(); e.currentTarget.classList.remove('open') } })
   el('settings-close-btn') && (el('settings-close-btn').onclick = () => { const m = el('settings-modal'); if (m) m.classList.remove('open') })
   el('settings-modal') && (el('settings-modal').onclick = (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open') })
   el('settings-sound-toggle') && (el('settings-sound-toggle').onchange = (e) => {
