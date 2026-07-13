@@ -4233,6 +4233,10 @@ try {
         saveGame()
         showMainMenu()
         initMenuParticles()
+      } else if (action === 'save') {
+        saveGame()
+        addNotification('general', '\uD83D\uDCBE Partida guardada', 'Progreso guardado correctamente')
+        updateInboxBadge()
       } else if (action === 'inbox') {
         showInboxModal()
       } else if (action === 'calendar') {
