@@ -46,11 +46,6 @@ function getPowerBadgeStyle(skill) {
 }
 
 const GAME_PLANS = {
-  defensivo:  { label: 'Park the Bus',       desc: 'Equipo replegado, defiende cerca del área. Ahorra energía pero cede el control del partido.', attack: 0.6, defense: 1.4, drain: 1, events: 0.65 },
-  tikitaka:   { label: 'Tiki-Taka',           desc: 'Posesión y pases cortos. Control del partido, desgaste moderado.', attack: 1.1, defense: 0.9, drain: 4, events: 1.15 },
-  contragolpe:{ label: 'Contragolpe',         desc: 'Salidas rápidas en transición. Ideal con extremos veloces. Poco desgaste.', attack: 1.3, defense: 1.0, drain: 2, events: 0.75 },
-  presionAlta:{ label: 'Presión Alta',        desc: 'Presión en campo rival para recuperar rápido. Mucho desgaste físico.', attack: 1.4, defense: 1.2, drain: 5, events: 1.20 },
-  juegoDirecto:{ label: 'Juego Directo',      desc: 'Balones largos al delantero. Ataques verticales y rápidos.', attack: 1.2, defense: 0.7, drain: 3, events: 0.90 },
   pesado:     { label: 'Pesada',     desc: 'Presión intensa y constante sobre el rival.', attack: 1.3, defense: 1.3, drain: 5, events: 1.15 },
   extremo:    { label: 'Extrema',    desc: 'Estilo muy intenso, todo o nada.', attack: 1.5, defense: 0.8, drain: 6, events: 1.30 },
   suave:      { label: 'Suave',      desc: 'Estilo relajado, prioriza la conservación de energía.', attack: 0.8, defense: 1.1, drain: 2, events: 0.80 },
@@ -321,7 +316,7 @@ const state = {
   matchdaySquad: [], startingFive: [], subsBench: [], convocatoriaValidada: false,
   stats: { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
   players: [],
-  tactic: { formation: '4-3-3', gamePlan: 'tikitaka' },
+  tactic: { formation: '4-3-3', gamePlan: 'pesado' },
   finances: { balance: 5000, history: [] },
   leagueTeams: [],
   currentMatchday: 1,
@@ -653,8 +648,15 @@ function getTeamRating(id) {
 }
 
 function getTeamFormation(id) {
-  const t = getBaseDato(id)
-  return t?.defaultFormation || '4-3-3'
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
+      const team = l.teams.find(x => x.id === id)
+      if (team && team.formation) return team.formation
+    }
+  }
+  return '4-3-3'
 }
 
 function getTeamObj(id) {
@@ -1628,9 +1630,9 @@ function abrirTacticasModal() {
   ).join('')
   gpSelect.onchange = () => {
     tactic.gamePlan = gpSelect.value
-    gpDesc.textContent = GAME_PLANS[tactic.gamePlan].desc
+    gpDesc.textContent = (GAME_PLANS[tactic.gamePlan] || {}).desc || ''
   }
-  gpDesc.textContent = GAME_PLANS[tactic.gamePlan].desc
+  gpDesc.textContent = (GAME_PLANS[tactic.gamePlan] || {}).desc || ''
 
   /* Pitch grid — same as Club renderTactics() */
   const roles = SLOT_ROLES[tactic.formation] || SLOT_ROLES['4-3-3']
@@ -3259,7 +3261,7 @@ function newGame(coach) {
   state.leagueId = selectedLeague.id
   state.gameId = Date.now()
   state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
-  state.tactic = { formation: '4-3-3', gamePlan: 'tikitaka' }
+  state.tactic = { formation: '4-3-3', gamePlan: 'pesado' }
   state.tacticsSlots = []
   state.benchIds = []
   state.reserveIds = []
@@ -3418,7 +3420,7 @@ function loadGame(id) {
   state.gameId = data.id
   state.stats = data.stats || { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
   state.players = (data.players || []).map(p => ({ ...p, age: p.age || randInt(22, 34) }))
-  state.tactic = data.tactic || { formation: '4-3-3', gamePlan: 'tikitaka' }
+  state.tactic = data.tactic || { formation: '4-3-3', gamePlan: 'pesado' }
   state.finances = data.finances || { balance: 5000, history: [] }
   state.leagueTeams = data.leagueTeams || []
   state.currentMatchday = data.currentMatchday || 1
