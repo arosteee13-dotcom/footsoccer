@@ -1196,7 +1196,7 @@ function renderTactics(tactic) {
   var hasGK = slots.some(function(id) { if (!id) return false; var pp = state.players.find(function(x) { return x.id === id }); return pp && pp.position === 'portero' })
   var enoughAvailable = available.length >= 11
 
-  function renderPlayerCard(player, dataset, dataVal, posColorOverride, roleAbbrOverride) {
+  function renderPlayerCard(player, dataset, dataVal, posColorOverride, roleAbbrOverride, effectiveSkill) {
     var posKey = SIGLA_TO_POS[player.position] || player.position
     var pos = POSITIONS[posKey]
     if (!pos) { pos = POS_ABBR[posKey] ? { label: POS_ABBR[posKey], color: '#6B7280' } : { label: '?', color: '#6B7280' } }
@@ -1205,8 +1205,10 @@ function renderTactics(tactic) {
     var cls = player.injury ? ' unavailable' : ''
     var avatarStyle = 'background-image:url(' + (player.avatar || NOPHOTO) + ');background-size:cover;background-position:center;background-color:var(--bg-card)'
     var eneColor = player.energy >= 60 ? '#22C55E' : player.energy >= 30 ? '#F59E0B' : '#EF4444'
+    var displaySkill = effectiveSkill || player.skill
+    var isOutOfPosition = effectiveSkill && effectiveSkill < player.skill
     return '<div class="tp-player-card' + cls + '" data-' + dataset + '="' + dataVal + '" style="--pos-color:' + posColor + '">' +
-      '<div class="tp-card-top"><span class="tp-stat-skill" style="' + getPowerBadgeStyle(player.skill) + '">' + player.skill + '</span><span class="tp-card-pos" style="color:' + posColor + '">' + posAbbr + '</span></div>' +
+      '<div class="tp-card-top"><span style="display:flex;align-items:center;gap:2px">' + (isOutOfPosition ? '<span style="font-size:9px">\u26a0\ufe0f</span>' : '') + '<span class="tp-stat-skill" style="' + getPowerBadgeStyle(displaySkill) + '">' + displaySkill + '</span></span><span class="tp-card-pos" style="color:' + posColor + '">' + posAbbr + '</span></div>' +
       '<div class="tp-card-avatar" style="' + avatarStyle + '"></div>' +
       '<span class="tp-card-name">' + (player.injury ? '\ud83d\udeb9 ' : '') + player.name.split(' ').slice(-1)[0] + '</span>' +
       '<div class="tp-energy-bar"><div class="tp-energy-fill" style="width:' + player.energy + '%;background:' + eneColor + '"></div></div>' +
@@ -1295,8 +1297,9 @@ function renderTactics(tactic) {
       var player = pid ? state.players.find(function(x) { return x.id === pid }) : null
 
       if (player) {
+        var effSkill = calcularMediaEnPosicion(player, role)
         html += '<div class="tp-pitch-player" style="left:' + left + '%;top:' + bottom + '%">' +
-          renderPlayerCard(player, 'slot', String(i), (POSITIONS[role] || {}).color, POS_ABBR[role] || role) +
+          renderPlayerCard(player, 'slot', String(i), (POSITIONS[role] || {}).color, POS_ABBR[role] || role, effSkill) +
         '</div>'
       } else {
         html += '<div class="tp-pitch-player" style="left:' + left + '%;top:' + bottom + '%">' +
@@ -1335,7 +1338,35 @@ function renderTactics(tactic) {
 
     /* Event listeners */
     container.querySelectorAll('.tp-player-card').forEach(function(card) {
-      card.onclick = function() { handleSlotClick(card, tactic) }
+      var pressTimer = null
+      var isLongPress = false
+
+      card.addEventListener('mousedown', function() {
+        isLongPress = false
+        pressTimer = setTimeout(function() {
+          isLongPress = true
+          var pid = getPlayerIdFromSlot(card)
+          var player = state.players.find(function(p) { return p.id === pid })
+          if (player && !player.injury) openPlayerDetail(player)
+        }, 500)
+      })
+      card.addEventListener('mouseup', function() { clearTimeout(pressTimer) })
+      card.addEventListener('mouseleave', function() { clearTimeout(pressTimer) })
+      card.addEventListener('touchstart', function() {
+        isLongPress = false
+        pressTimer = setTimeout(function() {
+          isLongPress = true
+          var pid = getPlayerIdFromSlot(card)
+          var player = state.players.find(function(p) { return p.id === pid })
+          if (player && !player.injury) openPlayerDetail(player)
+        }, 500)
+      })
+      card.addEventListener('touchend', function() { clearTimeout(pressTimer) })
+      card.addEventListener('touchmove', function() { clearTimeout(pressTimer) })
+      card.addEventListener('click', function(e) {
+        if (isLongPress) { e.stopPropagation(); return }
+        handleSlotClick(card, tactic)
+      })
     })
     container.onclick = function(e) {
       if (e.target.closest('.tp-player-card') || e.target.closest('.tp-empty')) return
@@ -1529,10 +1560,39 @@ function handleSlotClick(el, tactic) {
   }
   state.selectedPlayerId = null
 }
-function getHabilidadEfectiva(player, assignedRole) {
-  const mult = assignedRole ? getPositionMultiplier(player.position, assignedRole) : 1
-  let base = player.energy < 50 ? Math.round(player.skill * 0.5) : player.skill
-  return Math.round(base * mult)
+var POS_GROUP = {
+  portero: 0,
+  defensa_central: 1, lateral_der: 1, lateral_izq: 1, carrilero_der: 1, carrilero_izq: 1,
+  medio_def: 2, mediocentro: 2, medio_ofensivo: 2, medio_der: 2, medio_izq: 2,
+  extremo_der: 3, extremo_izq: 3, delantero: 3,
+}
+function calcularMediaEnPosicion(jugador, posicionActual) {
+  if (!posicionActual) return jugador.energy < 50 ? Math.round(jugador.skill * 0.5) : jugador.skill
+  var naturalKey = SIGLA_TO_POS[jugador.position] || jugador.position
+  var currentKey = SIGLA_TO_POS[posicionActual] || posicionActual
+  if (naturalKey === currentKey) return jugador.energy < 50 ? Math.round(jugador.skill * 0.5) : jugador.skill
+
+  /* Conocimiento del jugador (otherPositions + experiencia) */
+  var staticPct = 0
+  if (jugador.otherPositions) {
+    var alt = jugador.otherPositions.find(function(o) { return (SIGLA_TO_POS[o.pos] || o.pos) === currentKey })
+    if (alt) staticPct = alt.pct
+  }
+  var expMatches = jugador.positionExperience ? (jugador.positionExperience[currentKey] || 0) : 0
+  var expPct = Math.min(100, expMatches * 2)
+  var knownPct = Math.max(staticPct, expPct, 0)
+
+  /* Penalizaci\u00f3n base por grupos */
+  var groupA = POS_GROUP[naturalKey] !== undefined ? POS_GROUP[naturalKey] : 2
+  var groupB = POS_GROUP[currentKey] !== undefined ? POS_GROUP[currentKey] : 2
+  var dist = Math.abs(groupA - groupB)
+  if (naturalKey === 'portero' || currentKey === 'portero') dist = 2
+  var basePct = dist === 0 ? 96 : dist === 1 ? 90 : 75
+
+  /* Reducir penalizaci\u00f3n con el conocimiento */
+  var pct = basePct + (100 - basePct) * knownPct / 100
+  var base = jugador.energy < 50 ? Math.round(jugador.skill * 0.5) : jugador.skill
+  return Math.round(base * pct / 100)
 }
 
 function findSustituto(banquillo, posicion, enPistaIds) {
@@ -2497,7 +2557,7 @@ function simularPartidoRapido(fixture, rivalId) {
     for (let i = 0; i < roles.length; i++) {
       const pid = startingIds[i]
       const p = state.players.find(x => x.id === pid)
-      if (p) totalEff += getHabilidadEfectiva(p, roles[i])
+      if (p) totalEff += calcularMediaEnPosicion(p, roles[i])
     }
     const userPower = totalEff / 11
 
@@ -2562,6 +2622,25 @@ function simularPartidoRapido(fixture, rivalId) {
     state.players.forEach(p => {
       if (!p.injury && startingIds.includes(p.id)) p.energy = Math.max(10, p.energy - 5)
       p.enPista = false; p.convocado = false; p.titular = false
+    })
+
+    /* Track position experience */
+    state.players.forEach(function(p) {
+      if (p.minutosEnPista > 0) {
+        var idx = startingIds.indexOf(p.id)
+        if (idx >= 0 && idx < roles.length) {
+          var role = roles[idx]
+          var naturalKey = SIGLA_TO_POS[p.position] || p.position
+          if (naturalKey !== role) {
+            if (!p.positionExperience) p.positionExperience = {}
+            p.positionExperience[role] = (p.positionExperience[role] || 0) + 1
+            /* Añadir a otherPositions si no existe */
+            if (!p.otherPositions) p.otherPositions = []
+            var existing = p.otherPositions.find(function(o) { return o.pos === role })
+            if (!existing) p.otherPositions.push({ pos: role, pct: 1 })
+          }
+        }
+      }
     })
 
     /* Simulate up to 5 substitutions for user's team based on score */
@@ -2877,7 +2956,7 @@ function autoSimularPartidoUsuario(fixture) {
   const ids = state.tacticsSlots.filter(Boolean)
   for (let i = 0; i < Math.min(roles.length, ids.length); i++) {
     const p = state.players.find(x => x.id === ids[i])
-    if (p) totalEff += getHabilidadEfectiva(p, roles[i])
+    if (p) totalEff += calcularMediaEnPosicion(p, roles[i])
   }
   const userPower = totalEff / 11
 
@@ -2944,6 +3023,24 @@ function autoSimularPartidoUsuario(fixture) {
   state.players.filter(p => ids.includes(p.id) && p.position !== 'POR' && !p.injury).forEach(p => {
     if (Math.random() < 0.2) p.yellowCards = (p.yellowCards || 0) + 1
     if (Math.random() < 0.03) { p.redCards = (p.redCards || 0) + 1; p.yellowCards = (p.yellowCards || 0) + 1 }
+  })
+
+  /* Track position experience */
+  state.players.forEach(function(p) {
+    if (p.minutosEnPista > 0) {
+      var idx = ids.indexOf(p.id)
+      if (idx >= 0 && idx < roles.length) {
+        var role = roles[idx]
+        var naturalKey = SIGLA_TO_POS[p.position] || p.position
+        if (naturalKey !== role) {
+          if (!p.positionExperience) p.positionExperience = {}
+          p.positionExperience[role] = (p.positionExperience[role] || 0) + 1
+          if (!p.otherPositions) p.otherPositions = []
+          var existing = p.otherPositions.find(function(o) { return o.pos === role })
+          if (!existing) p.otherPositions.push({ pos: role, pct: 1 })
+        }
+      }
+    }
   })
 
   /* Fatigue */
@@ -4784,7 +4881,7 @@ function openPlayerDetail(player, teamObj) {
       const altAbbr = POS_ABBR[altKey] || altPos
       const altColor = (POSITIONS[altKey] || {}).color || '#2663EB'
       adaptHtml += `<div class="pd-pos-row" style="color:${altColor}">
-        <span>${altLabel} (${altAbbr})</span>
+        <span>${altLabel} (${altAbbr})${player.positionExperience && player.positionExperience[altKey] ? ' <span style="font-size:9px;color:var(--text-muted);font-weight:400">' + player.positionExperience[altKey] + ' pj</span>' : ''}</span>
         <span>${altPct}%</span>
       </div>`
     }
