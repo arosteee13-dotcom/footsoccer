@@ -35,6 +35,14 @@ const POS_ABBR = { portero: 'POR', cierre: 'DFC', ala: 'MC', pivot: 'DC', latera
 
 const SIGLA_TO_POS = Object.fromEntries(Object.entries(POS_ABBR).map(([k, v]) => [v, k]))
 
+function getPowerBadgeStyle(skill) {
+  if (skill >= 90) return 'background:#fff;color:#B28100;border:2px solid #B28100'
+  if (skill >= 75) return 'background:#000;color:#fff;border:2px solid #175A00'
+  if (skill >= 65) return 'background:#000;color:#fff;border:2px solid #8ACD26'
+  if (skill >= 55) return 'background:#000;color:#fff;border:2px solid #FD8303'
+  return 'background:#000;color:#fff;border:2px solid #7D2200'
+}
+
 const GAME_PLANS = {
   defensivo:  { label: 'Park the Bus',       desc: 'Equipo replegado, defiende cerca del área. Ahorra energía pero cede el control del partido.', attack: 0.6, defense: 1.4, drain: 1, events: 0.65 },
   tikitaka:   { label: 'Tiki-Taka',           desc: 'Posesión y pases cortos. Control del partido, desgaste moderado.', attack: 1.1, defense: 0.9, drain: 4, events: 1.15 },
@@ -303,185 +311,6 @@ function calcTacticMultiplier(formation, gamePlan) {
   return f.multiplier * m.attack
 }
 
-class MatchEngine {
-  constructor(homePlayers, tactic, awaySkill, homeName, awayName, isHome) {
-    this.awaySkill = awaySkill
-    this.homeScore = 0
-    this.awayScore = 0
-    this.gameSeconds = 0
-    this.half = 1
-    this.finished = false
-    this.paused = false
-    this.events = []
-    this._interval = null
-    this._goalPauseTimer = null
-    this.onEvent = null
-    this.onClockUpdate = null
-    this.onHalfTime = null
-    this.onFinish = null
-    this.tacticMult = calcTacticMultiplier(tactic.formation, tactic.gamePlan)
-    this.gamePlan = GAME_PLANS[tactic.gamePlan] || GAME_PLANS.juegoCuatro
-    this.homeName = homeName || 'Tu Equipo'
-    this.awayName = awayName || 'Rival'
-    this.homeFactor = isHome !== false ? 1.05 : 1.0
-  }
-
-  iniciarCronometro() {
-    if (this._interval) return
-    this.paused = false
-    this._tickReel()
-    this._interval = setInterval(() => this._tickReel(), 1000)
-  }
-
-  _tickReel() {
-    if (this.finished) return
-    for (let s = 0; s < 15; s++) {
-      if (this.paused || this.finished) break
-      this._tickSecond()
-    }
-    this._updateClock()
-  }
-
-  _tickSecond() {
-    this.gameSeconds++
-    const MAX_SEC = 2700
-
-    if (this.half === 1 && this.gameSeconds >= MAX_SEC) {
-      this.gameSeconds = MAX_SEC
-      this._halfTime()
-      return
-    }
-    if (this.half === 2 && this.gameSeconds >= MAX_SEC) {
-      this.gameSeconds = MAX_SEC
-      this._finish()
-      return
-    }
-
-    /* Desgaste escalado a segundos */
-    const enPista = state.players.filter(p => p.enPista)
-    enPista.forEach(p => aplicarDesgaste(p, this.gamePlan.drain / 60))
-
-    /* Lesión escalada */
-    if (Math.random() < 0.025 / 60) {
-      const candidatos = enPista.filter(p => !p.injury)
-      if (candidatos.length > 0) {
-        const lesionado = pickRandom(candidatos)
-        const inj = pickRandom(INJURIES)
-        lesionado.injury = { type: inj.type, description: inj.description, duration: inj.duration, remaining: inj.duration, recoveryEnergy: inj.recoveryEnergy }
-        lesionado.energy = 0
-        lesionado.enPista = false
-        if (this.onEvent) this.onEvent({ text: `🚑 Lesión: ${lesionado.name} — ${inj.description}`, type: 'injury' })
-      }
-    }
-
-    /* Cambios automáticos */
-    const cambios = gestionarCambios()
-    for (const c of cambios) {
-      if (this.onEvent) this.onEvent({ text: `🔄 Sale: ${c.sale.name} (ENE:${c.sale.energy}) → Entra: ${c.entra.name} (ENE:${c.entra.energy})`, type: 'sub' })
-    }
-
-    /* Tarjetas escaladas a segundo */
-    for (const p of enPista) {
-      if (Math.random() < 0.008 / 60 && !p._yellowThisMatch) {
-        p.yellowCards = (p.yellowCards || 0) + 1
-        p._yellowThisMatch = true
-        if (this.onEvent) this.onEvent({ text: `🟨 Amarilla: ${p.name}`, type: 'sub' })
-        if (Math.random() < 0.2) {
-          p.redCards = (p.redCards || 0) + 1
-          p._redThisMatch = true
-          p.enPista = false
-          if (this.onEvent) this.onEvent({ text: `🟥 Roja: ${p.name} — Expulsado`, type: 'injury' })
-        }
-      }
-    }
-
-    /* Evento del juego */
-    const event = this._simulateSecond()
-    if (event) {
-      this.events.push(event)
-      if (event.type === 'homeGoal') {
-        this.homeScore++
-        const g = pickRandom(enPista)
-        if (g) { g._goalsInMatch = (g._goalsInMatch || 0) + 1; g.goals = (g.goals || 0) + 1 }
-        /* Asistencia */
-        if (Math.random() < 0.35) {
-          const ass = pickRandom(enPista.filter(x => x.id !== g?.id))
-          if (ass) { ass.assists = (ass.assists || 0) + 1; if (this.onEvent) this.onEvent({ text: `🅰️ Asistencia: ${ass.name}`, type: 'sub' }) }
-        }
-        /* Pausa por gol 2 segundos reales */
-        this.paused = true
-        if (this._goalPauseTimer) clearTimeout(this._goalPauseTimer)
-        this._goalPauseTimer = setTimeout(() => { this.paused = false }, 2000)
-      } else if (event.type === 'awayGoal') { this.awayScore++ }
-      if (this.onEvent) this.onEvent(event)
-    }
-  }
-
-  _simulateSecond() {
-    const enPista = state.players.filter(p => p.enPista)
-    if (enPista.length === 0) return null
-    const homeSkill = enPista.reduce((s, p) => s + getHabilidadEfectiva(p), 0) / enPista.length * this.tacticMult
-    const homeEnergyAVG = enPista.reduce((s, p) => s + p.energy, 0) / enPista.length / 100
-
-    const homeChance = homeSkill * (0.5 + homeEnergyAVG * 0.3) * this.gamePlan.attack * this.homeFactor
-    const awayChance = this.awaySkill * 0.5 * this.gamePlan.defense
-    const totalChance = homeChance + awayChance
-
-    /* Probabilidad de evento escalada a segundo: 42%/60 ≈ 0.7% por segundo */
-    if (Math.random() > (0.42 / 60) * this.gamePlan.events) return null
-    const roll = Math.random() * totalChance
-    const isHomeAttack = roll < homeChance
-    const teamName = isHomeAttack ? this.homeName : this.awayName
-    const teamSkill = isHomeAttack ? homeSkill : this.awaySkill
-    const goalProb = (teamSkill / 100) * 0.35
-    if (Math.random() < goalProb) {
-      const t = pickRandom(EVENTS_POOL.goal)
-      return { text: t.text(teamName), type: isHomeAttack ? 'homeGoal' : 'awayGoal', team: teamName }
-    }
-    if (Math.random() < 0.55) {
-      const t = pickRandom(EVENTS_POOL.save)
-      return { text: t.text(teamName), type: 'save', team: teamName }
-    }
-    const t = pickRandom(EVENTS_POOL.miss)
-    return { text: t.text(teamName), type: 'miss', team: teamName }
-  }
-
-  _updateClock() {
-    if (!this.onClockUpdate) return
-    const sec = this.gameSeconds
-    const mm = String(Math.floor(sec / 60)).padStart(2, '0')
-    const ss = String(sec % 60).padStart(2, '0')
-    this.onClockUpdate(`${this.half}T ${mm}:${ss}`)
-  }
-
-  _halfTime() {
-    this.paused = true
-    if (this._interval) { clearInterval(this._interval); this._interval = null }
-    if (this.onHalfTime) this.onHalfTime()
-  }
-
-  iniciarSegundaParte() {
-    if (this.half !== 1) return
-    this.half = 2
-    this.gameSeconds = 0
-    this.paused = false
-    this.iniciarCronometro()
-  }
-
-  _finish() {
-    this.finished = true
-    if (this._interval) { clearInterval(this._interval); this._interval = null }
-    if (this._goalPauseTimer) clearTimeout(this._goalPauseTimer)
-    if (this.onFinish) this.onFinish()
-  }
-
-  stop() {
-    this.finished = true
-    if (this._interval) { clearInterval(this._interval); this._interval = null }
-    if (this._goalPauseTimer) clearTimeout(this._goalPauseTimer)
-  }
-}
-
 /* ============ STATE ============ */
 const STORAGE_KEY = 'futsal_saves'
 const TACTICS_KEY = 'futsal_tactics'
@@ -721,6 +550,24 @@ function loadTactics() {
 }
 
 /* ============ LEAGUE / FIXTURES ============ */
+/* ============ MATCH ENGINE ============ */
+window.MatchEngine = {
+  generateCalendar(teamsList) {
+    return generateFixtures(teamsList)
+  },
+  MAX_CHANGES: 5,
+  getMaxSubs(leagueId) {
+    if (!leagueId) return 9
+    if (leagueId === 'lpl' || leagueId === 'lpl2') return 12
+    if (leagueId.startsWith('lnfs') || leagueId.startsWith('l2b')) return 12
+    return 9
+  }
+}
+
+function getEffectiveMaxBench() {
+  return window.MatchEngine.getMaxSubs(state.leagueId)
+}
+
 function generateFixtures(teamIds) {
   const n = teamIds.length
   const rounds = n % 2 === 0 ? n - 1 : n
@@ -976,7 +823,6 @@ function simularJornadaEnTodasLasLigas(matchday) {
 
 function initAllLeagueData() {
   if (!state.allLeagueData) state.allLeagueData = {}
-  const existing = Object.keys(state.allLeagueData).length
   for (const cid in window.DB) {
     const data = window.DB[cid]
     if (!data) continue
@@ -992,12 +838,6 @@ function initAllLeagueData() {
           totalMatchdays: Math.max(...fx.map(f => f.matchday))
         }
       } catch (e) { console.warn('[INIT] Error generating fixtures for', l.id, e) }
-    }
-  }
-  if (existing < Object.keys(state.allLeagueData).length) {
-    /* Simulate up to the current matchday for newly added leagues */
-    for (let md = 1; md <= (state.currentMatchday || 1); md++) {
-      simularJornadaEnTodasLasLigas(md)
     }
   }
 }
@@ -1044,8 +884,8 @@ function renderSquadInfo(players) {
   container.innerHTML += html
   html = `<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (${players.length})</div>
     <div class="tp-table-header" style="padding:6px 14px">
-      <span class="tp-th-name">Nombre</span>
       <span class="tp-th-pos">Pos</span>
+      <span class="tp-th-name">Nombre</span>
       <span class="tp-th-age">Edad</span>
       <span class="tp-th-value">Valor</span>
       <span class="tp-th-power">Pod</span>
@@ -1055,6 +895,7 @@ function renderSquadInfo(players) {
     const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')
     const valShort = formatShort(p.value || calcValue(p.skill))
     return `<div class="tp-row" data-player-id="${p.id}">
+      <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
       <div class="tp-cell">
         <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
         <div class="tp-cell-info">
@@ -1062,10 +903,9 @@ function renderSquadInfo(players) {
           <span class="tp-cell-value">${p.nationality || ''} ${p.transferListed ? '<span class="player-badge badge-lt" style="font-size:8px">TR</span>' : ''}${p.loanListed ? '<span class="player-badge badge-lc" style="font-size:8px">CED</span>' : ''}</span>
         </div>
       </div>
-      <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
       <span class="tp-cell-age">${p.age || '-'}</span>
       <span class="tp-cell-market">${valShort}</span>
-      <span class="tp-cell-power">${p.skill}</span>
+      <span class="tp-cell-power" style="${getPowerBadgeStyle(p.skill)}">${p.skill}</span>
     </div>`
   }).join('')
   html += '</div>'
@@ -1201,12 +1041,9 @@ function renderHome() {
         : `<div class="home-matchday-label">Jornada ${nextMatchday} de ${state.totalMatchdays} · ${fixture.horario || ''}</div>`
       }
       <div class="home-match-location">${isHome ? '🏠 Local' : '✈️ Visitante'}</div>
-      <button class="btn-primary" id="btn-home-play">▶ IR AL PARTIDO</button>
       <button class="btn-secondary" id="btn-home-simulate"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Simular Partido</button>
     </div>` : '<div class="home-card home-match"><div class="home-section-title">🏆 Temporada completada</div></div>'}
   `
-  const playBtn = document.getElementById('btn-home-play')
-  if (playBtn) playBtn.onclick = () => startMatchFromLeague(rivalId, fixture)
   const simBtn = document.getElementById('btn-home-simulate')
   if (simBtn) simBtn.onclick = () => simularPartidoRapido(fixture, rivalId)
 }
@@ -1299,189 +1136,177 @@ function getPositionMultiplier(naturalPosition, assignedRole) {
 }
 
 function renderTactics(tactic) {
-  const container = document.getElementById('club-tactics-content')
+  var container = document.getElementById('club-tactics-content')
   if (!container) return
 
-  /* Init slots if needed */
-  const roles = SLOT_ROLES[tactic.formation]
+  var roles = SLOT_ROLES[tactic.formation]
   if (!state.tacticsSlots || state.tacticsSlots.length !== roles.length) {
-    state.tacticsSlots = roles.map(() => null)
+    state.tacticsSlots = roles.map(function() { return null })
   } else {
-    /* On formation change, preserve players whose role still exists */
-    const oldRoles = SLOT_ROLES[tactic.formation] || roles
+    var oldRoles = SLOT_ROLES[tactic.formation] || roles
     if (oldRoles.length !== roles.length) {
-      state.tacticsSlots = roles.map(r => {
-        const idx = oldRoles.indexOf(r)
+      state.tacticsSlots = roles.map(function(r) {
+        var idx = oldRoles.indexOf(r)
         return idx >= 0 ? state.tacticsSlots[idx] : null
       })
     }
   }
 
-  const slots = state.tacticsSlots
-  const assignedIds = slots.filter(Boolean)
-  const assigned = assignedIds.map(id => state.players.find(p => p.id === id)).filter(Boolean)
-  const available = state.players.filter(p => !assignedIds.includes(p.id))
+  var slots = state.tacticsSlots
+  var assignedIds = slots.filter(Boolean)
+  var available = state.players.filter(function(p) { return !assignedIds.includes(p.id) })
 
-  state.benchIds = state.benchIds.filter(id => state.players.find(p => p.id === id))
-  if (state.benchIds.length > MAX_BENCH) state.benchIds = state.benchIds.slice(0, MAX_BENCH)
-  const bench = state.benchIds.map(id => state.players.find(p => p.id === id)).filter(Boolean)
-  const rest = available.filter(p => !state.benchIds.includes(p.id))
+  state.benchIds = state.benchIds.filter(function(id) { return state.players.find(function(p) { return p.id === id }) })
+  var maxBench = getEffectiveMaxBench()
+  if (state.benchIds.length > maxBench) state.benchIds = state.benchIds.slice(0, maxBench)
+  var bench = state.benchIds.map(function(id) { return state.players.find(function(p) { return p.id === id }) }).filter(Boolean)
+  var restPool = available.filter(function(p) { return !state.benchIds.includes(p.id) })
+  /* Auto-fill empty bench slots with available players */
+  while (state.benchIds.length < maxBench && restPool.length > 0) {
+    var fillPlayer = restPool.shift()
+    state.benchIds.push(fillPlayer.id)
+    bench.push(fillPlayer)
+  }
+  var rest = restPool
 
-  const complete = slots.every(Boolean)
-  const hasGK = slots.some(id => {
-    if (!id) return false
-    const p = state.players.find(x => x.id === id)
-    return p && p.position === 'portero'
-  })
-  const enoughAvailable = available.length >= 11
+  var complete = slots.every(Boolean)
+  var hasGK = slots.some(function(id) { if (!id) return false; var pp = state.players.find(function(x) { return x.id === id }); return pp && pp.position === 'portero' })
+  var enoughAvailable = available.length >= 11
 
-  /* Build HTML */
-  let html = `<div class="tactics-section">
-    <label class="tactics-label">Formación</label>
-    <div class="tactics-options" id="formation-options">
-      ${Object.keys(FORMATIONS).map(fk =>
-        `<button class="tactics-btn ${tactic.formation === fk ? 'active' : ''}" data-formation="${fk}">${fk}</button>`
-      ).join('')}
-    </div>
-  </div>
-  <div class="tactics-section">
-    <label class="tactics-label">Modelo</label>
-    <select id="gameplan-select" class="tactics-select">
-      ${Object.entries(GAME_PLANS).map(([key, gp]) =>
-        `<option value="${key}" ${tactic.gamePlan === key ? 'selected' : ''}>${gp.label}</option>`
-      ).join('')}
-    </select>
-    <div class="gameplan-desc" id="gameplan-desc">${GAME_PLANS[tactic.gamePlan].desc}</div>
-  </div>`
+  function renderPlayerCard(player, dataset, dataVal) {
+    var pos = POSITIONS[player.position]
+    if (!pos) { pos = POS_ABBR[player.position] ? { label: POS_ABBR[player.position], color: '#6B7280' } : { label: '?', color: '#6B7280' } }
+    var cls = player.injury ? ' unavailable' : ''
+    var avatarStyle = 'background-image:url(' + (player.avatar || NOPHOTO) + ');background-size:cover;background-position:center;background-color:var(--bg-card)'
+    var eneColor = player.energy >= 60 ? '#22C55E' : player.energy >= 30 ? '#F59E0B' : '#EF4444'
+    return '<div class="tp-player-card' + cls + '" data-' + dataset + '="' + dataVal + '" style="--pos-color:' + pos.color + '">' +
+      '<div class="tp-card-avatar" style="' + avatarStyle + '">' + (player.avatar ? '' : '<span class="tp-init">' + getInitials(player.name) + '</span>') + '</div>' +
+      '<span class="tp-card-name">' + (player.injury ? '\ud83d\udeb9 ' : '') + player.name.split(' ').slice(-1)[0] + '</span>' +
+      '<div class="tp-card-stats"><span class="tp-stat-skill">' + player.skill + '</span>' +
+        '<div class="tp-energy-bar"><div class="tp-energy-fill" style="width:' + player.energy + '%;background:' + eneColor + '"></div></div>' +
+      '</div>' +
+      (player.injury ? '<div class="tp-injury-badge">\ud83d\udfe1 ' + player.injury.remaining + 'j</div>' : '') +
+    '</div>'
+  }
 
-  /* Vertical pitch: simple row-based layout for 11 slots */
-  html += `<div class="pitch-grid-11">`
-  for (let i = 0; i < roles.length; i++) {
-    const role = roles[i]
-    const pid = slots[i]
-    const player = pid ? state.players.find(p => p.id === pid) : null
-    const pos = POSITIONS[role]
-    if (player) {
-      const mult = getPositionMultiplier(player.position, role)
-      const penalty = mult < 1 ? '⚠️' : ''
-      const unavailable = player.injury ? ' unavailable' : ''
-      const avatarStyle = `background-image:url(${player.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
-      html += `<div class="p11-slot-wrap">
-        <div class="p11-slot filled${unavailable}" data-slot="${i}" style="border-color:${pos.color};background:${pos.color}">
-          <div class="slot-avatar" style="${avatarStyle}">${player.avatar ? '' : getInitials(player.name)}</div>
-        </div>
-        <span class="p11-slot-role" style="color:#fff">${pos.label}${penalty}</span>
-        <span class="p11-slot-name">${player.injury ? '🩹 ' : ''}${player.name.split(' ').slice(-1)[0]}</span>
-        <div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${player.energy}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>
-      </div>`
-    } else {
-      html += `<div class="p11-slot-wrap">
-        <div class="p11-slot empty" data-slot="${i}">+</div>
-        <span class="p11-slot-role">${pos.label}</span>
-      </div>`
+  function emptyCard(dataset, dataVal, label) {
+    return '<div class="tp-player-card tp-empty" data-' + dataset + '="' + dataVal + '">' +
+      '<div class="tp-card-avatar tp-empty-avatar">+</div>' +
+      '<span class="tp-card-name">' + label + '</span>' +
+    '</div>'
+  }
+
+  try {
+    var PITCH_POS = {
+      'POR': [50, 85], 'DFC': [50, 68], 'LD': [80, 68], 'LI': [20, 68],
+      'CAD': [80, 52], 'CAI': [20, 52], 'MCD': [50, 52],
+      'MD': [80, 38], 'MI': [20, 38], 'MC': [50, 38], 'MCO': [50, 22],
+      'ED': [80, 15], 'EI': [20, 15], 'DC': [50, 15],
     }
-  }
-  html += `</div>`
 
-  /* Bench grid (9 circles: 5 + 4) */
-  html += `<div class="tactics-subsection-label">BANQUILLO (${bench.length}/${MAX_BENCH})</div>
-    <div class="bench-grid">`
-  for (let i = 0; i < MAX_BENCH; i++) {
-    const pid = state.benchIds[i]
-    const player = pid ? state.players.find(p => p.id === pid) : null
-    if (player) {
-      const pos = POSITIONS[player.position]
-      const unavailable = player.injury ? ' unavailable' : ''
-      const avatarStyle = `background-image:url(${player.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
-      html += `<div class="bench-slot-wrap">
-        <div class="bench-slot filled${unavailable}" data-bench="${i}" style="border-color:${pos.color}">
-          <div class="slot-avatar" style="${avatarStyle}">${player.avatar ? '' : getInitials(player.name)}</div>
-          ${player.injury ? '<span class="unavailable-badge">🚑</span>' : ''}
-        </div>
-        <span class="bench-slot-name">${player.injury ? '🩹 ' : ''}${player.name}</span>
-        <div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${player.energy}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>
-        ${player.injury ? '<div class="injury-mini">🟡 ' + player.injury.remaining + 'j</div>' : ''}
-      </div>`
-    } else {
-      html += `<div class="bench-slot-wrap">
-        <div class="bench-slot empty" data-bench="${i}">+</div>
-        <span class="bench-slot-name">—</span>
-      </div>`
+    var html = ''
+
+    /* 1. Top cards */
+    var captain = state.players.find(function(p) { return p.id === slots[0] })
+    var gpLabel = GAME_PLANS[tactic.gamePlan] ? GAME_PLANS[tactic.gamePlan].label : tactic.gamePlan
+    html += '<div class="tc-top-cards">' +
+      '<div class="tc-card"><span class="tc-card-label">Capit\u00e1n</span><span class="tc-card-value">' + (captain ? captain.name.split(' ').slice(-1)[0] : '---') + '</span></div>' +
+      '<div class="tc-card"><span class="tc-card-label">Presi\u00f3n</span><span class="tc-card-value tc-accent">' + gpLabel + '</span></div>' +
+      '<div class="tc-card"><span class="tc-card-label">Formaci\u00f3n</span><span class="tc-card-value tc-accent">' + tactic.formation + '</span></div>' +
+    '</div>'
+
+    /* 2. Pitch */
+    html += '<div class="tc-pitch-wrap"><div class="tc-pitch">' +
+      '<div class="tc-pitch-bg"></div>'
+
+    for (var i = 0; i < roles.length; i++) {
+      var role = roles[i]
+      var abbr = POS_ABBR[role] || role.substring(0, 3).toUpperCase()
+      var posData = PITCH_POS[abbr] || [50, 50]
+      var left = posData[0]
+      var bottom = posData[1]
+      /* Offset overlapping players (same abbr consecutively) */
+      if (i > 0) {
+        var prevRole = roles[i - 1]
+        var prevAbbr = POS_ABBR[prevRole] || prevRole.substring(0, 3).toUpperCase()
+        if (prevAbbr === abbr) {
+          if (left <= 50) { left = Math.max(5, left - 12) } else { left = Math.min(95, left + 12) }
+        }
+      }
+      var pid = slots[i]
+      var player = pid ? state.players.find(function(x) { return x.id === pid }) : null
+
+      if (player) {
+        html += '<div class="tp-pitch-player" style="left:' + left + '%;top:' + bottom + '%">' +
+          renderPlayerCard(player, 'slot', String(i)) +
+        '</div>'
+      } else {
+        html += '<div class="tp-pitch-player" style="left:' + left + '%;top:' + bottom + '%">' +
+          emptyCard('slot', String(i), abbr) +
+        '</div>'
+      }
     }
-  }
-  html += `</div>`
+    html += '</div></div>'
 
-  /* Reserve slots (2) */
-  html += `<div class="tactics-subsection-label">RESERVAS</div>
-    <div class="bench-grid">`
-  for (let i = 0; i < MAX_RESERVES; i++) {
-    const pid = state.reserveIds[i]
-    const player = pid ? state.players.find(p => p.id === pid) : null
-    if (player) {
-      const pos = POSITIONS[player.position]
-      const unavailable = player.injury ? ' unavailable' : ''
-      const avatarStyle = `background-image:url(${player.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
-      html += `<div class="bench-slot-wrap">
-        <div class="bench-slot filled${unavailable}" data-reserve="${i}" style="border-color:${pos.color}">
-          <div class="slot-avatar" style="${avatarStyle}">${player.avatar ? '' : getInitials(player.name)}</div>
-          ${player.injury ? '<span class="unavailable-badge">🚑</span>' : ''}
-        </div>
-        <span class="bench-slot-name">${player.injury ? '🩹 ' : ''}${player.name}</span>
-        <div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${player.energy}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>
-        ${player.injury ? '<div class="injury-mini">🟡 ' + player.injury.remaining + 'j</div>' : ''}
-      </div>`
-    } else {
-      html += `<div class="bench-slot-wrap">
-        <div class="bench-slot empty" data-reserve="${i}">+</div>
-        <span class="bench-slot-name">—</span>
-      </div>`
+    /* 3. Subs section */
+    html += '<div class="tc-section-label">SUSTITUTOS (' + bench.length + '/' + maxBench + ')</div>' +
+      '<div class="tc-subs-grid">'
+    for (var i = 0; i < maxBench; i++) {
+      var pid = state.benchIds[i]
+      var player = pid ? state.players.find(function(p) { return p.id === pid }) : null
+      if (player) {
+        html += renderPlayerCard(player, 'bench', String(i))
+      } else {
+        html += emptyCard('bench', String(i), '\u002b')
+      }
     }
-  }
-  html += `</div>`
+    html += '</div>'
 
-  container.innerHTML = html
+    /* 4. Reserves */
+    html += '<div class="tc-section-label">RESERVAS</div>' +
+      '<div class="tc-reserves-scroll">'
+    for (var i = 0; i < rest.length; i++) {
+      html += renderPlayerCard(rest[i], 'reserve', rest[i].id)
+    }
+    if (rest.length === 0) {
+      html += '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:12px;width:100%">Todos convocados</div>'
+    }
+    html += '</div>'
 
-  /* Event listeners */
-  document.querySelectorAll('#formation-options .tactics-btn').forEach(btn => {
-    btn.onclick = () => { tactic.formation = btn.dataset.formation; renderTactics(tactic) }
-  })
-  document.getElementById('gameplan-select').onchange = (e) => {
-    tactic.gamePlan = e.target.value
-    const descEl = document.getElementById('gameplan-desc')
-    if (descEl) descEl.textContent = GAME_PLANS[tactic.gamePlan].desc
-    renderTactics(tactic)
-  }
-  document.querySelectorAll('.p11-slot, .bench-slot').forEach(el => {
-    el.onclick = () => handleSlotClick(el, tactic)
-  })
-  /* Clear selection on click outside */
-  document.getElementById('club-tactics-content').onclick = (e) => {
-    if (e.target.closest('.p11-slot') || e.target.closest('.bench-slot')) return
-    state.selectedPlayerId = null
-    document.querySelectorAll('.p11-slot.selected, .bench-slot.selected').forEach(s => s.classList.remove('selected'))
-  }
-  /* Auto-validate whenever formation is complete */
-  if (complete && hasGK && enoughAvailable) {
-    state.matchdaySquad = [...slots, ...state.benchIds, ...state.reserveIds]
-    state.startingFive = slots
-    state.subsBench = [...state.benchIds, ...state.reserveIds]
-    state.convocatoriaValidada = true
-  } else {
-    state.convocatoriaValidada = false
-  }
+    container.innerHTML = html
 
-  /* Re-apply selected class after re-render */
-  if (state.selectedPlayerId) {
-    document.querySelectorAll('.p11-slot, .bench-slot').forEach(el => {
-      const sid = getPlayerIdFromSlot(el)
-      if (sid === state.selectedPlayerId) el.classList.add('selected')
+    /* Event listeners */
+    container.querySelectorAll('.tp-player-card').forEach(function(card) {
+      card.onclick = function() { handleSlotClick(card, tactic) }
     })
+    container.onclick = function(e) {
+      if (e.target.closest('.tp-player-card') || e.target.closest('.tp-empty')) return
+      state.selectedPlayerId = null
+      container.querySelectorAll('.tp-player-card.selected').forEach(function(s) { s.classList.remove('selected') })
+    }
+
+    if (complete && hasGK && enoughAvailable) {
+      state.matchdaySquad = [].concat(slots).concat(state.benchIds).concat(state.reserveIds)
+      state.startingFive = slots
+      state.subsBench = [].concat(state.benchIds).concat(state.reserveIds)
+      state.convocatoriaValidada = true
+    } else {
+      state.convocatoriaValidada = false
+    }
+
+    if (state.selectedPlayerId) {
+      container.querySelectorAll('.tp-player-card').forEach(function(el) {
+        var sid = el.dataset.slot || el.dataset.bench || el.dataset.reserve
+        if (sid === state.selectedPlayerId) el.classList.add('selected')
+      })
+    }
+
+    autoSaveTactics()
+  } catch (e) {
+    console.warn('[TACTICS] Error:', e)
+    container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Error: ' + (e.message || '') + '</div>'
   }
-
-  autoSaveTactics()
-}
-
-function autoAssignSquad() {
+}function autoAssignSquad() {
   const roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
   const assigned = []
   const available = state.players.filter(p => !p.injury)
@@ -1499,7 +1324,8 @@ function autoAssignSquad() {
   })
 
   const benchPool = available.filter(p => !assigned.includes(p.id))
-  state.benchIds = benchPool.slice(0, MAX_BENCH).map(p => p.id)
+  const maxBench = getEffectiveMaxBench()
+  state.benchIds = benchPool.slice(0, maxBench).map(p => p.id)
   assigned.push(...state.benchIds)
 
   const reservePool = available.filter(p => !assigned.includes(p.id))
@@ -1517,22 +1343,14 @@ function getPlayerIdFromSlot(el) {
 }
 
 function handleSlotClick(el, tactic) {
-  const filled = el.classList.contains('filled')
-  const pid = el.dataset.playerId
-  const slotIdx = el.dataset.slot
-  const benchIdx = el.dataset.bench
-  const reserveIdx = el.dataset.reserve
+  var isFilled = !el.classList.contains('tp-empty')
+  var slotIdx = el.dataset.slot
+  var benchIdx = el.dataset.bench
+  var reserveIdx = el.dataset.reserve
 
-  /* Block click if player is injured */
-  if (filled && pid) {
-    const p = state.players.find(x => x.id === pid)
-    if (p && p.injury) return
-  }
-
-  /* Determine the container type and current player ID */
-  let currentPid = null
-  let targetArray = null
-  let targetIndex = -1
+  var currentPid = null
+  var targetArray = null
+  var targetIndex = -1
   if (slotIdx !== undefined) {
     targetIndex = parseInt(slotIdx)
     currentPid = state.tacticsSlots[targetIndex]
@@ -1547,54 +1365,56 @@ function handleSlotClick(el, tactic) {
     targetArray = 'reserveIds'
   }
 
-  /* No player selected yet */
+  if (isFilled && currentPid) {
+    var p = state.players.find(function(x) { return x.id === currentPid })
+    if (p && p.injury) return
+  }
+
   if (!state.selectedPlayerId) {
-    if (filled && currentPid) {
+    if (isFilled && currentPid) {
       state.selectedPlayerId = currentPid
-      document.querySelectorAll('.pitch-slot.selected, .bench-slot.selected').forEach(s => s.classList.remove('selected'))
+      document.querySelectorAll('.tp-player-card.selected').forEach(function(s) { s.classList.remove('selected') })
       el.classList.add('selected')
     }
     renderTactics(tactic)
     return
   }
 
-  /* Same player clicked → deselect */
   if (state.selectedPlayerId === currentPid) {
     state.selectedPlayerId = null
-    document.querySelectorAll('.pitch-slot.selected, .bench-slot.selected').forEach(s => s.classList.remove('selected'))
+    document.querySelectorAll('.tp-player-card.selected').forEach(function(s) { s.classList.remove('selected') })
     renderTactics(tactic)
     return
   }
 
-  /* Different player or empty slot → place selected player here */
   if (targetArray && targetIndex >= 0) {
     if (currentPid) {
-      /* Swap: find where selected player is and swap places */
-      for (let arr of ['tacticsSlots', 'benchIds', 'reserveIds']) {
-        const a = state[arr]
-        for (let i = 0; i < a.length; i++) {
+      var arrs = ['tacticsSlots', 'benchIds', 'reserveIds']
+      for (var ai = 0; ai < arrs.length; ai++) {
+        var a = state[arrs[ai]]
+        for (var i = 0; i < a.length; i++) {
           if (a[i] === state.selectedPlayerId) {
             a[i] = currentPid
             state[targetArray][targetIndex] = state.selectedPlayerId
             state.selectedPlayerId = null
-            document.querySelectorAll('.pitch-slot.selected, .bench-slot.selected').forEach(s => s.classList.remove('selected'))
+            document.querySelectorAll('.tp-player-card.selected').forEach(function(s) { s.classList.remove('selected') })
             renderTactics(tactic)
             return
           }
         }
       }
     } else {
-      /* Empty slot: place selected player here */
-      for (let arr of ['tacticsSlots', 'benchIds', 'reserveIds']) {
-        const a = state[arr]
-        for (let i = 0; i < a.length; i++) {
+      var arrs = ['tacticsSlots', 'benchIds', 'reserveIds']
+      for (var ai = 0; ai < arrs.length; ai++) {
+        var a = state[arrs[ai]]
+        for (var i = 0; i < a.length; i++) {
           if (a[i] === state.selectedPlayerId) {
             if (targetArray === 'tacticsSlots' || targetArray === 'benchIds' || targetArray === 'reserveIds') {
               a[i] = null
             }
             state[targetArray][targetIndex] = state.selectedPlayerId
             state.selectedPlayerId = null
-            document.querySelectorAll('.pitch-slot.selected, .bench-slot.selected').forEach(s => s.classList.remove('selected'))
+            document.querySelectorAll('.tp-player-card.selected').forEach(function(s) { s.classList.remove('selected') })
             renderTactics(tactic)
             return
           }
@@ -1602,27 +1422,12 @@ function handleSlotClick(el, tactic) {
       }
     }
   }
-
   state.selectedPlayerId = null
-  document.querySelectorAll('.pitch-slot.selected, .bench-slot.selected').forEach(s => s.classList.remove('selected'))
-  renderTactics(tactic)
 }
-
-/* ============ FATIGA & SUSTITUCIONES ============ */
 function getHabilidadEfectiva(player, assignedRole) {
   const mult = assignedRole ? getPositionMultiplier(player.position, assignedRole) : 1
   let base = player.energy < 50 ? Math.round(player.skill * 0.5) : player.skill
   return Math.round(base * mult)
-}
-
-function aplicarDesgaste(player, drainMult) {
-  const gamePlan = GAME_PLANS[state.tactic.gamePlan] || GAME_PLANS.juegoCuatro
-  let interval = Math.max(1, Math.round(45 / (drainMult || gamePlan.drain)))
-  if (player.position === 'portero') interval *= 6
-  if (interval > 0 && tiempoSegundos % interval === 0) {
-    player.energy = Math.max(0, player.energy - 1)
-  }
-  player.minutosEnPista = (player.minutosEnPista || 0) + 1
 }
 
 function findSustituto(banquillo, posicion, enPistaIds) {
@@ -1631,41 +1436,6 @@ function findSustituto(banquillo, posicion, enPistaIds) {
   return banquillo
     .filter(p => validas.includes(p.position) && p.energy >= 60 && !enPistaIds.includes(p.id))
     .sort((a, b) => b.energy - a.energy)[0]
-}
-
-function gestionarCambios() {
-  const enPista = state.players.filter(p => p.enPista)
-  const banquillo = state.players.filter(p => p.convocado && !p.enPista)
-  const enPistaIds = enPista.map(p => p.id)
-  let cambios = []
-
-  for (const jugador of enPista) {
-    if (jugador.energy >= 60) continue
-    const sustituto = findSustituto(banquillo, jugador.position, enPistaIds)
-    if (!sustituto) continue
-    jugador.enPista = false
-    sustituto.enPista = true
-    enPistaIds[enPistaIds.indexOf(jugador.id)] = sustituto.id
-    cambios.push({ sale: jugador, entra: sustituto })
-    if (sustituto.energy < 60) break
-  }
-  return cambios
-}
-
-function simularLesion() {
-  const fitCoachCount = state.staff.filter(s => s.role === 'fitnessCoach').length
-  const injuryProb = 0.003 * Math.max(0.4, 1 - fitCoachCount * 0.10)
-  for (const p of state.players) {
-    if (!p.enPista) continue
-    if (p.injury) continue
-    if (Math.random() > injuryProb) continue
-    const inj = pickRandom(INJURIES)
-    p.injury = { type: inj.type, description: inj.description, duration: inj.duration, remaining: inj.duration, recoveryEnergy: inj.recoveryEnergy }
-    p.energy = Math.max(30, p.energy - 20)
-    addNotification('injury', `🩹 Lesión: ${p.name}`, `${inj.description} (${inj.duration} jornada${inj.duration > 1 ? 's' : ''})`)
-    return p
-  }
-  return null
 }
 
 /* ============ LEAGUE VIEW ============ */
@@ -1686,27 +1456,29 @@ function renderLeague() {
 
   resultsWrap.classList.add('hidden')
 
-  /* Ensure all league data exists */
-  initAllLeagueData()
-
-  /* Save selected league before rebuilding dropdown */
-  const selectedLeagueId = selector.value || state.leagueId
+  /* Safety net: ensure league data exists without breaking if it fails */
+  try { initAllLeagueData() } catch (e) { console.warn('[LEAGUE] initAllLeagueData error:', e) }
 
   /* Dropdown */
   let opts = ''
   const allLeagues = []
-  for (const cid in window.DB) {
-    const data = window.DB[cid]
-    if (!data) continue
-    for (const l of data.country.leagues || []) {
-      allLeagues.push({ ...l, country: data.country })
+  try {
+    for (const cid in window.DB) {
+      const data = window.DB[cid]
+      if (!data || !data.country) continue
+      for (const l of data.country.leagues || []) {
+        if (l && l.id) allLeagues.push({ ...l, country: data.country })
+      }
     }
-  }
+  } catch (e) { console.warn('[LEAGUE] error reading leagues:', e) }
+
   for (const l of allLeagues) {
     const isOwn = l.id === state.leagueId
-    opts += `<option value="${l.id}" data-country="${l.country.id}" ${isOwn ? 'selected' : ''}>${l.country.flag} ${l.name}</option>`
+    opts += `<option value="${l.id}" data-country="${l.country.id}" ${isOwn ? 'selected' : ''}>${l.country.flag || ''} ${l.name || l.id}</option>`
   }
+  if (!opts) opts = '<option value="">— Sin ligas disponibles —</option>'
   selector.innerHTML = opts
+  const selectedLeagueId = selector.value || state.leagueId
   selector.value = selectedLeagueId
 
   /* Table */
@@ -1747,347 +1519,15 @@ function renderLeague() {
 }
 
 /* ============ MATCH ============ */
-let engine = null
-let tiempoSegundos = 0
-let intervaloCrono = null
-let parteActual = 1
-let faltasLocal = 0
-let faltasVisitante = 0
-let matchPaused = false
 const matchData = { homeScore: 0, awayScore: 0, homeFouls: 0, awayFouls: 0, rivalName: '' }
-let matchStats = { homeShots: 0, awayShots: 0, homeYellow: 0, awayYellow: 0, homeRed: 0, awayRed: 0, homeEvents: 0, awayEvents: 0 }
-let posesion = 50
-let tickExpulsionLocal = 0, tickExpulsionVisitante = 0
 
-function irAlPartido() {
-  window._partidoIniciado = false
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
-  document.getElementById('view-match').classList.add('active')
-  document.getElementById('bottom-nav').style.display = 'none'
-  document.getElementById('app-header').style.display = 'none'
-  document.getElementById('btn-header-menu').style.display = 'none'
-  tiempoSegundos = 0
-  parteActual = 1
-  faltasLocal = 0
-  faltasVisitante = 0
-  tickExpulsionLocal = 0; tickExpulsionVisitante = 0
-  if (intervaloCrono) { clearInterval(intervaloCrono); intervaloCrono = null }
-  document.getElementById('cronometro').innerText = '00:00'
-  document.getElementById('log-partido').innerHTML = ''
-  document.getElementById('match-players').innerHTML = ''
-  document.getElementById('btn-start-match').style.display = 'block'
-  document.getElementById('btn-end-match').style.display = 'none'
-  document.getElementById('score-home').textContent = '0'
-  document.getElementById('score-away').textContent = '0'
-  document.getElementById('fouls-home').textContent = '0'
-  document.getElementById('fouls-away').textContent = '0'
-  const expInfo = document.getElementById('expulsados-info')
-  if (expInfo) expInfo.textContent = ''
-}
 
-function empezarPartido() {
-  const btn = document.getElementById('btn-start-match')
-  btn.disabled = true
-  btn.innerText = 'JUGANDO...'
-  playSound('whistle')
-  /* Reset energy only at true match start, not when resuming from tactics */
-  if (!window._partidoIniciado) {
-    state.players.forEach(p => { if (!p.injury) p.energy = 100 })
-    window._partidoIniciado = true
-  }
 
-  if (intervaloCrono) clearInterval(intervaloCrono)
-  intervaloCrono = setInterval(() => {
-    tiempoSegundos += 1
-    let mm = Math.floor(tiempoSegundos / 60)
-    let ss = tiempoSegundos % 60
-    document.getElementById('cronometro').innerText = String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0')
 
-    /* Desgaste */
-    state.players.filter(p => p.enPista).forEach(p => aplicarDesgaste(p))
-    /* Recuperación en banquillo: +1 cada 50 ticks */
-    if (tiempoSegundos % 50 === 0) {
-      state.players.filter(p => p.convocado && !p.enPista).forEach(p => {
-        p.energy = Math.min(100, p.energy + 1)
-      })
-    }
-    /* Actualizar UI de stamina cada 10 ticks */
-    if (tiempoSegundos % 10 === 0) renderPlayerRatings()
-
-    /* Tarjetas */
-    for (const p of state.players.filter(x => x.enPista)) {
-      if (Math.random() < 0.008 / 60) {
-        p._yellowsInThisMatch = (p._yellowsInThisMatch || 0) + 1
-        p.yellowCards = (p.yellowCards || 0) + 1
-        faltasLocal++
-        document.getElementById('fouls-home').textContent = faltasLocal
-          matchStats.homeYellow++; matchStats.homeEvents++
-          playSound('card')
-          if (p._yellowsInThisMatch >= 2) {
-          p.redCards = (p.redCards || 0) + 1
-          p._redThisMatch = true
-          p.enPista = false
-          matchStats.homeRed++
-          addFeedEvent({ text: `🟨🟨 Doble amarilla: ${p.name} — Expulsado`, type: 'red-card' })
-        } else {
-          addFeedEvent({ text: `🟨 Amarilla: ${p.name}`, type: 'yellow-card' })
-          if (Math.random() < 0.2) {
-            p.redCards = (p.redCards || 0) + 1
-            p._redThisMatch = true
-            p.enPista = false
-            matchStats.homeRed++
-            addFeedEvent({ text: `🟥 Roja directa: ${p.name} — Expulsado`, type: 'red-card' })
-          }
-        }
-      }
-    }
-
-    /* Tarjetas del equipo rival */
-    if (Math.random() < 0.006 / 60) {
-      faltasVisitante++
-      document.getElementById('fouls-away').textContent = faltasVisitante
-      matchStats.awayYellow++; matchStats.awayEvents++
-      addFeedEvent({ text: `🟨 Amarilla: ${matchData.rivalName}`, type: 'yellow-card' })
-    }
-
-    /* Faltas */
-    if (Math.random() < 0.02 / 60) {
-      const isHomeFault = Math.random() < 0.5
-      if (isHomeFault) {
-        faltasLocal++
-        document.getElementById('fouls-home').textContent = faltasLocal
-        matchStats.homeEvents++
-        const culprit = pickRandom(state.players.filter(p => p.enPista))
-        addFeedEvent({ text: `Falta: ${culprit ? culprit.name : state.team}`, type: 'sub' })
-      } else {
-        faltasVisitante++
-        document.getElementById('fouls-away').textContent = faltasVisitante
-        matchStats.awayEvents++
-        addFeedEvent({ text: `Falta de ${matchData.rivalName}`, type: 'sub' })
-      }
-    }
-
-    /* Lesiones — solo cada 100 ticks (~4s de partido) */
-    if (tiempoSegundos % 100 === 0) simularLesion()
-
-    /* Evento de juego */
-    simularEventoPartido()
-
-    /* Posesión dinámica — random walk */
-    const enPista = state.players.filter(p => p.enPista)
-    if (enPista.length > 0) {
-      const homeSkill = enPista.reduce((s, p) => s + getHabilidadEfectiva(p), 0) / enPista.length
-      posesion += (Math.random() - 0.5) * 3
-      posesion += (50 - posesion) * 0.0005
-      posesion += (homeSkill - 70) * 0.005
-      posesion = Math.max(10, Math.min(90, posesion))
-    }
-
-    actualizarStats()
-
-    if ((parteActual === 1 && tiempoSegundos >= 2700) || (parteActual === 2 && tiempoSegundos >= 5400)) {
-      clearInterval(intervaloCrono)
-      intervaloCrono = null
-      if (parteActual === 1) {
-        faltasLocal = 0
-        faltasVisitante = 0
-        document.getElementById('fouls-home').textContent = '0'
-        document.getElementById('fouls-away').textContent = '0'
-        addFeedEvent({ text: '— DESCANSO —', type: 'break' })
-        state.players.forEach(p => { if (!p.injury) p.energy = Math.min(100, p.energy + 15) })
-        renderPlayerRatings()
-        parteActual = 2
-        btn.innerText = '▶ EMPEZAR 2ª PARTE'
-        btn.disabled = false
-      } else {
-        addFeedEvent({ text: '— FINAL DEL PARTIDO —', type: 'break' })
-        playSound('whistle')
-        btn.style.display = 'none'
-        document.getElementById('btn-end-match').style.display = 'block'
-      }
-    }
-  }, 20)
-}
-
-function simularEventoPartido() {
-  const enPista = state.players.filter(p => p.enPista)
-  if (enPista.length === 0) return
-  const homeSkill = enPista.reduce((s, p) => s + getHabilidadEfectiva(p), 0) / enPista.length
-  const homeEnergyAVG = enPista.reduce((s, p) => s + p.energy, 0) / enPista.length / 100
-  const gamePlan = GAME_PLANS[state.tactic.gamePlan] || GAME_PLANS.juegoCuatro
-  if (Math.random() > (0.42 / 60) * gamePlan.events) return
-  const homeChance = homeSkill * (0.5 + homeEnergyAVG * 0.3) * gamePlan.attack
-  const awayChance = 70 * 0.5 * gamePlan.defense
-  const isHomeAttack = Math.random() * (homeChance + awayChance) < homeChance
-  const teamName = isHomeAttack ? state.team : matchData.rivalName
-  const teamSkill = isHomeAttack ? homeSkill : 70
-  if (isHomeAttack) matchStats.homeShots++; else matchStats.awayShots++
-  if (Math.random() < (teamSkill / 100) * 0.35) {
-    if (isHomeAttack) matchData.homeScore++; else matchData.awayScore++
-    document.getElementById('score-home').textContent = matchData.homeScore
-    document.getElementById('score-away').textContent = matchData.awayScore
-    animarGol(isHomeAttack ? 'home' : 'away')
-    playSound('goal')
-    if (isHomeAttack) {
-      const g = pickRandom(enPista); if (g) { g._goalsInMatch = (g._goalsInMatch || 0) + 1; g.goals = (g.goals || 0) + 1 }
-      let goalText = `⚽ ${g ? g.name + ' (' + state.team + ')' : state.team}`
-      if (Math.random() < 0.35) {
-        const ass = pickRandom(enPista.filter(x => x.id !== g?.id))
-        if (ass) { ass.assists = (ass.assists || 0) + 1; goalText += ` 🅰️ ${ass.name}` }
-      }
-      addFeedEvent({ text: goalText, type: 'homeGoal' })
-    } else {
-      addFeedEvent({ text: `⚽ ${matchData.rivalName}`, type: 'awayGoal' })
-    }
-  }
-}
-
-function startMatchFromLeague(rivalId, fixture) {
-  showLoading('Preparando el partido...')
-  const rival = getTeamObj(rivalId)
-  if (!rival) return
-  const tactic = state.tactic
-
-  /* Set starting eleven */
-  let eleven = state.startingFive.length > 0 ? state.startingFive : state.tacticsSlots.filter(Boolean)
-  eleven = eleven.filter(id => state.players.find(p => p.id === id))
-  if (eleven.length === 0) {
-    const roles = ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_der', 'mediocentro', 'medio_izq', 'extremo_der', 'delantero', 'extremo_izq']
-    const assigned = []
-    eleven = roles.map(role => {
-      const candidates = state.players.filter(p => !p.injury && !assigned.includes(p.id))
-      const best = candidates.sort((a, b) => {
-        const multA = getPositionMultiplier(a.position, role)
-        const multB = getPositionMultiplier(b.position, role)
-        return multB !== multA ? multB - multA : b.skill - a.skill
-      })[0]
-      if (best) assigned.push(best.id)
-      return best ? best.id : null
-    }).filter(Boolean)
-  }
-  state.players.forEach(p => { p.enPista = false; p.convocado = false })
-  eleven.forEach(id => { const p = state.players.find(x => x.id === id); if (p) { p.enPista = true; p.convocado = true } })
-  state.benchIds.forEach(id => { const p = state.players.find(x => x.id === id); if (p) p.convocado = true })
-
-  /* Match data */
-  matchData.homeScore = 0; matchData.awayScore = 0; matchData.homeFouls = 0; matchData.awayFouls = 0
-  matchData.rivalName = rival.name
-  engine = { homeScore: 0, awayScore: 0 }
-
-  /* Stats tracking */
-  matchStats = { homeShots: 0, awayShots: 0, homeYellow: 0, awayYellow: 0, homeRed: 0, awayRed: 0, homeEvents: 0, awayEvents: 0 }
-  posesion = 50
-  document.getElementById('match-stats').style.display = 'block'
-  actualizarStats()
-
-  /* Scoreboard */
-  document.getElementById('match-home-name').textContent = state.team
-  document.getElementById('match-away-name').textContent = rival.name
-  document.getElementById('match-home-logo').src = state.teamLogo || ''
-  document.getElementById('match-away-logo').src = getTeamLogo(rivalId) || ''
-  document.getElementById('score-home').textContent = '0'
-  document.getElementById('score-away').textContent = '0'
-
-  /* Show match view */
-  irAlPartido()
-
-  const isHome = fixture.home === state.teamId
-
-  /* Botón Finalizar */
-  document.getElementById('btn-end-match').onclick = () => {
-    if (intervaloCrono) { clearInterval(intervaloCrono); intervaloCrono = null }
-    finishMatch(isHome, fixture, rival)
-  }
-
-  renderPlayerRatings()
-  hideLoading()
-}
-
-function addFeedEvent(event) {
-  const feed = document.getElementById('log-partido')
-  const el = document.createElement('div')
-  if (event.type === 'break') {
-    el.className = 'feed-event minute'
-    el.textContent = event.text
-  } else {
-    const sec = tiempoSegundos || 0
-    const mm = String(Math.floor(sec / 60)).padStart(2, '0')
-    const ss = String(sec % 60).padStart(2, '0')
-    const time = `${parteActual > 0 ? parteActual + 'T' : '1T'} ${mm}:${ss}`
-    let extra = ''
-    if (event.type === 'homeGoal' || event.type === 'awayGoal') extra = ' goal'
-    else if (event.type === 'sub') extra = ' sub'
-    else if (event.type === 'injury') extra = ' injury'
-    else if (event.type === 'yellow-card') extra = ' yellow-card'
-    else if (event.type === 'red-card') extra = ' red-card'
-    else if (event.type === 'penalty') extra = ' penalty'
-    el.className = `feed-event${extra}`
-    const cleanText = event.text.replace(/[⚽🟨🟥🚨🅰️🩹]/g, '').trim()
-    el.innerHTML = `<strong>${time}</strong> ${cleanText}`
-  }
-  feed.appendChild(el)
-  feed.scrollTop = feed.scrollHeight
-}
-
-function animarGol(equipo) {
-  const el = equipo === 'home' ? document.getElementById('score-home') : document.getElementById('score-away')
-  const board = document.querySelector('.scoreboard')
-  if (el) {
-    el.classList.remove('goal-anim')
-    void el.offsetWidth
-    el.classList.add('goal-anim')
-  }
-  if (board) {
-    board.classList.remove('goal-shake')
-    void board.offsetWidth
-    board.classList.add('goal-shake')
-  }
-}
-
-function actualizarStats() {
-  const posH = Math.round(posesion)
-  document.getElementById('stats-pos-local').textContent = posH + '%'
-  document.getElementById('stats-pos-visit').textContent = (100 - posH) + '%'
-  document.getElementById('stats-fill-pos').style.width = posH + '%'
-  document.getElementById('stats-tir-local').textContent = matchStats.homeShots
-  document.getElementById('stats-tir-visit').textContent = matchStats.awayShots
-  document.getElementById('stats-amar-local').textContent = matchStats.homeYellow
-  document.getElementById('stats-roja-local').textContent = matchStats.homeRed
-  document.getElementById('stats-amar-visit').textContent = matchStats.awayYellow
-  document.getElementById('stats-roja-visit').textContent = matchStats.awayRed
-}
-
-function renderPlayerRatings() {
-  const container = document.getElementById('match-players')
-  if (!container) return
-  const enPista = state.players.filter(p => p.enPista)
-  const posOrder = { portero: 0, cierre: 1, ala: 2, pivot: 3 }
-  enPista.sort((a, b) => (posOrder[a.position] ?? 99) - (posOrder[b.position] ?? 99))
-  container.innerHTML = enPista.map(p => {
-    const pos = POSITIONS[p.position]
-    const avatarStyle = `background-image:url(${p.avatar || NOPHOTO});background-size:cover;background-position:center;background-color:var(--bg-card)`
-    let cardBadge = ''
-    if (p._redThisMatch) cardBadge = '<span class="card-indicator card-red"></span>'
-    else if (p._yellowsInThisMatch) cardBadge = '<span class="card-indicator card-yellow"></span>'
-    const fatigueClass = p.energy < 40 ? ' match-player-fatigued' : ''
-    return `<div class="match-player-item${fatigueClass}">
-      <div class="match-player-avatar" style="${avatarStyle}">${p.avatar ? '' : getInitials(p.name)}</div>
-      <span class="match-player-name">${p.name}${cardBadge}</span>
-      <span class="match-player-ene" style="color:${getEneColor(p.energy)}">${p.energy}</span>
-      <div class="stamina-bar"><div class="stamina-fill" style="width:${p.energy}%;background:${getEneColor(p.energy)}"></div></div>
-      <span class="match-player-rating">${getHabilidadEfectiva(p)}</span>
-    </div>`
-  }).join('')
-}
 
 /* ============ TACTICS MODAL ============ */
 function abrirTacticasModal() {
   console.log('[TACTICS] modal opening')
-  /* Pause match timer */
-  if (intervaloCrono) {
-    clearInterval(intervaloCrono)
-    intervaloCrono = null
-  }
 
   const modal = document.getElementById('tactics-modal')
   const formContainer = document.getElementById('tm-formation')
@@ -2254,9 +1694,10 @@ function abrirTacticasModal() {
   document.getElementById('tm-reserves-label').style.display = 'none'
   document.getElementById('tm-reserves').style.display = 'none'
 
-  /* Bench (9 max) */
-  const benchPlayers = available.slice(0, MAX_BENCH)
-  document.getElementById('tm-bench-label').textContent = `BANQUILLO (${benchPlayers.length})`
+  /* Bench (dynamic limit) */
+  const maxBench = getEffectiveMaxBench()
+  const benchPlayers = available.slice(0, maxBench)
+  document.getElementById('tm-bench-label').textContent = 'BANQUILLO (' + benchPlayers.length + ')'
 
   if (benchPlayers.length === 0) {
     bench.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);width:100%">Sin suplentes</div>'
@@ -2336,24 +1777,15 @@ function abrirTacticasModal() {
     addFeedEvent({ text: `Cambio táctico`, type: 'sub' })
     window._tacticsSwap = null
     modal.classList.remove('open')
-    resumeMatchTimer()
   }
 
   /* Close button */
   document.getElementById('tm-close').onclick = () => {
     window._tacticsSwap = null
     modal.classList.remove('open')
-    resumeMatchTimer()
   }
 
   modal.classList.add('open')
-}
-
-function resumeMatchTimer() {
-  if (intervaloCrono) return
-  /* Don't auto-resume at halftime (parteActual=2, time at 20:00) */
-  if (parteActual === 2 && tiempoSegundos >= 2700) return
-  empezarPartido()
 }
 
 function finishMatch(isHome, fixture, rival) {
@@ -2384,8 +1816,8 @@ function finishMatch(isHome, fixture, rival) {
     state.finances.history.push({ reason: `${state.playoffs.round === 'F' ? 'Final' : state.playoffs.round === 'SF' ? 'Semifinal' : 'Cuartos'} playoff vs ${rival.name}`, amount: reward })
     avanzarRondaPlayoff()
     updateLeagueStandings()
-    document.getElementById('score-home').textContent = '0'
-    document.getElementById('score-away').textContent = '0'
+    const sh = document.getElementById('score-home'); const sa = document.getElementById('score-away')
+    if (sh) sh.textContent = '0'; if (sa) sa.textContent = '0'
     showMatchdayResults(userScore, rivalScore, rival.name)
     autoSave()
     return
@@ -2453,8 +1885,8 @@ function finishMatch(isHome, fixture, rival) {
   simularJornadaEnTodasLasLigas(state.currentMatchday)
 
   updateLeagueStandings()
-  document.getElementById('score-home').textContent = '0'
-  document.getElementById('score-away').textContent = '0'
+  const sh = document.getElementById('score-home'); const sa = document.getElementById('score-away')
+  if (sh) sh.textContent = '0'; if (sa) sa.textContent = '0'
   showMatchdayResults(userScore, rivalScore, rival.name)
   autoSave()
 }
@@ -2719,7 +2151,6 @@ function procesarFinTemporada(skipAging, skipStandings) {
   /* Regenerate fixtures for all leagues for the new season */
   state.allLeagueData = {}
   initAllLeagueData()
-  simularJornadaEnTodasLasLigas(1)
   state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
   state.playoffs = null
   state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
@@ -2960,27 +2391,29 @@ function simularPartidoRapido(fixture, rivalId) {
   const slots = state.tacticsSlots || []
   const startingIds = slots.filter(Boolean)
   if (startingIds.length < 11) {
-    alert('⚠️ Alineación incompleta.\nAsigna 11 jugadores titulares en Táctica antes de simular.')
+    alert('\u26a0\ufe0f Alineaci\u00f3n incompleta.\nAsigna 11 jugadores titulares en T\u00e1ctica antes de simular.')
+    return
+  }
+  const maxBench = getEffectiveMaxBench()
+  if (state.benchIds.length > maxBench) {
+    alert('\u26a0\ufe0f Demasiados suplentes. M\u00e1ximo ' + maxBench + ' en el banquillo para esta categor\u00eda.')
     return
   }
 
-  showLoading('Simulando partido...')
+  showLoading('Simulando jornada...')
 
   setTimeout(() => {
-    /* Read current lineup and calculate user power */
+    /* 1. Simulate user's match */
+    const isHome = fixture.home === state.teamId
     const roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
     let totalEff = 0
-    let userGoals = 0
     for (let i = 0; i < roles.length; i++) {
       const pid = startingIds[i]
       const p = state.players.find(x => x.id === pid)
-      if (!p) continue
-      const eff = getHabilidadEfectiva(p, roles[i])
-      totalEff += eff
+      if (p) totalEff += getHabilidadEfectiva(p, roles[i])
     }
     const userPower = totalEff / 11
 
-    /* Opponent power */
     const rivalTeam = getTeamObj(rivalId)
     let rivalPower = 0
     if (rivalTeam && rivalTeam.players && rivalTeam.players.length > 0) {
@@ -2990,184 +2423,246 @@ function simularPartidoRapido(fixture, rivalId) {
       rivalPower = db ? db.rating : 70
     }
 
-    /* Determine home/away */
-    const isHome = fixture.home === state.teamId
-
-    /* Apply home advantage and randomness */
     const homeFactor = isHome ? 1.05 : 1.0
     const awayFactor = isHome ? 0.97 : 1.0
-
     const userFinal = userPower * (0.8 + Math.random() * 0.4) * homeFactor
     const rivalFinal = rivalPower * (0.8 + Math.random() * 0.4) * awayFactor
-
-    /* Goal calculation */
-    const totalGoals = 2 + Math.floor(Math.random() * 5) /* 2-6 goals */
+    const totalGoals = 2 + Math.floor(Math.random() * 5)
     const probUser = userFinal / (userFinal + rivalFinal)
-    let rawUserGoals = Math.round(totalGoals * probUser)
-    let rawRivalGoals = totalGoals - rawUserGoals
-
-    /* Ensure at least 1 goal scored between both teams if total >= 2 */
-    if (rawUserGoals === 0 && rawRivalGoals === 0 && totalGoals >= 2) {
-      if (Math.random() < 0.5) { rawUserGoals++ } else { rawRivalGoals++ }
+    let rawUser = Math.round(totalGoals * probUser)
+    let rawRival = totalGoals - rawUser
+    if (rawUser === 0 && rawRival === 0 && totalGoals >= 2) {
+      if (Math.random() < 0.5) { rawUser++ } else { rawRival++ }
     }
+    const us = Math.min(10, Math.max(0, rawUser))
+    const them = Math.min(10, Math.max(0, rawRival))
 
-    /* Clamp */
-    const us = Math.min(10, Math.max(0, rawUserGoals))
-    const them = Math.min(10, Math.max(0, rawRivalGoals))
-
-    /* Set matchData for finishMatch compatibility */
-    matchData.homeScore = isHome ? us : them
-    matchData.awayScore = isHome ? them : us
-    matchData.rivalName = getTeamName(rivalId)
-
-    /* Assign to fixture */
-    if (isHome) {
-      fixture.homeScore = us; fixture.awayScore = them
-    } else {
-      fixture.homeScore = them; fixture.awayScore = us
-    }
+    if (isHome) { fixture.homeScore = us; fixture.awayScore = them }
+    else { fixture.homeScore = them; fixture.awayScore = us }
     fixture.played = true
 
-    /* Setup player match tracking for finishMatch */
-    state.players.forEach(p => {
-      p.enPista = false; p.convocado = false; p.titular = false
-      p.minutosEnPista = 0
-      p._goalsInMatch = 0; p._assistThisMatch = 0; p._yellowsInThisMatch = 0; p._redThisMatch = false
-    })
-    startingIds.forEach((pid, i) => {
+    /* Track user match stats */
+    state.players.forEach(p => { p.minutosEnPista = 0; p._goalsInMatch = 0; p._assistThisMatch = 0 })
+    startingIds.forEach(pid => {
       const p = state.players.find(x => x.id === pid)
-      if (p) {
-        p.minutosEnPista = 90
-        p.enPista = true
-        p.convocado = true
-        p.titular = true
-      }
+      if (p) { p.minutosEnPista = 90; p.matches = (p.matches || 0) + 1 }
     })
-    /* Assign user goals via _goalsInMatch, with assists */
-    const userGoalEntries = []
+    const userGoalscorers = []
     for (let g = 0; g < us; g++) {
       const valid = state.players.filter(p => startingIds.includes(p.id) && p.position !== 'POR' && !p.injury)
       if (valid.length === 0) break
       const scorer = valid[Math.floor(Math.random() * valid.length)]
-      scorer._goalsInMatch = (scorer._goalsInMatch || 0) + 1
-
+      scorer.goals = (scorer.goals || 0) + 1
       let assistName = null
       if (Math.random() < 0.35) {
-        const assistPool = state.players.filter(p => startingIds.includes(p.id) && p.id !== scorer.id && !p.injury)
-        if (assistPool.length > 0) {
-          const assister = assistPool[Math.floor(Math.random() * assistPool.length)]
-          assister._assistThisMatch = (assister._assistThisMatch || 0) + 1
-          assistName = assister.name
+        const pool = state.players.filter(p => startingIds.includes(p.id) && p.id !== scorer.id && !p.injury)
+        if (pool.length > 0) {
+          const a = pool[Math.floor(Math.random() * pool.length)]
+          a.assists = (a.assists || 0) + 1
+          assistName = a.name
         }
       }
-      userGoalEntries.push({ scorerName: scorer.name, assistName })
+      userGoalscorers.push({ scorerName: scorer.name, assistName })
     }
 
-    /* Generate rival goalscorers */
-    const rivalGoalEntries = []
-    const rivalTeamObj = getTeamObj(rivalId)
-    const rivalPlayers = (rivalTeamObj && rivalTeamObj.players) ? rivalTeamObj.players.filter(p => p.position !== 'POR') : []
-    for (let g = 0; g < them; g++) {
-      if (rivalPlayers.length === 0) {
-        rivalGoalEntries.push({ scorerName: `Jugador rival`, assistName: null })
-      } else {
-        const scorer = rivalPlayers[Math.floor(Math.random() * rivalPlayers.length)]
-        let assistName = null
-        if (Math.random() < 0.35) {
-          const assistPool = rivalPlayers.filter(p => p.id !== scorer.id)
-          if (assistPool.length > 0) {
-            assistName = assistPool[Math.floor(Math.random() * assistPool.length)].name
-          }
-        }
-        rivalGoalEntries.push({ scorerName: scorer.name, assistName })
-      }
-    }
-
-    /* Fatigue */
+    /* Fatigue for user's players */
     state.players.forEach(p => {
       if (!p.injury && startingIds.includes(p.id)) p.energy = Math.max(10, p.energy - 5)
+      p.enPista = false; p.convocado = false; p.titular = false
     })
 
-    const rivalObj = { name: getTeamName(rivalId), id: rivalId }
-    window._simulationMode = true
-    finishMatch(isHome, fixture, rivalObj)
-    window._simulationMode = false
-    showMatchResultModal(us, them, rivalObj.name, fixture, isHome, userGoalEntries, rivalGoalEntries)
+    /* Simulate up to 5 substitutions for user's team based on score */
+    const maxBench = getEffectiveMaxBench()
+    const benchPlayers = state.benchIds.map(id => state.players.find(p => p.id === id)).filter(Boolean)
+    let userSubs = 0
+    const needsOffensive = us < them /* losing → more offensive changes */
+    const needsDefensive = us > them /* winning → more defensive */
+    for (let s = 0; s < Math.min(5, benchPlayers.length); s++) {
+      let subIdx = -1
+      if (needsOffensive && s < 3) {
+        /* Try to sub in a forward/mid for a defender */
+        const forward = benchPlayers.find(p => !p.injury && (p.position === 'delantero' || p.position === 'extremo_izq' || p.position === 'extremo_der' || p.position === 'medio_ofensivo'))
+        if (forward) {
+          subIdx = benchPlayers.indexOf(forward)
+          const tired = startingIds.filter(id => { const pl = state.players.find(x => x.id === id); return pl && !pl.injury && pl.energy < 40 })
+          if (tired.length > 0) {
+            const out = state.players.find(x => x.id === tired[Math.floor(Math.random() * tired.length)])
+            if (out) { out.energy = Math.max(10, out.energy - 3); userSubs++ }
+          }
+        }
+      } else if (needsDefensive && s < 2) {
+        const defender = benchPlayers.find(p => !p.injury && (p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq'))
+        if (defender) {
+          subIdx = benchPlayers.indexOf(defender)
+          const tired = startingIds.filter(id => { const pl = state.players.find(x => x.id === id); return pl && !pl.injury && pl.energy < 40 })
+          if (tired.length > 0) {
+            const out = state.players.find(x => x.id === tired[Math.floor(Math.random() * tired.length)])
+            if (out) { out.energy = Math.max(10, out.energy - 3); userSubs++ }
+          }
+        }
+      }
+      if (subIdx < 0) {
+        /* Generic sub: swap a tired player */
+        const tired = startingIds.filter(id => { const pl = state.players.find(x => x.id === id); return pl && !pl.injury && pl.energy < 50 })
+        if (tired.length > 0 && s < benchPlayers.length) {
+          subIdx = s
+          const out = state.players.find(x => x.id === tired[Math.floor(Math.random() * tired.length)])
+          if (out) { out.energy = Math.max(10, out.energy - 2); userSubs++ }
+        }
+      }
+    }
+
+    /* 2. Simulate ALL AI matches for this matchday */
+    const otherFixtures = state.fixtures.filter(f => f.matchday === state.currentMatchday && !f.played && f.home !== state.teamId && f.away !== state.teamId)
+    for (const f of otherFixtures) {
+      const r = autoSimulateOtherMatch(f.home, f.away)
+      f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+      /* Apply fatigue and substitutions to AI teams */
+      for (const tid of [f.home, f.away]) {
+        const team = state.leagueTeams.find(t => t.teamId === tid)
+        if (team && team.players) {
+          team.players.forEach(p => { if (!p.injury) p.energy = Math.max(10, (p.energy || 80) - 3) })
+          const aiBench = team.players.filter(p => p.position !== 'POR').slice(11, 11 + getEffectiveMaxBench())
+          const subsMade = Math.min(5, aiBench.length, Math.floor(Math.random() * 3 + 1))
+          for (let s = 0; s < subsMade; s++) {
+            const tiredIdx = Math.floor(Math.random() * Math.min(11, team.players.length))
+            if (team.players[tiredIdx] && !team.players[tiredIdx].injury) {
+              team.players[tiredIdx].energy = Math.max(10, team.players[tiredIdx].energy + 10)
+            }
+          }
+        }
+      }
+    }
+
+    /* 3. Finance reward for user */
+    const rew = getDivisionMatchReward(state.leagueId)
+    if (us > them) state.finances.balance += rew.win
+    else if (us === them) state.finances.balance += rew.draw
+    else state.finances.balance += rew.loss
+    state.finances.history.push({
+      reason: 'J' + state.currentMatchday + ': ' + us + '-' + them + ' vs ' + getTeamName(rivalId),
+      amount: us > them ? rew.win : us === them ? rew.draw : rew.loss
+    })
+    addNotification('match',
+      (us > them ? 'Victoria' : us === them ? 'Empate' : 'Derrota') + ' ' + us + '-' + them + ' vs ' + getTeamName(rivalId),
+      'Jornada ' + state.currentMatchday + ' \u00b7 ' + (us > them ? '+' : us === them ? '+' : '') + (us > them ? rew.win : us === them ? rew.draw : rew.loss) + ' \u20ac'
+    )
+
+    updateLeagueStandings()
+
+    /* 4. Show jornada summary modal */
+    const userMatch = { homeId: isHome ? state.teamId : rivalId, awayId: isHome ? rivalId : state.teamId, homeName: isHome ? state.team : getTeamName(rivalId), awayName: isHome ? getTeamName(rivalId) : state.team, homeScore: isHome ? us : them, awayScore: isHome ? them : us, isUser: true }
+    const allResults = [userMatch].concat(otherFixtures.map(f => ({
+      homeId: f.home, awayId: f.away, homeName: getTeamName(f.home), awayName: getTeamName(f.away),
+      homeScore: f.homeScore, awayScore: f.awayScore, isUser: false
+    })))
+
+    showJornadaModal(state.currentMatchday, allResults, userGoalscorers)
     hideLoading()
   }, 400)
 }
 
-function showMatchResultModal(us, them, rivalName, fixture, isHome, userScorers, rivalScorers) {
+function showJornadaModal(matchday, allResults, userGoalscorers) {
   const modal = document.getElementById('match-result-modal')
-  document.getElementById('mr-matchday').textContent = `Jornada ${state.currentMatchday}`
-  document.getElementById('mr-home-name').textContent = state.team
-  document.getElementById('mr-away-name').textContent = rivalName
-  document.getElementById('mr-home-logo').src = state.teamLogo || ''
-  document.getElementById('mr-away-logo').src = getTeamLogo(fixture.home === state.teamId ? fixture.away : fixture.home) || ''
-  document.getElementById('mr-home-score').textContent = isHome ? us : them
-  document.getElementById('mr-away-score').textContent = isHome ? them : us
+  document.getElementById('mr-matchday').textContent = 'Jornada ' + matchday
 
-  const fmt = (entries) => {
-    if (entries.length === 0) return '<div style="color:var(--text-muted);font-size:11px">—</div>'
-    return entries.map(g => {
-      const a = g.assistName ? `<span class="mr-assist"> (${g.assistName})</span>` : ''
-      return `<div class="mr-goal">⚽ ${g.scorerName}${a}</div>`
-    }).join('')
+  /* Highlight user's match */
+  let userMatch = null
+  for (const r of allResults) { if (r.isUser) { userMatch = r; break } }
+  const hl = userMatch ? (
+    '<div class="mr-highlight-team">' +
+      '<img class="mr-highlight-logo" src="' + (userMatch.homeId === state.teamId ? state.teamLogo : getTeamLogo(userMatch.homeId)) + '" alt="">' +
+      '<span class="mr-highlight-name">' + userMatch.homeName + '</span>' +
+    '</div>' +
+    '<div class="mr-highlight-score">' +
+      '<span class="mr-highlight-score-val">' + userMatch.homeScore + '</span>' +
+      '<span class="mr-highlight-score-div">-</span>' +
+      '<span class="mr-highlight-score-val">' + userMatch.awayScore + '</span>' +
+    '</div>' +
+    '<div class="mr-highlight-team">' +
+      '<img class="mr-highlight-logo" src="' + (userMatch.awayId === state.teamId ? state.teamLogo : getTeamLogo(userMatch.awayId)) + '" alt="">' +
+      '<span class="mr-highlight-name">' + userMatch.awayName + '</span>' +
+    '</div>'
+  ) : ''
+  document.getElementById('mr-highlight').innerHTML = hl
+
+  /* All results */
+  const otherHtml = []
+  for (const r of allResults) {
+    if (r.isUser) continue
+    const homeLogo = getTeamLogo(r.homeId) || ''
+    const awayLogo = getTeamLogo(r.awayId) || ''
+    otherHtml.push(
+      '<div class="mr-other-match">' +
+        '<div class="mr-other-teams">' +
+          '<img class="mr-other-logo" src="' + homeLogo + '" alt="">' +
+          '<span class="mr-other-name">' + r.homeName + '</span>' +
+        '</div>' +
+        '<span class="mr-other-score">' + r.homeScore + ' - ' + r.awayScore + '</span>' +
+        '<div class="mr-other-teams" style="justify-content:flex-end">' +
+          '<span class="mr-other-name">' + r.awayName + '</span>' +
+          '<img class="mr-other-logo" src="' + awayLogo + '" alt="">' +
+        '</div>' +
+      '</div>'
+    )
   }
-  document.getElementById('mr-home-scorers').innerHTML = fmt(isHome ? userScorers : rivalScorers)
-  document.getElementById('mr-away-scorers').innerHTML = fmt(isHome ? rivalScorers : userScorers)
+
+  let scorersHtml = ''
+  if (userGoalscorers.length > 0) {
+    for (const g of userGoalscorers) {
+      const a = g.assistName ? ' <span class="mr-assist">(' + g.assistName + ')</span>' : ''
+      scorersHtml += '<div style="padding:1px 4px;font-size:12px;font-weight:600;color:var(--text)">\u26bd ' + g.scorerName + a + '</div>'
+    }
+  }
+  document.getElementById('mr-scorers').innerHTML = scorersHtml
+
+  document.getElementById('mr-all-results').innerHTML = otherHtml.join('')
 
   modal.style.display = 'flex'
   modal.classList.add('open')
 
-  /* "Ver Clasificación" → go to league view */
-  const standingsBtn = document.getElementById('mr-btn-standings')
-  const closeBtn = document.getElementById('mr-btn-close')
-
-  const goToStandings = () => {
+  document.getElementById('mr-btn-continue').onclick = function() {
     modal.style.display = 'none'
     modal.classList.remove('open')
-    document.getElementById('view-match').classList.remove('active')
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
-    document.getElementById('view-league').classList.add('active')
 
-    const rw = document.getElementById('league-results-wrap')
-    if (rw) rw.classList.remove('hidden')
-
-    state.currentTab = 'league'
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
-    document.querySelector('[data-tab="league"]').classList.add('active')
-  }
-
-  const justClose = () => {
-    modal.style.display = 'none'
-    modal.classList.remove('open')
-    /* Go back to the home/general view */
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
-    const homeTab = document.querySelector('[data-tab="home"]')
-    if (homeTab) {
-      homeTab.classList.add('active')
-      renderTab('home')
+    /* Advance matchday */
+    if (state.currentMatchday >= state.totalMatchdays) {
+      procesarFinTemporada()
+      return
     }
-    state.currentTab = 'home'
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
-    if (homeTab) homeTab.classList.add('active')
+    state.currentMatchday++
+    simularJornadaEnTodasLasLigas(state.currentMatchday)
+    procesarEconomiaSemanal()
+    /* Injury recovery */
+    for (const p of state.players) {
+      if (!p.injury) continue
+      p.injury.remaining--
+      if (p.injury.remaining <= 0) {
+        p.energy = p.injury.recoveryEnergy
+        p.injury = null
+        addNotification('general', '\ud83d\udcaa Recuperado: ' + p.name, 'Vuelve tras superar su lesi\u00f3n')
+      }
+    }
+    const assistCount = state.staff.filter(function(s) { return s.role === 'assistantCoach' }).length
+    if (assistCount > 0) {
+      state.players.forEach(function(p) { p.energy = Math.min(100, p.energy + assistCount * 10) })
+    }
+    autoSave()
+    renderTab('home')
   }
-
-  if (standingsBtn) standingsBtn.onclick = goToStandings
-  if (closeBtn) closeBtn.onclick = justClose
 }
 
-/* ============ MATCHDAY RESULTS ============ */
 function showMatchdayResults(userScore, rivalScore, rivalName) {
-  document.getElementById('btn-end-match').style.display = 'none'
+  const bem = document.getElementById('btn-end-match')
+  if (bem) bem.style.display = 'none'
 
   /* Refresh league table with updated standings before showing results */
   renderLeague()
 
   /* Go directly to league results view */
   if (!window._simulationMode) {
-    document.getElementById('view-match').classList.remove('active')
+    const vm = document.getElementById('view-match')
+    if (vm) vm.classList.remove('active')
     document.getElementById('view-league').classList.add('active')
     document.getElementById('bottom-nav').style.display = ''
     document.getElementById('app-header').style.display = ''
@@ -3219,11 +2714,16 @@ function showMatchdayResults(userScore, rivalScore, rivalName) {
         procesarFinTemporada()
         return
       }
-      /* Simulate ALL remaining AI matches in the user's league for all matchdays up to current */
-      const unplayedAll = state.fixtures.filter(f => f.matchday <= state.currentMatchday && !f.played && f.home !== state.teamId && f.away !== state.teamId)
-      for (const f of unplayedAll) {
-        const r = autoSimulateOtherMatch(f.home, f.away)
-        f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+      /* Simulate ALL unplayed fixtures for this matchday — both user and AI */
+      const allUnplayed = state.fixtures.filter(f => f.matchday === state.currentMatchday && !f.played)
+      for (const f of allUnplayed) {
+        const isUserMatch = f.home === state.teamId || f.away === state.teamId
+        if (isUserMatch) {
+          autoSimularPartidoUsuario(f)
+        } else {
+          const r = autoSimulateOtherMatch(f.home, f.away)
+          f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+        }
       }
       state.currentMatchday++
       simularJornadaEnTodasLasLigas(state.currentMatchday)
@@ -3257,10 +2757,112 @@ function showMatchdayResults(userScore, rivalScore, rivalName) {
         }
       }
       document.getElementById('league-results-wrap').classList.add('hidden')
+      updateLeagueStandings()
       renderLeague()
+      autoSave()
       hideLoading()
     }, 300)
   }
+}
+
+function autoSimularPartidoUsuario(fixture) {
+  const isHome = fixture.home === state.teamId
+  const rivalId = isHome ? fixture.away : fixture.home
+
+  /* Calculate user power from current lineup */
+  const slots = state.tacticsSlots || []
+  const startingIds = slots.filter(Boolean)
+  if (startingIds.length < 11) {
+    /* Fallback: auto-assign */
+    autoAssignSquad()
+    const newSlots = state.tacticsSlots.filter(Boolean)
+    if (newSlots.length < 11) return { homeScore: 0, awayScore: 0, rivalGoals: 0, userGoals: 0 }
+  }
+
+  const roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
+  let totalEff = 0
+  const ids = state.tacticsSlots.filter(Boolean)
+  for (let i = 0; i < Math.min(roles.length, ids.length); i++) {
+    const p = state.players.find(x => x.id === ids[i])
+    if (p) totalEff += getHabilidadEfectiva(p, roles[i])
+  }
+  const userPower = totalEff / 11
+
+  /* Opponent power */
+  const rivalTeam = getTeamObj(rivalId)
+  let rivalPower = 0
+  if (rivalTeam && rivalTeam.players && rivalTeam.players.length > 0) {
+    rivalPower = getTop11Average(rivalTeam.players)
+  } else {
+    const db = getBaseDato(rivalId)
+    rivalPower = db ? db.rating : 70
+  }
+
+  /* Apply randomness and home advantage */
+  const homeFactor = isHome ? 1.05 : 1.0
+  const awayFactor = isHome ? 0.97 : 1.0
+  const userFinal = userPower * (0.8 + Math.random() * 0.4) * homeFactor
+  const rivalFinal = rivalPower * (0.8 + Math.random() * 0.4) * awayFactor
+
+  /* Goal calculation */
+  const totalGoals = 2 + Math.floor(Math.random() * 5)
+  const probUser = userFinal / (userFinal + rivalFinal)
+  let rawUser = Math.round(totalGoals * probUser)
+  let rawRival = totalGoals - rawUser
+  if (rawUser === 0 && rawRival === 0 && totalGoals >= 2) {
+    if (Math.random() < 0.5) { rawUser++ } else { rawRival++ }
+  }
+  const us = Math.min(10, Math.max(0, rawUser))
+  const them = Math.min(10, Math.max(0, rawRival))
+
+  /* Update fixture */
+  if (isHome) { fixture.homeScore = us; fixture.awayScore = them }
+  else { fixture.homeScore = them; fixture.awayScore = us }
+  fixture.played = true
+
+  /* Track matches and assign goals to user's players */
+  state.players.forEach(p => {
+    p.enPista = false; p.convocado = false; p.titular = false
+    p.minutosEnPista = 0
+    p._goalsInMatch = 0; p._assistThisMatch = 0
+  })
+  ids.forEach(pid => {
+    const p = state.players.find(x => x.id === pid)
+    if (p) {
+      p.minutosEnPista = 90; p.enPista = true; p.convocado = true; p.titular = true
+      p.matches = (p.matches || 0) + 1
+    }
+  })
+  for (let g = 0; g < us; g++) {
+    const valid = state.players.filter(p => ids.includes(p.id) && p.position !== 'POR' && !p.injury)
+    if (valid.length === 0) break
+    const scorer = valid[Math.floor(Math.random() * valid.length)]
+    scorer.goals = (scorer.goals || 0) + 1
+    if (Math.random() < 0.35) {
+      const pool = state.players.filter(p => ids.includes(p.id) && p.id !== scorer.id && !p.injury)
+      if (pool.length > 0) {
+        const a = pool[Math.floor(Math.random() * pool.length)]
+        a.assists = (a.assists || 0) + 1
+      }
+    }
+  }
+
+  /* Fatigue */
+  state.players.forEach(p => {
+    if (!p.injury && ids.includes(p.id)) p.energy = Math.max(10, p.energy - 5)
+  })
+
+  /* Finance */
+  const rew = getDivisionMatchReward(state.leagueId)
+  if (us > them) state.finances.balance += rew.win
+  else if (us === them) state.finances.balance += rew.draw
+  else state.finances.balance += rew.loss
+  state.finances.history.push({
+    reason: `J${fixture.matchday}: ${us}-${them} vs ${getTeamName(rivalId)}`,
+    amount: us > them ? rew.win : us === them ? rew.draw : rew.loss
+  })
+
+  return { homeScore: fixture.homeScore, awayScore: fixture.awayScore, userGoals: isHome ? us : them, rivalGoals: isHome ? them : us }
 }
 
 /* ============ MARKET VIEW ============ */
@@ -3857,14 +3459,6 @@ function newGame(coach) {
   /* Generate fixtures for all leagues */
   state.allLeagueData = {}
   initAllLeagueData()
-  /* Simulate matchday 1 for all leagues so tables show results from the start */
-  simularJornadaEnTodasLasLigas(1)
-  /* Also simulate AI matches in the user's league for MD1 so teams have played matches */
-  const userLeagueMds = state.fixtures.filter(f => f.matchday === 1 && !f.played && f.home !== state.teamId && f.away !== state.teamId)
-  for (const f of userLeagueMds) {
-    const r = autoSimulateOtherMatch(f.home, f.away)
-    f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
-  }
 
   /* Assign dates and schedules */
   const WEEKEND_DAYS = [
@@ -4139,6 +3733,7 @@ function renderTeamList(league) {
     const rating = rs ? getTop11Average(rs) : (db ? db.rating : t.rating || 70)
     const squadCount = rs ? rs.length : 10
     const isSelected = selectedTeam && selectedTeam.id === t.id
+    const coachName = (t.staff && t.staff.find(s => s.role === 'headCoach')?.name) || ''
     html += `<div class="ng-team-row${isSelected ? ' selected' : ''}" data-tid="${t.id}">
       <img class="ng-team-logo" src="${t.logo || NOPHOTO}" alt="" loading="lazy" onerror="this.src='${NOPHOTO}'">
       <span class="ng-team-name">${t.name}</span>
@@ -4229,6 +3824,24 @@ function showTeamPreview(teamId) {
     <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
   `
 
+  /* Staff section – cards in its own container after tp-stats */
+  if (staff.length > 0) {
+    var roleLabels = { headCoach: 'Entrenador', assistantCoach: '2\u00ba Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador f\u00edsico' }
+    var staffHtml = '<div class="tactics-subsection-label" style="margin-top:6px;padding:0 10px">Staff t\u00e9cnico (' + staff.length + ')</div>'
+    for (var si = 0; si < staff.length; si++) {
+      var s = staff[si]
+      var avatar = s.avatar || NOPHOTO
+      var avatarStyle = 'background-image:url(' + avatar + ');background-size:cover;background-position:center;background-color:var(--bg-surface)'
+      staffHtml += '<div class="staff-card"><div class="staff-card-avatar" style="' + avatarStyle + '"></div><div class="staff-card-info"><div class="staff-card-name">' + s.name + '</div><div class="staff-card-meta">' + s.nationality + '</div></div><span class="staff-card-role" data-role="' + s.role + '">' + (roleLabels[s.role] || s.role) + '</span></div>'
+    }
+    document.getElementById('tp-staff-container').innerHTML = staffHtml
+  } else {
+    document.getElementById('tp-staff-container').innerHTML = ''
+  }
+
+  /* Squad label */
+  document.getElementById('tp-squad-label').textContent = 'PLANTILLA (' + realSquad.length + ')'
+
   /* Player rows */
   const ordered = [...realSquad].sort((a, b) => {
     const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
@@ -4238,6 +3851,7 @@ function showTeamPreview(teamId) {
   const listHtml = ordered.map(p => {
     const valShort = formatShort(p.value || 0)
     return `<div class="tp-row">
+      <span class="tp-cell-pos-badge" style="background:${((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')};color:#fff">${POS_ABBR[p.position] || p.position}</span>
       <div class="tp-cell">
         <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
         <div class="tp-cell-info">
@@ -4245,10 +3859,9 @@ function showTeamPreview(teamId) {
           <span class="tp-cell-value">${p.nationality || ''}</span>
         </div>
       </div>
-      <span class="tp-cell-pos-badge" style="background:${((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')};color:#fff">${POS_ABBR[p.position] || p.position}</span>
       <span class="tp-cell-age">${p.age || '-'}</span>
       <span class="tp-cell-market">${valShort}</span>
-      <span class="tp-cell-power">${p.skill}</span>
+      <span class="tp-cell-power" style="${getPowerBadgeStyle(p.skill)}">${p.skill}</span>
     </div>`
   }).join('')
   document.getElementById('tp-list').innerHTML = listHtml
@@ -4271,8 +3884,6 @@ function showTeamPreview(teamId) {
     }
   }
   document.getElementById('tp-header-back').onclick = closePreview
-  document.getElementById('tp-footer-back').onclick = closePreview
-  document.getElementById('tp-footer-choose').onclick = closePreview
 }
 
 function startNewGame() {
@@ -4486,6 +4097,19 @@ function showTeamInfo(teamId) {
   const reputation = displayPower <= 20 ? 1 : displayPower <= 40 ? 2 : displayPower <= 60 ? 3 : displayPower <= 80 ? 4 : 5
   const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
   const totalVal = team.players.reduce((s, p) => s + (p.value || 0), 0)
+  /* Find country flag for this team */
+  let teamFlag = ''
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data) continue
+    for (const l of data.country.leagues || []) {
+      if (l.teams.find(x => x.id === teamId)) {
+        teamFlag = data.country.flag || ''
+        break
+      }
+    }
+    if (teamFlag) break
+  }
   let html = `
     <div class="view-header">
       <div class="view-header-left">
@@ -4497,7 +4121,7 @@ function showTeamInfo(teamId) {
     <div class="tp-stats" style="margin-bottom:12px">
       <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">${posDisplay}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${logo ? '🇵🇱' : ''}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${teamFlag}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
     </div>`
@@ -4514,8 +4138,8 @@ function showTeamInfo(teamId) {
   /* Player table */
   html += `<div class="tactics-subsection-label">PLANTILLA (${team.players.length})</div>
     <div class="tp-table-header" style="padding:6px 14px">
-      <span class="tp-th-name">Nombre</span>
       <span class="tp-th-pos">Pos</span>
+      <span class="tp-th-name">Nombre</span>
       <span class="tp-th-age">Edad</span>
       <span class="tp-th-value">Valor</span>
       <span class="tp-th-power">Pod</span>
@@ -4530,6 +4154,7 @@ function showTeamInfo(teamId) {
     const posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
     const valShort = formatShort(p.value || 0)
     html += `<div class="tp-row" data-player-id="${p.id}">
+      <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
       <div class="tp-cell">
         <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
         <div class="tp-cell-info">
@@ -4537,10 +4162,9 @@ function showTeamInfo(teamId) {
           <span class="tp-cell-value">${p.nationality || ''}</span>
         </div>
       </div>
-      <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
       <span class="tp-cell-age">${p.age || '-'}</span>
       <span class="tp-cell-market">${valShort}</span>
-      <span class="tp-cell-power">${p.skill}</span>
+      <span class="tp-cell-power" style="${getPowerBadgeStyle(p.skill)}">${p.skill}</span>
     </div>`
   })
   html += '</div><button class="btn-secondary" id="btn-team-back-2" style="margin-top:12px">← Volver</button>'
