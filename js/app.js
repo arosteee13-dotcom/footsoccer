@@ -23,7 +23,7 @@ const POSITIONS = {
 const POS_ORDER = ['portero', 'cierre', 'ala', 'pivot', 'defensa_central', 'lateral_izq', 'lateral_der', 'carrilero_izq', 'carrilero_der', 'medio_def', 'mediocentro', 'medio_ofensivo', 'medio_izq', 'medio_der', 'extremo_izq', 'extremo_der', 'delantero']
 
 const FORMATIONS = {
-  '4-3-3': { label: '4-3-3', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'mediocentro', 'medio_def', 'mediocentro', 'extremo_der', 'delantero', 'extremo_izq'], multiplier: 1.0 },
+  '4-3-3': { label: '4-3-3', roles: ['portero', 'lateral_izq', 'defensa_central', 'defensa_central', 'lateral_der', 'mediocentro', 'medio_def', 'mediocentro', 'extremo_izq', 'delantero', 'extremo_der'], multiplier: 1.0 },
   '4-4-2': { label: '4-4-2', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_der', 'mediocentro', 'mediocentro', 'medio_izq', 'delantero', 'delantero'], multiplier: 0.95 },
   '4-2-3-1': { label: '4-2-3-1', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_def', 'medio_def', 'extremo_der', 'medio_ofensivo', 'extremo_izq', 'delantero'], multiplier: 1.05 },
   '3-5-2': { label: '3-5-2', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_der', 'medio_der', 'mediocentro', 'medio_ofensivo', 'medio_izq', 'delantero', 'delantero'], multiplier: 0.9 },
@@ -337,6 +337,7 @@ const state = {
   benchIds: [],
   reserveIds: [],
   selectedPlayerId: null,
+  captainId: null,
   inbox: [],
   soundEnabled: true,
   filialSquad: [],
@@ -473,6 +474,7 @@ window.SaveSystem = {
         currentMatchday: state.currentMatchday, totalMatchdays: state.totalMatchdays, fixtures: state.fixtures,
         allLeagueData: state.allLeagueData,
         tacticsSlots: state.tacticsSlots,
+        captainId: state.captainId,
         benchIds: state.benchIds,
         reserveIds: state.reserveIds,
         staff: state.staff,
@@ -521,7 +523,7 @@ function deleteSave(id) { window.SaveSystem.deleteGame(id) }
 
 function autoSaveTactics() {
   if (!state.gameId) return
-  const data = { formation: state.tactic.formation, gamePlan: state.tactic.gamePlan, tacticsSlots: state.tacticsSlots, benchIds: state.benchIds, reserveIds: state.reserveIds }
+  const data = { formation: state.tactic.formation, gamePlan: state.tactic.gamePlan, tacticsSlots: state.tacticsSlots, captainId: state.captainId, benchIds: state.benchIds, reserveIds: state.reserveIds }
   try {
     const raw = storageSafe('get', TACTICS_KEY)
     const all = raw ? JSON.parse(raw) : {}
@@ -536,10 +538,11 @@ function loadTactics() {
     const raw = storageSafe('get', TACTICS_KEY)
     const all = raw ? JSON.parse(raw) : {}
     const data = all[state.gameId]
-    if (data) {
-      state.tactic.formation = data.formation || state.tactic.formation
-      state.tactic.gamePlan = data.gamePlan || state.tactic.gamePlan
-      if (!state.tacticsSlots || state.tacticsSlots.length === 0) {
+      if (data) {
+        state.tactic.formation = data.formation || state.tactic.formation
+        state.tactic.gamePlan = data.gamePlan || state.tactic.gamePlan
+        if (data.captainId) state.captainId = data.captainId
+        if (!state.tacticsSlots || state.tacticsSlots.length === 0) {
         state.tacticsSlots = data.tacticsSlots || []
       }
       if (!state.benchIds || state.benchIds.length === 0) {
@@ -1227,10 +1230,11 @@ function renderTactics(tactic) {
     var html = ''
 
     /* 1. Top cards */
-    var captain = state.players.find(function(p) { return p.id === slots[0] })
+    var captainId = state.captainId || slots[0]
+    var captain = state.players.find(function(p) { return p.id === captainId })
     var gpLabel = GAME_PLANS[tactic.gamePlan] ? GAME_PLANS[tactic.gamePlan].label : tactic.gamePlan
     html += '<div class="tc-top-cards">' +
-      '<div class="tc-card"><span class="tc-card-label">Capit\u00e1n</span><span class="tc-card-value">' + (captain ? captain.name.split(' ').slice(-1)[0] : '---') + '</span></div>' +
+      '<div class="tc-card" id="tc-captain-btn" style="cursor:pointer"><span class="tc-card-label">Capit\u00e1n</span><span class="tc-card-value">' + (captain ? captain.name.split(' ').slice(-1)[0] : '---') + '</span></div>' +
       '<div class="tc-card" id="tc-pressure-btn" style="cursor:pointer"><span class="tc-card-label">Presi\u00f3n</span><span class="tc-card-value tc-accent">' + gpLabel + '</span></div>' +
       '<div class="tc-card"><span class="tc-card-label">Formaci\u00f3n</span><span class="tc-card-value tc-accent">' + tactic.formation + '</span></div>' +
     '</div>'
@@ -1339,6 +1343,7 @@ function renderTactics(tactic) {
     }
 
     document.getElementById('tc-pressure-btn')?.addEventListener('click', showPressureModal)
+    document.getElementById('tc-captain-btn')?.addEventListener('click', showCaptainModal)
     autoSaveTactics()
   } catch (e) {
     console.warn('[TACTICS] Error:', e)
@@ -1347,13 +1352,21 @@ function renderTactics(tactic) {
 }function autoAssignSquad() {
   const roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
   const assigned = []
-  const available = state.players.filter(p => !p.injury)
+  const allPlayers = state.players.filter(p => !p.injury)
 
-  state.tacticsSlots = roles.map(role => {
-    const candidates = available.filter(p => !assigned.includes(p.id))
-    const best = candidates.sort((a, b) => {
-      const multA = getPositionMultiplier(a.position, role)
-      const multB = getPositionMultiplier(b.position, role)
+  /* Once inicial: posici\u00f3n exacta primero, luego mejor ajuste */
+  state.tacticsSlots = roles.map(function(role) {
+    var candidates = allPlayers.filter(function(p) { return !assigned.includes(p.id) })
+    candidates = candidates.filter(function(p) {
+      var pKey = SIGLA_TO_POS[p.position] || p.position
+      if (role === 'portero') return pKey === 'portero'
+      return pKey !== 'portero'
+    })
+    var exact = candidates.filter(function(p) { return (SIGLA_TO_POS[p.position] || p.position) === role })
+    var pool = exact.length > 0 ? exact : candidates
+    var best = pool.sort(function(a, b) {
+      var multA = getPositionMultiplier(a.position, role)
+      var multB = getPositionMultiplier(b.position, role)
       if (multB !== multA) return multB - multA
       return b.skill - a.skill
     })[0]
@@ -1361,13 +1374,42 @@ function renderTactics(tactic) {
     return best ? best.id : null
   })
 
-  const benchPool = available.filter(p => !assigned.includes(p.id))
-  const maxBench = getEffectiveMaxBench()
-  state.benchIds = benchPool.slice(0, maxBench).map(p => p.id)
-  assigned.push(...state.benchIds)
+  /* Banquillo: por grupos posicionales */
+  var maxBench = getEffectiveMaxBench()
+  var bench = []
+  var benchRoleGroups = {
+    portero: ['portero'],
+    defensas: ['defensa_central', 'lateral_izq', 'lateral_der', 'carrilero_der', 'carrilero_izq'],
+    medios: ['mediocentro', 'medio_def', 'medio_ofensivo', 'medio_der', 'medio_izq'],
+    delanteros: ['delantero', 'extremo_der', 'extremo_izq'],
+  }
+  var benchOrder = ['portero', 'defensas', 'medios', 'delanteros']
+  var benchCounts = { portero: 2, defensas: 4, medios: 3, delanteros: 3 }
 
-  const reservePool = available.filter(p => !assigned.includes(p.id))
-  state.reserveIds = reservePool.slice(0, MAX_RESERVES).map(p => p.id)
+  for (var g = 0; g < benchOrder.length && bench.length < maxBench; g++) {
+    var group = benchOrder[g]
+    var groupRoles = benchRoleGroups[group]
+    var groupPlayers = allPlayers.filter(function(p) {
+      return !assigned.includes(p.id) && !bench.includes(p.id) && groupRoles.indexOf(SIGLA_TO_POS[p.position] || p.position) >= 0
+    }).sort(function(a, b) { return b.skill - a.skill })
+    var needed = benchCounts[group]
+    for (var j = 0; j < Math.min(needed, groupPlayers.length) && bench.length < maxBench; j++) {
+      bench.push(groupPlayers[j].id)
+    }
+  }
+
+  /* Rellenar slots vac\u00edos con mejores skills */
+  var rest = allPlayers.filter(function(p) { return !assigned.includes(p.id) && !bench.includes(p.id) })
+    .sort(function(a, b) { return b.skill - a.skill })
+  while (bench.length < maxBench && rest.length > 0) {
+    bench.push(rest.shift().id)
+  }
+  state.benchIds = bench.slice(0, maxBench)
+  assigned.push.apply(assigned, state.benchIds)
+
+  var reservePool = allPlayers.filter(function(p) { return !assigned.includes(p.id) })
+  state.reserveIds = reservePool.slice(0, MAX_RESERVES).map(function(p) { return p.id })
+  if (!state.captainId && state.tacticsSlots[0]) state.captainId = state.tacticsSlots[0]
 }
 
 function getPlayerIdFromSlot(el) {
@@ -1376,7 +1418,7 @@ function getPlayerIdFromSlot(el) {
   const reserveIdx = el.dataset.reserve
   if (slotIdx !== undefined) return state.tacticsSlots[parseInt(slotIdx)]
   if (benchIdx !== undefined) return state.benchIds[parseInt(benchIdx)]
-  if (reserveIdx !== undefined) return state.reserveIds[parseInt(reserveIdx)]
+  if (reserveIdx !== undefined) return reserveIdx
   return null
 }
 
@@ -1398,8 +1440,9 @@ function handleSlotClick(el, tactic) {
     currentPid = state.benchIds[targetIndex]
     targetArray = 'benchIds'
   } else if (reserveIdx !== undefined) {
-    targetIndex = parseInt(reserveIdx)
-    currentPid = state.reserveIds[targetIndex]
+    currentPid = reserveIdx
+    targetIndex = state.reserveIds.indexOf(reserveIdx)
+    if (targetIndex < 0) { state.reserveIds.push(reserveIdx); targetIndex = state.reserveIds.length - 1 }
     targetArray = 'reserveIds'
   }
 
@@ -3229,6 +3272,7 @@ function newGame(coach) {
   const startingBudget = Math.round(baseBudget * countryMult * ratingMult)
   state.finances = { balance: startingBudget, history: [] }
   state.inbox = []
+  state.captainId = null
 
   /* Assign user squad based on selected team */
   const userSquad = getRealSquad(state.teamId) || generateCpuSquad(state.teamId, state.countryId, selectedTeam.rating)
@@ -3383,6 +3427,7 @@ function loadGame(id) {
   state.allLeagueData = data.allLeagueData || {}
   initAllLeagueData()
   state.tacticsSlots = data.tacticsSlots || []
+  state.captainId = data.captainId || null
   state.benchIds = data.benchIds || []
   state.reserveIds = data.reserveIds || []
   state.staff = data.staff || []
@@ -4132,7 +4177,11 @@ function showPressureModal() {
   const current = state.tactic.gamePlan
   const plans = ['suave', 'pesado', 'extremo']
   const labels = { suave: 'Suave', pesado: 'Pesado', extremo: 'Extremo' }
-  const icons = { suave: '\uD83D\uDEB6', pesado: '\uD83C\uDFC3', extremo: '\uD83D\uDEB4' }
+  const icons = {
+    suave: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4C6 6 3 13 3 17c0 4 7 1 11-2 4-3 6-10 6-10s-7 1-11 4z"/><path d="M11 4C9 7 7 11 7 14c0 2 2 3 4 2"/></svg>',
+    pesado: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l7 4v5c0 5-3.5 9.7-7 11-3.5-1.3-7-6-7-11V6l7-4z"/></svg>',
+    extremo: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 4 14 12 14 11 22 20 10 12 10 13 2"/></svg>',
+  }
   const traits = {
     suave: [
       { text: 'Bajo cansancio', type: 'pro' },
@@ -4162,7 +4211,7 @@ function showPressureModal() {
     const isActive = current === p
     html += '<div class="pressure-card' + (isActive ? ' active' : '') + '" data-plan="' + p + '" style="flex:1;background:#fff;border-radius:12px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;border:2px solid ' + (isActive ? 'var(--accent)' : 'rgba(0,0,0,0.06)') + ';box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:all 0.2s ease">' +
       '<span style="font-size:13px;font-weight:700;color:#1E293B">' + labels[p] + '</span>' +
-      '<span style="font-size:28px">' + icons[p] + '</span>' +
+      '<span style="display:flex;align-items:center;justify-content:center;height:36px">' + icons[p] + '</span>' +
       '<div style="width:100%;display:flex;flex-direction:column;gap:3px">'
     traits[p].forEach(function(t) {
       html += '<span style="font-size:10px;color:' + (t.type === 'pro' ? '#10B981' : '#EF4444') + ';font-weight:600">' + (t.type === 'pro' ? '\u2713' : '\u2717') + ' ' + t.text + '</span>'
@@ -4187,6 +4236,84 @@ function showPressureModal() {
     })
   })
 
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.classList.remove('open')
+      setTimeout(function() {
+        document.body.removeChild(overlay)
+      }, 250)
+    }
+  })
+}
+
+/* ============ CAPTAIN MODAL ============ */
+function showCaptainModal() {
+  var overlay = document.createElement('div')
+  overlay.className = 'modal-overlay'
+  overlay.style.cssText = 'align-items:flex-start;padding:0'
+
+  var slots = state.tacticsSlots
+  var players = slots.map(function(id) { return state.players.find(function(p) { return p.id === id }) }).filter(Boolean)
+  var currentCaptainId = state.captainId || slots[0]
+
+  var pastelColors = {
+    portero: 'rgba(155,89,182,0.12)',
+    defensa_central: 'rgba(231,76,60,0.12)',
+    lateral_der: 'rgba(231,76,60,0.12)',
+    lateral_izq: 'rgba(231,76,60,0.12)',
+    carrilero_der: 'rgba(231,76,60,0.12)',
+    carrilero_izq: 'rgba(231,76,60,0.12)',
+    medio_def: 'rgba(243,156,18,0.12)',
+    mediocentro: 'rgba(243,156,18,0.12)',
+    medio_ofensivo: 'rgba(243,156,18,0.12)',
+    medio_der: 'rgba(243,156,18,0.12)',
+    medio_izq: 'rgba(243,156,18,0.12)',
+    extremo_der: 'rgba(46,204,113,0.12)',
+    extremo_izq: 'rgba(46,204,113,0.12)',
+    delantero: 'rgba(46,204,113,0.12)',
+  }
+
+  var html = '<div class="modal-content" style="width:100%;border-radius:0 0 16px 16px;padding:20px;background:var(--bg-card);animation:slideDown 0.3s ease">' +
+    '<h3 style="text-align:center;font-size:16px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">Capit\u00e1n del equipo</h3>' +
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'
+
+  players.forEach(function(p) {
+    var posKey = SIGLA_TO_POS[p.position] || p.position
+    var posAbbr = POS_ABBR[posKey] || p.position
+    var bgColor = pastelColors[posKey] || 'rgba(0,0,0,0.03)'
+    var isCaptain = p.id === currentCaptainId
+    var avatarStyle = 'background-image:url(' + (p.avatar || NOPHOTO) + ');background-size:cover;background-position:center;background-color:var(--bg-card)'
+
+    html += '<div class="cap-card" data-pid="' + p.id + '" style="background:' + bgColor + ';border-radius:10px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border:2px solid ' + (isCaptain ? '#F59E0B' : 'transparent') + ';position:relative">'
+    if (isCaptain) {
+      html += '<span style="position:absolute;top:4px;right:4px;background:#F59E0B;color:#fff;font-size:9px;font-weight:800;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center">C</span>'
+    }
+    html += '<span style="font-size:10px;font-weight:700;color:#1E293B;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">' + p.name.split(' ').slice(-1)[0] + '</span>' +
+      '<div style="width:44px;height:44px;border-radius:50%;' + avatarStyle + '"></div>' +
+      '<div style="display:flex;align-items:center;gap:4px">' +
+        '<span style="' + getPowerBadgeStyle(p.skill) + ';width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;flex-shrink:0">' + p.skill + '</span>' +
+        '<span style="font-size:8px;font-weight:600;color:#6B7280">' + posAbbr + '</span>' +
+      '</div></div>'
+  })
+
+  html += '</div></div>'
+  overlay.innerHTML = html
+  document.body.appendChild(overlay)
+  requestAnimationFrame(function() { overlay.classList.add('open') })
+
+  /* Click card → new captain */
+  overlay.querySelectorAll('.cap-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      overlay.classList.remove('open')
+      state.captainId = card.dataset.pid
+      setTimeout(function() {
+        document.body.removeChild(overlay)
+        renderTactics(state.tactic)
+      }, 250)
+    })
+  })
+
+  /* Click outside → close */
   overlay.addEventListener('click', function(e) {
     if (e.target === overlay) {
       overlay.classList.remove('open')
