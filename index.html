@@ -117,13 +117,6 @@
           <img class="dd-team-logo" id="dd-team-logo" src="" alt="">
           <span class="dd-team-name" id="dd-team-name"></span>
         </div>
-        <div class="dropdown-item" data-action="calendar">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <rect x="3" y="4" width="18" height="18" rx="2"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
-          Calendario
-        </div>
         <div class="dropdown-item" data-action="history">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="4" y="10" width="4" height="10" rx="1"/>
@@ -178,11 +171,13 @@
           <div class="sub-tabs">
             <button class="sub-tab active" data-subtab="squad">Plantilla</button>
             <button class="sub-tab" data-subtab="tactics">Táctica</button>
-            <button class="sub-tab" data-subtab="inbox">Bandeja<span class="inbox-badge" id="inbox-badge" style="display:none">0</span></button>
+            <button class="sub-tab" data-subtab="inbox">Bandeja</button>
+            <button class="sub-tab" data-subtab="calendar">Calendario</button>
           </div>
           <div id="club-squad-content"></div>
           <div id="club-tactics-content" class="hidden"></div>
           <div id="club-inbox-content" class="hidden"></div>
+          <div id="club-calendar-content" class="hidden"></div>
         </section>
 
         <!-- LIGA -->

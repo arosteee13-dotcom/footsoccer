@@ -24,13 +24,12 @@ const POS_ORDER = ['portero', 'cierre', 'ala', 'pivot', 'defensa_central', 'late
 
 const FORMATIONS = {
   '4-3-3': { label: '4-3-3', roles: ['portero', 'lateral_izq', 'defensa_central', 'defensa_central', 'lateral_der', 'mediocentro', 'medio_def', 'mediocentro', 'extremo_izq', 'delantero', 'extremo_der'], multiplier: 1.0 },
-  '4-4-2': { label: '4-4-2', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_der', 'mediocentro', 'mediocentro', 'medio_izq', 'delantero', 'delantero'], multiplier: 0.95 },
-  '4-2-3-1': { label: '4-2-3-1', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_def', 'medio_def', 'extremo_der', 'medio_ofensivo', 'extremo_izq', 'delantero'], multiplier: 1.05 },
-  '3-5-2': { label: '3-5-2', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_der', 'medio_der', 'mediocentro', 'medio_ofensivo', 'medio_izq', 'delantero', 'delantero'], multiplier: 0.9 },
-  '5-3-2': { label: '5-3-2', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_der', 'mediocentro', 'medio_izq', 'delantero', 'delantero'], multiplier: 0.85 },
-  '4-1-4-1': { label: '4-1-4-1', roles: ['portero', 'lateral_der', 'defensa_central', 'defensa_central', 'lateral_izq', 'medio_def', 'extremo_der', 'mediocentro', 'medio_ofensivo', 'extremo_izq', 'delantero'], multiplier: 0.95 },
-  '3-4-3': { label: '3-4-3', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_der', 'mediocentro', 'mediocentro', 'carrilero_izq', 'extremo_der', 'delantero', 'extremo_izq'], multiplier: 0.95 },
-  '3-4-2-1': { label: '3-4-2-1', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_der', 'mediocentro', 'medio_def', 'carrilero_izq', 'medio_ofensivo', 'medio_ofensivo', 'delantero'], multiplier: 1.0 },
+  '4-4-2': { label: '4-4-2', roles: ['portero', 'lateral_izq', 'defensa_central', 'defensa_central', 'lateral_der', 'medio_izq', 'mediocentro', 'mediocentro', 'medio_der', 'delantero', 'delantero'], multiplier: 0.95 },
+  '4-2-3-1': { label: '4-2-3-1', roles: ['portero', 'lateral_izq', 'defensa_central', 'defensa_central', 'lateral_der', 'medio_def', 'medio_def', 'extremo_izq', 'medio_ofensivo', 'extremo_der', 'delantero'], multiplier: 1.05 },
+  '3-5-2': { label: '3-5-2', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_izq', 'mediocentro', 'medio_ofensivo', 'mediocentro', 'carrilero_der', 'delantero', 'delantero'], multiplier: 0.9 },
+  '4-1-4-1': { label: '4-1-4-1', roles: ['portero', 'lateral_izq', 'defensa_central', 'defensa_central', 'lateral_der', 'medio_izq', 'mediocentro', 'medio_def', 'mediocentro', 'medio_der', 'delantero'], multiplier: 0.95 },
+  '3-4-3': { label: '3-4-3', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_izq', 'medio_def', 'medio_def', 'carrilero_der', 'extremo_izq', 'delantero', 'extremo_der'], multiplier: 0.95 },
+  '3-4-2-1': { label: '3-4-2-1', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_izq', 'medio_def', 'medio_def', 'carrilero_der', 'medio_ofensivo', 'medio_ofensivo', 'delantero'], multiplier: 1.0 },
 }
 
 const POS_ABBR = { portero: 'POR', cierre: 'DFC', ala: 'MC', pivot: 'DC', lateral_der: 'LD', lateral_izq: 'LI', carrilero_der: 'CAD', carrilero_izq: 'CAI', defensa_central: 'DFC', medio_def: 'MCD', mediocentro: 'MC', medio_ofensivo: 'MCO', medio_der: 'MD', medio_izq: 'MI', extremo_der: 'ED', extremo_izq: 'EI', delantero: 'DC' }
@@ -985,7 +984,6 @@ const formationRoles = {
   '4-4-2': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_der', label: 'MD' }, { role: 'mediocentro', label: 'MC' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_izq', label: 'MI' }, { role: 'delantero', label: 'DC' }, { role: 'delantero', label: 'DC' }],
   '4-2-3-1': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_def', label: 'MCD' }, { role: 'medio_def', label: 'MCD' }, { role: 'extremo_der', label: 'ED' }, { role: 'medio_ofensivo', label: 'MCO' }, { role: 'extremo_izq', label: 'EI' }, { role: 'delantero', label: 'DC' }],
   '3-5-2': [{ role: 'portero', label: 'POR' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'carrilero_der', label: 'CAD' }, { role: 'medio_der', label: 'MD' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_ofensivo', label: 'MCO' }, { role: 'medio_izq', label: 'MI' }, { role: 'delantero', label: 'DC' }, { role: 'delantero', label: 'DC' }],
-  '5-3-2': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_der', label: 'MD' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_izq', label: 'MI' }, { role: 'delantero', label: 'DC' }, { role: 'delantero', label: 'DC' }],
   '4-1-4-1': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_def', label: 'MCD' }, { role: 'extremo_der', label: 'ED' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_ofensivo', label: 'MCO' }, { role: 'extremo_izq', label: 'EI' }, { role: 'delantero', label: 'DC' }],
 }
 
@@ -1088,6 +1086,7 @@ function renderClub() {
   document.getElementById('club-squad-content').classList.add('hidden')
   document.getElementById('club-tactics-content').classList.add('hidden')
   document.getElementById('club-inbox-content').classList.add('hidden')
+  document.getElementById('club-calendar-content').classList.add('hidden')
   document.querySelectorAll('#view-club .sub-tab').forEach(b => b.classList.toggle('active', b.dataset.subtab === state.clubSubTab))
   if (state.clubSubTab === 'squad') {
     document.getElementById('club-squad-content').classList.remove('hidden')
@@ -1099,6 +1098,9 @@ function renderClub() {
     document.getElementById('club-inbox-content').classList.remove('hidden')
     hideInboxDetail()
     renderInbox()
+  } else if (state.clubSubTab === 'calendar') {
+    document.getElementById('club-calendar-content').classList.remove('hidden')
+    renderCalendar()
   }
 }
 
@@ -1146,7 +1148,6 @@ const SLOT_ROLES = {
   '4-4-2': FORMATIONS['4-4-2'].roles,
   '4-2-3-1': FORMATIONS['4-2-3-1'].roles,
   '3-5-2': FORMATIONS['3-5-2'].roles,
-  '5-3-2': FORMATIONS['5-3-2'].roles,
   '4-1-4-1': FORMATIONS['4-1-4-1'].roles,
   '3-4-3': FORMATIONS['3-4-3'].roles,
   '3-4-2-1': FORMATIONS['3-4-2-1'].roles,
@@ -1238,7 +1239,7 @@ function renderTactics(tactic) {
     html += '<div class="tc-top-cards">' +
       '<div class="tc-card" id="tc-captain-btn" style="cursor:pointer"><span class="tc-card-label">Capit\u00e1n</span><span class="tc-card-value">' + (captain ? captain.name.split(' ').slice(-1)[0] : '---') + '</span></div>' +
       '<div class="tc-card" id="tc-pressure-btn" style="cursor:pointer"><span class="tc-card-label">Presi\u00f3n</span><span class="tc-card-value tc-accent">' + gpLabel + '</span></div>' +
-      '<div class="tc-card"><span class="tc-card-label">Formaci\u00f3n</span><span class="tc-card-value tc-accent">' + tactic.formation + '</span></div>' +
+      '<div class="tc-card" id="tc-formation-btn" style="cursor:pointer"><span class="tc-card-label">Formaci\u00f3n</span><span class="tc-card-value tc-accent">' + tactic.formation + '</span></div>' +
     '</div>'
 
     /* 2. Pitch */
@@ -1265,9 +1266,29 @@ function renderTactics(tactic) {
         var offset = spread * (sameCount - (totalAbbr - 1) / 2)
         left = Math.max(5, Math.min(95, left + offset))
       }
-      /* Manual positioning for 4-3-3 MCs: outer ones at wing columns */
-      if (role === 'mediocentro' && sameCount === 0) { left = 27; bottom = 38 }
-      if (role === 'mediocentro' && sameCount === 1) { left = 73; bottom = 38 }
+      /* Manual positioning for 4-3-3 MCs */
+      if (role === 'mediocentro' && sameCount === 0 && tactic.formation === '4-3-3') { left = 27; bottom = 38 }
+      if (role === 'mediocentro' && sameCount === 1 && tactic.formation === '4-3-3') { left = 73; bottom = 38 }
+      if (role === 'mediocentro' && sameCount === 0 && tactic.formation === '4-4-2') { left = 40; bottom = 38 }
+      if (role === 'mediocentro' && sameCount === 1 && tactic.formation === '4-4-2') { left = 60; bottom = 38 }
+      if (role === 'medio_izq' && tactic.formation === '4-4-2') { left = 18; bottom = 38 }
+      if (role === 'medio_der' && tactic.formation === '4-4-2') { left = 82; bottom = 38 }
+      if (role === 'mediocentro' && sameCount === 0 && tactic.formation === '4-1-4-1') { left = 36; bottom = 38 }
+      if (role === 'mediocentro' && sameCount === 1 && tactic.formation === '4-1-4-1') { left = 64; bottom = 38 }
+      if (role === 'medio_izq' && tactic.formation === '4-1-4-1') { left = 16; bottom = 38 }
+      if (role === 'medio_der' && tactic.formation === '4-1-4-1') { left = 84; bottom = 38 }
+      if (role === 'medio_def') { bottom = 50 }
+      if (role === 'medio_ofensivo' && tactic.formation === '4-2-3-1') { bottom = 31 }
+      if (role === 'medio_ofensivo' && sameCount === 0 && tactic.formation === '3-4-2-1') { left = 35; bottom = 22 }
+      if (role === 'medio_ofensivo' && sameCount === 1 && tactic.formation === '3-4-2-1') { left = 65; bottom = 22 }
+      if (role === 'carrilero_izq' && tactic.formation === '3-4-2-1') { left = 12 }
+      if (role === 'carrilero_der' && tactic.formation === '3-4-2-1') { left = 88 }
+      if (role === 'carrilero_izq' && tactic.formation === '3-4-3') { left = 12 }
+      if (role === 'carrilero_der' && tactic.formation === '3-4-3') { left = 88 }
+      if (role === 'carrilero_izq' && tactic.formation === '3-5-2') { left = 12 }
+      if (role === 'carrilero_der' && tactic.formation === '3-5-2') { left = 88 }
+      if (role === 'delantero') { bottom = 12 }
+      if (role === 'portero') { bottom = 87 }
       if (role === 'lateral_izq') { left = 17 }
       if (role === 'lateral_der') { left = 83 }
       var pid = slots[i]
@@ -1346,6 +1367,7 @@ function renderTactics(tactic) {
 
     document.getElementById('tc-pressure-btn')?.addEventListener('click', showPressureModal)
     document.getElementById('tc-captain-btn')?.addEventListener('click', showCaptainModal)
+    document.getElementById('tc-formation-btn')?.addEventListener('click', showFormationModal)
     autoSaveTactics()
   } catch (e) {
     console.warn('[TACTICS] Error:', e)
@@ -3168,6 +3190,7 @@ function setupNavigation() {
       document.getElementById('club-squad-content').classList.add('hidden')
       document.getElementById('club-tactics-content').classList.add('hidden')
       document.getElementById('club-inbox-content').classList.add('hidden')
+      document.getElementById('club-calendar-content').classList.add('hidden')
       if (state.clubSubTab === 'squad') {
         document.getElementById('club-squad-content').classList.remove('hidden')
         renderSquad(state.players)
@@ -3178,6 +3201,9 @@ function setupNavigation() {
         document.getElementById('club-inbox-content').classList.remove('hidden')
         hideInboxDetail()
         renderInbox()
+      } else if (state.clubSubTab === 'calendar') {
+        document.getElementById('club-calendar-content').classList.remove('hidden')
+        renderCalendar()
       }
     }
   })
@@ -3877,7 +3903,7 @@ function showCalendar() {
 }
 
 function renderCalendar() {
-  const container = document.getElementById('calendar-content')
+  const container = document.getElementById('club-calendar-content')
   if (!container) return
 
   const league = getLeagueFromId(state.leagueId)
@@ -3946,9 +3972,8 @@ function renderCalendar() {
   })
 
   document.getElementById('cal-back').onclick = () => {
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
-    document.querySelector('[data-tab="home"]').classList.add('active')
-    renderTab('home')
+    state.clubSubTab = 'squad'
+    renderClub()
   }
 }
 
@@ -4326,6 +4351,104 @@ function showCaptainModal() {
   })
 }
 
+/* ============ FORMATION MODAL ============ */
+function renderMiniPitch(roles) {
+  var dotColors = {
+    gk: '#1E293B',
+    def: '#E74C3C',
+    mid: '#F39C12',
+    fwd: '#8B5CF6',
+  }
+  var rowPositions = { gk: 85, def: 68, mid: 38, fwd: 15 }
+  var rows = { gk: [], def: [], mid: [], fwd: [] }
+  for (var r = 0; r < roles.length; r++) {
+    var role = roles[r]
+    if (role === 'portero') rows.gk.push(role)
+    else if (['defensa_central','lateral_der','lateral_izq','carrilero_der','carrilero_izq'].indexOf(role) >= 0) rows.def.push(role)
+    else if (['mediocentro','medio_def','medio_ofensivo','medio_der','medio_izq'].indexOf(role) >= 0) rows.mid.push(role)
+    else rows.fwd.push(role)
+  }
+  var pitchHtml = '<div class="fm-pitch">'
+  var cats = ['gk', 'def', 'mid', 'fwd']
+  for (var c = 0; c < cats.length; c++) {
+    var cat = cats[c]
+    var players = rows[cat]
+    var top = rowPositions[cat]
+    for (var p = 0; p < players.length; p++) {
+      var left = players.length === 1 ? 50 : (p + 1) / (players.length + 1) * 100
+      pitchHtml += '<div class="fm-dot" style="left:' + left.toFixed(0) + '%;top:' + top + '%;background:' + dotColors[cat] + '"></div>'
+    }
+  }
+  pitchHtml += '</div>'
+  return pitchHtml
+}
+
+function showFormationModal() {
+  var overlay = document.createElement('div')
+  overlay.className = 'modal-overlay'
+  overlay.style.cssText = 'align-items:flex-start;padding:0'
+
+  var categories = {
+    ofensivo: { label: 'Ofensivo', formations: ['3-4-3', '3-5-2'] },
+    equilibrado: { label: 'Equilibrado', formations: ['4-3-3', '4-4-2', '4-1-4-1', '4-2-3-1'] },
+    defensivo: { label: 'Defensivo', formations: ['3-4-2-1'] },
+  }
+  var current = state.tactic.formation
+
+  var html = '<div class="modal-content" style="width:100%;border-radius:0 0 16px 16px;padding:20px;background:var(--bg-card);animation:slideDown 0.3s ease;max-height:85vh;overflow-y:auto">' +
+    '<h3 style="text-align:center;font-size:16px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px">T\u00e1ctica</h3>'
+
+  var catKeys = ['ofensivo', 'equilibrado', 'defensivo']
+  for (var ci = 0; ci < catKeys.length; ci++) {
+    var catKey = catKeys[ci]
+    var cat = categories[catKey]
+    var cols = 'repeat(3,1fr)'
+    html += '<div style="margin-bottom:14px">' +
+      '<div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px;border-bottom:1px solid var(--border);padding-bottom:4px;margin-bottom:8px">' + cat.label + '</div>' +
+      '<div style="display:grid;grid-template-columns:' + cols + ';gap:8px">'
+
+    for (var fi = 0; fi < cat.formations.length; fi++) {
+      var fKey = cat.formations[fi]
+      var fData = FORMATIONS[fKey]
+      if (!fData) continue
+      var isActive = current === fKey
+      html += '<div class="formation-card' + (isActive ? ' active' : '') + '" data-formation="' + fKey + '" style="cursor:pointer;border-radius:10px;padding:8px;background:#fff;border:2px solid ' + (isActive ? 'var(--accent)' : 'rgba(0,0,0,0.06)') + ';box-shadow:' + (isActive ? '0 4px 16px rgba(38,99,235,0.2)' : '0 1px 4px rgba(0,0,0,0.06)') + ';transition:all 0.2s ease">' +
+        '<div style="text-align:center;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:4px">' + fData.label + '</div>' +
+        renderMiniPitch(fData.roles) +
+      '</div>'
+    }
+
+    html += '</div></div>'
+  }
+
+  html += '</div>'
+  overlay.innerHTML = html
+  document.body.appendChild(overlay)
+  requestAnimationFrame(function() { overlay.classList.add('open') })
+
+  overlay.querySelectorAll('.formation-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      overlay.classList.remove('open')
+      var formation = card.dataset.formation
+      setTimeout(function() {
+        document.body.removeChild(overlay)
+        state.tactic.formation = formation
+        autoAssignSquad()
+        renderTactics(state.tactic)
+      }, 250)
+    })
+  })
+
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.classList.remove('open')
+      setTimeout(function() {
+        document.body.removeChild(overlay)
+      }, 250)
+    }
+  })
+}
+
 /* ============ INBOX ============ */
 function addNotification(type, title, body) {
   if (!state.inbox) state.inbox = []
@@ -4362,7 +4485,12 @@ function renderInbox() {
     container.innerHTML = '<div class="inbox-empty">\uD83D\uDCED No hay notificaciones</div>'
     return
   }
-  let html = '<div class="inbox-list" id="inbox-list">'
+  var unreadCount = state.inbox.filter(function(n) { return !n.read }).length
+  var headerHtml = '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border)">' +
+    '<span style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px">Notificaciones</span>' +
+    (unreadCount > 0 ? '<span style="background:#EF4444;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">' + unreadCount + ' no le\u00eddas</span>' : '') +
+  '</div>'
+  let html = headerHtml + '<div class="inbox-list" id="inbox-list">'
   html += state.inbox.map(n => {
     const t = senderLabels[n.type] || senderLabels.general
     const date = new Date(n.createdAt)
@@ -4452,8 +4580,6 @@ try {
         saveGame()
         addNotification('general', '\uD83D\uDCBE Partida guardada', 'Progreso guardado correctamente')
         updateInboxBadge()
-      } else if (action === 'calendar') {
-        showCalendar()
       } else if (action === 'history') {
         alert('📊 Historial — Próximamente')
       } else if (action === 'settings') {

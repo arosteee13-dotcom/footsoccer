@@ -2367,14 +2367,27 @@ html, body {
   transform: scale(0.96);
 }
 
-.sub-tab[data-subtab="inbox"] {
-  position: relative;
+.formation-card:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 4px 16px rgba(38,99,235,0.15) !important;
 }
-.sub-tab[data-subtab="inbox"] .inbox-badge {
+.formation-card:active {
+  transform: scale(0.96);
+}
+.fm-pitch {
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: #2E7D32;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.fm-dot {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  margin-left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .inbox-close {
