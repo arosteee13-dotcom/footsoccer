@@ -3828,16 +3828,16 @@ function showTeamPreview(teamId) {
   const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
   const countryFlag = window.DB[foundCountryId] ? window.DB[foundCountryId].country.flag : ''
   document.getElementById('tp-stats').innerHTML = `
-    <div class="tp-stats" style="margin-bottom:6px;padding:8px 10px">
+    <div style="display:flex;gap:1px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--border)">
       <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${countryFlag}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
     </div>
-    <div class="tp-stats" style="padding:8px 10px">
-      <div class="tp-stat"><span class="tp-stat-label">Formación</span><span class="tp-stat-value">${team.formation || '\u2014'}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">Presión</span><span class="tp-stat-value">${(GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014'}</span></div>
+    <div style="display:flex;gap:1px;padding:8px 10px;background:var(--bg)">
+      <div class="tp-stat"><span class="tp-stat-label">Formaci\u00f3n</span><span class="tp-stat-value">${team.formation || '\u2014'}</span></div>
+      <div class="tp-stat"><span class="tp-stat-label">Presi\u00f3n</span><span class="tp-stat-value">${(GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014'}</span></div>
       <div class="tp-stat" style="flex:2"></div>
     </div>
   `
@@ -5116,14 +5116,14 @@ try {
   })
   el('btn-ng-back-action') && (el('btn-ng-back-action').onclick = () => { const b = el('btn-ng-back'); if (b) b.click() })
   el('btn-ng-continue') && (el('btn-ng-continue').onclick = () => {
-    const coachInput = el('ng-coach-input')
-    if (!coachInput || !coachInput.value.trim()) {
-      if (coachInput) { coachInput.focus(); coachInput.style.borderColor = '#EF4444' }
-      return
-    }
-    coachInput.style.borderColor = ''
     const teams = el('ng-step-teams')
     if (teams && teams.classList.contains('ng-hidden') === false) {
+      const coachInput = el('ng-coach-input')
+      if (!coachInput || !coachInput.value.trim()) {
+        if (coachInput) { coachInput.focus(); coachInput.style.borderColor = '#EF4444' }
+        return
+      }
+      coachInput.style.borderColor = ''
       startNewGame()
     } else if (selectedCountry) {
       showTeamSelectionStep()
