@@ -2907,15 +2907,51 @@ html, body {
   color: var(--accent);
 }
 
-.zona-playoff {
-  background: rgba(16,185,129,0.1) !important;
+td.pos-bar {
+  border-left: 4px solid #BCBCBC;
 }
-.zona-permanencia {
-  background: transparent !important;
+td.pos-bar.bar-champion { border-left-color: #AAE139 }
+td.pos-bar.bar-ucl { border-left-color: #49CB2B }
+td.pos-bar.bar-uel { border-left-color: #38D996 }
+td.pos-bar.bar-conference { border-left-color: #5694D8 }
+td.pos-bar.bar-promotion { border-left-color: #49CB2B }
+td.pos-bar.bar-promotion-playoff { border-left-color: #38D996 }
+td.pos-bar.bar-permanencia { border-left-color: #BCBCBC }
+td.pos-bar.bar-relegation-playoff { border-left-color: #FCA6A1 }
+td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
+
+.table-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+  margin-top: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
 }
-.zona-descenso {
-  background: rgba(239,68,68,0.1) !important;
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
 }
+.legend-bar {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+}
+.legend-bar.bar-champion { background: #AAE139 }
+.legend-bar.bar-ucl { background: #49CB2B }
+.legend-bar.bar-uel { background: #38D996 }
+.legend-bar.bar-conference { background: #5694D8 }
+.legend-bar.bar-permanencia { background: #BCBCBC }
+.legend-bar.bar-relegation-playoff { background: #FCA6A1 }
+.legend-bar.bar-promotion { background: #49CB2B }
+.legend-bar.bar-promotion-playoff { background: #38D996 }
+.legend-bar.bar-descenso { background: #ED3B46 }
 
 /* ───────── MATCHDAY CARD ───────── */
 .league-matchday-card {
@@ -4770,6 +4806,9 @@ html, body {
 .tp-th-age { width: 28px; text-align: center; margin-left: auto; }
 .tp-th-value { width: 40px; text-align: center; margin-right: 4px; }
 .tp-th-power { width: 26px; text-align: center; }
+.tp-th-pj { width: 28px; text-align: center; font-size: 11px; }
+.tp-th-g { width: 28px; text-align: center; font-size: 11px; }
+.tp-th-a { width: 28px; text-align: center; font-size: 11px; }
 
 /* Player list */
 .tp-list {
@@ -5676,6 +5715,53 @@ html, body {
   margin: 2px 0;
   font-size: 12px;
   color: #991B1B;
+}
+
+.progression-trophies {
+  width: 100%;
+  background: #FEFCE8;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.progression-trophies h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: #A16207;
+}
+
+.prog-trophy {
+  margin: 2px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #854D0E;
+}
+
+.prog-season {
+  font-size: 11px;
+  font-weight: 400;
+  color: #A16207;
+}
+
+.progression-logros {
+  width: 100%;
+  background: #EFF6FF;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.progression-logros h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #1D4ED8;
+}
+
+.progression-logros p {
+  margin: 2px 0;
+  font-size: 12px;
+  color: #1E3A5F;
 }
 
 /* Utilities */

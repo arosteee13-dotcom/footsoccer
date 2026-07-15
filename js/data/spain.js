@@ -5,27 +5,27 @@ window.DB.spain = {
     leagues: [
       { id: 'l1s', name: 'Primera Divisi\u00f3n', logo: 'https://cdn.resfu.com/media/img/league_logos/primera-division.png?size=120x&lossy=1',
         teams: [
-            { id: 'e1', name: 'Athletic Club', rating: 82, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/347.png?size=120x&lossy=1',
+            { id: 'e1', name: 'Athletic Club', rating: 81, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/347.png?size=120x&lossy=1',
             staff: [{ name: 'Edin Terzic', nationality: '\ud83c\udde9\ud83c\uddea Alemania', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/45724.jpg?size=120x&lossy=1',
               career: [{ team: 'Athletic Club', from: '01/06/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }]
           },
-            { id: 'e2', name: 'Atl\u00e9tico de Madrid', rating: 86, formation: '3-4-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/369.png?size=120x&lossy=1',
+            { id: 'e2', name: 'Atl\u00e9tico de Madrid', rating: 84, formation: '3-4-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/369.png?size=120x&lossy=1',
             staff: [{ name: 'Diego Simeone', nationality: '\ud83c\udde6\ud83c\uddf7 Argentina', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/13.jpg?size=120x&lossy=1',
               career: [{ team: 'Atl\u00e9tico de Madrid', from: '23/12/2011', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }]
           },
-{ id: 'e3', name: 'RC Celta', rating: 80, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/712.png?size=120x&lossy=1',
+{ id: 'e3', name: 'RC Celta', rating: 77, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/712.png?size=120x&lossy=1',
   staff: [{ name: 'Claudio Gir\u00e1ldez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/54512.jpg?size=120x&lossy=1',
     career: [{ team: 'RC Celta', from: '12/03/2024', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e4', name: 'Deportivo Alav\u00e9s', rating: 76, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/137.png?size=120x&lossy=1',
+{ id: 'e4', name: 'Deportivo Alav\u00e9s', rating: 73, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/137.png?size=120x&lossy=1',
   staff: [{ name: 'Quique S\u00e1nchez Flores', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: '',
     career: [{ team: 'Deportivo Alav\u00e9s', from: '03/03/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e5', name: 'Elche CF', rating: 74, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/975.png?size=120x&lossy=1',
+{ id: 'e5', name: 'Elche CF', rating: 72, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/975.png?size=120x&lossy=1',
   staff: [{ name: 'Martin Anselmi', nationality: '\ud83c\udde6\ud83c\uddf7 Argentina', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/48210.jpg?size=120x&lossy=1',
     career: [{ team: 'Elche CF', from: '13/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
@@ -35,22 +35,22 @@ window.DB.spain = {
     career: [{ team: 'Espanyol', from: '12/03/2024', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e7', name: 'FC Barcelona', rating: 85, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/429.png?size=120x&lossy=1',
+{ id: 'e7', name: 'FC Barcelona', rating: 79, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/429.png?size=120x&lossy=1',
   staff: [{ name: 'Hansi Flick', nationality: '\ud83c\udde9\ud83c\uddea Alemania', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/8143.jpg?size=120x&lossy=1',
     career: [{ team: 'FC Barcelona', from: '01/07/2024', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e8', name: 'Getafe CF', rating: 76, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1217.png?size=120x&lossy=1',
+{ id: 'e8', name: 'Getafe CF', rating: 73, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1217.png?size=120x&lossy=1',
   staff: [{ name: 'Jos\u00e9 Bordal\u00e1s', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/20.jpg?size=120x&lossy=1',
     career: [{ team: 'Getafe CF', from: '29/04/2023', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e9', name: 'Levante UD', rating: 74, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1547.png?size=120x&lossy=1',
+{ id: 'e9', name: 'Levante UD', rating: 72, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1547.png?size=120x&lossy=1',
   staff: [{ name: 'Lu\u00eds Castro', nationality: '\ud83c\uddf5\ud83c\uddf9 Portugal', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/27968.jpg?size=120x&lossy=1',
     career: [{ team: 'Levante UD', from: '21/12/2025', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e10', name: 'M\u00e1laga CF', rating: 72, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1617.png?size=120x&lossy=1',
+{ id: 'e10', name: 'M\u00e1laga CF', rating: 70, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1617.png?size=120x&lossy=1',
   staff: [{ name: 'Funes', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18302.jpg?size=120x&lossy=1',
     career: [{ team: 'M\u00e1laga CF', from: '19/11/2025', to: '30/06/2029', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
@@ -60,7 +60,7 @@ window.DB.spain = {
     career: [{ team: 'Osasuna', from: '10/06/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e12', name: 'Racing Santander', rating: 74, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2052.png?size=120x&lossy=1',
+{ id: 'e12', name: 'Racing Santander', rating: 70, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2052.png?size=120x&lossy=1',
   staff: [{ name: 'Jos\u00e9 Alberto L\u00f3pez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: '',
     career: [{ team: 'Racing Santander', from: '13/12/2022', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
@@ -75,32 +75,32 @@ window.DB.spain = {
     career: [{ team: 'RC Deportivo', from: '10/06/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e15', name: 'Real Betis', rating: 82, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/486.png?size=120x&lossy=1',
+{ id: 'e15', name: 'Real Betis', rating: 81, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/486.png?size=120x&lossy=1',
   staff: [{ name: 'Manuel Pellegrini', nationality: '\ud83c\udde8\ud83c\uddf1 Chile', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/129.jpg?size=120x&lossy=1',
     career: [{ team: 'Real Betis', from: '02/08/2020', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e16', name: 'Real Madrid', rating: 90, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2107.png?size=120x&lossy=1',
+{ id: 'e16', name: 'Real Madrid', rating: 85, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2107.png?size=120x&lossy=1',
   staff: [{ name: 'Jos\u00e9 Mourinho', nationality: '\ud83c\uddf5\ud83c\uddf9 Portugal', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/115.jpg?size=120x&lossy=1',
     career: [{ team: 'Real Madrid', from: '11/06/2026', to: '30/06/2029', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e17', name: 'Real Sociedad', rating: 83, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2120.png?size=120x&lossy=1',
+{ id: 'e17', name: 'Real Sociedad', rating: 78, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2120.png?size=120x&lossy=1',
   staff: [{ name: 'Pellegrino Matarazzo', nationality: '\ud83c\uddfa\ud83c\uddf8 Estados Unidos', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/26035.jpg?size=120x&lossy=1',
     career: [{ team: 'Real Sociedad', from: '21/12/2025', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e18', name: 'Sevilla FC', rating: 78, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1102.png?size=120x&lossy=1',
+{ id: 'e18', name: 'Sevilla FC', rating: 73, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1102.png?size=120x&lossy=1',
   staff: [{ name: 'Luis Garc\u00eda', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/921.jpg?size=120x&lossy=1',
     career: [{ team: 'Sevilla FC', from: '24/03/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e19', name: 'Valencia CF', rating: 80, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2647.png?size=120x&lossy=1',
+{ id: 'e19', name: 'Valencia CF', rating: 76, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2647.png?size=120x&lossy=1',
   staff: [{ name: 'Carlos Corber\u00e1n', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/20123.jpg?size=120x&lossy=1',
     career: [{ team: 'Valencia CF', from: '25/12/2024', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e20', name: 'Villarreal CF', rating: 82, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2716.png?size=120x&lossy=1',
+{ id: 'e20', name: 'Villarreal CF', rating: 77, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2716.png?size=120x&lossy=1',
   staff: [{ name: '\u00cd\u00f1igo P\u00e9rez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/65119.jpg?size=120x&lossy=1',
     career: [{ team: 'Villarreal CF', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
@@ -653,25 +653,25 @@ window.DB.spain = {
     ],
   },
   baseDatos: [
-    { id: 'e1', nombre: 'Athletic Club',            division_id: 5, rating: 82 },
-    { id: 'e2', nombre: 'Atlético de Madrid',       division_id: 5, rating: 86 },
-    { id: 'e3', nombre: 'RC Celta',                division_id: 5, rating: 80 },
-    { id: 'e4', nombre: 'Deportivo Alavés',         division_id: 5, rating: 76 },
-  { id: 'e5', nombre: 'Elche CF',                 division_id: 5, rating: 74 },
+    { id: 'e1', nombre: 'Athletic Club',            division_id: 5, rating: 81 },
+    { id: 'e2', nombre: 'Atlético de Madrid',       division_id: 5, rating: 84 },
+    { id: 'e3', nombre: 'RC Celta',                division_id: 5, rating: 77 },
+    { id: 'e4', nombre: 'Deportivo Alavés',         division_id: 5, rating: 73 },
+  { id: 'e5', nombre: 'Elche CF',                 division_id: 5, rating: 72 },
   { id: 'e6', nombre: 'Espanyol',                  division_id: 5, rating: 76 },
-  { id: 'e7', nombre: 'FC Barcelona',             division_id: 5, rating: 85 },
-  { id: 'e8', nombre: 'Getafe CF',                division_id: 5, rating: 76 },
-  { id: 'e9', nombre: 'Levante UD',               division_id: 5, rating: 74 },
-  { id: 'e10', nombre: 'M\u00e1laga CF',               division_id: 5, rating: 72 },
+  { id: 'e7', nombre: 'FC Barcelona',             division_id: 5, rating: 79 },
+  { id: 'e8', nombre: 'Getafe CF',                division_id: 5, rating: 73 },
+  { id: 'e9', nombre: 'Levante UD',               division_id: 5, rating: 72 },
+  { id: 'e10', nombre: 'M\u00e1laga CF',               division_id: 5, rating: 70 },
   { id: 'e11', nombre: 'Osasuna',                  division_id: 5, rating: 78 },
-  { id: 'e12', nombre: 'Racing Santander',          division_id: 5, rating: 74 },
+  { id: 'e12', nombre: 'Racing Santander',          division_id: 5, rating: 70 },
   { id: 'e13', nombre: 'Rayo Vallecano',           division_id: 5, rating: 78 },
   { id: 'e14', nombre: 'RC Deportivo',             division_id: 5, rating: 72 },
-  { id: 'e15', nombre: 'Real Betis',               division_id: 5, rating: 82 },
-  { id: 'e16', nombre: 'Real Madrid',              division_id: 5, rating: 90 },
-  { id: 'e17', nombre: 'Real Sociedad',            division_id: 5, rating: 83 },
-  { id: 'e18', nombre: 'Sevilla FC',               division_id: 5, rating: 78 },
-    { id: 'e19', nombre: 'Valencia CF',              division_id: 5, rating: 80 },
-    { id: 'e20', nombre: 'Villarreal CF',            division_id: 5, rating: 82 },
+  { id: 'e15', nombre: 'Real Betis',               division_id: 5, rating: 81 },
+  { id: 'e16', nombre: 'Real Madrid',              division_id: 5, rating: 85 },
+  { id: 'e17', nombre: 'Real Sociedad',            division_id: 5, rating: 78 },
+  { id: 'e18', nombre: 'Sevilla FC',               division_id: 5, rating: 73 },
+    { id: 'e19', nombre: 'Valencia CF',              division_id: 5, rating: 76 },
+    { id: 'e20', nombre: 'Villarreal CF',            division_id: 5, rating: 77 },
   ],
 }

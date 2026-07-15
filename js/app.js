@@ -45,9 +45,9 @@ function getPowerBadgeStyle(skill) {
 }
 
 const GAME_PLANS = {
-  pesado:     { label: 'Pesada',     desc: 'Presión intensa y constante sobre el rival.', attack: 1.3, defense: 1.3, drain: 5, events: 1.15 },
-  extremo:    { label: 'Extrema',    desc: 'Estilo muy intenso, todo o nada.', attack: 1.5, defense: 0.8, drain: 6, events: 1.30 },
-  suave:      { label: 'Suave',      desc: 'Estilo relajado, prioriza la conservación de energía.', attack: 0.8, defense: 1.1, drain: 2, events: 0.80 },
+  pesado:     { label: 'Pesada',     desc: 'Presión intensa y constante sobre el rival.', attack: 1.3, defense: 1.3, drain: 15, events: 1.15 },
+  extremo:    { label: 'Extrema',    desc: 'Estilo muy intenso, todo o nada.', attack: 1.5, defense: 0.8, drain: 18, events: 1.30 },
+  suave:      { label: 'Suave',      desc: 'Estilo relajado, prioriza la conservación de energía.', attack: 0.8, defense: 1.1, drain: 6, events: 0.80 },
 }
 
 const MAX_SQUAD = 30
@@ -433,6 +433,8 @@ const state = {
   soundEnabled: true,
   filialSquad: [],
   leagueViewCountry: '',
+  trophies: [],
+  seasonNumber: 1,
 }
 
 /* ============ HELPERS ============ */
@@ -574,6 +576,8 @@ window.SaveSystem = {
         soundEnabled: state.soundEnabled,
         filialSquad: (state.filialSquad || []).map(cleanup),
         globalPlayers: (state.globalPlayers || []).map(cleanup),
+        trophies: state.trophies,
+        seasonNumber: state.seasonNumber,
       }
       if (idx >= 0) saves[idx] = data; else saves.unshift(data)
       setSaves(saves)
@@ -798,7 +802,29 @@ function autoSimulateOtherMatch(homeId, awayId) {
       if (Math.random() < 0.5) homeScore++; else awayScore++
     }
   }
+  /* Assign stats to AI players */
+  assignAIStats(home.players, homeScore)
+  assignAIStats(away.players, awayScore)
   return { homeScore, awayScore }
+}
+
+function assignAIStats(players, goals) {
+  var fieldPlayers = players.filter(function(p) { return p.position !== 'POR' })
+  if (fieldPlayers.length === 0) return
+  fieldPlayers.forEach(function(p) { p.matches = (p.matches || 0) + 1 })
+  var scored = 0
+  while (scored < goals) {
+    var scorer = fieldPlayers[Math.floor(Math.random() * fieldPlayers.length)]
+    scorer.goals = (scorer.goals || 0) + 1
+    scored++
+    if (Math.random() < 0.55) {
+      var candidates = fieldPlayers.filter(function(p) { return p.id !== scorer.id })
+      if (candidates.length > 0) {
+        var assister = candidates[Math.floor(Math.random() * candidates.length)]
+        assister.assists = (assister.assists || 0) + 1
+      }
+    }
+  }
 }
 
 function simularPartidoPorRating(homeId, awayId) {
@@ -1185,6 +1211,7 @@ function renderClub() {
   document.getElementById('club-tactics-content').classList.add('hidden')
   document.getElementById('club-inbox-content').classList.add('hidden')
   document.getElementById('club-calendar-content').classList.add('hidden')
+  document.getElementById('club-palmares-content').classList.add('hidden')
   document.querySelectorAll('#view-club .sub-tab').forEach(b => b.classList.toggle('active', b.dataset.subtab === state.clubSubTab))
   if (state.clubSubTab === 'squad') {
     document.getElementById('club-squad-content').classList.remove('hidden')
@@ -1199,6 +1226,9 @@ function renderClub() {
   } else if (state.clubSubTab === 'calendar') {
     document.getElementById('club-calendar-content').classList.remove('hidden')
     renderCalendar()
+  } else if (state.clubSubTab === 'palmares') {
+    document.getElementById('club-palmares-content').classList.remove('hidden')
+    renderPalmares()
   }
 }
 
@@ -1677,7 +1707,7 @@ function calcularMediaEnPosicion(jugador, posicionActual) {
     if (alt) staticPct = alt.pct
   }
   var expMatches = jugador.positionExperience ? (jugador.positionExperience[currentKey] || 0) : 0
-  var expPct = Math.min(100, expMatches * 2)
+  var expPct = Math.min(100, expMatches * 3)
   var knownPct = Math.max(staticPct, expPct, 0)
 
   /* Penalizaci\u00f3n base por grupos */
@@ -1793,18 +1823,54 @@ function renderLeague(viewedLeagueId) {
   standings.forEach((s, i) => {
     const isUser = isOwnLeague && s.teamId === state.teamId
     const totalTeams = standings.length
-    var zonaPlayoff = Math.ceil(totalTeams * 0.5)
-    var zonaDescenso = Math.max(1, Math.min(3, Math.floor(totalTeams * 0.2)))
+    var barClass = ''
     if (displayLid === 'l1s') {
-      zonaPlayoff = 6
-      zonaDescenso = 3
+      if (i === 0) barClass = 'bar-champion'
+      else if (i < 4) barClass = 'bar-ucl'
+      else if (i === 4) barClass = 'bar-uel'
+      else if (i === 5) barClass = 'bar-conference'
+      else if (i >= totalTeams - 3) barClass = 'bar-descenso'
+    } else if (displayLid === 'lnfs1') {
+      if (i === 0) barClass = 'bar-champion'
+      else if (i < 8) barClass = 'bar-promotion-playoff'
+      else if (i >= totalTeams - 2) barClass = 'bar-descenso'
+    } else if (displayLid === 'lpl') {
+      if (i === 0) barClass = 'bar-champion'
+      else if (i < 2) barClass = 'bar-ucl'
+      else if (i < 3) barClass = 'bar-uel'
+      else if (i < 4) barClass = 'bar-conference'
+      else if (i >= totalTeams - 3) barClass = 'bar-descenso'
+    } else if (displayLid === 'lpl2') {
+      if (i === 0) barClass = 'bar-champion'
+      else if (i < 2) barClass = 'bar-promotion'
+      else if (i < 6) barClass = 'bar-promotion-playoff'
+      else if (i >= totalTeams - 3) barClass = 'bar-descenso'
+    } else if (displayLid === 'lpl3') {
+      if (i === 0) barClass = 'bar-champion'
+      else if (i < 2) barClass = 'bar-promotion'
+      else if (i < 6) barClass = 'bar-promotion-playoff'
+      else if (i >= totalTeams - 6 && i < totalTeams - 4) barClass = 'bar-relegation-playoff'
+      else if (i >= totalTeams - 4) barClass = 'bar-descenso'
+    } else if (displayLid && displayLid.startsWith('lpl4g')) {
+      if (i === 0) barClass = 'bar-promotion'
+      else if (i < 2) barClass = 'bar-promotion-playoff'
+      else if (i >= totalTeams - 4) barClass = 'bar-descenso'
+    } else if (displayLid === 'lnfs2' || (displayLid && displayLid.startsWith('l2b'))) {
+      if (i === 0) barClass = 'bar-champion'
+      else if (i < 2) barClass = 'bar-promotion'
+      else if (i >= totalTeams - 3) barClass = 'bar-descenso'
+    } else {
+      /* Generic: top 1 champion, top 50% light green, bottom 3 red */
+      var zDesc = Math.max(1, Math.min(3, Math.floor(totalTeams * 0.2)))
+      if (i === 0) barClass = 'bar-champion'
+      else if (i < Math.ceil(totalTeams * 0.5)) barClass = 'bar-promotion'
+      else if (i >= totalTeams - zDesc) barClass = 'bar-descenso'
     }
-    const zonaClass = i < zonaPlayoff ? 'zona-playoff' : i < totalTeams - zonaDescenso ? 'zona-permanencia' : 'zona-descenso'
     const logo = s.logo || getTeamLogo(s.teamId)
     const name = s.name || getTeamName(s.teamId)
     const dg = s.gf - s.ga
-    tableHtml += `<tr class="${isUser ? 'league-row-user ' : ''}${zonaClass}" data-team-id="${s.teamId}" style="${!isUser ? 'cursor:pointer' : ''}">
-      <td><span class="league-pos ${i < 3 ? 'p' + (i+1) : ''}">${i + 1}</span></td>
+    tableHtml += `<tr class="${isUser ? 'league-row-user' : ''}" data-team-id="${s.teamId}" style="${!isUser ? 'cursor:pointer' : ''}">
+      <td class="pos-bar ${barClass}"><span class="league-pos ${i < 3 ? 'p' + (i+1) : ''}">${i + 1}</span></td>
       <td>${logo ? `<img class="team-logo" src="${logo}" style="width:18px;height:18px;vertical-align:middle;margin-right:6px">` : ''}${name}</td>
       <td><strong>${s.pts}</strong></td>
       <td>${s.played}</td><td>${s.won}</td><td>${s.drawn}</td><td>${s.lost}</td>
@@ -1812,6 +1878,74 @@ function renderLeague(viewedLeagueId) {
     </tr>`
   })
   tableHtml += '</table>'
+
+  /* Legend */
+  var legendItems = []
+  if (displayLid === 'l1s') {
+    legendItems = [
+      { cls: 'bar-champion', label: 'Campeón' },
+      { cls: 'bar-ucl', label: 'Champions League' },
+      { cls: 'bar-uel', label: 'Europa League' },
+      { cls: 'bar-conference', label: 'Conference League Previa' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else if (displayLid === 'lpl') {
+    legendItems = [
+      { cls: 'bar-champion', label: 'Campeón' },
+      { cls: 'bar-ucl', label: 'Champions League Previa' },
+      { cls: 'bar-uel', label: 'Europa League Previa' },
+      { cls: 'bar-conference', label: 'Conference League Previa' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else if (displayLid === 'lnfs1') {
+    legendItems = [
+      { cls: 'bar-champion', label: 'Campeón' },
+      { cls: 'bar-promotion-playoff', label: 'Playoff Campeonato' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else if (displayLid === 'lpl2') {
+    legendItems = [
+      { cls: 'bar-champion', label: 'Campeón' },
+      { cls: 'bar-promotion', label: 'Ascenso directo' },
+      { cls: 'bar-promotion-playoff', label: 'Playoff Ascenso' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else if (displayLid === 'lpl3') {
+    legendItems = [
+      { cls: 'bar-champion', label: 'Campeón' },
+      { cls: 'bar-promotion', label: 'Ascenso directo' },
+      { cls: 'bar-promotion-playoff', label: 'Playoff Ascenso' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-relegation-playoff', label: 'Playoff Descenso' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else if (displayLid && displayLid.startsWith('lpl4g')) {
+    legendItems = [
+      { cls: 'bar-promotion', label: 'Ascenso directo' },
+      { cls: 'bar-promotion-playoff', label: 'Playoff Ascenso' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else {
+    legendItems = [
+      { cls: 'bar-champion', label: 'Campeón' },
+      { cls: 'bar-promotion', label: 'Promoción' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  }
+  if (legendItems.length > 0) {
+    tableHtml += '<div class="table-legend">'
+    legendItems.forEach(function(item) {
+      tableHtml += '<span class="legend-item"><span class="legend-bar ' + item.cls + '"></span>' + item.label + '</span>'
+    })
+    tableHtml += '</div>'
+  }
+
   tableWrap.innerHTML = tableHtml
   tableWrap.querySelectorAll('tr[data-team-id]').forEach(row => {
     row.onclick = () => showTeamInfo(row.dataset.teamId)
@@ -2252,7 +2386,7 @@ function procesarVentasCPU() {
   }
 }
 
-function showSeasonProgressionModal(result, msg, skipStandings) {
+function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, logros) {
   var overlay = document.getElementById('progression-modal')
   if (!overlay) {
     overlay = document.createElement('div')
@@ -2263,10 +2397,30 @@ function showSeasonProgressionModal(result, msg, skipStandings) {
 
   var changes = result.changes || []
   var retirados = result.retirados || []
+  nuevosTrofeos = nuevosTrofeos || []
+  logros = logros || []
 
   var html = '<div class="progression-modal-card">'
   html += '<h2>Fin de Temporada</h2>'
   html += '<p class="progression-msg">' + msg.replace(/\n/g, '<br>') + '</p>'
+
+  if (nuevosTrofeos.length > 0) {
+    html += '<div class="progression-trophies">'
+    html += '<h3>🏆 Trofeos</h3>'
+    nuevosTrofeos.forEach(function(t) {
+      html += '<p class="prog-trophy">' + t.competition + ' <span class="prog-season">(Temp. ' + t.season + ')</span></p>'
+    })
+    html += '</div>'
+  }
+
+  if (logros.length > 0) {
+    html += '<div class="progression-logros">'
+    html += '<h4>📊 Logros</h4>'
+    logros.forEach(function(l) {
+      html += '<p>' + l + '</p>'
+    })
+    html += '</div>'
+  }
 
   if (changes.length > 0) {
     html += '<h3>Cambios de Valoración</h3>'
@@ -2303,6 +2457,8 @@ function showSeasonProgressionModal(result, msg, skipStandings) {
 
   document.getElementById('btn-next-season').addEventListener('click', function() {
     state.players.forEach(function(p) { p.age = (p.age || 22) + 1 })
+    /* Age AI team players too */
+    state.leagueTeams.forEach(function(t) { t.players.forEach(function(p) { p.age = (p.age || 22) + 1 }) })
 
     retirados.forEach(function(p) {
       var idx = state.players.indexOf(p)
@@ -2327,6 +2483,7 @@ function showSeasonProgressionModal(result, msg, skipStandings) {
     initAllLeagueData()
     state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
     state.playoffs = null
+    state.seasonNumber++
     state.players.forEach(function(p) { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
     document.getElementById('league-results-wrap').classList.add('hidden')
     overlay.classList.add('hidden')
@@ -2362,7 +2519,7 @@ function procesarFinTemporada(skipAging, skipStandings) {
   let pos = 0
   let esPrimera = false, esSegunda = false, esSegundaB = false, esTercera = false, esHonor = false, esPrimeraCat = false, esSegonaCat = false, esTerceraCat = false
   let esPolaca1 = false, esPolaca2 = false, esPolaca3 = false, esPolaca4 = false
-  let esPlayoffTercera = false, esPlayoffPolaca2 = false, esPlayoffPolaca3 = false
+  let esPlayoffTercera = false, esPlayoffPolaca2 = false, esPlayoffPolaca3 = false, esPlayoffDescensoLP3 = false, esPlayoffAscensoLP4 = false
   let msg = ''
 
   if (!skipStandings) {
@@ -2453,6 +2610,8 @@ function procesarFinTemporada(skipAging, skipStandings) {
       cambioDivision = true
     } else if (esPolaca3 && pos >= 3 && pos <= 6) {
       esPlayoffPolaca3 = true
+    } else if (esPolaca3 && pos >= 13 && pos <= 14) {
+      esPlayoffDescensoLP3 = true
     } else if (esPolaca3 && pos >= 16) {
       const grupos4 = ['lpl4g1','lpl4g2','lpl4g3','lpl4g4']
       state.leagueId = pickRandom(grupos4)
@@ -2460,6 +2619,8 @@ function procesarFinTemporada(skipAging, skipStandings) {
     } else if (esPolaca4 && pos === 1) {
       state.leagueId = 'lpl3'
       cambioDivision = true
+    } else if (esPolaca4 && pos === 2) {
+      esPlayoffAscensoLP4 = true
     }
 
     msg = `📊 Temporada finalizada. Posición: ${pos}º`
@@ -2484,7 +2645,9 @@ function procesarFinTemporada(skipAging, skipStandings) {
     else if (cambioDivision && esPolaca3 && pos <= 2) msg += '\n🎉 ¡ASCENSO a Segunda Polaca!'
     else if (cambioDivision && esPolaca3) msg += '\n⚠️ DESCENSO a Cuarta Polaca'
     else if (esPlayoffPolaca3) msg += '\n🏆 Accedes a la Fase de Ascenso a Segunda Polaca'
+    else if (esPlayoffDescensoLP3) msg += '\n⚠️ Playoff de Descenso — te la juegas por la permanencia'
     else if (cambioDivision && esPolaca4) msg += '\n🎉 ¡ASCENSO a Tercera Polaca!'
+    else if (esPlayoffAscensoLP4) msg += '\n🏆 Accedes a la Fase de Ascenso a Tercera Polaca'
     else if (esTercera) msg += '\nPermanencia en 3ª División Nacional'
     else if (esSegundaB) msg += '\nPermanencia en 2ª División B'
     else if (esHonor) msg += '\nPermanencia en Divisió d\'Honor Catalana'
@@ -2537,9 +2700,42 @@ function procesarFinTemporada(skipAging, skipStandings) {
     return
   }
 
-  /* Normal season end — show progression modal with changes, defer reset */
+  if (esPlayoffDescensoLP3) {
+    /* lpl3 positions 13-14 — relegation playoff */
+    state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
+    document.getElementById('league-results-wrap').classList.add('hidden')
+    renderLeague()
+    saveGame()
+    addNotification('match', `⚠️ ${msg}`, 'Playoff de Descenso en Tercera Polaca')
+    setTimeout(() => { alert(msg); iniciarPlayoffDescensoLP3() }, 100)
+    return
+  }
+
+  if (esPlayoffAscensoLP4) {
+    /* lpl4 position 2 — enter promotion playoff to lpl3 */
+    state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
+    document.getElementById('league-results-wrap').classList.add('hidden')
+    renderLeague()
+    saveGame()
+    addNotification('match', `🏆 ${msg}`, 'Playoff de Ascenso a Tercera Polaca')
+    setTimeout(() => { alert(msg); iniciarPlayoffAscensoLP4() }, 100)
+    return
+  }
+
+  /* Normal season end — detect trophies & logros, show progression modal */
   if (!skipStandings) {
-    showSeasonProgressionModal(agingResult || { changes: [], retirados: [] }, msg, skipStandings)
+    var nuevosTrofeos = []
+    var logros = []
+    if (pos === 1) {
+      var _league = getLeagueFromId(state.leagueId)
+      var trofeo = { competition: 'Campeón de ' + (_league ? _league.name : state.leagueId), season: state.seasonNumber }
+      state.trophies.push(trofeo)
+      nuevosTrofeos.push(trofeo)
+    }
+    if (cambioDivision && pos <= 2) {
+      logros.push('Ascenso directo de categoría')
+    }
+    showSeasonProgressionModal(agingResult || { changes: [], retirados: [] }, msg, skipStandings, nuevosTrofeos, logros)
     return
   }
 
@@ -2562,6 +2758,7 @@ function procesarFinTemporada(skipAging, skipStandings) {
   initAllLeagueData()
   state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
   state.playoffs = null
+  state.seasonNumber++
   state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
   document.getElementById('league-results-wrap').classList.add('hidden')
   renderLeague()
@@ -2648,6 +2845,45 @@ function avanzarRondaPlayoff() {
       addNotification('match', '🎉 ¡ASCENSO a 2ª División B!', 'Ganaste la semifinal de la Fase de Ascenso')
       setTimeout(() => alert('🎉 ¡ASCENSO a 2ª División B!\n\nGanaste la semifinal y consigues el ascenso de categoría.'), 200)
     }
+  } else if (pf.esAscensoLP4 && pf.round === 'SF') {
+    const userFixture = pf.fixtures.find(f => f.home === state.teamId || f.away === state.teamId)
+    const userWon = userFixture && (
+      (userFixture.home === state.teamId && userFixture.homeScore > userFixture.awayScore) ||
+      (userFixture.away === state.teamId && userFixture.awayScore > userFixture.homeScore)
+    )
+    if (userWon) {
+      pf.promoted = true
+      pf.round = 'F'
+      pf.fixtures = [
+        { round: 'F', home: winners[0], away: winners[1], homeScore: null, awayScore: null, played: false },
+      ]
+      addNotification('match', '🎉 ¡A la Final!', 'Ganaste la semifinal del Playoff de Ascenso')
+      setTimeout(() => alert('🎉 ¡A la final!\n\nGanaste la semifinal. Ahora te juegas el ascenso en la final.'), 200)
+      saveGame()
+    } else {
+      const msg = '❌ Eliminado en semifinales.\n\nNo lograste el ascenso. Una temporada más en Cuarta Polaca.'
+      addNotification('match', '❌ Eliminado', 'No lograste superar la semifinal del Playoff de Ascenso')
+      state.playoffs = null
+      setTimeout(() => { alert(msg); procesarFinTemporada(true, true) }, 200)
+    }
+    return
+  } else if (pf.esAscensoLP4 && pf.round === 'F') {
+    const ganador = winners[0]
+    const esGanador = ganador === state.teamId
+    state.playoffs = null
+    if (esGanador) {
+      state.leagueId = 'lpl3'
+      setTimeout(() => {
+        alert('🎉 ¡ASCENSO a Tercera Polaca!\n\nGanaste el playoff de ascenso desde Cuarta Polaca.')
+        procesarFinTemporada(true, true)
+      }, 300)
+    } else {
+      setTimeout(() => {
+        alert('❌ Perdiste la final.\n\nNo lograste el ascenso. Una temporada más en Cuarta Polaca.')
+        procesarFinTemporada(true, true)
+      }, 300)
+    }
+    return
   } else if (pf.round === 'QF') {
     pf.round = 'SF'
     pf.fixtures = [
@@ -2711,7 +2947,31 @@ function avanzarRondaPlayoff() {
           procesarFinTemporada(true, true)
         }, 300)
       }
+    } else if (pf.esDescensoLP3) {
+      const ganador = winners[0]
+      const perdedor = ganador === pf.fixtures[0].home ? pf.fixtures[0].away : pf.fixtures[0].home
+      const salvado = ganador === state.teamId
+      const msgD = `⚔️ Playoff Descenso — ${salvado ? '¡PERMANENCIA!' : 'DESCENSO'}`
+      addNotification('match', msgD, salvado ? 'Te quedas en Tercera Polaca' : 'Bajas a Cuarta Polaca')
+      if (salvado) {
+        setTimeout(() => {
+          alert('✅ ¡PERMANENCIA!\n\nGanaste el playoff de descenso. Una temporada más en Tercera Polaca.')
+          procesarFinTemporada(true, true)
+        }, 300)
+      } else {
+        const grupos4 = ['lpl4g1','lpl4g2','lpl4g3','lpl4g4']
+        state.leagueId = pickRandom(grupos4)
+        setTimeout(() => {
+          alert('❌ DESCENSO a Cuarta Polaca.\n\nPerdiste el playoff de descenso.')
+          procesarFinTemporada(true, true)
+        }, 300)
+      }
     } else {
+      /* LNFS or other championship playoff */
+      if (esCampeon) {
+        var league = getLeagueFromId(state.leagueId)
+        state.trophies.push({ competition: 'Campeón de ' + (league ? league.name : state.leagueId), season: state.seasonNumber })
+      }
       setTimeout(() => { alert(msg); procesarFinTemporada() }, 100)
     }
     return
@@ -2777,6 +3037,75 @@ function iniciarPlayoffPolaca3() {
   }
   const rivalName = getTeamName(teamIds[2] === state.teamId ? teamIds[5] : teamIds[2])
   addNotification('match', '🏆 Playoff Ascenso — Semifinal', `Te enfrentas a ${rivalName} por el ascenso a Segunda Polaca`)
+  saveGame()
+}
+
+function iniciarPlayoffDescensoLP3() {
+  const standings = updateLeagueStandings()
+  const teamIds = standings.map(s => s.teamId)
+  const pos13 = teamIds[12]
+  const pos14 = teamIds[13]
+  state.playoffs = {
+    round: 'F',
+    fixtures: [
+      { round: 'F', home: pos13, away: pos14, homeScore: null, awayScore: null, played: false },
+    ],
+    esDescensoLP3: true,
+  }
+  const rivalName = getTeamName(pos13 === state.teamId ? pos14 : pos13)
+  addNotification('match', '⚠️ Playoff Descenso — Final', `Te enfrentas a ${rivalName} por la permanencia en Tercera Polaca`)
+  saveGame()
+}
+
+function iniciarPlayoffAscensoLP4() {
+  const grupos4 = ['lpl4g1','lpl4g2','lpl4g3','lpl4g4']
+  var segundos = []
+
+  /* Get user's own 2nd place */
+  const userStandings = updateLeagueStandings()
+  if (userStandings.length >= 2) {
+    const userSegundo = userStandings[1]
+    segundos.push({ teamId: userSegundo.teamId, pts: userSegundo.pts, name: getTeamName(userSegundo.teamId) })
+  }
+
+  /* Get 2nd place from other groups */
+  for (const gid of grupos4) {
+    if (gid === state.leagueId) continue
+    const data = state.allLeagueData[gid]
+    if (!data || !data.fixtures) continue
+    const league = getLeagueFromId(gid)
+    if (!league || !league.teams) continue
+    const teamIds = league.teams.map(t => t.id)
+    const standings = computeStandings(data.fixtures, teamIds)
+    if (standings.length >= 2) {
+      const segundo = standings[1]
+      segundos.push({ teamId: segundo.teamId, pts: segundo.pts, name: getTeamName(segundo.teamId) })
+    }
+  }
+
+  /* Sort by points descending */
+  segundos.sort(function(a, b) { return b.pts - a.pts })
+
+  if (segundos.length < 4) {
+    /* Fallback — not enough data, skip playoff */
+    alert('No hay suficientes datos para el playoff de ascenso.')
+    procesarFinTemporada(true, true)
+    return
+  }
+
+  state.playoffs = {
+    round: 'SF',
+    fixtures: [
+      { round: 'SF', home: segundos[0].teamId, away: segundos[3].teamId, homeScore: null, awayScore: null, played: false },
+      { round: 'SF', home: segundos[1].teamId, away: segundos[2].teamId, homeScore: null, awayScore: null, played: false },
+    ],
+    esAscensoLP4: true,
+    promoted: false,
+  }
+  /* Find user's opponent */
+  const userFixture = state.playoffs.fixtures.find(function(f) { return f.home === state.teamId || f.away === state.teamId })
+  const oppName = userFixture ? getTeamName(userFixture.home === state.teamId ? userFixture.away : userFixture.home) : '—'
+  addNotification('match', '🏆 Playoff Ascenso — Semifinal', `Te enfrentas a ${oppName} por el ascenso a Tercera Polaca`)
   saveGame()
 }
 
@@ -2874,8 +3203,14 @@ function simularPartidoRapido(fixture, rivalId) {
 
     /* Fatigue for user's players */
     state.players.forEach(p => {
-      if (!p.injury && startingIds.includes(p.id)) p.energy = Math.max(10, p.energy - 5)
+      if (!p.injury && startingIds.includes(p.id)) p.energy = Math.max(10, p.energy - (GAME_PLANS[state.tactic.gamePlan]?.drain || 10))
       p.enPista = false; p.convocado = false; p.titular = false
+    })
+    /* Recovery for unused players (bench/reserves who didn't play) */
+    state.players.forEach(p => {
+      if (!p.injury && p.minutosEnPista === 0 && p.energy < 100) {
+        p.energy = Math.min(100, p.energy + 8)
+      }
     })
 
     /* Track position experience */
@@ -2888,10 +3223,12 @@ function simularPartidoRapido(fixture, rivalId) {
           if (naturalKey !== role) {
             if (!p.positionExperience) p.positionExperience = {}
             p.positionExperience[role] = (p.positionExperience[role] || 0) + 1
-            /* Añadir a otherPositions si no existe */
+            /* Añadir a otherPositions si no existe y actualizar pct */
             if (!p.otherPositions) p.otherPositions = []
             var existing = p.otherPositions.find(function(o) { return o.pos === role })
-            if (!existing) p.otherPositions.push({ pos: role, pct: 1 })
+            var newPct = Math.min(100, p.positionExperience[role] * 3)
+            if (!existing) p.otherPositions.push({ pos: role, pct: newPct })
+            else existing.pct = Math.max(existing.pct, newPct)
           }
         }
       }
@@ -2947,7 +3284,7 @@ function simularPartidoRapido(fixture, rivalId) {
       for (const tid of [f.home, f.away]) {
         const team = state.leagueTeams.find(t => t.teamId === tid)
         if (team && team.players) {
-          team.players.forEach(p => { if (!p.injury) p.energy = Math.max(10, (p.energy || 80) - 3) })
+          team.players.forEach(p => { if (!p.injury) p.energy = Math.max(10, (p.energy || 80) - (GAME_PLANS[team.gamePlan]?.drain || 10)) })
           const aiBench = team.players.filter(p => p.position !== 'POR').slice(11, 11 + getEffectiveMaxBench())
           const subsMade = Math.min(5, aiBench.length, Math.floor(Math.random() * 3 + 1))
           for (let s = 0; s < subsMade; s++) {
@@ -3291,7 +3628,9 @@ function autoSimularPartidoUsuario(fixture) {
           p.positionExperience[role] = (p.positionExperience[role] || 0) + 1
           if (!p.otherPositions) p.otherPositions = []
           var existing = p.otherPositions.find(function(o) { return o.pos === role })
-          if (!existing) p.otherPositions.push({ pos: role, pct: 1 })
+          var newPct = Math.min(100, p.positionExperience[role] * 3)
+          if (!existing) p.otherPositions.push({ pos: role, pct: newPct })
+          else existing.pct = Math.max(existing.pct, newPct)
         }
       }
     }
@@ -3299,7 +3638,13 @@ function autoSimularPartidoUsuario(fixture) {
 
   /* Fatigue */
   state.players.forEach(p => {
-    if (!p.injury && ids.includes(p.id)) p.energy = Math.max(10, p.energy - 5)
+    if (!p.injury && ids.includes(p.id)) p.energy = Math.max(10, p.energy - (GAME_PLANS[state.tactic.gamePlan]?.drain || 10))
+  })
+  /* Recovery for unused players */
+  state.players.forEach(p => {
+    if (!p.injury && !ids.includes(p.id) && p.energy < 100) {
+      p.energy = Math.min(100, p.energy + 8)
+    }
   })
 
   /* Finance */
@@ -3467,7 +3812,7 @@ function envejecerYProgresar() {
     var perf = playRate + gpg * 0.5 + apg * 0.3
 
     if (p.age <= 29) {
-      var gain = perf >= 1.5 ? 3 : perf >= 0.8 ? 2 : perf >= 0.3 ? 1 : perf > 0 ? 0.5 : 0
+      var gain = perf >= 1.5 ? 3 : perf >= 0.8 ? 2 : perf >= 0.3 ? 1 : perf > 0 ? 1 : 0
       p.skill = Math.min(99, p.skill + gain)
     } else {
       var baseLoss = p.age >= 35 ? 3 : p.age >= 33 ? 2 : 1
@@ -3499,7 +3844,42 @@ function envejecerYProgresar() {
     })
   }
 
+  /* Progress AI teams' players too */
+  var iaRetirados = progresarJugadoresIA(totalM)
+  retirados.push.apply(retirados, iaRetirados)
+
   return { changes: changes, retirados: retirados }
+}
+
+function progresarJugadoresIA(totalM) {
+  var retirados = []
+  state.leagueTeams.forEach(function(team) {
+    var keep = []
+    team.players.forEach(function(p) {
+      var playRate = Math.min(1, (p.matches || 0) / totalM)
+      var gpg = (p.goals || 0) / Math.max(1, p.matches || 1)
+      var apg = (p.assists || 0) / Math.max(1, p.matches || 1)
+      var perf = playRate + gpg * 0.5 + apg * 0.3
+
+      if (p.age <= 29) {
+        var gain = perf >= 1.5 ? 3 : perf >= 0.8 ? 2 : perf >= 0.3 ? 1 : perf > 0 ? 1 : 0
+        p.skill = Math.min(99, p.skill + gain)
+      } else {
+        var baseLoss = p.age >= 35 ? 3 : p.age >= 33 ? 2 : 1
+        var actualLoss = Math.round(baseLoss * (1.5 - playRate * 0.5))
+        var minSkill = p.age >= 35 ? 40 : p.age >= 33 ? 45 : 50
+        p.skill = Math.max(minSkill, p.skill - actualLoss)
+      }
+
+      if (p.age >= 35 && (p.matches || 0) < 5 && Math.random() < 0.5) {
+        retirados.push({ name: p.name, age: p.age, matches: p.matches || 0, team: team.name })
+      } else {
+        keep.push(p)
+      }
+    })
+    team.players = keep
+  })
+  return retirados
 }
 
 
@@ -3824,6 +4204,8 @@ function loadGame(id) {
   state.soundEnabled = data.soundEnabled !== false
   state.filialSquad = data.filialSquad || []
   state.globalPlayers = data.globalPlayers || []
+  state.trophies = data.trophies || []
+  state.seasonNumber = data.seasonNumber || 1
   loadCountryData(state.countryId, function() { startGame() })
 }
 
@@ -4077,7 +4459,7 @@ function showTeamPreview(teamId) {
   const db = getBaseDato(teamId)
   const rating = db ? db.rating : 70
   const rawSquad = getRealSquad(teamId) || generateCpuSquad(teamId, foundCountryId, rating)
-  const realSquad = rawSquad.map(p => ({ ...p, skill: Math.min(rating || 99, p.skill), value: p.value || calcValue(p.skill) }))
+  const realSquad = rawSquad.map(p => ({ ...p, value: p.value || calcValue(p.skill) }))
   const staff = team.staff || []
   const logo = team.logo || ''
   const coachName = staff.find(s => s.role === 'headCoach')?.name || '—'
@@ -4524,6 +4906,32 @@ function renderCalendar() {
   }
 }
 
+/* ============ PALMARÉS ============ */
+function renderPalmares() {
+  var container = document.getElementById('club-palmares-content')
+  var trophies = state.trophies || []
+  var html = ''
+
+  if (trophies.length === 0) {
+    html += '<div style="text-align:center;padding:40px 10px;color:var(--text-muted)">'
+    html += '<p style="font-size:32px;margin:0 0 12px">🏆</p>'
+    html += '<p>Aún no has ganado ningún trofeo</p>'
+    html += '</div>'
+  } else {
+    html += '<div class="palmares-list" style="padding:10px">'
+    for (var i = trophies.length - 1; i >= 0; i--) {
+      var t = trophies[i]
+      html += '<div class="palmares-item" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
+      html += '<span style="font-size:22px">🏆</span>'
+      html += '<div style="flex:1"><strong>' + t.competition + '</strong><br><span style="font-size:12px;color:var(--text-muted)">Temporada ' + t.season + '</span></div>'
+      html += '</div>'
+    }
+    html += '</div>'
+  }
+
+  container.innerHTML = html
+}
+
 /* ============ TEAM INFO ============ */
 function showTeamInfo(teamId) {
   const team = getTeamObj(teamId)
@@ -4589,6 +4997,9 @@ function showTeamInfo(teamId) {
       <span class="tp-th-age">Edad</span>
       <span class="tp-th-value">Valor</span>
       <span class="tp-th-power">Pod</span>
+      <span class="tp-th-pj">PJ</span>
+      <span class="tp-th-g">G</span>
+      <span class="tp-th-a">A</span>
     </div>
     <div class="tp-list">`
   const orderedPlayers = [...team.players].sort((a, b) => {
@@ -4611,6 +5022,9 @@ function showTeamInfo(teamId) {
       <span class="tp-cell-age">${p.age || '-'}</span>
       <span class="tp-cell-market">${valShort}</span>
       <span class="tp-cell-power" style="${getPowerBadgeStyle(p.skill)}">${p.skill}</span>
+      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.matches || 0}</span>
+      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.goals || 0}</span>
+      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.assists || 0}</span>
     </div>`
   })
   html += '</div><button class="btn-secondary" id="btn-team-back-2" style="margin-top:12px">← Volver</button>'
