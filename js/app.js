@@ -251,11 +251,108 @@ const COUNTRIES = [
   { id: 'spain', name: 'España', flag: '🇪🇸' },
   { id: 'portugal', name: 'Portugal', flag: '🇵🇹' },
   { id: 'italy', name: 'Italia', flag: '🇮🇹' },
-  { id: 'brazil', name: 'Brasil', flag: '🇧🇷' },
-  { id: 'argentina', name: 'Argentina', flag: '🇦🇷' },
 ]
 
 window.DB = window.DB || {}
+
+const TEAM_NAMES = {
+  spain: ['FC Barcelona', 'Real Madrid', 'Atlético Madrid', 'Sevilla', 'Valencia', 'Athletic Club', 'Real Sociedad', 'Villarreal', 'Betis', 'Espanyol', 'Getafe', 'Celta', 'Mallorca', 'Osasuna', 'Granada', 'Rayo Vallecano', 'Alavés', 'Girona', 'Valladolid', 'Elche', 'Levante', 'Cádiz', 'Huesca', 'Tenerife', 'Zaragoza', 'Oviedo', 'Sporting Gijón', 'Eibar', 'Albacete', 'Lugo'],
+  portugal: ['SL Benfica', 'FC Porto', 'Sporting CP', 'SC Braga', 'Vitória SC', 'Rio Ave', 'Famalicão', 'Boavista', 'Portimonense', 'Gil Vicente', 'Estoril', 'Paços Ferreira', 'Santa Clara', 'Marítimo', 'Nacional', 'Belenenses', 'Chaves', 'Farense', 'Arouca', 'Académica'],
+  italy: ['Juventus', 'AC Milan', 'Inter Milan', 'Roma', 'Napoli', 'Lazio', 'Atalanta', 'Fiorentina', 'Torino', 'Bologna', 'Sampdoria', 'Udinese', 'Genoa', 'Cagliari', 'Verona', 'Sassuolo', 'Empoli', 'Lecce', 'Spezia', 'Venezia', 'Cremonese', 'Monza', 'Salernitana', 'Parma', 'Bari'],
+  brazil: ['Flamengo', 'Palmeiras', 'Santos', 'Corinthians', 'São Paulo', 'Grêmio', 'Internacional', 'Cruzeiro', 'Vasco da Gama', 'Botafogo', 'Fluminense', 'Bahia', 'Atlético Mineiro', 'Athletico Paranaense', 'Fortaleza', 'Ceará', 'Goiás', 'Sport Recife', 'Coritiba', 'Chapecoense'],
+  argentina: ['Boca Juniors', 'River Plate', 'Independiente', 'Racing Club', 'San Lorenzo', 'Vélez Sarsfield', 'Estudiantes', 'Rosario Central', 'Newell\'s Old Boys', 'Lanús', 'Talleres', 'Defensa y Justicia', 'Argentinos Juniors', 'Colón', 'Banfield', 'Godoy Cruz', 'Huracán', 'Gimnasia', 'Unión', 'Platense'],
+  poland: ['Legia Warszawa', 'Lech Poznań', 'Raków Częstochowa', 'Pogoń Szczecin', 'Śląsk Wrocław', 'Lechia Gdańsk', 'Wisła Kraków', 'Górnik Zabrze', 'Cracovia', 'Jagiellonia', 'Radomiak', 'Warta Poznań', 'Zagłębie Lubin', 'Stal Mielec', 'Korona Kielce', 'Miedź Legnica', 'Widzew Łódź', 'ŁKS Łódź', 'GKS Katowice', 'Piast Gliwice'],
+}
+
+const LEAGUE_NAMES = {
+  spain: ['Primera División', 'Segunda División'],
+  portugal: ['Primeira Liga', 'Segunda Liga'],
+  italy: ['Serie A', 'Serie B'],
+  brazil: ['Brasileirão Série A', 'Brasileirão Série B'],
+  argentina: ['Primera División', 'Primera Nacional'],
+  poland: ['Primera División', 'Segunda División'],
+}
+
+function generateDummyLeagues(countryId) {
+  var data = window.DB[countryId]
+  if (!data) return
+  if (data.country.leagues && data.country.leagues.length > 0) return
+
+  var names = TEAM_NAMES[countryId] || []
+  if (names.length === 0) {
+    for (var i = 1; i <= 30; i++) names.push('FC ' + countryId.charAt(0).toUpperCase() + countryId.slice(1) + ' ' + i)
+  }
+  var shuffled = names.slice().sort(function() { return Math.random() - 0.5 })
+
+  var div1Count = Math.min(18, Math.max(12, Math.floor(shuffled.length * 0.55)))
+  var div1Teams = shuffled.slice(0, div1Count)
+  var div2Teams = shuffled.slice(div1Count, div1Count + Math.min(18, shuffled.length - div1Count))
+
+  var leagueNames = LEAGUE_NAMES[countryId] || ['Liga 1', 'Liga 2']
+  var ligas = [
+    { id: countryId + '1', name: leagueNames[0], logo: '', teams: [] },
+    { id: countryId + '2', name: leagueNames[1], logo: '', teams: [] },
+  ]
+
+  ligas[0].teams = div1Teams.map(function(name, i) {
+    return createDummyTeam(name, countryId + '_t' + (i + 1), countryId)
+  })
+  ligas[1].teams = div2Teams.map(function(name, i) {
+    return createDummyTeam(name, countryId + '_t' + (div1Count + i + 1), countryId)
+  })
+
+  data.country.leagues = ligas
+}
+
+function createDummyTeam(name, id, countryId) {
+  var positions = ['POR', 'DFC', 'LD', 'LI', 'CAD', 'CAI', 'MCD', 'MC', 'MCO', 'MI', 'MD', 'EI', 'ED', 'DC']
+  var natCode = getNatCodeForCountry(countryId)
+  var players = []
+  var count = 20 + Math.floor(Math.random() * 5)
+
+  for (var i = 0; i < count; i++) {
+    var pos = positions[i % positions.length]
+    var edad = 18 + Math.floor(Math.random() * 18)
+    var skill = Math.round(40 + Math.random() * 45)
+    var nombre = generateName(natCode)
+    players.push({
+      id: id + '_p' + (i + 1),
+      name: nombre,
+      age: edad,
+      skill: skill,
+      position: pos,
+      value: calcValue(skill),
+      avatar: '',
+      nationality: natCode,
+      matches: 0, goals: 0, assists: 0, injured: false, injuryWeeks: 0,
+      enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100,
+      mainPct: pos === 'POR' ? 100 : pos.startsWith('D') ? 90 : pos.startsWith('M') ? 85 : 80,
+      otherPositions: {}, foot: Math.random() < 0.5 ? 'Diestro' : 'Zurdo',
+    })
+  }
+
+  return { id: id, name: name, logo: '', players: players, staff: [] }
+}
+
+function getNatCodeForCountry(countryId) {
+  var map = { spain: 'es', portugal: 'pt', italy: 'it', brazil: 'br', argentina: 'ar', poland: 'pl' }
+  return map[countryId] || 'es'
+}
+
+function generateName(natCode) {
+  var namesList = STAFF_FIRST[natCode]
+  var surnamesList = SURNAMES_BY_COUNTRY[natCode]
+  if (!namesList || !surnamesList) return 'Jugador ' + Math.floor(Math.random() * 999)
+  return namesList[Math.floor(Math.random() * namesList.length)] + ' ' + surnamesList[Math.floor(Math.random() * surnamesList.length)]
+}
+
+function ensureCountryLeagues(countryId) {
+  var data = window.DB[countryId]
+  if (!data) return
+  if (!data.country.leagues || data.country.leagues.length === 0) {
+    generateDummyLeagues(countryId)
+  }
+}
 
 function loadCountryData(countryId, callback) {
   if (window.DB[countryId]) { callback(window.DB[countryId]); return }
@@ -335,6 +432,7 @@ const state = {
   inbox: [],
   soundEnabled: true,
   filialSquad: [],
+  leagueViewCountry: '',
 }
 
 /* ============ HELPERS ============ */
@@ -1065,7 +1163,7 @@ function renderClub() {
   }
   /* Team stats panel */
   const displayPower = getTop11Average(state.players)
-  const reputation = displayPower <= 20 ? 1 : displayPower <= 40 ? 2 : displayPower <= 60 ? 3 : displayPower <= 80 ? 4 : 5
+  const reputation = displayPower < 42 ? 1 : displayPower < 58 ? 2 : displayPower < 72 ? 3 : displayPower < 85 ? 4 : 5
   const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
   const countryFlag = window.DB[state.countryId]?.country.flag || ''
   const totalVal = state.players.reduce((s, p) => s + (p.value || 0), 0)
@@ -1620,26 +1718,68 @@ function renderLeague(viewedLeagueId) {
 
   resultsWrap.classList.add('hidden')
 
-  /* Safety net: ensure league data exists without breaking if it fails */
   try { initAllLeagueData() } catch (e) { console.warn('[LEAGUE] initAllLeagueData error:', e) }
 
-  const displayLid = viewedLeagueId || state.leagueId
+  /* --- Country selector strip --- */
+  const activeCountryId = state.leagueViewCountry || state.countryId
+  const countryStrip = document.getElementById('country-strip')
+  countryStrip.innerHTML = COUNTRIES.map(c => {
+    const isActive = c.id === activeCountryId
+    return '<div class="country-badge' + (isActive ? ' active' : '') + '" data-cid="' + c.id + '">' +
+      '<span class="country-flag">' + c.flag + '</span>' +
+      '<span class="country-name">' + c.name + '</span>' +
+      '</div>'
+  }).join('')
+  countryStrip.querySelectorAll('.country-badge').forEach(el => {
+    el.onclick = function() {
+      const cid = this.dataset.cid
+      if (cid === state.leagueViewCountry) return
+      if (window.DB[cid]) {
+        ensureCountryLeagues(cid)
+        state.leagueViewCountry = cid
+        renderLeague()
+      } else {
+        loadCountryData(cid, function() {
+          ensureCountryLeagues(cid)
+          state.leagueViewCountry = cid
+          renderLeague()
+        })
+      }
+    }
+  })
 
-  /* League logos — only from current country */
-  const countryData = window.DB[state.countryId]
+  /* --- Get leagues for active country --- */
+  ensureCountryLeagues(activeCountryId)
+  const countryData = window.DB[activeCountryId]
   const leagues = countryData ? (countryData.country.leagues || []) : []
+
+  /* --- Determine which league to display --- */
+  const isOwnCountry = activeCountryId === state.countryId
+  let displayLid
+  if (viewedLeagueId) {
+    displayLid = viewedLeagueId
+  } else if (isOwnCountry) {
+    displayLid = state.leagueId
+  } else if (leagues.length > 0) {
+    displayLid = leagues[0].id
+  } else {
+    displayLid = ''
+  }
+
+  /* --- League logos strip --- */
   const logosContainer = document.getElementById('league-logos')
-  logosContainer.innerHTML = leagues.map(l => `
-    <div class="ng-league-item${l.id === displayLid ? ' active' : ''}" data-lid="${l.id}" title="${l.name}">
-      ${l.logo ? `<img class="ng-league-logo" src="${l.logo}" alt="${l.name}">` : `<span>${l.name}</span>`}
-    </div>
-  `).join('')
+  logosContainer.innerHTML = leagues.map(l => {
+    const isActive = l.id === displayLid
+    return '<div class="ng-league-item' + (isActive ? ' active' : '') + '" data-lid="' + l.id + '" title="' + l.name + '">' +
+      (l.logo ? '<img class="ng-league-logo" src="' + l.logo + '" alt="' + l.name + '">' : '<span>' + l.name + '</span>') +
+      '</div>'
+  }).join('')
   logosContainer.querySelectorAll('.ng-league-item').forEach(el => {
     el.onclick = () => renderLeague(el.dataset.lid)
   })
 
-  /* Table */
-  const isOwnLeague = displayLid === state.leagueId
+  /* --- Table --- */
+  const isOwnLeague = displayLid === state.leagueId && isOwnCountry
   const standings = isOwnLeague
     ? updateLeagueStandings()
     : state.allLeagueData && state.allLeagueData[displayLid]
@@ -1653,8 +1793,12 @@ function renderLeague(viewedLeagueId) {
   standings.forEach((s, i) => {
     const isUser = isOwnLeague && s.teamId === state.teamId
     const totalTeams = standings.length
-    const zonaPlayoff = Math.ceil(totalTeams * 0.5)
-    const zonaDescenso = Math.max(1, Math.min(3, Math.floor(totalTeams * 0.2)))
+    var zonaPlayoff = Math.ceil(totalTeams * 0.5)
+    var zonaDescenso = Math.max(1, Math.min(3, Math.floor(totalTeams * 0.2)))
+    if (displayLid === 'l1s') {
+      zonaPlayoff = 6
+      zonaDescenso = 3
+    }
     const zonaClass = i < zonaPlayoff ? 'zona-playoff' : i < totalTeams - zonaDescenso ? 'zona-permanencia' : 'zona-descenso'
     const logo = s.logo || getTeamLogo(s.teamId)
     const name = s.name || getTeamName(s.teamId)
@@ -1672,7 +1816,6 @@ function renderLeague(viewedLeagueId) {
   tableWrap.querySelectorAll('tr[data-team-id]').forEach(row => {
     row.onclick = () => showTeamInfo(row.dataset.teamId)
   })
-
 }
 
 /* ============ MATCH ============ */
@@ -2109,8 +2252,112 @@ function procesarVentasCPU() {
   }
 }
 
+function showSeasonProgressionModal(result, msg, skipStandings) {
+  var overlay = document.getElementById('progression-modal')
+  if (!overlay) {
+    overlay = document.createElement('div')
+    overlay.id = 'progression-modal'
+    overlay.className = 'progression-modal-overlay'
+    document.body.appendChild(overlay)
+  }
+
+  var changes = result.changes || []
+  var retirados = result.retirados || []
+
+  var html = '<div class="progression-modal-card">'
+  html += '<h2>Fin de Temporada</h2>'
+  html += '<p class="progression-msg">' + msg.replace(/\n/g, '<br>') + '</p>'
+
+  if (changes.length > 0) {
+    html += '<h3>Cambios de Valoración</h3>'
+    html += '<div class="progression-list">'
+    changes.sort(function(a, b) { return Math.abs(b.change) - Math.abs(a.change) })
+    changes.forEach(function(c) {
+      var arrow = c.change > 0 ? '▲' : '▼'
+      var cls = c.change > 0 ? 'change-up' : 'change-down'
+      html += '<div class="progression-item ' + cls + '">'
+      html += '<span class="prog-name">' + c.name + '</span>'
+      html += '<span class="prog-arrow">' + arrow + '</span>'
+      html += '<span class="prog-change">' + (c.change > 0 ? '+' : '') + c.change + '</span>'
+      html += '<span class="prog-old">' + c.oldSkill + '</span>'
+      html += '<span class="prog-arrow">→</span>'
+      html += '<span class="prog-new">' + c.newSkill + '</span>'
+      html += '</div>'
+    })
+    html += '</div>'
+  }
+
+  if (retirados.length > 0) {
+    html += '<div class="progression-retirados">'
+    html += '<h4>🚑 Retiradas</h4>'
+    retirados.forEach(function(p) {
+      html += '<p>' + p.name + ' (' + p.age + ' años) se retira tras ' + (p.matches || 0) + ' partidos esta temporada</p>'
+    })
+    html += '</div>'
+  }
+
+  html += '<button id="btn-next-season" class="btn-primary">COMENZAR SIGUIENTE TEMPORADA</button>'
+  html += '</div>'
+  overlay.innerHTML = html
+  overlay.classList.remove('hidden')
+
+  document.getElementById('btn-next-season').addEventListener('click', function() {
+    state.players.forEach(function(p) { p.age = (p.age || 22) + 1 })
+
+    retirados.forEach(function(p) {
+      var idx = state.players.indexOf(p)
+      if (idx >= 0) state.players.splice(idx, 1)
+    })
+
+    var league = getLeagueFromId(state.leagueId)
+    var allTeams = league ? league.teams : []
+    state.leagueTeams = allTeams.filter(function(t) { return t.id !== state.teamId }).map(function(t) {
+      var existing = state.leagueTeams.find(function(x) { return x.teamId === t.id })
+      return {
+        teamId: t.id, name: t.name,
+        players: existing ? existing.players.map(function(p) { return Object.assign({}, p, { energy: 100, injury: null, goals: 0, matches: 0 }) })
+          : (getRealSquad(t.id) || []).map(function(p) { return Object.assign({}, p, { value: calcValue(p.skill), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 }) }),
+        staff: t.staff || existing && existing.staff || [],
+      }
+    })
+    state.fixtures = generateFixtures([state.teamId].concat(state.leagueTeams.map(function(t) { return t.teamId })))
+    state.totalMatchdays = Math.max.apply(null, state.fixtures.map(function(f) { return f.matchday }))
+    state.currentMatchday = 1
+    state.allLeagueData = {}
+    initAllLeagueData()
+    state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
+    state.playoffs = null
+    state.players.forEach(function(p) { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
+    document.getElementById('league-results-wrap').classList.add('hidden')
+    overlay.classList.add('hidden')
+    renderLeague()
+    saveGame()
+
+    if (!skipStandings) {
+      addNotification('general', msg, 'Nueva temporada en ' + divName(state.leagueId))
+      setTimeout(function() { alert(msg) }, 100)
+    }
+  })
+}
+
+function divName(leagueId) {
+  if (leagueId.startsWith('l3c')) return '3a Divisió Catalana'
+  if (leagueId.startsWith('l2c')) return '2a Divisió Catalana'
+  if (leagueId.startsWith('lc')) return '1a Divisió Catalana'
+  if (leagueId.startsWith('lhc')) return 'Divisió d\'Honor Catalana'
+  if (leagueId.startsWith('l3g')) return '3ª División Nacional'
+  if (leagueId.startsWith('l2b')) return '2ª División B'
+  if (leagueId === 'lnfs2') return 'Segunda División'
+  if (leagueId === 'lnfs1') return 'Primera División'
+  if (leagueId === 'lpl') return 'Liga Polaca'
+  if (leagueId === 'lpl2') return 'Segunda Polaca'
+  if (leagueId === 'lpl3') return 'Tercera Polaca'
+  if (leagueId.startsWith('lpl4g')) return 'Cuarta Polaca'
+  return 'la categoría'
+}
+
 function procesarFinTemporada(skipAging, skipStandings) {
-  if (!skipAging) envejecerYProgresar()
+  if (!skipAging) var agingResult = envejecerYProgresar()
   let cambioDivision = false
   let pos = 0
   let esPrimera = false, esSegunda = false, esSegundaB = false, esTercera = false, esHonor = false, esPrimeraCat = false, esSegonaCat = false, esTerceraCat = false
@@ -2122,6 +2369,7 @@ function procesarFinTemporada(skipAging, skipStandings) {
     const standings = updateLeagueStandings()
     pos = standings.findIndex(s => s.teamId === state.teamId) + 1
     esPrimera = state.leagueId === 'lnfs1'
+    esPrimeraSpain = state.leagueId === 'l1s'
     esSegunda = state.leagueId === 'lnfs2'
     esSegundaB = state.leagueId && state.leagueId.startsWith('l2b')
     esTercera = state.leagueId && state.leagueId.startsWith('l3g')
@@ -2133,11 +2381,14 @@ function procesarFinTemporada(skipAging, skipStandings) {
     esPolaca2 = state.leagueId === 'lpl2'
     esPolaca3 = state.leagueId === 'lpl3'
     esPolaca4 = state.leagueId && state.leagueId.startsWith('lpl4g')
+    esPrimeraSpain = state.leagueId === 'l1s'
 
     const esTerceraCatalana = state.leagueId === 'l3g1' || state.leagueId === 'l3g2'
     const totalTeams = standings.length
 
-    if (esPrimera && pos >= 15) {
+    if (esPrimeraSpain && pos >= 18) {
+      cambioDivision = true
+    } else if (esPrimera && pos >= 15) {
       state.leagueId = 'lnfs2'
       cambioDivision = true
     } else if (esSegunda && pos <= 2) {
@@ -2244,6 +2495,12 @@ function procesarFinTemporada(skipAging, skipStandings) {
     else if (esPolaca2) msg += '\nPermanencia en Segunda Polaca'
     else if (esPolaca3) msg += '\nPermanencia en Tercera Polaca'
     else if (esPolaca4) msg += '\nPermanencia en Cuarta Polaca'
+    else if (esPrimeraSpain && pos === 1) msg += '\n🏆 ¡CAMPEÓN DE LA LIGA!'
+    else if (esPrimeraSpain && pos <= 4) msg += '\n✅ Clasificado a Champions League'
+    else if (esPrimeraSpain && pos === 5) msg += '\n✅ Clasificado a Europa League'
+    else if (esPrimeraSpain && pos === 6) msg += '\n✅ Clasificado a Conference League'
+    else if (esPrimeraSpain && pos >= 18) msg += '\n⚠️ DESCENSO a Segunda División'
+    else if (esPrimeraSpain) msg += '\nPermanencia en Primera División'
     else msg += '\nPermanencia en la categoría'
   }
 
@@ -2280,7 +2537,13 @@ function procesarFinTemporada(skipAging, skipStandings) {
     return
   }
 
-  /* Normal season setup or post-playoff setup */
+  /* Normal season end — show progression modal with changes, defer reset */
+  if (!skipStandings) {
+    showSeasonProgressionModal(agingResult || { changes: [], retirados: [] }, msg, skipStandings)
+    return
+  }
+
+  /* Post-playflow — immediate reset (used for procesarFinTemporada(true, true) after playoffs) */
   const league = getLeagueFromId(state.leagueId)
   const allTeams = league ? league.teams : []
   state.leagueTeams = allTeams.filter(t => t.id !== state.teamId).map(t => {
@@ -2295,7 +2558,6 @@ function procesarFinTemporada(skipAging, skipStandings) {
   state.fixtures = generateFixtures([state.teamId, ...state.leagueTeams.map(t => t.teamId)])
   state.totalMatchdays = Math.max(...state.fixtures.map(f => f.matchday))
   state.currentMatchday = 1
-  /* Regenerate fixtures for all leagues for the new season */
   state.allLeagueData = {}
   initAllLeagueData()
   state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
@@ -2304,14 +2566,6 @@ function procesarFinTemporada(skipAging, skipStandings) {
   document.getElementById('league-results-wrap').classList.add('hidden')
   renderLeague()
   saveGame()
-
-  if (!skipStandings) {
-    addNotification('general', msg, `Nueva temporada en ${state.leagueId.startsWith('l3c') ? '3a Divisió Catalana' : state.leagueId.startsWith('l2c') ? '2a Divisió Catalana' : state.leagueId.startsWith('lc') ? '1a Divisió Catalana' : state.leagueId.startsWith('lhc') ? 'Divisió d\'Honor Catalana' : state.leagueId.startsWith('l3g') ? '3ª División Nacional' : state.leagueId.startsWith('l2b') ? '2ª División B' : state.leagueId === 'lnfs2' ? 'Segunda División' : state.leagueId === 'lnfs1' ? 'Primera División' : state.leagueId === 'lpl' ? 'Liga Polaca' : state.leagueId === 'lpl2' ? 'Segunda Polaca' : state.leagueId === 'lpl3' ? 'Tercera Polaca' : state.leagueId.startsWith('lpl4g') ? 'Cuarta Polaca' : 'la categoría'}`)
-    setTimeout(() => alert(msg), 100)
-  } else {
-    const divName = state.leagueId.startsWith('l3c') ? '3a Divisió Catalana' : state.leagueId.startsWith('l2c') ? '2a Divisió Catalana' : state.leagueId.startsWith('lc') ? '1a Divisió Catalana' : state.leagueId.startsWith('lhc') ? 'Divisió d\'Honor Catalana' : state.leagueId.startsWith('l3g') ? '3ª División Nacional' : state.leagueId.startsWith('l2b') ? '2ª División B' : state.leagueId === 'lnfs2' ? 'Segunda División' : state.leagueId === 'lnfs1' ? 'Primera División' : state.leagueId === 'lpl' ? 'Liga Polaca' : state.leagueId === 'lpl2' ? 'Segunda Polaca' : state.leagueId === 'lpl3' ? 'Tercera Polaca' : state.leagueId.startsWith('lpl4g') ? 'Cuarta Polaca' : 'la categoría'
-    addNotification('general', `📋 Nueva temporada en ${divName}`, `Comienza una nueva campaña en ${divName}`)
-  }
 }
 
 function getTerceraGroupIds() {
@@ -3201,41 +3455,51 @@ function hireStaff(staffMember, team) {
 
 /* ============ AGE & PROGRESSION ============ */
 function envejecerYProgresar() {
-  const retirados = []
-  state.players.forEach(p => {
-    p.age = (p.age || 22) + 1
-    const matches = p.matches || 0
-    const jugoMucho = matches >= 10
-    const jugoPoco = matches < 5
+  var totalM = state.totalMatchdays || 34
+  var changes = []
+  var retirados = []
+
+  state.players.forEach(function(p) {
+    var oldSkill = p.skill
+    var playRate = Math.min(1, (p.matches || 0) / totalM)
+    var gpg = (p.goals || 0) / Math.max(1, p.matches || 1)
+    var apg = (p.assists || 0) / Math.max(1, p.matches || 1)
+    var perf = playRate + gpg * 0.5 + apg * 0.3
 
     if (p.age <= 29) {
-      p.skill = Math.min(99, p.skill + (jugoMucho ? 2 : jugoPoco ? 0.5 : 1))
-    } else if (p.age >= 35) {
-      p.skill = Math.max(40, p.skill - (jugoMucho ? 2 : 3))
-      if (jugoPoco && Math.random() < 0.5) retirados.push(p)
-    } else if (p.age >= 33) {
-      p.skill = Math.max(45, p.skill - (jugoMucho ? 1 : 2))
+      var gain = perf >= 1.5 ? 3 : perf >= 0.8 ? 2 : perf >= 0.3 ? 1 : perf > 0 ? 0.5 : 0
+      p.skill = Math.min(99, p.skill + gain)
     } else {
-      p.skill = Math.max(50, p.skill - (jugoMucho ? 0 : 1))
+      var baseLoss = p.age >= 35 ? 3 : p.age >= 33 ? 2 : 1
+      var actualLoss = Math.round(baseLoss * (1.5 - playRate * 0.5))
+      var minSkill = p.age >= 35 ? 40 : p.age >= 33 ? 45 : 50
+      p.skill = Math.max(minSkill, p.skill - actualLoss)
     }
+
+    var change = Math.round(p.skill - oldSkill)
+    if (change !== 0) {
+      changes.push({ name: p.name, pos: p.position, oldSkill: oldSkill, newSkill: p.skill, change: change })
+    }
+
+    /* Retirement check */
+    if (p.age >= 35 && (p.matches || 0) < 5 && Math.random() < 0.5) retirados.push(p)
   })
-  /* Goalkeeper coach: chance to permanently improve keepers based on matches played */
-  const gkCoachCount = state.staff.filter(s => s.role === 'goalkeeperCoach').length
+
+  /* GK coach bonus */
+  var gkCoachCount = state.staff.filter(function(s) { return s.role === 'goalkeeperCoach' }).length
   if (gkCoachCount > 0) {
-    state.players.filter(p => p.position === 'portero').forEach(p => {
-      const baseChance = 0.25 * gkCoachCount
-      const matchBonus = Math.min(0.5, (p.matches || 0) * 0.02)
+    state.players.filter(function(p) { return p.position === 'portero' }).forEach(function(p) {
+      var baseChance = 0.25 * gkCoachCount
+      var matchBonus = Math.min(0.5, (p.matches || 0) * 0.02)
       if (Math.random() < baseChance + matchBonus) {
+        var oldS = p.skill
         p.skill = Math.min(99, p.skill + 2)
-        addNotification('general', `📈 ${p.name} mejora`, `+2 valoración gracias al Entrenador de Porteros (${p.skill})`)
+        changes.push({ name: p.name, pos: p.position, oldSkill: oldS, newSkill: p.skill, change: 2 })
       }
     })
   }
-  retirados.forEach(p => {
-    const idx = state.players.indexOf(p)
-    if (idx >= 0) state.players.splice(idx, 1)
-    addNotification('general', `🚑 Retirada: ${p.name}`, `${p.age} años · Se retira tras ${p.matches} partidos esta temporada`)
-  })
+
+  return { changes: changes, retirados: retirados }
 }
 
 
@@ -3376,7 +3640,7 @@ function newGame(coach) {
   state.teamLogo = selectedTeam.logo || ''
   const noface = 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
   const countryId = selectedCountry.id
-  const natLabel = countryData ? (countryData.country.flag + ' ' + countryData.country.name) : '🇵🇱 Polonia'
+  const natLabel = coachNationality ? (coachNationality.flag + ' ' + coachNationality.name) : (countryData ? (countryData.country.flag + ' ' + countryData.country.name) : '\ud83c\uddf5\ud83c\uddf1 Polonia')
   state.staff = [
     { name: coach, nationality: natLabel, role: 'headCoach', avatar: noface, career: [{ team: selectedTeam.name, from: new Date().toLocaleDateString('es-ES'), to: 'Actualidad', matches: 0, won: 0, drawn: 0, lost: 0 }] },
   ]
@@ -3824,21 +4088,23 @@ function showTeamPreview(teamId) {
   /* Stats panel — same as Club view */
   const totalVal = realSquad.reduce((s, p) => s + (p.value || 0), 0)
   const displayPower = getTop11Average(realSquad)
-  const reputation = displayPower <= 20 ? 1 : displayPower <= 40 ? 2 : displayPower <= 60 ? 3 : displayPower <= 80 ? 4 : 5
+  const reputation = displayPower < 42 ? 1 : displayPower < 58 ? 2 : displayPower < 72 ? 3 : displayPower < 85 ? 4 : 5
   const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
   const countryFlag = window.DB[foundCountryId] ? window.DB[foundCountryId].country.flag : ''
   document.getElementById('tp-stats').innerHTML = `
-    <div style="display:flex;gap:1px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--border)">
-      <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${countryFlag}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
-    </div>
-    <div style="display:flex;gap:1px;padding:8px 10px;background:var(--bg)">
-      <div class="tp-stat"><span class="tp-stat-label">Formaci\u00f3n</span><span class="tp-stat-value">${team.formation || '\u2014'}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">Presi\u00f3n</span><span class="tp-stat-value">${(GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014'}</span></div>
-      <div class="tp-stat" style="flex:2"></div>
+    <div style="display:flex;flex-direction:column;gap:0;width:100%">
+      <div style="display:flex;gap:1px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--border)">
+        <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>
+        <div class="tp-stat"><span class="tp-stat-label">Reputaci\u00f3n</span><span class="tp-stat-stars">${stars}</span></div>
+        <div class="tp-stat"><span class="tp-stat-label">Pa\u00eds</span><span class="tp-stat-flag">${countryFlag}</span></div>
+        <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
+        <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
+      </div>
+      <div style="display:flex;gap:1px;padding:8px 10px;background:var(--bg)">
+        <div class="tp-stat"><span class="tp-stat-label">Formaci\u00f3n</span><span class="tp-stat-value">${team.formation || '\u2014'}</span></div>
+        <div class="tp-stat"><span class="tp-stat-label">Presi\u00f3n</span><span class="tp-stat-value">${(GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014'}</span></div>
+        <div class="tp-stat" style="flex:2"></div>
+      </div>
     </div>
   `
   /* Staff section – cards in its own container after tp-stats */
@@ -3923,6 +4189,190 @@ function startNewGame() {
 
   newGame(coachName)
 }
+
+/* ============ COACH NATIONALITY PICKER ============ */
+const COACH_NATIONALITIES = [
+  { flag: '🇦🇱', name: 'Albania' },
+  { flag: '🇩🇪', name: 'Alemania' },
+  { flag: '🇦🇴', name: 'Angola' },
+  { flag: '🇸🇦', name: 'Arabia Saudí' },
+  { flag: '🇩🇿', name: 'Argelia' },
+  { flag: '🇦🇷', name: 'Argentina' },
+  { flag: '🇦🇲', name: 'Armenia' },
+  { flag: '🇦🇺', name: 'Australia' },
+  { flag: '🇦🇹', name: 'Austria' },
+  { flag: '🇧🇩', name: 'Bangladés' },
+  { flag: '🇧🇪', name: 'Bélgica' },
+  { flag: '🇧🇯', name: 'Benín' },
+  { flag: '🇧🇾', name: 'Bielorrusia' },
+  { flag: '🇧🇦', name: 'Bosnia' },
+  { flag: '🇧🇷', name: 'Brasil' },
+  { flag: '🇧🇬', name: 'Bulgaria' },
+  { flag: '🇧🇫', name: 'Burkina Faso' },
+  { flag: '🇨🇲', name: 'Camerún' },
+  { flag: '🇨🇦', name: 'Canadá' },
+  { flag: '🇨🇱', name: 'Chile' },
+  { flag: '🇨🇳', name: 'China' },
+  { flag: '🇨🇴', name: 'Colombia' },
+  { flag: '🇨🇬', name: 'Congo' },
+  { flag: '🇰🇵', name: 'Corea del Norte' },
+  { flag: '🇰🇷', name: 'Corea del Sur' },
+  { flag: '🇨🇮', name: 'Costa de Marfil' },
+  { flag: '🇭🇷', name: 'Croacia' },
+  { flag: '🇩🇰', name: 'Dinamarca' },
+  { flag: '🇪🇬', name: 'Egipto' },
+  { flag: '🇦🇪', name: 'Emiratos Árabes Unidos' },
+  { flag: '🇸🇰', name: 'Eslovaquia' },
+  { flag: '🇸🇮', name: 'Eslovenia' },
+  { flag: '🇪🇸', name: 'España' },
+  { flag: '🇺🇸', name: 'Estados Unidos' },
+  { flag: '🇪🇪', name: 'Estonia' },
+  { flag: '🇪🇹', name: 'Etiopía' },
+  { flag: '🇵🇭', name: 'Filipinas' },
+  { flag: '🇫🇮', name: 'Finlandia' },
+  { flag: '🇫🇷', name: 'Francia' },
+  { flag: '🇬🇦', name: 'Gabón' },
+  { flag: '🇬🇲', name: 'Gambia' },
+  { flag: '🇬🇪', name: 'Georgia' },
+  { flag: '🇬🇭', name: 'Ghana' },
+  { flag: '🇬🇷', name: 'Grecia' },
+  { flag: '🇬🇳', name: 'Guinea' },
+  { flag: '🇭🇳', name: 'Honduras' },
+  { flag: '🇭🇺', name: 'Hungría' },
+  { flag: '🇮🇳', name: 'India' },
+  { flag: '🇮🇩', name: 'Indonesia' },
+  { flag: '🇬🇧', name: 'Inglaterra' },
+  { flag: '🇮🇶', name: 'Irak' },
+  { flag: '🇮🇷', name: 'Irán' },
+  { flag: '🇮🇪', name: 'Irlanda' },
+  { flag: '🇮🇸', name: 'Islandia' },
+  { flag: '🇮🇱', name: 'Israel' },
+  { flag: '🇮🇹', name: 'Italia' },
+  { flag: '🇯🇲', name: 'Jamaica' },
+  { flag: '🇯🇵', name: 'Japón' },
+  { flag: '🇯🇴', name: 'Jordania' },
+  { flag: '🇰🇿', name: 'Kazajistán' },
+  { flag: '🇰🇪', name: 'Kenia' },
+  { flag: '🇽🇰', name: 'Kosovo' },
+  { flag: '🇰🇼', name: 'Kuwait' },
+  { flag: '🇱🇻', name: 'Letonia' },
+  { flag: '🇱🇧', name: 'Líbano' },
+  { flag: '🇱🇷', name: 'Liberia' },
+  { flag: '🇱🇾', name: 'Libia' },
+  { flag: '🇱🇹', name: 'Lituania' },
+  { flag: '🇱🇺', name: 'Luxemburgo' },
+  { flag: '🇲🇰', name: 'Macedonia del Norte' },
+  { flag: '🇲🇬', name: 'Madagascar' },
+  { flag: '🇲🇾', name: 'Malasia' },
+  { flag: '🇲🇼', name: 'Malaui' },
+  { flag: '🇲🇱', name: 'Malí' },
+  { flag: '🇲🇹', name: 'Malta' },
+  { flag: '🇲🇦', name: 'Marruecos' },
+  { flag: '🇲🇺', name: 'Mauricio' },
+  { flag: '🇲🇷', name: 'Mauritania' },
+  { flag: '🇲🇽', name: 'México' },
+  { flag: '🇲🇩', name: 'Moldavia' },
+  { flag: '🇲🇪', name: 'Montenegro' },
+  { flag: '🇲🇿', name: 'Mozambique' },
+  { flag: '🇲🇲', name: 'Myanmar' },
+  { flag: '🇳🇦', name: 'Namibia' },
+  { flag: '🇳🇮', name: 'Nicaragua' },
+  { flag: '🇳🇪', name: 'Níger' },
+  { flag: '🇳🇬', name: 'Nigeria' },
+  { flag: '🇳🇴', name: 'Noruega' },
+  { flag: '🇳🇿', name: 'Nueva Zelanda' },
+  { flag: '🇴🇲', name: 'Omán' },
+  { flag: '🇳🇱', name: 'Países Bajos' },
+  { flag: '🇵🇰', name: 'Pakistán' },
+  { flag: '🇵🇦', name: 'Panamá' },
+  { flag: '🇵🇬', name: 'Papúa Nueva Guinea' },
+  { flag: '🇵🇾', name: 'Paraguay' },
+  { flag: '🇵🇪', name: 'Perú' },
+  { flag: '🇵🇱', name: 'Polonia' },
+  { flag: '🇵🇹', name: 'Portugal' },
+  { flag: '🇵🇷', name: 'Puerto Rico' },
+  { flag: '🇶🇦', name: 'Qatar' },
+  { flag: '🇨🇩', name: 'R.D. Congo' },
+  { flag: '🇨🇿', name: 'República Checa' },
+  { flag: '🇷🇼', name: 'Ruanda' },
+  { flag: '🇷🇴', name: 'Rumanía' },
+  { flag: '🇷🇺', name: 'Rusia' },
+  { flag: '🇸🇳', name: 'Senegal' },
+  { flag: '🇷🇸', name: 'Serbia' },
+  { flag: '🇸🇱', name: 'Sierra Leona' },
+  { flag: '🇸🇬', name: 'Singapur' },
+  { flag: '🇸🇾', name: 'Siria' },
+  { flag: '🇸🇴', name: 'Somalia' },
+  { flag: '🇱🇰', name: 'Sri Lanka' },
+  { flag: '🇸🇿', name: 'Suazilandia' },
+  { flag: '🇸🇩', name: 'Sudán' },
+  { flag: '🇸🇸', name: 'Sudán del Sur' },
+  { flag: '🇸🇪', name: 'Suecia' },
+  { flag: '🇨🇭', name: 'Suiza' },
+  { flag: '🇸🇷', name: 'Surinam' },
+  { flag: '🇹🇭', name: 'Tailandia' },
+  { flag: '🇹🇼', name: 'Taiwán' },
+  { flag: '🇹🇿', name: 'Tanzania' },
+  { flag: '🇹🇯', name: 'Tayikistán' },
+  { flag: '🇹🇱', name: 'Timor Oriental' },
+  { flag: '🇹🇬', name: 'Togo' },
+  { flag: '🇹🇹', name: 'Trinidad y Tobago' },
+  { flag: '🇹🇳', name: 'Túnez' },
+  { flag: '🇹🇲', name: 'Turkmenistán' },
+  { flag: '🇹🇷', name: 'Turquía' },
+  { flag: '🇺🇦', name: 'Ucrania' },
+  { flag: '🇺🇬', name: 'Uganda' },
+  { flag: '🇺🇾', name: 'Uruguay' },
+  { flag: '🇺🇿', name: 'Uzbekistán' },
+  { flag: '🇻🇺', name: 'Vanuatu' },
+  { flag: '🇻🇪', name: 'Venezuela' },
+  { flag: '🇻🇳', name: 'Vietnam' },
+  { flag: '🇾🇪', name: 'Yemen' },
+  { flag: '🇿🇲', name: 'Zambia' },
+  { flag: '🇿🇼', name: 'Zimbabue' },
+]
+
+var coachNationality = COACH_NATIONALITIES[0]
+
+function renderNationalities(filter) {
+  var list = document.getElementById('nat-picker-list')
+  var filtered = filter ? COACH_NATIONALITIES.filter(function(n) {
+    return n.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1
+  }) : COACH_NATIONALITIES
+  list.innerHTML = filtered.map(function(n) {
+    var sel = n.flag === coachNationality.flag ? ' style="background:var(--accent);color:#fff"' : ''
+    return '<button class="btn-secondary"' + sel + ' onclick="selectCoachNationality(\'' + n.flag + '\',\'' + n.name.replace(/'/g, "\\'") + '\')">' + n.flag + ' ' + n.name + '</button>'
+  }).join('')
+}
+
+function showNationalityPicker() {
+  var modal = document.getElementById('nat-picker-modal')
+  renderNationalities('')
+  modal.classList.remove('hidden')
+  modal.classList.add('open')
+  setTimeout(function() { document.getElementById('nat-search').focus() }, 100)
+}
+
+function selectCoachNationality(flag, name) {
+  var modal = document.getElementById('nat-picker-modal')
+  coachNationality = { flag: flag, name: name }
+  document.getElementById('ng-flag').textContent = flag
+  document.getElementById('ng-nat-name').textContent = name
+  modal.classList.remove('open')
+  modal.classList.add('hidden')
+}
+
+/* Close nat picker */
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('nat-picker-close').onclick = function() {
+    var modal = document.getElementById('nat-picker-modal')
+    modal.classList.remove('open')
+    modal.classList.add('hidden')
+  }
+  document.getElementById('nat-search').oninput = function() {
+    renderNationalities(this.value)
+  }
+})
 
 /* ============ LOAD MENU ============ */
 function showLoadMenu() {
@@ -4085,7 +4535,7 @@ function showTeamInfo(teamId) {
   const logo = getTeamLogo(teamId)
   const posDisplay = pos > 0 ? `${pos}º` : (team.players.length > 0 ? '—' : 'Otra liga')
   const displayPower = getTop11Average(team.players)
-  const reputation = displayPower <= 20 ? 1 : displayPower <= 40 ? 2 : displayPower <= 60 ? 3 : displayPower <= 80 ? 4 : 5
+  const reputation = displayPower < 42 ? 1 : displayPower < 58 ? 2 : displayPower < 72 ? 3 : displayPower < 85 ? 4 : 5
   const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
   const totalVal = team.players.reduce((s, p) => s + (p.value || 0), 0)
   /* Find country flag for this team */
