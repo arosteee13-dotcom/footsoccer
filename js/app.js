@@ -1855,6 +1855,17 @@ function renderLeague(viewedLeagueId) {
       if (i === 0) barClass = 'bar-promotion'
       else if (i < 2) barClass = 'bar-promotion-playoff'
       else if (i >= totalTeams - 4) barClass = 'bar-descenso'
+    } else if (displayLid === 'l1p') {
+      if (i === 0) barClass = 'bar-champion'
+      else if (i < 3) barClass = 'bar-ucl'
+      else if (i < 4) barClass = 'bar-uel'
+      else if (i < 5) barClass = 'bar-conference'
+      else if (i >= totalTeams - 2) barClass = 'bar-descenso'
+      else if (i >= totalTeams - 3) barClass = 'bar-relegation-playoff'
+    } else if (displayLid === 'l2p') {
+      if (i < 2) barClass = 'bar-promotion'
+      else if (i < 3) barClass = 'bar-promotion-playoff'
+      else if (i >= totalTeams - 4) barClass = 'bar-descenso'
     } else if (displayLid === 'lnfs2' || (displayLid && displayLid.startsWith('l2b'))) {
       if (i === 0) barClass = 'bar-champion'
       else if (i < 2) barClass = 'bar-promotion'
@@ -1924,6 +1935,23 @@ function renderLeague(viewedLeagueId) {
       { cls: 'bar-descenso', label: 'Descenso' },
     ]
   } else if (displayLid && displayLid.startsWith('lpl4g')) {
+    legendItems = [
+      { cls: 'bar-promotion', label: 'Ascenso directo' },
+      { cls: 'bar-promotion-playoff', label: 'Playoff Ascenso' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else if (displayLid === 'l1p') {
+    legendItems = [
+      { cls: 'bar-champion', label: 'Campeón' },
+      { cls: 'bar-ucl', label: 'Champions League' },
+      { cls: 'bar-uel', label: 'Europa League Previa' },
+      { cls: 'bar-conference', label: 'Conference League Previa' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-relegation-playoff', label: 'Playoff Descenso' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else if (displayLid === 'l2p') {
     legendItems = [
       { cls: 'bar-promotion', label: 'Ascenso directo' },
       { cls: 'bar-promotion-playoff', label: 'Playoff Ascenso' },
