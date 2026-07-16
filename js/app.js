@@ -535,6 +535,7 @@ window.SaveSystem = {
       const matchday = state.stats.wins + state.stats.draws + state.stats.losses + 1
       const cleanup = p => {
         const { enPista, minutosEnPista, convocado, titular, _yellowsInThisMatch, _redThisMatch, _goalsInMatch, ...rest } = p
+        if (rest.positionExperience) rest.positionExperience = Object.assign({}, rest.positionExperience)
         return rest
       }
       const teamLogoUrl = state.teamLogo || ''
@@ -1698,7 +1699,16 @@ function calcularMediaEnPosicion(jugador, posicionActual) {
   if (!posicionActual) return jugador.energy < 50 ? Math.round(jugador.skill * 0.5) : jugador.skill
   var naturalKey = SIGLA_TO_POS[jugador.position] || jugador.position
   var currentKey = SIGLA_TO_POS[posicionActual] || posicionActual
-  if (naturalKey === currentKey) return jugador.energy < 50 ? Math.round(jugador.skill * 0.5) : jugador.skill
+  var base = jugador.energy < 50 ? Math.round(jugador.skill * 0.5) : jugador.skill
+
+  if (naturalKey === currentKey) {
+    /* Posici\u00f3n principal: aplicar mainPct + experiencia */
+    var basePct = jugador.mainPct !== undefined ? jugador.mainPct : 99
+    var exp = jugador.positionExperience ? (jugador.positionExperience[currentKey] || 0) : 0
+    var expPct = Math.min(100, exp * 0.5)
+    var finalPct = Math.min(100, Math.max(basePct, expPct))
+    return Math.round(base * finalPct / 100)
+  }
 
   /* Conocimiento del jugador (otherPositions + experiencia) */
   var staticPct = 0
@@ -1707,7 +1717,7 @@ function calcularMediaEnPosicion(jugador, posicionActual) {
     if (alt) staticPct = alt.pct
   }
   var expMatches = jugador.positionExperience ? (jugador.positionExperience[currentKey] || 0) : 0
-  var expPct = Math.min(100, expMatches * 3)
+  var expPct = Math.min(100, expMatches * 0.5)
   var knownPct = Math.max(staticPct, expPct, 0)
 
   /* Penalizaci\u00f3n base por grupos */
@@ -1719,7 +1729,6 @@ function calcularMediaEnPosicion(jugador, posicionActual) {
 
   /* Reducir penalizaci\u00f3n con el conocimiento */
   var pct = basePct + (100 - basePct) * knownPct / 100
-  var base = jugador.energy < 50 ? Math.round(jugador.skill * 0.5) : jugador.skill
   return Math.round(base * pct / 100)
 }
 
@@ -3205,6 +3214,25 @@ function simularPartidoRapido(fixture, rivalId) {
       const p = state.players.find(x => x.id === pid)
       if (p) { p.minutosEnPista = 90; p.matches = (p.matches || 0) + 1 }
     })
+    /* Add position experience */
+    startingIds.forEach(function(pid, idx) {
+      var p = state.players.find(function(x) { return x.id === pid })
+      if (!p) return
+      var role = roles[idx]
+      var posKey = SIGLA_TO_POS[role] || role
+      p.positionExperience = p.positionExperience || {}
+      p.positionExperience[posKey] = (p.positionExperience[posKey] || 0) + 1
+    })
+    state.players.forEach(function(p) {
+      if (!p.positionExperience) return
+      // Si no jug\u00f3 de titular pero tiene experiencia, mantener
+      if (!startingIds.includes(p.id) && p.minutosEnPista > 0) {
+        var role = roles[state.benchIds.indexOf(p.id)] || p.position
+        var posKey = SIGLA_TO_POS[role] || role
+        p.positionExperience = p.positionExperience || {}
+        p.positionExperience[posKey] = (p.positionExperience[posKey] || 0) + 0.5
+      }
+    })
     const userGoalscorers = []
     for (let g = 0; g < us; g++) {
       const valid = state.players.filter(p => startingIds.includes(p.id) && p.position !== 'POR' && !p.injury)
@@ -3827,6 +3855,18 @@ function hireStaff(staffMember, team) {
 }
 
 /* ============ AGE & PROGRESSION ============ */
+function calcularAvgRating(matchHistory) {
+  if (!matchHistory || matchHistory.length === 0) return 0
+  var sum = 0, count = 0
+  for (var i = 0; i < matchHistory.length; i++) {
+    if (matchHistory[i].minutes >= 30) {
+      sum += matchHistory[i].rating
+      count++
+    }
+  }
+  return count > 0 ? sum / count : 0
+}
+
 function envejecerYProgresar() {
   var totalM = state.totalMatchdays || 34
   var changes = []
@@ -3835,18 +3875,40 @@ function envejecerYProgresar() {
   state.players.forEach(function(p) {
     var oldSkill = p.skill
     var playRate = Math.min(1, (p.matches || 0) / totalM)
-    var gpg = (p.goals || 0) / Math.max(1, p.matches || 1)
-    var apg = (p.assists || 0) / Math.max(1, p.matches || 1)
-    var perf = playRate + gpg * 0.5 + apg * 0.3
+    var avgRating = calcularAvgRating(p.matchHistory)
 
     if (p.age <= 29) {
-      var gain = perf >= 1.5 ? 3 : perf >= 0.8 ? 2 : perf >= 0.3 ? 1 : perf > 0 ? 1 : 0
-      p.skill = Math.min(99, p.skill + gain)
+      var gain
+      if (avgRating >= 8.0) gain = 5
+      else if (avgRating >= 7.0) gain = 3
+      else if (avgRating >= 6.0) gain = 2
+      else if (avgRating >= 5.0) gain = 1
+      else if (avgRating >= 4.0) gain = 0
+      else gain = -1
+
+      if (p.age < 23 && playRate >= 0.7) gain += 1
+      if (playRate > 0 && playRate < 0.3) gain -= 1
+
+      gain = Math.max(-4, Math.min(5, gain))
+      p.skill = Math.min(99, Math.max(1, p.skill + gain))
     } else {
-      var baseLoss = p.age >= 35 ? 3 : p.age >= 33 ? 2 : 1
-      var actualLoss = Math.round(baseLoss * (1.5 - playRate * 0.5))
+      var baseLoss = p.age >= 35 ? 4 : p.age >= 33 ? 2 : 1
+      var change
+      if (avgRating >= 8.0) change = 1
+      else if (avgRating >= 7.0) change = 0
+      else if (avgRating >= 6.0) change = -1
+      else if (avgRating >= 5.0) change = -1
+      else if (avgRating >= 4.0) change = -2
+      else change = -4
+
+      change -= baseLoss - 1
+      if (playRate < 0.3 && avgRating > 0) change -= 1
+      if (playRate === 0) change -= 1
+
       var minSkill = p.age >= 35 ? 40 : p.age >= 33 ? 45 : 50
-      p.skill = Math.max(minSkill, p.skill - actualLoss)
+      var finalSkill = Math.max(minSkill, Math.min(99, p.skill + Math.max(-4, Math.min(3, change))))
+      change = finalSkill - p.skill
+      p.skill = finalSkill
     }
 
     var change = Math.round(p.skill - oldSkill)
@@ -3885,18 +3947,39 @@ function progresarJugadoresIA(totalM) {
     var keep = []
     team.players.forEach(function(p) {
       var playRate = Math.min(1, (p.matches || 0) / totalM)
-      var gpg = (p.goals || 0) / Math.max(1, p.matches || 1)
-      var apg = (p.assists || 0) / Math.max(1, p.matches || 1)
-      var perf = playRate + gpg * 0.5 + apg * 0.3
+      var avgRating = calcularAvgRating(p.matchHistory)
 
       if (p.age <= 29) {
-        var gain = perf >= 1.5 ? 3 : perf >= 0.8 ? 2 : perf >= 0.3 ? 1 : perf > 0 ? 1 : 0
-        p.skill = Math.min(99, p.skill + gain)
+        var gain
+        if (avgRating >= 8.0) gain = 5
+        else if (avgRating >= 7.0) gain = 3
+        else if (avgRating >= 6.0) gain = 2
+        else if (avgRating >= 5.0) gain = 1
+        else if (avgRating >= 4.0) gain = 0
+        else gain = -1
+
+        if (p.age < 23 && playRate >= 0.7) gain += 1
+        if (playRate > 0 && playRate < 0.3) gain -= 1
+
+        gain = Math.max(-4, Math.min(5, gain))
+        p.skill = Math.min(99, Math.max(1, p.skill + gain))
       } else {
-        var baseLoss = p.age >= 35 ? 3 : p.age >= 33 ? 2 : 1
-        var actualLoss = Math.round(baseLoss * (1.5 - playRate * 0.5))
+        var baseLoss = p.age >= 35 ? 4 : p.age >= 33 ? 2 : 1
+        var change
+        if (avgRating >= 8.0) change = 1
+        else if (avgRating >= 7.0) change = 0
+        else if (avgRating >= 6.0) change = -1
+        else if (avgRating >= 5.0) change = -1
+        else if (avgRating >= 4.0) change = -2
+        else change = -4
+
+        change -= baseLoss - 1
+        if (playRate < 0.3 && avgRating > 0) change -= 1
+        if (playRate === 0) change -= 1
+
         var minSkill = p.age >= 35 ? 40 : p.age >= 33 ? 45 : 50
-        p.skill = Math.max(minSkill, p.skill - actualLoss)
+        var finalSkill = Math.max(minSkill, Math.min(99, p.skill + Math.max(-4, Math.min(3, change))))
+        p.skill = finalSkill
       }
 
       if (p.age >= 35 && (p.matches || 0) < 5 && Math.random() < 0.5) {
@@ -5757,11 +5840,15 @@ function openPlayerDetail(player, teamObj) {
     cierre: [68, 50], ala: [38, 50], pivot: [15, 50],
   }
   const MAIN_PCT = player.mainPct !== undefined ? player.mainPct : 99
+  const mainExp = player.positionExperience ? (player.positionExperience[posKey] || 0) : 0
+  const mainEffectivePct = Math.min(100, Math.max(MAIN_PCT, mainExp * 0.5))
   const mainColor = (POSITIONS[posKey] || {}).color || '#2663EB'
+  const mainMastered = mainEffectivePct >= 100
+  const mainOpacity = mainMastered ? 1.0 : (0.35 + 0.65 * mainEffectivePct / 100)
   let adaptHtml = `<div class="pd-pos-label">Posici\u00f3n principal</div>
-    <div class="pd-pos-row main" style="color:${mainColor}">
-      <span>${posLabel} (${mainAbbr})</span>
-      <span>${MAIN_PCT}%</span>
+    <div class="pd-pos-row main" style="color:${mainColor};opacity:${mainOpacity.toFixed(2)};font-weight:${mainMastered ? '600' : '400'}">
+      <span>${posLabel} (${mainAbbr})${mainExp > 0 ? ' <span style="font-size:9px;color:var(--text-muted);font-weight:400">' + mainExp + ' pj</span>' : ''}</span>
+      <span>${mainEffectivePct}%</span>
     </div>`
   if (otherPositions.length > 0) {
     adaptHtml += `<div class="pd-pos-label">Otras posiciones</div>`
@@ -5769,12 +5856,18 @@ function openPlayerDetail(player, teamObj) {
       const altPos = alt.pos || alt
       const altKey = SIGLA_TO_POS[altPos] || altPos
       const altPct = alt.pct !== undefined ? alt.pct : 1
+      const exp = player.positionExperience ? (player.positionExperience[altKey] || 0) : 0
+      const expPct = Math.min(100, exp * 0.5)
+      const effectivePct = Math.min(100, Math.max(altPct, expPct))
       const altLabel = POSITIONS[altKey] ? POSITIONS[altKey].label : altPos
       const altAbbr = POS_ABBR[altKey] || altPos
       const altColor = (POSITIONS[altKey] || {}).color || '#2663EB'
-      adaptHtml += `<div class="pd-pos-row" style="color:${altColor}">
-        <span>${altLabel} (${altAbbr})${player.positionExperience && player.positionExperience[altKey] ? ' <span style="font-size:9px;color:var(--text-muted);font-weight:400">' + player.positionExperience[altKey] + ' pj</span>' : ''}</span>
-        <span>${altPct}%</span>
+      const isMastered = effectivePct >= 100
+      const opacity = isMastered ? 1.0 : (0.35 + 0.65 * effectivePct / 100)
+      const fontWeight = isMastered ? '600' : '400'
+      adaptHtml += `<div class="pd-pos-row" style="color:${altColor};opacity:${opacity.toFixed(2)};font-weight:${fontWeight}">
+        <span>${altLabel} (${altAbbr})${exp > 0 ? ' <span style="font-size:9px;color:var(--text-muted);font-weight:400">' + exp + ' pj</span>' : ''}</span>
+        <span>${effectivePct}%</span>
       </div>`
     }
   }
@@ -5788,10 +5881,14 @@ function openPlayerDetail(player, teamObj) {
   for (const alt of otherPositions) {
     const altPos = alt.pos || alt
     const altKey = SIGLA_TO_POS[altPos] || altPos
+    const altPct = alt.pct !== undefined ? alt.pct : 1
+    const altExp = player.positionExperience ? (player.positionExperience[altKey] || 0) : 0
+    const altEffectivePct = Math.min(100, Math.max(altPct, altExp * 0.5))
     const altCoords = PITCH_POS[altPos] || [50, 50]
     const altAbbr = POS_ABBR[altKey] || altPos
     const altBadgeColor = (POSITIONS[altKey] || {}).color || '#2663EB'
-    pitchHtml += `<span class="pd-pitch-badge alt" style="background:${altBadgeColor};top:${altCoords[0]}%;left:${altCoords[1]}%">${altAbbr}</span>`
+    const altBadgeOpacity = altEffectivePct >= 100 ? 1.0 : (0.35 + 0.65 * altEffectivePct / 100)
+    pitchHtml += `<span class="pd-pitch-badge alt" style="background:${altBadgeColor};opacity:${altBadgeOpacity.toFixed(2)};top:${altCoords[0]}%;left:${altCoords[1]}%">${altAbbr}</span>`
   }
   pitch.innerHTML = pitchHtml
 
