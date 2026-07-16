@@ -1874,7 +1874,8 @@ function renderLeague(viewedLeagueId) {
     } else if (displayLid === 'l2p') {
       if (i < 2) barClass = 'bar-promotion'
       else if (i < 3) barClass = 'bar-promotion-playoff'
-      else if (i >= totalTeams - 4) barClass = 'bar-descenso'
+      else if (i === totalTeams - 3) barClass = 'bar-relegation-playoff'
+      else if (i >= totalTeams - 2) barClass = 'bar-descenso'
     } else if (displayLid === 'lnfs2' || (displayLid && displayLid.startsWith('l2b'))) {
       if (i === 0) barClass = 'bar-champion'
       else if (i < 2) barClass = 'bar-promotion'
@@ -1965,6 +1966,7 @@ function renderLeague(viewedLeagueId) {
       { cls: 'bar-promotion', label: 'Ascenso directo' },
       { cls: 'bar-promotion-playoff', label: 'Playoff Ascenso' },
       { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-relegation-playoff', label: 'Playoff Descenso' },
       { cls: 'bar-descenso', label: 'Descenso' },
     ]
   } else {
@@ -2556,7 +2558,9 @@ function procesarFinTemporada(skipAging, skipStandings) {
   let pos = 0
   let esPrimera = false, esSegunda = false, esSegundaB = false, esTercera = false, esHonor = false, esPrimeraCat = false, esSegonaCat = false, esTerceraCat = false
   let esPolaca1 = false, esPolaca2 = false, esPolaca3 = false, esPolaca4 = false
+  let esPrimeraPortugal = false, esSegundaPortugal = false
   let esPlayoffTercera = false, esPlayoffPolaca2 = false, esPlayoffPolaca3 = false, esPlayoffDescensoLP3 = false, esPlayoffAscensoLP4 = false
+  let esPlayoffAscensoPortugal = false, esPlayoffDescensoPortugal = false
   let msg = ''
 
   if (!skipStandings) {
@@ -2576,6 +2580,8 @@ function procesarFinTemporada(skipAging, skipStandings) {
     esPolaca3 = state.leagueId === 'lpl3'
     esPolaca4 = state.leagueId && state.leagueId.startsWith('lpl4g')
     esPrimeraSpain = state.leagueId === 'l1s'
+    esPrimeraPortugal = state.leagueId === 'l1p'
+    esSegundaPortugal = state.leagueId === 'l2p'
 
     const esTerceraCatalana = state.leagueId === 'l3g1' || state.leagueId === 'l3g2'
     const totalTeams = standings.length
@@ -2658,6 +2664,16 @@ function procesarFinTemporada(skipAging, skipStandings) {
       cambioDivision = true
     } else if (esPolaca4 && pos === 2) {
       esPlayoffAscensoLP4 = true
+    } else if (esPrimeraPortugal && pos >= 17) {
+      state.leagueId = 'l2p'
+      cambioDivision = true
+    } else if (esPrimeraPortugal && pos === 16) {
+      esPlayoffDescensoPortugal = true
+    } else if (esSegundaPortugal && pos <= 2) {
+      state.leagueId = 'l1p'
+      cambioDivision = true
+    } else if (esSegundaPortugal && pos === 3) {
+      esPlayoffAscensoPortugal = true
     }
 
     msg = `📊 Temporada finalizada. Posición: ${pos}º`
@@ -2685,6 +2701,10 @@ function procesarFinTemporada(skipAging, skipStandings) {
     else if (esPlayoffDescensoLP3) msg += '\n⚠️ Playoff de Descenso — te la juegas por la permanencia'
     else if (cambioDivision && esPolaca4) msg += '\n🎉 ¡ASCENSO a Tercera Polaca!'
     else if (esPlayoffAscensoLP4) msg += '\n🏆 Accedes a la Fase de Ascenso a Tercera Polaca'
+    else if (cambioDivision && esPrimeraPortugal) msg += '\n⚠️ DESCENSO a Segunda Liga Portugal'
+    else if (cambioDivision && esSegundaPortugal) msg += '\n🎉 ¡ASCENSO a Liga Portugal Betclic!'
+    else if (esPlayoffAscensoPortugal) msg += '\n🏆 Accedes al Playoff de Ascenso a Primeira Liga'
+    else if (esPlayoffDescensoPortugal) msg += '\n⚠️ Playoff de Descenso — te la juegas por la permanencia en Primeira Liga'
     else if (esTercera) msg += '\nPermanencia en 3ª División Nacional'
     else if (esSegundaB) msg += '\nPermanencia en 2ª División B'
     else if (esHonor) msg += '\nPermanencia en Divisió d\'Honor Catalana'
@@ -2695,6 +2715,8 @@ function procesarFinTemporada(skipAging, skipStandings) {
     else if (esPolaca2) msg += '\nPermanencia en Segunda Polaca'
     else if (esPolaca3) msg += '\nPermanencia en Tercera Polaca'
     else if (esPolaca4) msg += '\nPermanencia en Cuarta Polaca'
+    else if (esPrimeraPortugal) msg += '\nPermanencia en Primeira Liga'
+    else if (esSegundaPortugal) msg += '\nPermanencia en Segunda Liga Portugal'
     else if (esPrimeraSpain && pos === 1) msg += '\n🏆 ¡CAMPEÓN DE LA LIGA!'
     else if (esPrimeraSpain && pos <= 4) msg += '\n✅ Clasificado a Champions League'
     else if (esPrimeraSpain && pos === 5) msg += '\n✅ Clasificado a Europa League'
@@ -2756,6 +2778,28 @@ function procesarFinTemporada(skipAging, skipStandings) {
     saveGame()
     addNotification('match', `🏆 ${msg}`, 'Playoff de Ascenso a Tercera Polaca')
     setTimeout(() => { alert(msg); iniciarPlayoffAscensoLP4() }, 100)
+    return
+  }
+
+  if (esPlayoffAscensoPortugal) {
+    /* l2p position 3 — promotion playoff vs l1p position 16 */
+    state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
+    document.getElementById('league-results-wrap').classList.add('hidden')
+    renderLeague()
+    saveGame()
+    addNotification('match', `🏆 ${msg}`, 'Playoff de Ascenso a Primeira Liga')
+    setTimeout(() => { alert(msg); iniciarPlayoffAscensoPortugal() }, 100)
+    return
+  }
+
+  if (esPlayoffDescensoPortugal) {
+    /* l1p position 16 — relegation playoff vs l2p position 3 */
+    state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
+    document.getElementById('league-results-wrap').classList.add('hidden')
+    renderLeague()
+    saveGame()
+    addNotification('match', `⚠️ ${msg}`, 'Playoff de Descenso en Primeira Liga')
+    setTimeout(() => { alert(msg); iniciarPlayoffDescensoPortugal() }, 100)
     return
   }
 
@@ -3003,6 +3047,38 @@ function avanzarRondaPlayoff() {
           procesarFinTemporada(true, true)
         }, 300)
       }
+    } else if (pf.esPlayoffPortugal) {
+      const ganador = winners[0]
+      const ganadorUser = ganador === state.teamId
+      if (pf.esAscenso) {
+        /* User was l2p P3, playing to ascend */
+        if (ganadorUser) {
+          state.leagueId = 'l1p'
+          setTimeout(() => {
+            alert('🎉 ¡ASCENSO a Primeira Liga!\n\nGanaste el playoff de ascenso desde Segunda Liga Portugal.')
+            procesarFinTemporada(true, true)
+          }, 300)
+        } else {
+          setTimeout(() => {
+            alert('❌ No lograste el ascenso.\n\nUna temporada más en Segunda Liga Portugal.')
+            procesarFinTemporada(true, true)
+          }, 300)
+        }
+      } else {
+        /* User was l1p P16, playing to stay */
+        if (ganadorUser) {
+          setTimeout(() => {
+            alert('✅ ¡PERMANENCIA!\n\nGanaste el playoff de descenso. Una temporada más en Primeira Liga.')
+            procesarFinTemporada(true, true)
+          }, 300)
+        } else {
+          state.leagueId = 'l2p'
+          setTimeout(() => {
+            alert('❌ DESCENSO a Segunda Liga Portugal.\n\nPerdiste el playoff de descenso.')
+            procesarFinTemporada(true, true)
+          }, 300)
+        }
+      }
     } else {
       /* LNFS or other championship playoff */
       if (esCampeon) {
@@ -3143,6 +3219,56 @@ function iniciarPlayoffAscensoLP4() {
   const userFixture = state.playoffs.fixtures.find(function(f) { return f.home === state.teamId || f.away === state.teamId })
   const oppName = userFixture ? getTeamName(userFixture.home === state.teamId ? userFixture.away : userFixture.home) : '—'
   addNotification('match', '🏆 Playoff Ascenso — Semifinal', `Te enfrentas a ${oppName} por el ascenso a Tercera Polaca`)
+  saveGame()
+}
+
+function iniciarPlayoffAscensoPortugal() {
+  /* l2p position 3 — promotion playoff vs l1p position 16 */
+  const l1pTeams = getLeagueTeams('l1p')
+  const l1pData = state.allLeagueData['l1p']
+  if (!l1pData || !l1pData.fixtures || l1pTeams.length < 16) {
+    alert('No hay suficientes datos para el playoff de ascenso a Primeira Liga.')
+    procesarFinTemporada(true, true)
+    return
+  }
+  const l1pStandings = computeStandings(l1pData.fixtures, l1pTeams.map(t => t.id))
+  const rivalId = l1pStandings[15] ? l1pStandings[15].teamId : l1pTeams[15].id
+
+  state.playoffs = {
+    round: 'F',
+    fixtures: [
+      { round: 'F', home: state.teamId, away: rivalId, homeScore: null, awayScore: null, played: false },
+    ],
+    esPlayoffPortugal: true,
+    esAscenso: true,
+  }
+  const rivalName = getTeamName(rivalId)
+  addNotification('match', '🏆 Playoff Ascenso — Final', `Te enfrentas a ${rivalName} por el ascenso a Primeira Liga`)
+  saveGame()
+}
+
+function iniciarPlayoffDescensoPortugal() {
+  /* l1p position 16 — relegation playoff vs l2p position 3 */
+  const l2pTeams = getLeagueTeams('l2p')
+  const l2pData = state.allLeagueData['l2p']
+  if (!l2pData || !l2pData.fixtures || l2pTeams.length < 3) {
+    alert('No hay suficientes datos para el playoff de descenso en Primeira Liga.')
+    procesarFinTemporada(true, true)
+    return
+  }
+  const l2pStandings = computeStandings(l2pData.fixtures, l2pTeams.map(t => t.id))
+  const rivalId = l2pStandings[2] ? l2pStandings[2].teamId : l2pTeams[2].id
+
+  state.playoffs = {
+    round: 'F',
+    fixtures: [
+      { round: 'F', home: state.teamId, away: rivalId, homeScore: null, awayScore: null, played: false },
+    ],
+    esPlayoffPortugal: true,
+    esAscenso: false,
+  }
+  const rivalName = getTeamName(rivalId)
+  addNotification('match', '⚠️ Playoff Descenso — Final', `Te enfrentas a ${rivalName} por la permanencia en Primeira Liga`)
   saveGame()
 }
 
@@ -4734,7 +4860,7 @@ const COACH_NATIONALITIES = [
   { flag: '🇭🇺', name: 'Hungría' },
   { flag: '🇮🇳', name: 'India' },
   { flag: '🇮🇩', name: 'Indonesia' },
-  { flag: '🇬🇧', name: 'Inglaterra' },
+  { flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', name: 'Inglaterra' },
   { flag: '🇮🇶', name: 'Irak' },
   { flag: '🇮🇷', name: 'Irán' },
   { flag: '🇮🇪', name: 'Irlanda' },
