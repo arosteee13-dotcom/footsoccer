@@ -4243,6 +4243,10 @@ function renderTab(tab) {
 
 function getDivisionBaseBudget(leagueId) {
   if (!leagueId) return 5000
+  if (leagueId === 'l1s') return 100000
+  if (leagueId === 'l2s') return 30000
+  if (leagueId === 'l1p') return 35000
+  if (leagueId === 'l2p') return 15000
   if (leagueId === 'lnfs1') return 50000
   if (leagueId === 'lnfs2') return 30000
   if (leagueId === 'lpl') return 25000
@@ -4261,6 +4265,7 @@ function getDivisionBaseBudget(leagueId) {
 function getCountryBudgetMult(countryId) {
   if (countryId === 'es') return 1.0
   if (countryId === 'pt') return 0.9
+  if (countryId === 'pl') return 1.0
   return 0.8
 }
 
@@ -4306,10 +4311,7 @@ function newGame(coach) {
   state.convocatoriaValidada = false
   /* Clear old tactics save */
   try { const raw = storageSafe('get', TACTICS_KEY); const all = raw ? JSON.parse(raw) : {}; delete all[state.gameId]; storageSafe('set', TACTICS_KEY, JSON.stringify(all)) } catch {}
-  const baseBudget = getDivisionBaseBudget(state.leagueId)
-  const countryMult = getCountryBudgetMult(state.countryId)
-  const ratingMult = (selectedTeam.rating || 50) / 50
-  const startingBudget = Math.round(baseBudget * countryMult * ratingMult)
+  const startingBudget = selectedTeam.budget || Math.round(getDivisionBaseBudget(state.leagueId) * getCountryBudgetMult(state.countryId) * ((selectedTeam.rating || 50) / 50))
   state.finances = { balance: startingBudget, history: [] }
   state.inbox = []
   state.captainId = null
