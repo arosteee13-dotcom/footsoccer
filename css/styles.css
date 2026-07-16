@@ -4594,6 +4594,17 @@ td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
   pointer-events: none;
 }
 
+.ng-error-msg {
+  text-align: center;
+  padding: 16px 24px;
+  color: #EF4444;
+  font-size: 14px;
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.08);
+  border-radius: 8px;
+  margin: 12px;
+}
+
 /* Country Grid */
 .ng-grid {
   flex: 1;

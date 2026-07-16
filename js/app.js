@@ -250,7 +250,6 @@ const COUNTRIES = [
   { id: 'poland', name: 'Polonia', flag: '🇵🇱' },
   { id: 'spain', name: 'España', flag: '🇪🇸' },
   { id: 'portugal', name: 'Portugal', flag: '🇵🇹' },
-  { id: 'italy', name: 'Italia', flag: '🇮🇹' },
 ]
 
 window.DB = window.DB || {}
@@ -358,8 +357,19 @@ function loadCountryData(countryId, callback) {
   if (window.DB[countryId]) { callback(window.DB[countryId]); return }
   const script = document.createElement('script')
   script.src = `js/data/${countryId}.js`
-  script.onload = () => callback(window.DB[countryId])
-  script.onerror = () => { console.error('Failed to load data for', countryId); callback(null) }
+  script.onload = () => {
+    if (window.DB[countryId]) {
+      callback(window.DB[countryId])
+    } else {
+      callback(null)
+    }
+  }
+  script.onerror = () => {
+    console.error('Error al cargar datos de', countryId)
+    const msg = document.getElementById('ng-error-msg')
+    if (msg) { msg.textContent = 'Error al cargar los datos. Verifica que los archivos de datos existen.'; msg.classList.remove('hidden') }
+    callback(null)
+  }
   document.head.appendChild(script)
 }
 
@@ -4535,8 +4545,14 @@ function showTeamSelectionStep() {
   if (!selectedCountry) return
   const countryId = selectedCountry.id
 
+  const msg = document.getElementById('ng-error-msg')
+  if (msg) { msg.classList.add('hidden'); msg.textContent = '' }
+
   loadCountryData(countryId, function(data) {
-    if (!data) return
+    if (!data) {
+      if (msg) { msg.textContent = 'No se pudieron cargar los datos de ' + selectedCountry.name + '. Intenta de nuevo.'; msg.classList.remove('hidden') }
+      return
+    }
 
     selectedLeague = null
     selectedTeam = null
