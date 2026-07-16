@@ -1859,6 +1859,10 @@ function renderLeague(viewedLeagueId) {
       else if (i < 3) barClass = 'bar-uel'
       else if (i < 4) barClass = 'bar-conference'
       else if (i >= totalTeams - 3) barClass = 'bar-descenso'
+    } else if (displayLid === 'l2s') {
+      if (i < 2) barClass = 'bar-promotion'
+      else if (i < 6) barClass = 'bar-promotion-playoff'
+      else if (i >= totalTeams - 4) barClass = 'bar-descenso'
     } else if (displayLid === 'lpl2') {
       if (i === 0) barClass = 'bar-champion'
       else if (i < 2) barClass = 'bar-promotion'
@@ -1934,6 +1938,13 @@ function renderLeague(viewedLeagueId) {
     legendItems = [
       { cls: 'bar-champion', label: 'Campeón' },
       { cls: 'bar-promotion-playoff', label: 'Playoff Campeonato' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else if (displayLid === 'l2s') {
+    legendItems = [
+      { cls: 'bar-promotion', label: 'Ascenso directo' },
+      { cls: 'bar-promotion-playoff', label: 'Playoff Ascenso' },
       { cls: 'bar-permanencia', label: 'Permanencia' },
       { cls: 'bar-descenso', label: 'Descenso' },
     ]
@@ -2570,6 +2581,7 @@ function procesarFinTemporada(skipAging, skipStandings) {
   let esPolaca1 = false, esPolaca2 = false, esPolaca3 = false, esPolaca4 = false
   let esPrimeraPortugal = false, esSegundaPortugal = false
   let esPlayoffTercera = false, esPlayoffPolaca2 = false, esPlayoffPolaca3 = false, esPlayoffDescensoLP3 = false, esPlayoffAscensoLP4 = false
+  let esPlayoffSegundaSpain = false
   let esPlayoffAscensoPortugal = false, esPlayoffDescensoPortugal = false
   let msg = ''
 
@@ -2592,6 +2604,7 @@ function procesarFinTemporada(skipAging, skipStandings) {
     esPrimeraSpain = state.leagueId === 'l1s'
     esPrimeraPortugal = state.leagueId === 'l1p'
     esSegundaPortugal = state.leagueId === 'l2p'
+    esSegundaSpain = state.leagueId === 'l2s'
 
     const esTerceraCatalana = state.leagueId === 'l3g1' || state.leagueId === 'l3g2'
     const totalTeams = standings.length
@@ -2674,6 +2687,14 @@ function procesarFinTemporada(skipAging, skipStandings) {
       cambioDivision = true
     } else if (esPolaca4 && pos === 2) {
       esPlayoffAscensoLP4 = true
+    } else if (esSegundaSpain && pos <= 2) {
+      state.leagueId = 'l1s'
+      cambioDivision = true
+    } else if (esSegundaSpain && pos >= 3 && pos <= 6) {
+      esPlayoffSegundaSpain = true
+    } else if (esSegundaSpain && pos >= 19) {
+      state.leagueId = 'l2b1'
+      cambioDivision = true
     } else if (esPrimeraPortugal && pos >= 17) {
       state.leagueId = 'l2p'
       cambioDivision = true
@@ -2687,7 +2708,10 @@ function procesarFinTemporada(skipAging, skipStandings) {
     }
 
     msg = `📊 Temporada finalizada. Posición: ${pos}º`
-    if (cambioDivision && esPrimera) msg += '\n⚠️ DESCENSO a Segunda División'
+    if (esPlayoffSegundaSpain) msg += '\n🏆 Accedes a la Fase de Ascenso a LaLiga'
+    else if (cambioDivision && esSegundaSpain && pos <= 2) msg += '\n🎉 ¡ASCENSO a LaLiga!'
+    else if (cambioDivision && esSegundaSpain) msg += '\n⚠️ DESCENSO a Primera Federación'
+    else if (cambioDivision && esPrimera) msg += '\n⚠️ DESCENSO a Segunda División'
     else if (cambioDivision && esSegunda && pos >= 15) msg += '\n⚠️ DESCENSO a 2ª División B'
     else if (cambioDivision && esSegunda) msg += '\n🎉 ¡ASCENSO a Primera División!'
     else if (cambioDivision && esSegundaB && pos <= 2) msg += '\n🎉 ¡ASCENSO a Segunda División!'
