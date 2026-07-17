@@ -734,26 +734,16 @@ function formatTime(minute) {
 
 /* ============ SAVE / LOAD ============ */
 function storageSafe(method, key, value) {
-  var result = null
   try {
     if (method === 'get') {
-      result = localStorage.getItem(key)
-      if (result !== null) return result
+      var v = localStorage.getItem(key)
+      return v !== null ? v : null
     } else {
       localStorage.setItem(key, value)
       var check = localStorage.getItem(key)
-      if (check !== null) return true
+      return check !== null
     }
-  } catch(e) { console.warn('[STORAGE] localStorage ' + method + ' falló:', e) }
-  try {
-    if (method === 'get') {
-      result = sessionStorage.getItem(key)
-      return result
-    } else {
-      sessionStorage.setItem(key, value)
-      return true
-    }
-  } catch(e) { console.warn('[STORAGE] sessionStorage ' + method + ' falló:', e); return null }
+  } catch(e) { console.warn('[STORAGE] Error:', e); return null }
 }
 
 function getTop11Average(players) {
@@ -780,7 +770,11 @@ function getSaves() {
     return parsed
   } catch(e) { console.warn('[SAVE] Error parsing saves:', e); return [] }
 }
-function setSaves(saves) { storageSafe('set', STORAGE_KEY, JSON.stringify(saves)) }
+function setSaves(saves) {
+  var ok = storageSafe('set', STORAGE_KEY, JSON.stringify(saves))
+  if (!ok) { alert('[Error] No se pudo guardar la partida. El almacenamiento del navegador no est\u00e1 disponible.'); return false }
+  return true
+}
 
 function timeAgo(iso) {
   if (!iso) return ''
@@ -859,12 +853,13 @@ window.SaveSystem = {
         presupuestoInicial: state.presupuestoInicial || 0,
       }
       if (idx >= 0) saves[idx] = data; else saves.unshift(data)
-      setSaves(saves)
+      var saveOk = setSaves(saves)
+      if (!saveOk) return
       autoSaveTactics()
       var verify = getSaves()
-      if (verify.length === 0) { console.warn('[SAVE] Verification failed - saves appear empty after write') }
+      if (verify.length === 0) { console.warn('[SAVE] Verification failed - saves appear empty after write'); alert('[Error] La partida no se guard\u00f3 correctamente. El almacenamiento local no est\u00e1 disponible.') }
       else { console.log('[SAVE] OK - slot:', saves.indexOf(data), 'gameId:', gameId, '- total saves:', verify.length) }
-    } catch(e) { console.warn('[SAVE] Error:', e) }
+    } catch(e) { console.warn('[SAVE] Error:', e); if (e.message && e.message.includes('localStorage')) { alert('[Error] No se pudo acceder al almacenamiento local. Revisa la configuraci\u00f3n de privacidad de tu navegador.') } }
   },
 
   loadGame(id) {
@@ -901,11 +896,11 @@ function autoSaveTactics() {
   if (!state.gameId) return
   const data = { formation: state.tactic.formation, gamePlan: state.tactic.gamePlan, tacticsSlots: state.tacticsSlots, captainId: state.captainId, benchIds: state.benchIds, reserveIds: state.reserveIds }
   try {
-    const raw = storageSafe('get', TACTICS_KEY)
+    var raw = localStorage.getItem(TACTICS_KEY)
     const all = raw ? JSON.parse(raw) : {}
     all[state.gameId] = data
-    storageSafe('set', TACTICS_KEY, JSON.stringify(all))
-  } catch {}
+    localStorage.setItem(TACTICS_KEY, JSON.stringify(all))
+  } catch(e) { console.warn('[SAVE] Error saving tactics:', e) }
 }
 
 function loadTactics() {
