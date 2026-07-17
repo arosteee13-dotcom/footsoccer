@@ -44,6 +44,48 @@ function getGoalWeight(position) {
   return 2
 }
 
+function getCardProb(position, gamePlan) {
+  var defs = ['defensa_central', 'lateral_der', 'lateral_izq', 'carrilero_der', 'carrilero_izq']
+  var mids = ['mediocentro', 'medio_def', 'medio_ofensivo', 'medio_der', 'medio_izq']
+  var yellowBase = 0.10, redBase = 0.01
+  if (defs.indexOf(position) >= 0) { yellowBase = 0.12; redBase = 0.015 }
+  else if (mids.indexOf(position) >= 0) { yellowBase = 0.10; redBase = 0.01 }
+  else { yellowBase = 0.08; redBase = 0.005 }
+  if (gamePlan === 'pesado') { yellowBase += 0.03; redBase += 0.005 }
+  else if (gamePlan === 'suave') { yellowBase -= 0.02; redBase -= 0.003 }
+  return { yellow: Math.max(0.01, yellowBase), red: Math.max(0.003, redBase) }
+}
+
+function asignarTarjetasJugador(p, gamePlan) {
+  var probs = getCardProb(p.position, gamePlan)
+  var yaAmarilla = p._yellowThisMatch
+
+  if (Math.random() < probs.yellow) {
+    if (yaAmarilla) {
+      p._redThisMatch = true
+      p._redType = 'doubleYellow'
+      p.redCards = (p.redCards || 0) + 1
+    } else {
+      p.yellowCards = (p.yellowCards || 0) + 1
+      p._yellowThisMatch = true
+    }
+  }
+
+  if (Math.random() < probs.red) {
+    if (yaAmarilla || p._yellowThisMatch) {
+      if (!p._redType) {
+        p._redType = 'doubleYellow'
+        p.redCards = (p.redCards || 0) + 1
+        p._redThisMatch = true
+      }
+    } else {
+      p._redType = Math.random() < 0.3 ? 'directGrave' : 'directLight'
+      p.redCards = (p.redCards || 0) + 1
+      p._redThisMatch = true
+    }
+  }
+}
+
 function pickWeightedRandom(arr, weightFn) {
   var total = 0
   for (var i = 0; i < arr.length; i++) total += weightFn(arr[i])
@@ -296,6 +338,8 @@ function generateCpuPlayer(teamId, countryId, teamRating, position, overrides) {
     injury: null, age: age, foot: foot,
     contractUntil: '30/06/' + (2027 + randInt(0, 2)),
     onLoan: false, loanFrom: null, loanUntil: null,
+    _suspended: null,
+    _redType: null,
   }
 }
 
@@ -958,12 +1002,12 @@ function autoSimulateOtherMatch(homeId, awayId) {
     }
   }
   /* Assign stats to AI players with position experience tracking */
-  assignAIStats(home.players, homeScore, home.formation)
-  assignAIStats(away.players, awayScore, away.formation)
+  assignAIStats(home.players, homeScore, home.formation, home.gamePlan)
+  assignAIStats(away.players, awayScore, away.formation, away.gamePlan)
   return { homeScore, awayScore }
 }
 
-function assignAIStats(players, goals, formation) {
+function assignAIStats(players, goals, formation, gamePlan) {
   var fieldPlayers = players.filter(function(p) { return p.position !== 'POR' })
   if (fieldPlayers.length === 0) return
 
@@ -1031,10 +1075,16 @@ function assignAIStats(players, goals, formation) {
       }
     }
   }
+
+  /* Assign cards to AI players */
+  var cardGP = gamePlan || 'extremo'
+  for (var ci = 0; ci < fieldPlayers.length; ci++) {
+    asignarTarjetasJugador(fieldPlayers[ci], cardGP)
+  }
 }
 
 function assignAIStatsSimple(players, goals) {
-  assignAIStats(players, goals, null)
+  assignAIStats(players, goals, null, null)
 }
 
 function simularPartidoPorRating(homeId, awayId) {
@@ -1243,7 +1293,7 @@ function renderSquadInfo(players) {
         <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
         <div class="tp-cell-info">
           <span class="tp-cell-name">${p.name}</span>
-          <span class="tp-cell-value">${p.nationality || ''} ${p.transferListed ? '<span class="player-badge badge-lt" style="font-size:8px">TR</span>' : ''}${p.loanListed ? '<span class="player-badge badge-lc" style="font-size:8px">CED</span>' : ''}</span>
+          <span class="tp-cell-value">${p.nationality || ''} ${p._suspended ? '<span class="player-badge badge-lt" style="font-size:8px;background:#EF4444">SUS</span>' : ''} ${p.transferListed ? '<span class="player-badge badge-lt" style="font-size:8px">TR</span>' : ''}${p.loanListed ? '<span class="player-badge badge-lc" style="font-size:8px">CED</span>' : ''}</span>
         </div>
       </div>
       <span class="tp-cell-age">${p.age || '-'}</span>
@@ -1749,7 +1799,7 @@ function renderTactics(tactic) {
 
   /* Once inicial: posici\u00f3n exacta primero, luego mejor ajuste */
   state.tacticsSlots = roles.map(function(role) {
-    var candidates = allPlayers.filter(function(p) { return !assigned.includes(p.id) })
+    var candidates = allPlayers.filter(function(p) { return !assigned.includes(p.id) && !p._suspended })
     candidates = candidates.filter(function(p) {
       var pKey = SIGLA_TO_POS[p.position] || p.position
       if (role === 'portero') return pKey === 'portero'
@@ -2606,7 +2656,7 @@ function resetSeason() {
   state.fixtures.forEach(f => { f.played = false; f.homeScore = null; f.awayScore = null })
 
   /* Reset players */
-  state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
+  state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0; p._suspended = null; p._redType = null; p.yellowCards = 0; p.redCards = 0 })
 
   /* Reset CPU teams */
   state.leagueTeams.forEach(t => {
@@ -2641,6 +2691,7 @@ function resetSeason() {
   state.finances.history.push({ reason: '🏆 Premio temporada', amount: seasonPrize })
 
   autoSaveTactics()
+  actualizarIndicadorTemporada()
   saveGame()
   renderLeague()
 }
@@ -2664,6 +2715,31 @@ function procesarEconomiaSemanal() {
     if (Math.random() < 0.4) procesarVentanaTransferencias()
     if (Math.random() < 0.3) procesarIAOfertasAlUsuario()
   }
+}
+
+function procesarSuspensiones() {
+  var bajas = []
+  state.players.filter(function(p) { return p._redThisMatch }).forEach(function(p) {
+    if (p._redType === 'directGrave') p._suspended = 2 + Math.floor(Math.random() * 2)
+    else p._suspended = 1
+    var motivo = p._redType === 'doubleYellow' ? 'doble amarilla' : p._redType === 'directGrave' ? 'roja grave' : 'roja leve'
+    bajas.push(p.name + ' (' + motivo + ')')
+  })
+  state.players.filter(function(p) { return (p.yellowCards || 0) >= 5 && !p._suspended }).forEach(function(p) {
+    p._suspended = 1
+    p.yellowCards = 0
+    bajas.push(p.name + ' (5 amarillas)')
+  })
+  if (bajas.length > 0) addNotification('match', '\ud83d\udfe5 Suspensiones', 'Sancionados: ' + bajas.join(', '))
+}
+
+function liberarSuspensiones() {
+  state.players.forEach(function(p) {
+    if (p._suspended) {
+      p._suspended--
+      if (p._suspended <= 0) p._suspended = null
+    }
+  })
 }
 
 function procesarVentasCPU() {
@@ -2872,50 +2948,50 @@ function mostrarOfertaTransferencia(player, team, offer) {
   if (existing) existing.remove()
   const overlay = document.createElement('div')
   overlay.id = 'transfer-offer-modal'
-  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999'
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999'
   const valueStr = formatMoney(player.value)
   const offerStr = formatMoney(offer)
 
   function renderInitial() {
     overlay.innerHTML = `
-      <div style="background:#16213e;border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.5);color:#e0e0e0;font-family:inherit">
+      <div style="background:var(--bg-surface);border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 4px 24px rgba(0,0,0,0.15);color:var(--text);font-family:inherit;border:1px solid var(--text-muted)">
         <div style="text-align:center;margin-bottom:20px">
-          <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px">Oferta de fichaje</div>
-          <div style="font-size:13px;color:#888">${team.name} quiere fichar a ${player.name}</div>
+          <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px">Oferta de fichaje</div>
+          <div style="font-size:13px;color:var(--text-secondary)">${team.name} quiere fichar a ${player.name}</div>
         </div>
-        <div style="background:#0f1a30;border-radius:10px;padding:16px;margin-bottom:16px">
+        <div style="background:var(--bg);border-radius:10px;padding:16px;margin-bottom:16px">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
-            <span style="font-size:14px;color:#888">Oferta</span>
-            <span style="font-size:18px;font-weight:700;color:#4CAF50">${offerStr}</span>
+            <span style="font-size:14px;color:var(--text-secondary)">Oferta</span>
+            <span style="font-size:18px;font-weight:700;color:#2E7D32">${offerStr}</span>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid #1a2744">
-            <span style="font-size:14px;color:#888">Valor de mercado</span>
-            <span style="font-size:14px;color:#bbb">${valueStr}</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--text-muted)">
+            <span style="font-size:14px;color:var(--text-secondary)">Valor de mercado</span>
+            <span style="font-size:14px;color:var(--text)">${valueStr}</span>
           </div>
         </div>
         <div style="display:flex;gap:10px;margin-bottom:10px">
-          <div onclick="aceptarOferta('${player.id}','${team.teamId}',${offer})" style="flex:1;padding:14px;background:#1b5e20;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#2e7d32'" onmouseout="this.style.background='#1b5e20'">Aceptar</div>
-          <div onclick="rechazarOferta('${player.id}')" style="flex:1;padding:14px;background:#b71c1c;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#d32f2f'" onmouseout="this.style.background='#b71c1c'">Rechazar</div>
+          <div onclick="aceptarOferta('${player.id}','${team.teamId}',${offer})" style="flex:1;padding:14px;background:#2E7D32;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#388E3C'" onmouseout="this.style.background='#2E7D32'">Aceptar</div>
+          <div onclick="rechazarOferta('${player.id}')" style="flex:1;padding:14px;background:#c62828;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#d32f2f'" onmouseout="this.style.background='#c62828'">Rechazar</div>
         </div>
-        <div onclick="renderContra()" style="padding:14px;background:#1a237e;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#283593'" onmouseout="this.style.background='#1a237e'">Contraofertar</div>
+        <div onclick="renderContra()" style="padding:14px;background:var(--accent);border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#1E40AF'" onmouseout="this.style.background='var(--accent)'">Contraofertar</div>
       </div>`
   }
 
   function renderContra() {
     overlay.innerHTML = `
-      <div style="background:#16213e;border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.5);color:#e0e0e0;font-family:inherit">
+      <div style="background:var(--bg-surface);border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 4px 24px rgba(0,0,0,0.15);color:var(--text);font-family:inherit;border:1px solid var(--text-muted)">
         <div style="text-align:center;margin-bottom:20px">
-          <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px">Tu contraoferta</div>
-          <div style="font-size:13px;color:#888">Precio que quieres pedir a ${team.name}</div>
+          <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px">Tu contraoferta</div>
+          <div style="font-size:13px;color:var(--text-secondary)">Precio que quieres pedir a ${team.name}</div>
         </div>
-        <div style="background:#0f1a30;border-radius:10px;padding:16px;margin-bottom:10px">
-          <div style="font-size:13px;color:#888;margin-bottom:6px">Precio (€)</div>
-          <input id="co-price" type="text" inputmode="numeric" value="${player.value.toLocaleString('es-ES')}" style="width:100%;padding:12px;background:#0d1526;border:1px solid #1a2744;border-radius:8px;color:#fff;font-size:18px;font-weight:700;outline:none;box-sizing:border-box">
-          <div style="font-size:13px;color:#888;margin-top:8px">Valor de mercado: ${valueStr}</div>
+        <div style="background:var(--bg);border-radius:10px;padding:16px;margin-bottom:10px">
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px">Precio (\u20AC)</div>
+          <input id="co-price" type="text" inputmode="numeric" value="${player.value.toLocaleString('es-ES')}" style="width:100%;padding:12px;background:var(--bg-surface);border:1px solid var(--text-muted);border-radius:8px;color:var(--text);font-size:18px;font-weight:700;outline:none;box-sizing:border-box">
+          <div style="font-size:13px;color:var(--text-secondary);margin-top:8px">Valor de mercado: ${valueStr}</div>
         </div>
         <div id="co-resultado" style="margin-bottom:10px"></div>
-        <div onclick="enviarContraoferta('${player.id}','${team.teamId}')" style="padding:14px;background:#1565c0;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s;margin-bottom:8px" onmouseover="this.style.background='#1976d2'" onmouseout="this.style.background='#1565c0'">Enviar contraoferta</div>
-        <div onclick="renderInitial()" style="padding:10px;background:transparent;border:1px solid #333;border-radius:10px;text-align:center;font-size:14px;color:#888;cursor:pointer">Volver</div>
+        <div onclick="enviarContraoferta('${player.id}','${team.teamId}')" style="padding:14px;background:var(--accent);border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s;margin-bottom:8px" onmouseover="this.style.background='#1E40AF'" onmouseout="this.style.background='var(--accent)'">Enviar contraoferta</div>
+        <div onclick="renderInitial()" style="padding:10px;background:transparent;border:1px solid var(--text-muted);border-radius:10px;text-align:center;font-size:14px;color:var(--text-secondary);cursor:pointer">Volver</div>
       </div>`
     document.getElementById('co-price').addEventListener('input', function() {
       var n = this.value.replace(/[^\d]/g, '')
@@ -2926,23 +3002,23 @@ function mostrarOfertaTransferencia(player, team, offer) {
   window.enviarContraoferta = function(pid, tid) {
     var raw = document.getElementById('co-price').value.replace(/\./g, '')
     var price = parseInt(raw)
-    if (!price || price < 1) { document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#b71c1c;border-radius:8px;font-size:13px;color:#fff;text-align:center">Introduce un precio v\u00e1lido</div>'; return }
+    if (!price || price < 1) { document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#c62828;border-radius:8px;font-size:13px;color:#fff;text-align:center">Introduce un precio v\u00e1lido</div>'; return }
     var pl = state.players.find(function(p) { return p.id === pid })
     if (!pl) return
     var teamObj = state.leagueTeams.find(function(t) { return t.teamId === tid })
     if (!teamObj) return
     var budget = getTeamBudget(teamObj)
-    if (price > budget * 0.4) { document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#b71c1c;border-radius:8px;font-size:13px;color:#fff;text-align:center">El club no puede pagar esa cantidad</div>'; return }
+    if (price > budget * 0.4) { document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#c62828;border-radius:8px;font-size:13px;color:#fff;text-align:center">El club no puede pagar esa cantidad</div>'; return }
     var prob = 0
     if (price >= pl.value * 1.15) prob = 80
     else if (price >= pl.value) prob = 55
     else if (price >= pl.value * 0.8) prob = 30
     else prob = 10
     if (Math.random() * 100 < prob) {
-      document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#1b5e20;border-radius:8px;font-size:13px;color:#fff;text-align:center">\u00a1El club acepta tu contraoferta por ' + formatMoney(price) + '!</div>'
+      document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#2E7D32;border-radius:8px;font-size:13px;color:#fff;text-align:center">\u00a1El club acepta tu contraoferta por ' + formatMoney(price) + '!</div>'
       setTimeout(function() { window.aceptarOferta(pid, tid, price) }, 800)
     } else {
-      document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#b71c1c;border-radius:8px;font-size:13px;color:#fff;text-align:center">El club rechaza la contraoferta</div>'
+      document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#c62828;border-radius:8px;font-size:13px;color:#fff;text-align:center">El club rechaza la contraoferta</div>'
     }
   }
 
@@ -3906,9 +3982,13 @@ function getPlayoffRival() {
 function simularPartidoRapido(fixture, rivalId) {
   if (!fixture || !rivalId) return
   const slots = state.tacticsSlots || []
-  const startingIds = slots.filter(Boolean)
+  var startingIds = slots.filter(Boolean)
+  startingIds = startingIds.filter(function(pid) {
+    var p = state.players.find(function(x) { return x.id === pid })
+    return !p || !p._suspended
+  })
   if (startingIds.length < 11) {
-    alert('\u26a0\ufe0f Alineaci\u00f3n incompleta.\nAsigna 11 jugadores titulares en T\u00e1ctica antes de simular.')
+    alert('\u26a0\ufe0f Hay jugadores suspendidos. Revisa tu alineaci\u00f3n antes de simular.')
     return
   }
   const maxBench = getEffectiveMaxBench()
@@ -4013,10 +4093,11 @@ function simularPartidoRapido(fixture, rivalId) {
     }
 
     /* Yellow and red cards for user's players */
-    state.players.filter(p => startingIds.includes(p.id) && p.position !== 'POR' && !p.injury).forEach(p => {
-      if (Math.random() < 0.2) p.yellowCards = (p.yellowCards || 0) + 1
-      if (Math.random() < 0.03) { p.redCards = (p.redCards || 0) + 1; p.yellowCards = (p.yellowCards || 0) + 1 }
+    var cardGamePlan = state.tactic.gamePlan || 'extremo'
+    state.players.filter(p => startingIds.includes(p.id) && p.position !== 'POR' && !p.injury).forEach(function(p) {
+      asignarTarjetasJugador(p, cardGamePlan)
     })
+    procesarSuspensiones()
 
     /* Fatigue for user's players */
     state.players.forEach(p => {
@@ -4147,6 +4228,13 @@ function simularPartidoRapido(fixture, rivalId) {
   }, 400)
 }
 
+function obtenerNotaJugador(playerId) {
+  var p = state.players.find(function(x) { return x.id === playerId })
+  if (!p || !p.matchHistory || p.matchHistory.length === 0) return '-'
+  var last = p.matchHistory[p.matchHistory.length - 1]
+  return last.rating ? last.rating.toFixed(1) : '-'
+}
+
 function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorers) {
   rivalGoalscorers = rivalGoalscorers || []
   const modal = document.getElementById('match-result-modal')
@@ -4172,6 +4260,129 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
   ) : ''
   document.getElementById('mr-highlight').innerHTML = hl
 
+  /* Scorers */
+  let scorersHtml = '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:8px">'
+  if (userMatch) {
+    var leftScorers = []
+    var rightScorers = []
+    if (userMatch.homeId === state.teamId) {
+      leftScorers = userGoalscorers.map(function(g) { return '\u26bd ' + g.scorerName + (g.assistName ? ' (' + g.assistName + ')' : '') })
+      rightScorers = rivalGoalscorers.map(function(n) { return '\u26bd ' + n })
+    } else {
+      leftScorers = rivalGoalscorers.map(function(n) { return '\u26bd ' + n })
+      rightScorers = userGoalscorers.map(function(g) { return '\u26bd ' + g.scorerName + (g.assistName ? ' (' + g.assistName + ')' : '') })
+    }
+    scorersHtml += '<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + leftScorers.join('<br>') + '</div>'
+    scorersHtml += '<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + rightScorers.join('<br>') + '</div>'
+  }
+  scorersHtml += '</div>'
+  document.getElementById('mr-scorers').innerHTML = scorersHtml
+
+  /* Lineups */
+  var lineupsHtml = ''
+  if (userMatch) {
+    /* User's lineup */
+    lineupsHtml += '<div class="mr-lineup-title">' + state.team + '</div>'
+    var slotIds = state.tacticsSlots || []
+    var roles = state.tactic && state.tactic.formation ? state.tactic.formation : '4-3-3'
+    var slotRoles = SLOT_ROLES[roles] || SLOT_ROLES['4-3-3']
+
+    /* Build assist names set */
+    var assistNames = {}
+    for (var ag = 0; ag < userGoalscorers.length; ag++) {
+      if (userGoalscorers[ag].assistName) assistNames[userGoalscorers[ag].assistName] = true
+    }
+
+    for (var si = 0; si < Math.min(slotIds.length, slotRoles.length); si++) {
+      var pid = slotIds[si]
+      if (!pid) continue
+      var pl = state.players.find(function(x) { return x.id === pid })
+      if (!pl) continue
+      var roleKey = SIGLA_TO_POS[slotRoles[si]] || slotRoles[si]
+      var posLabel = POSITIONS[roleKey] ? POSITIONS[roleKey].label : (POS_ABBR[roleKey] || pl.position)
+      var posColor = POSITIONS[roleKey] ? POSITIONS[roleKey].color : '#6B7280'
+      var nota = obtenerNotaJugador(pid)
+      var goles = pl._goalsInMatch || 0
+      var asistencias = pl._assistThisMatch || 0
+      var goalIcon = goles > 0 ? ' <span class="mr-lineup-goal">\u26bd' + (goles > 1 ? goles : '') + '</span>' : ''
+      var assistIcon = asistencias > 0 ? ' <span class="mr-lineup-goal">\ud83d\udc5f' + (asistencias > 1 ? asistencias : '') + '</span>' : ''
+      var yellowIcon = pl._yellowThisMatch ? ' <span style="color:#f1c40f">\ud83d\udfe8</span>' : ''
+      var redIcon = pl._redThisMatch ? ' <span style="color:#e74c3c">\ud83d\udfe5</span>' : ''
+      lineupsHtml += '<div class="mr-lineup-row"><span class="mr-lineup-pos" style="background:' + posColor + ';color:#fff">' + posLabel + '</span><span class="mr-lineup-name">' + pl.name + goalIcon + assistIcon + yellowIcon + redIcon + '</span><span class="mr-lineup-rating">(' + nota + ')</span></div>'
+    }
+
+    /* Rival lineup (formation-based) */
+    var rivalId = userMatch.homeId === state.teamId ? userMatch.awayId : userMatch.homeId
+    var rivalTeam = getTeamObj(rivalId)
+    if (rivalTeam && rivalTeam.players) {
+      var rivalName = userMatch.homeId === state.teamId ? userMatch.awayName : userMatch.homeName
+      lineupsHtml += '<div class="mr-lineup-title">' + rivalName + '</div>'
+
+      var formacion = rivalTeam.formation || '4-3-3'
+      var roles = SLOT_ROLES[formacion] || SLOT_ROLES['4-3-3']
+      var asignados = []
+      var rivalLineup = []
+
+      for (var ri = 0; ri < roles.length; ri++) {
+        var role = roles[ri]
+        var candidates = rivalTeam.players.filter(function(p) { return !asignados.includes(p.id) && !p.injury })
+        var best = null, bestScore = -1
+        for (var ci = 0; ci < candidates.length; ci++) {
+          var candidate = candidates[ci]
+          var naturalKey = SIGLA_TO_POS[candidate.position] || candidate.position
+          var mult = naturalKey === role ? 1.0 : (candidate.otherPositions && candidate.otherPositions.some(function(o) { return o.pos === role })) ? 0.85 : 0.5
+          var score = candidate.skill * mult
+          if (score > bestScore) { bestScore = score; best = candidate; bestRole = role }
+        }
+        if (best) {
+          asignados.push(best.id)
+          rivalLineup.push({ player: best, role: role })
+        }
+      }
+
+      rivalLineup.sort(function(a, b) {
+        var posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.role] || a.role)
+        var posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.role] || b.role)
+        return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB)
+      })
+
+      /* Generate simulated assist set for rival */
+      var rivalAssistNames = {}
+      for (var rg = 0; rg < rivalGoalscorers.length; rg++) {
+        if (Math.random() < 0.35) {
+          var rivalsNoScorer = rivalLineup.filter(function(p) { return p.player.name !== rivalGoalscorers[rg] })
+          if (rivalsNoScorer.length > 0) {
+            var assister = rivalsNoScorer[Math.floor(Math.random() * rivalsNoScorer.length)]
+            rivalAssistNames[assister.player.name] = true
+          }
+        }
+      }
+
+      /* Generate simulated yellow/red cards for rival */
+      var rivalCards = {}
+      for (var rc = 0; rc < rivalLineup.length; rc++) {
+        if (rivalLineup[rc].player.position === 'POR') continue
+        if (Math.random() < 0.03) rivalCards[rivalLineup[rc].player.name] = 'red'
+        else if (Math.random() < 0.2) rivalCards[rivalLineup[rc].player.name] = 'yellow'
+      }
+
+      for (var ri = 0; ri < rivalLineup.length; ri++) {
+        var rItem = rivalLineup[ri]
+        var rp = rItem.player
+        var roleKey = SIGLA_TO_POS[rItem.role] || rItem.role
+        var rPosLabel = POSITIONS[roleKey] ? POSITIONS[roleKey].label : (POS_ABBR[roleKey] || rp.position)
+        var rPosColor = POSITIONS[roleKey] ? POSITIONS[roleKey].color : '#6B7280'
+        var rGoles = rivalGoalscorers.filter(function(n) { return n === rp.name }).length
+        var rGoalIcon = rGoles > 0 ? ' <span class="mr-lineup-goal">\u26bd' + (rGoles > 1 ? rGoles : '') + '</span>' : ''
+        var rAssistIcon = rivalAssistNames[rp.name] ? ' <span class="mr-lineup-goal">\ud83d\udc5f</span>' : ''
+        var rCardIcon = ''
+        if (rivalCards[rp.name] === 'red') rCardIcon = ' <span style="color:#e74c3c">\ud83d\udfe5</span>'
+        else if (rivalCards[rp.name] === 'yellow') rCardIcon = ' <span style="color:#f1c40f">\ud83d\udfe8</span>'
+        lineupsHtml += '<div class="mr-lineup-row"><span class="mr-lineup-pos" style="background:' + rPosColor + ';color:#fff">' + rPosLabel + '</span><span class="mr-lineup-name">' + rp.name + rGoalIcon + rAssistIcon + rCardIcon + '</span><span class="mr-lineup-rating">-</span></div>'
+      }
+    }
+  document.getElementById('mr-lineups').innerHTML = lineupsHtml
+
   /* All results */
   const otherHtml = []
   for (const r of allResults) {
@@ -4192,26 +4403,6 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
       '</div>'
     )
   }
-
-  let scorersHtml = '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:8px">'
-
-  if (userMatch) {
-    var leftScorers = []
-    var rightScorers = []
-    if (userMatch.homeId === state.teamId) {
-      leftScorers = userGoalscorers.map(function(g) { return '\u26bd ' + g.scorerName + (g.assistName ? ' (' + g.assistName + ')' : '') })
-      rightScorers = rivalGoalscorers.map(function(n) { return '\u26bd ' + n })
-    } else {
-      leftScorers = rivalGoalscorers.map(function(n) { return '\u26bd ' + n })
-      rightScorers = userGoalscorers.map(function(g) { return '\u26bd ' + g.scorerName + (g.assistName ? ' (' + g.assistName + ')' : '') })
-    }
-    scorersHtml += '<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + leftScorers.join('<br>') + '</div>'
-    scorersHtml += '<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + rightScorers.join('<br>') + '</div>'
-  }
-
-  scorersHtml += '</div>'
-  document.getElementById('mr-scorers').innerHTML = scorersHtml
-
   document.getElementById('mr-all-results').innerHTML = otherHtml.join('')
 
   modal.style.display = 'flex'
@@ -4229,7 +4420,7 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
     state.currentMatchday++
     simularJornadaEnTodasLasLigas(state.currentMatchday)
     procesarEconomiaSemanal()
-    /* Injury recovery */
+    liberarSuspensiones()
     for (const p of state.players) {
       if (!p.injury) continue
       p.injury.remaining--
@@ -4246,7 +4437,8 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
     autoSave()
     renderTab('home')
   }
-}
+  }
+  }
 
 function showMatchdayResults(userScore, rivalScore, rivalName) {
   const bem = document.getElementById('btn-end-match')
@@ -4324,6 +4516,7 @@ function showMatchdayResults(userScore, rivalScore, rivalName) {
       state.currentMatchday++
       simularJornadaEnTodasLasLigas(state.currentMatchday)
       procesarEconomiaSemanal()
+      liberarSuspensiones()
       for (const p of state.players) {
         if (!p.injury) continue
         p.injury.remaining--
@@ -4367,7 +4560,11 @@ function autoSimularPartidoUsuario(fixture) {
 
   /* Calculate user power from current lineup */
   const slots = state.tacticsSlots || []
-  const startingIds = slots.filter(Boolean)
+  var rawIds = slots.filter(Boolean)
+  var startingIds = rawIds.filter(function(pid) {
+    var p = state.players.find(function(x) { return x.id === pid })
+    return !p || !p._suspended
+  })
   if (startingIds.length < 11) {
     /* Fallback: auto-assign */
     autoAssignSquad()
@@ -4446,9 +4643,9 @@ function autoSimularPartidoUsuario(fixture) {
   }
 
   /* Yellow and red cards */
-  state.players.filter(p => ids.includes(p.id) && p.position !== 'POR' && !p.injury).forEach(p => {
-    if (Math.random() < 0.2) p.yellowCards = (p.yellowCards || 0) + 1
-    if (Math.random() < 0.03) { p.redCards = (p.redCards || 0) + 1; p.yellowCards = (p.yellowCards || 0) + 1 }
+  var cardGamePlan = state.tactic.gamePlan || 'extremo'
+  state.players.filter(p => ids.includes(p.id) && p.position !== 'POR' && !p.injury).forEach(function(p) {
+    asignarTarjetasJugador(p, cardGamePlan)
   })
 
   /* Track position experience */
@@ -4866,9 +5063,7 @@ function setupNavigation() {
 
   /* Market search */
   document.getElementById('market-search').oninput = () => renderMarketContent()
-
-  }
-
+}
 
 function renderTab(tab) {
   state.currentTab = tab
@@ -5145,6 +5340,7 @@ function startGame() {
   document.querySelector('[data-tab="home"]').classList.add('active')
   renderTab('home')
   updateInboxBadge()
+  actualizarIndicadorTemporada()
   checkTransferWindow()
 }
 
@@ -5923,55 +6119,61 @@ function showTeamInfo(teamId) {
       html += `<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="${avatarStyle}"></div><div class="staff-card-info"><div class="staff-card-name">${s.name}</div><div class="staff-card-meta">${s.nationality}</div></div><span class="staff-card-role" data-role="${s.role}">${roleLabels[s.role] || s.role}</span></div>`
     })
   }
-  /* Player table */
-  html += `<div class="tactics-subsection-label">PLANTILLA (${team.players.length})</div>
-    <div class="tp-table-header" style="padding:6px 14px">
-      <span class="tp-th-pos">Pos</span>
-      <span class="tp-th-name">Nombre</span>
-      <span class="tp-th-age">Edad</span>
-      <span class="tp-th-value">Valor</span>
-      <span class="tp-th-power">Pod</span>
-      <span class="tp-th-pj">PJ</span>
-      <span class="tp-th-g">G</span>
-      <span class="tp-th-a">A</span>
-    </div>
-    <div class="tp-list">`
-  const orderedPlayers = [...team.players].sort((a, b) => {
-    const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
-    const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
-    return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
-  })
-  orderedPlayers.forEach(p => {
-    const posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
-    const valShort = formatShort(p.value || 0)
-    html += `<div class="tp-row" data-player-id="${p.id}">
-      <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
-      <div class="tp-cell">
-        <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
-        <div class="tp-cell-info">
-          <span class="tp-cell-name">${p.name}</span>
-          <span class="tp-cell-value">${p.nationality || ''}</span>
-        </div>
-      </div>
-      <span class="tp-cell-age">${p.age || '-'}</span>
-      <span class="tp-cell-market">${valShort}</span>
-      <span class="tp-cell-power" style="${getPowerBadgeStyle(p.skill)}">${p.skill}</span>
-      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.matches || 0}</span>
-      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.goals || 0}</span>
-      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.assists || 0}</span>
-    </div>`
-  })
-  html += '</div><button class="btn-secondary" id="btn-team-back-2" style="margin-top:12px">← Volver</button>'
+  /* Player section container (will be filled by tabs) */
+  html += '<div id="team-players-section"></div>'
+  html += '<button class="btn-secondary" id="btn-team-back-2" style="margin-top:12px">← Volver</button>'
   document.getElementById('team-info-content').innerHTML = html
   document.getElementById('btn-team-back').onclick = goBackFromTeam
   document.getElementById('btn-team-back-2').onclick = goBackFromTeam
-  document.querySelectorAll('#team-info-content .tp-row').forEach(row => {
-    row.onclick = () => {
-      const pid = row.dataset.playerId
-      const player = team.players.find(p => p.id === pid)
-      if (player) openPlayerDetail(player, team)
-    }
+
+  /* Player table with tabs */
+  var teamInfoTab = 'info'
+  var orderedPlayers = [...team.players].sort(function(a, b) {
+    var posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
+    var posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
+    return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
   })
+
+  function renderTeamPlayers() {
+    var tab = teamInfoTab
+    var html2 = ''
+    if (tab === 'info') {
+      html2 += '<div class="tactics-subsection-label">PLANTILLA (' + team.players.length + ')</div>'
+      html2 += '<div class="sub-tabs" style="display:flex;gap:4px;padding:4px 14px"><button class="sub-tab team-info-tab active" data-tab="info">Info</button><button class="sub-tab team-info-tab" data-tab="performance">Rendimiento</button></div>'
+      html2 += '<div class="tp-table-header" style="padding:6px 14px"><span class="tp-th-pos">Pos</span><span class="tp-th-name">Nombre</span><span class="tp-th-age">Edad</span><span class="tp-th-value">Valor</span><span class="tp-th-power">Pod</span></div><div class="tp-list">'
+      html2 += orderedPlayers.map(function(p) {
+        var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
+        var valShort = formatShort(p.value || 0)
+        return '<div class="tp-row" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
+      }).join('')
+      html2 += '</div>'
+    } else {
+      html2 += '<div class="tactics-subsection-label">PLANTILLA (' + team.players.length + ')</div>'
+      html2 += '<div class="sub-tabs" style="display:flex;gap:4px;padding:4px 14px"><button class="sub-tab team-info-tab" data-tab="info">Info</button><button class="sub-tab team-info-tab active" data-tab="performance">Rendimiento</button></div>'
+      html2 += '<div class="tp-table-header" style="padding:6px 14px"><span class="tp-th-pos">Pos</span><span class="tp-th-name">Nombre</span><span class="tp-th-pj">PJ</span><span class="tp-th-g">G</span><span class="tp-th-a">A</span><span style="width:30px;text-align:center;font-size:10px;color:var(--text-muted)">🟨</span><span style="width:28px;text-align:center;font-size:10px;color:var(--text-muted)">🟥</span></div><div class="tp-list">'
+      html2 += orderedPlayers.map(function(p) {
+        var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
+        return '<div class="tp-row" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + '</span></div></div><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.matches || 0) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.goals || 0) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.assists || 0) + '</span><span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">' + (p.yellowCards || 0) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">' + (p.redCards || 0) + '</span></div>'
+      }).join('')
+      html2 += '</div>'
+    }
+    document.getElementById('team-players-section').innerHTML = html2
+    document.querySelectorAll('#team-players-section .tp-row').forEach(function(row) {
+      row.onclick = function() {
+        var pid = row.dataset.playerId
+        var player = team.players.find(function(p) { return p.id === pid })
+        if (player) openPlayerDetail(player, team)
+      }
+    })
+    document.querySelectorAll('#team-players-section .team-info-tab').forEach(function(btn) {
+      btn.onclick = function(e) {
+        e.stopPropagation()
+        teamInfoTab = btn.dataset.tab
+        renderTeamPlayers()
+      }
+    })
+  }
+  renderTeamPlayers()
 }
 function goBackFromTeam() {
   document.getElementById('view-team').classList.remove('active')
@@ -6357,6 +6559,11 @@ function addNotification(type, title, body) {
     createdAt: new Date().toISOString(),
   })
   updateInboxBadge()
+}
+
+function actualizarIndicadorTemporada() {
+  var el = document.getElementById('season-display')
+  if (el) el.textContent = 'T' + (state.seasonNumber || 1)
 }
 
 function updateInboxBadge() {
