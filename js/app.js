@@ -734,24 +734,26 @@ function formatTime(minute) {
 
 /* ============ SAVE / LOAD ============ */
 function storageSafe(method, key, value) {
+  var result = null
   try {
     if (method === 'get') {
-      const v = localStorage.getItem(key)
-      if (v !== null) return v
+      result = localStorage.getItem(key)
+      if (result !== null) return result
     } else {
       localStorage.setItem(key, value)
-      return true
+      var check = localStorage.getItem(key)
+      if (check !== null) return true
     }
-  } catch(e) { /* localStorage not available */ }
+  } catch(e) { console.warn('[STORAGE] localStorage ' + method + ' falló:', e) }
   try {
     if (method === 'get') {
-      const v = sessionStorage.getItem(key)
-      return v
+      result = sessionStorage.getItem(key)
+      return result
     } else {
       sessionStorage.setItem(key, value)
       return true
     }
-  } catch(e) { return null }
+  } catch(e) { console.warn('[STORAGE] sessionStorage ' + method + ' falló:', e); return null }
 }
 
 function getTop11Average(players) {
@@ -772,8 +774,11 @@ const MAX_SLOTS = 4
 function getSaves() {
   try {
     const raw = storageSafe('get', STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch { return [] }
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) { console.warn('[SAVE] Corrupt data - not an array'); return [] }
+    return parsed
+  } catch(e) { console.warn('[SAVE] Error parsing saves:', e); return [] }
 }
 function setSaves(saves) { storageSafe('set', STORAGE_KEY, JSON.stringify(saves)) }
 
@@ -801,9 +806,12 @@ window.SaveSystem = {
       const idx = saves.findIndex(s => Number(s.id) === Number(gameId))
       const matchday = state.stats.wins + state.stats.draws + state.stats.losses + 1
       const cleanup = p => {
-        const { enPista, minutosEnPista, convocado, titular, _yellowThisMatch, _redThisMatch, _goalsInMatch, _assistThisMatch, ...rest } = p
-        if (rest.positionExperience) rest.positionExperience = Object.assign({}, rest.positionExperience)
-        return rest
+        try {
+          if (!p || typeof p !== 'object') return {}
+          const { enPista, minutosEnPista, convocado, titular, _yellowThisMatch, _redThisMatch, _goalsInMatch, _assistThisMatch, ...rest } = p
+          if (rest.positionExperience) rest.positionExperience = Object.assign({}, rest.positionExperience)
+          return rest
+        } catch(ce) { console.warn('[SAVE] Cleanup error for player:', ce); return { name: '?', skill: 1 } }
       }
       const teamLogoUrl = state.teamLogo || ''
       const db = window.DB[state.countryId]
@@ -852,9 +860,10 @@ window.SaveSystem = {
       }
       if (idx >= 0) saves[idx] = data; else saves.unshift(data)
       setSaves(saves)
-    document.getElementById('tc-pressure-btn')?.addEventListener('click', showPressureModal)
-    autoSaveTactics()
-      console.log('[SAVE] OK - slot:', saves.indexOf(data), 'gameId:', gameId)
+      autoSaveTactics()
+      var verify = getSaves()
+      if (verify.length === 0) { console.warn('[SAVE] Verification failed - saves appear empty after write') }
+      else { console.log('[SAVE] OK - slot:', saves.indexOf(data), 'gameId:', gameId, '- total saves:', verify.length) }
     } catch(e) { console.warn('[SAVE] Error:', e) }
   },
 
