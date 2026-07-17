@@ -733,36 +733,90 @@ function formatTime(minute) {
 }
 
 /* ============ SAVE / LOAD ============ */
-var _sessionFallback = false
+var _memorySaves = null
+var _storageMode = null
 
-function storageSafe(method, key, value) {
-  if (method === 'get') {
-    try {
-      var v = localStorage.getItem(key)
-      if (v !== null) return v
-    } catch(e) { /* localStorage unavailable */ }
-    try {
-      var sv = sessionStorage.getItem(key)
-      if (sv !== null) { _sessionFallback = true; return sv }
-    } catch(e) { /* sessionStorage unavailable */ }
-    return null
-  } else {
-    try {
-      localStorage.setItem(key, value)
-      localStorage.getItem(key)
-      _sessionFallback = false
-      return true
-    } catch(e) {
-      try {
-        sessionStorage.setItem(key, value)
-        _sessionFallback = true
-        return true
-      } catch(e2) {
-        console.warn('[STORAGE] Both localStorage and sessionStorage failed')
-        return null
-      }
+/* IndexedDB wrapper */
+function openDB() {
+  return new Promise(function(resolve, reject) {
+    var req = indexedDB.open('FootsoccerDB', 1)
+    req.onupgradeneeded = function(e) {
+      var db = e.target.result
+      if (!db.objectStoreNames.contains('saves')) db.createObjectStore('saves')
     }
+    req.onsuccess = function(e) { resolve(e.target.result) }
+    req.onerror = function(e) { reject(e.target.error) }
+  })
+}
+
+function idbSet(key, value) {
+  return openDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction('saves', 'readwrite')
+      tx.objectStore('saves').put(value, key)
+      tx.oncomplete = function() { db.close(); resolve() }
+      tx.onerror = function(e) { db.close(); reject(e.target.error) }
+    })
+  }).catch(function() {})
+}
+
+function idbGet(key) {
+  return openDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction('saves', 'readonly')
+      var req = tx.objectStore('saves').get(key)
+      req.onsuccess = function() { db.close(); resolve(req.result) }
+      req.onerror = function(e) { db.close(); reject(e.target.error) }
+    })
+  }).catch(function() { return null })
+}
+
+/* Persist memory cache to best available storage */
+function persistSaves(saves) {
+  _memorySaves = saves
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saves))
+    _storageMode = 'local'
+    return true
+  } catch(e) { /* fall through */ }
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(saves))
+    _storageMode = 'session'
+    return true
+  } catch(e) { /* fall through */ }
+  idbSet(STORAGE_KEY, saves)
+  _storageMode = 'idb'
+  return true
+}
+
+/* Load saves into memory cache from best available source */
+function initSaves() {
+  var raw = null
+  try { raw = localStorage.getItem(STORAGE_KEY) } catch(e) {}
+  if (raw) { try { _memorySaves = JSON.parse(raw); _storageMode = 'local'; return } catch(e) {} }
+  try { raw = sessionStorage.getItem(STORAGE_KEY) } catch(e) {}
+  if (raw) { try { _memorySaves = JSON.parse(raw); _storageMode = 'session'; return } catch(e) {} }
+  /* Async load from IndexedDB */
+  _storageMode = null
+  idbGet(STORAGE_KEY).then(function(data) {
+    if (data) { _memorySaves = data; _storageMode = 'idb' }
+  })
+}
+
+function getSaves() {
+  return _memorySaves || []
+}
+
+function setSaves(saves) {
+  persistSaves(saves)
+  if (_storageMode === 'idb') {
+    console.log('[SAVE] Usando IndexedDB')
+    addNotification('general', '\u26a0\ufe0f Guardado en IndexedDB', 'La partida se guard\u00f3 pero usa IndexedDB. Deber\u00eda persistir al recargar.')
+  } else if (_storageMode === 'session') {
+    console.log('[SAVE] Usando sessionStorage')
+    addNotification('general', '\u26a0\ufe0f Guardado temporal', 'La partida se perder\u00e1 al cerrar el navegador.')
   }
+  return true
 }
 
 function getTop11Average(players) {
@@ -779,22 +833,6 @@ function getTop11EnergyFactor(players) {
 }
 
 const MAX_SLOTS = 4
-
-function getSaves() {
-  try {
-    const raw = storageSafe('get', STORAGE_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) { console.warn('[SAVE] Corrupt data - not an array'); return [] }
-    return parsed
-  } catch(e) { console.warn('[SAVE] Error parsing saves:', e); return [] }
-}
-function setSaves(saves) {
-  var ok = storageSafe('set', STORAGE_KEY, JSON.stringify(saves))
-  if (!ok) { alert('[Error] No se pudo guardar la partida. El almacenamiento del navegador no est\u00e1 disponible.'); return false }
-  if (_sessionFallback) { console.warn('[SAVE] Usando sessionStorage - los datos se perder\u00e1n al cerrar'); addNotification('general', '\u26a0\ufe0f Guardado temporal', 'La partida se perder\u00e1 al cerrar el navegador. Activa el almacenamiento local en los ajustes de privacidad.') }
-  return true
-}
 
 function timeAgo(iso) {
   if (!iso) return ''
@@ -878,7 +916,7 @@ window.SaveSystem = {
       autoSaveTactics()
       var verify = getSaves()
       if (verify.length === 0) { console.warn('[SAVE] Verification failed - saves appear empty after write'); }
-      else { console.log('[SAVE] OK - slot:', saves.indexOf(data), 'gameId:', gameId, '- total saves:', verify.length, _sessionFallback ? '(sessionStorage)' : '(localStorage)') }
+      else { console.log('[SAVE] OK - slot:', saves.indexOf(data), 'gameId:', gameId, '- total saves:', verify.length, '(' + (_storageMode || 'memory') + ')') }
     } catch(e) { console.warn('[SAVE] Error:', e) }
   },
 
@@ -915,13 +953,17 @@ function deleteSave(id) { window.SaveSystem.deleteGame(id) }
 function autoSaveTactics() {
   if (!state.gameId) return
   const data = { formation: state.tactic.formation, gamePlan: state.tactic.gamePlan, tacticsSlots: state.tacticsSlots, captainId: state.captainId, benchIds: state.benchIds, reserveIds: state.reserveIds }
-  storageSafe('set', TACTICS_KEY, JSON.stringify(data))
+  var json = JSON.stringify(data)
+  try { localStorage.setItem(TACTICS_KEY, json); return } catch(e) {}
+  try { sessionStorage.setItem(TACTICS_KEY, json) } catch(e) {}
 }
 
 function loadTactics() {
   if (!state.gameId) return
   try {
-    const raw = storageSafe('get', TACTICS_KEY)
+    var raw = null
+    try { raw = localStorage.getItem(TACTICS_KEY) } catch(e) {}
+    if (!raw) { try { raw = sessionStorage.getItem(TACTICS_KEY) } catch(e) {} }
     const all = raw ? JSON.parse(raw) : {}
     const data = all[state.gameId]
       if (data) {
@@ -5560,7 +5602,7 @@ function newGame(coach) {
   state.reserveIds = []
   state.convocatoriaValidada = false
   /* Clear old tactics save */
-  try { const raw = storageSafe('get', TACTICS_KEY); const all = raw ? JSON.parse(raw) : {}; delete all[state.gameId]; storageSafe('set', TACTICS_KEY, JSON.stringify(all)) } catch {}
+  try { try { localStorage.removeItem(TACTICS_KEY) } catch(e) {}; try { sessionStorage.removeItem(TACTICS_KEY) } catch(e) {} } catch {}
   const startingBudget = selectedTeam.budget || Math.round(getDivisionBaseBudget(state.leagueId) * getCountryBudgetMult(state.countryId) * ((selectedTeam.rating || 50) / 50))
   state.presupuestoInicial = startingBudget
   state.finances = { balance: startingBudget, history: [] }
@@ -7142,7 +7184,8 @@ try {
       const action = item.dataset.action
       if (action === 'quit') {
         saveGame()
-        showMainMenu()
+initSaves()
+showMainMenu()
         initMenuParticles()
       } else if (action === 'save') {
         saveGame()
