@@ -2554,7 +2554,16 @@ function finishMatch(isHome, fixture, rival) {
   /* Match history per player */
   state.players.filter(p => p.minutosEnPista > 0).forEach(p => {
     if (!p.matchHistory) p.matchHistory = []
-    const rating = Math.round(5 + (p._yellowThisMatch ? -0.5 : 0) + (p._redThisMatch ? -2 : 0) + ((p.goals || 0) > 0 ? 2 : 0) + ((p.assists || 0) > 0 ? 1 : 0) + Math.random() * 2)
+    var baseRating = 6.0
+    var winBonus = (us > them) ? 0.8 : (us === them) ? 0.2 : -0.3
+    var yellowPenalty = p._yellowThisMatch ? -0.5 : 0
+    var redPenalty = p._redThisMatch ? -2 : 0
+    var goalBonus = (p._goalsInMatch || 0) * 0.8
+    var assistBonus = (p._assistThisMatch || 0) * 0.4
+    var randomFactor = (Math.random() - 0.5) * 1.0
+    var csBonus = 0
+    if (them === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) csBonus = 0.5
+    var rating = Math.min(10, Math.max(1, baseRating + winBonus + yellowPenalty + redPenalty + goalBonus + assistBonus + randomFactor + csBonus))
     p.matchHistory.push({
       matchday: state.currentMatchday,
       rival: rival.name,
@@ -2863,26 +2872,81 @@ function mostrarOfertaTransferencia(player, team, offer) {
   if (existing) existing.remove()
   const overlay = document.createElement('div')
   overlay.id = 'transfer-offer-modal'
-  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(200,200,200,0.9);display:flex;align-items:center;justify-content:center;z-index:9999'
-  overlay.innerHTML = `
-    <div class="progression-modal" style="max-width:400px;background:#fff;border:1px solid #ddd">
-      <h3 style="margin:0 0 12px;font-size:18px;color:#222">Oferta de fichaje</h3>
-      <p style="margin:8px 0;font-size:14px;color:#555">
-        <b style="color:#222">${team.name}</b> quiere fichar a <b style="color:#222">${player.name}</b>
-      </p>
-      <p style="margin:8px 0;font-size:16px;color:#222">
-        Oferta: <b style="color:#2E7D32">${formatMoney(offer)}</b>
-      </p>
-      <p style="margin:8px 0;font-size:13px;color:#777">
-        Valor de mercado: ${formatMoney(player.value)}
-      </p>
-      <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
-        <button class="btn-primary" style="flex:1;padding:10px;background:#4CAF50;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700" onclick="aceptarOferta('${player.id}','${team.teamId}',${offer})">Aceptar</button>
-        <button class="btn-primary" style="flex:1;padding:10px;background:#f44336;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700" onclick="rechazarOferta('${player.id}')">Rechazar</button>
-      </div>
-      <button class="btn-primary" style="width:100%;margin-top:8px;padding:10px;background:#FF9800;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700" onclick="contraOfertar('${player.id}','${team.teamId}',${offer})">Contraofertar</button>
-    </div>
-  `
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999'
+  const valueStr = formatMoney(player.value)
+  const offerStr = formatMoney(offer)
+
+  function renderInitial() {
+    overlay.innerHTML = `
+      <div style="background:#16213e;border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.5);color:#e0e0e0;font-family:inherit">
+        <div style="text-align:center;margin-bottom:20px">
+          <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px">Oferta de fichaje</div>
+          <div style="font-size:13px;color:#888">${team.name} quiere fichar a ${player.name}</div>
+        </div>
+        <div style="background:#0f1a30;border-radius:10px;padding:16px;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
+            <span style="font-size:14px;color:#888">Oferta</span>
+            <span style="font-size:18px;font-weight:700;color:#4CAF50">${offerStr}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid #1a2744">
+            <span style="font-size:14px;color:#888">Valor de mercado</span>
+            <span style="font-size:14px;color:#bbb">${valueStr}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:10px">
+          <div onclick="aceptarOferta('${player.id}','${team.teamId}',${offer})" style="flex:1;padding:14px;background:#1b5e20;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#2e7d32'" onmouseout="this.style.background='#1b5e20'">Aceptar</div>
+          <div onclick="rechazarOferta('${player.id}')" style="flex:1;padding:14px;background:#b71c1c;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#d32f2f'" onmouseout="this.style.background='#b71c1c'">Rechazar</div>
+        </div>
+        <div onclick="renderContra()" style="padding:14px;background:#1a237e;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#283593'" onmouseout="this.style.background='#1a237e'">Contraofertar</div>
+      </div>`
+  }
+
+  function renderContra() {
+    overlay.innerHTML = `
+      <div style="background:#16213e;border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.5);color:#e0e0e0;font-family:inherit">
+        <div style="text-align:center;margin-bottom:20px">
+          <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px">Tu contraoferta</div>
+          <div style="font-size:13px;color:#888">Precio que quieres pedir a ${team.name}</div>
+        </div>
+        <div style="background:#0f1a30;border-radius:10px;padding:16px;margin-bottom:10px">
+          <div style="font-size:13px;color:#888;margin-bottom:6px">Precio (€)</div>
+          <input id="co-price" type="text" inputmode="numeric" value="${player.value.toLocaleString('es-ES')}" style="width:100%;padding:12px;background:#0d1526;border:1px solid #1a2744;border-radius:8px;color:#fff;font-size:18px;font-weight:700;outline:none;box-sizing:border-box">
+          <div style="font-size:13px;color:#888;margin-top:8px">Valor de mercado: ${valueStr}</div>
+        </div>
+        <div id="co-resultado" style="margin-bottom:10px"></div>
+        <div onclick="enviarContraoferta('${player.id}','${team.teamId}')" style="padding:14px;background:#1565c0;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s;margin-bottom:8px" onmouseover="this.style.background='#1976d2'" onmouseout="this.style.background='#1565c0'">Enviar contraoferta</div>
+        <div onclick="renderInitial()" style="padding:10px;background:transparent;border:1px solid #333;border-radius:10px;text-align:center;font-size:14px;color:#888;cursor:pointer">Volver</div>
+      </div>`
+    document.getElementById('co-price').addEventListener('input', function() {
+      var n = this.value.replace(/[^\d]/g, '')
+      this.value = n ? parseInt(n, 10).toLocaleString('es-ES') : ''
+    })
+  }
+
+  window.enviarContraoferta = function(pid, tid) {
+    var raw = document.getElementById('co-price').value.replace(/\./g, '')
+    var price = parseInt(raw)
+    if (!price || price < 1) { document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#b71c1c;border-radius:8px;font-size:13px;color:#fff;text-align:center">Introduce un precio v\u00e1lido</div>'; return }
+    var pl = state.players.find(function(p) { return p.id === pid })
+    if (!pl) return
+    var teamObj = state.leagueTeams.find(function(t) { return t.teamId === tid })
+    if (!teamObj) return
+    var budget = getTeamBudget(teamObj)
+    if (price > budget * 0.4) { document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#b71c1c;border-radius:8px;font-size:13px;color:#fff;text-align:center">El club no puede pagar esa cantidad</div>'; return }
+    var prob = 0
+    if (price >= pl.value * 1.15) prob = 80
+    else if (price >= pl.value) prob = 55
+    else if (price >= pl.value * 0.8) prob = 30
+    else prob = 10
+    if (Math.random() * 100 < prob) {
+      document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#1b5e20;border-radius:8px;font-size:13px;color:#fff;text-align:center">\u00a1El club acepta tu contraoferta por ' + formatMoney(price) + '!</div>'
+      setTimeout(function() { window.aceptarOferta(pid, tid, price) }, 800)
+    } else {
+      document.getElementById('co-resultado').innerHTML = '<div style="padding:10px;background:#b71c1c;border-radius:8px;font-size:13px;color:#fff;text-align:center">El club rechaza la contraoferta</div>'
+    }
+  }
+
+  renderInitial()
   document.body.appendChild(overlay)
 }
 
@@ -3925,12 +3989,14 @@ function simularPartidoRapido(fixture, rivalId) {
       if (valid.length === 0) break
       const scorer = pickWeightedRandom(valid, function(p) { return getGoalWeight(p.position) })
       scorer.goals = (scorer.goals || 0) + 1
+      scorer._goalsInMatch = (scorer._goalsInMatch || 0) + 1
       let assistName = null
       if (Math.random() < 0.35) {
         const pool = state.players.filter(p => startingIds.includes(p.id) && p.id !== scorer.id && !p.injury)
         if (pool.length > 0) {
           const a = pool[Math.floor(Math.random() * pool.length)]
           a.assists = (a.assists || 0) + 1
+          a._assistThisMatch = (a._assistThisMatch || 0) + 1
           assistName = a.name
         }
       }
@@ -4368,11 +4434,13 @@ function autoSimularPartidoUsuario(fixture) {
     if (valid.length === 0) break
     const scorer = pickWeightedRandom(valid, function(p) { return getGoalWeight(p.position) })
     scorer.goals = (scorer.goals || 0) + 1
+    scorer._goalsInMatch = (scorer._goalsInMatch || 0) + 1
     if (Math.random() < 0.35) {
       const pool = state.players.filter(p => ids.includes(p.id) && p.id !== scorer.id && !p.injury)
       if (pool.length > 0) {
         const a = pool[Math.floor(Math.random() * pool.length)]
         a.assists = (a.assists || 0) + 1
+        a._assistThisMatch = (a._assistThisMatch || 0) + 1
       }
     }
   }
@@ -4599,11 +4667,11 @@ function envejecerYProgresar() {
 
     if (p.age <= 29) {
       var gain
-      if (avgRating >= 8.0) gain = 5
-      else if (avgRating >= 7.0) gain = 3
-      else if (avgRating >= 6.0) gain = 2
-      else if (avgRating >= 5.0) gain = 1
-      else if (avgRating >= 4.0) gain = 0
+      if (avgRating >= 8.0) gain = 6
+      else if (avgRating >= 7.0) gain = 4
+      else if (avgRating >= 6.5) gain = 3
+      else if (avgRating >= 5.5) gain = 2
+      else if (avgRating >= 4.5) gain = 1
       else gain = -1
 
       if (p.age < 23 && playRate >= 0.7) gain += 1
@@ -4614,9 +4682,9 @@ function envejecerYProgresar() {
     } else {
       var baseLoss = p.age >= 35 ? 4 : p.age >= 33 ? 2 : 1
       var change
-      if (avgRating >= 8.0) change = 1
-      else if (avgRating >= 7.0) change = 0
-      else if (avgRating >= 6.0) change = -1
+      if (avgRating >= 8.0) change = 2
+      else if (avgRating >= 7.0) change = 1
+      else if (avgRating >= 6.0) change = 0
       else if (avgRating >= 5.0) change = -1
       else if (avgRating >= 4.0) change = -2
       else change = -4
