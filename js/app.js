@@ -377,7 +377,7 @@ function rebuildGlobalPlayerPool() {
           if (p.onLoan && p.loanFrom) continue
           if (state.boughtPlayerIds && state.boughtPlayerIds.indexOf(p.id) >= 0) continue
           state.globalPlayers.push({
-            ...p, teamName: teamObj.name, teamId: teamObj.id,
+            ...p, teamName: teamObj.name, teamId: teamObj.teamId,
             countryFlag: countryFlag, leagueId: l.id,
           })
         }
@@ -973,10 +973,10 @@ function getTeamObj(id) {
       const team = l.teams.find(x => x.id === id)
       if (team) {
         if (getRealSquad(team.id)) {
-          return { name: team.name, players: getRealSquad(team.id).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }).map(function(p) { return { ...p } }), teamId: team.id, staff: team.staff, formation: team.formation, gamePlan: team.gamePlan }
+          return { name: team.name, players: getRealSquad(team.id).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }).map(function(p) { return { ...p } }), teamId: team.id, staff: team.staff, formation: team.formation, gamePlan: team.gamePlan, logo: team.logo }
         }
         const rating = team.rating || getBaseDato(id)?.rating || 70
-        return { name: team.name, players: generateCpuSquad(id, state.countryId, rating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, staff: team.staff || generateStaff(team.name, state.countryId), formation: team.formation, gamePlan: team.gamePlan }
+        return { name: team.name, players: generateCpuSquad(id, state.countryId, rating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, staff: team.staff || generateStaff(team.name, state.countryId), formation: team.formation, gamePlan: team.gamePlan, logo: team.logo }
       }
     }
   }
@@ -4727,22 +4727,59 @@ function renderMarket() {
       : '<span style="color:#f44336">🔒 Mercado cerrado</span>'
     header.innerHTML = `Mercado de fichajes · ${status}`
   }
+  /* Poblar nacionalidades dinámicamente desde globalPlayers */
+  var natSelect = document.getElementById('mf-nat')
+  if (natSelect && natSelect.options.length <= 1) {
+    var nats = {}
+    state.globalPlayers.forEach(function(p) {
+      var parts = (p.nationality || '').split(' ')
+      var name = parts.slice(1).join(' ').trim()
+      var flag = parts[0] || ''
+      if (name && !nats[name]) nats[name] = flag
+    })
+    var sorted = Object.keys(nats).sort()
+    for (var ni = 0; ni < sorted.length; ni++) {
+      var name = sorted[ni]
+      var opt = document.createElement('option')
+      opt.value = name
+      opt.textContent = (nats[name] ? nats[name] + ' ' : '') + name
+      natSelect.appendChild(opt)
+    }
+  }
+  /* Bind filter inputs */
+  document.querySelectorAll('#market-filters input, #market-filters select').forEach(function(el) {
+    el.oninput = function() { renderMarketContent() }
+    el.onchange = function() { renderMarketContent() }
+  })
   renderMarketContent()
 }
 
 function renderMarketContent() {
   const container = document.getElementById('market-content')
   const search = (document.getElementById('market-search').value || '').toLowerCase()
+  const posFilter = document.getElementById('mf-pos')?.value || ''
+  const natFilter = (document.getElementById('mf-nat')?.value || '').toLowerCase()
+  const ageVal = (document.getElementById('mf-age')?.value || '').split('-')
+  const ageMin = parseInt(ageVal[0]) || 0
+  const ageMax = parseInt(ageVal[1]) || 99
+  const skillVal = (document.getElementById('mf-skill')?.value || '').split('-')
+  const skillMin = parseInt(skillVal[0]) || 0
+  const skillMax = parseInt(skillVal[1]) || 99
 
   const userPlayerIds = new Set(state.players.map(p => p.id))
     const global = (state.globalPlayers || []).filter(p => !userPlayerIds.has(p.id))
 
-    let filtered
-    if (search) {
-      filtered = global.filter(p => p.name.toLowerCase().includes(search))
-    } else {
-      filtered = global.sort((a, b) => b.skill - a.skill).slice(0, 20)
-    }
+    let filtered = global
+    if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search))
+    if (posFilter) filtered = filtered.filter(p => (POS_ABBR[p.position] || p.position) === posFilter)
+    if (natFilter) filtered = filtered.filter(p => (p.nationality || '').toLowerCase().includes(natFilter))
+    if (ageMin > 0) filtered = filtered.filter(p => (p.age || 0) >= ageMin)
+    if (ageMax < 99) filtered = filtered.filter(p => (p.age || 0) <= ageMax)
+    if (skillMin > 0) filtered = filtered.filter(p => p.skill >= skillMin)
+    if (skillMax < 99) filtered = filtered.filter(p => p.skill <= skillMax)
+
+    filtered.sort((a, b) => b.skill - a.skill)
+    filtered = filtered.slice(0, 50)
 
     if (filtered.length === 0) {
       container.innerHTML = '<div class="market-empty">No hay jugadores disponibles</div>'
@@ -5217,7 +5254,7 @@ function newGame(coach) {
           state.globalPlayers.push({
             ...p,
             teamName: teamObj.name,
-            teamId: teamObj.id,
+            teamId: teamObj.teamId,
             countryFlag: countryFlag,
             leagueId: l.id,
           })
@@ -6840,7 +6877,8 @@ function openPlayerDetail(player, teamObj) {
   }
 
   const team = teamObj || (player.teamId ? getTeamObj(player.teamId) : null) || { name: state.team, logo: state.teamLogo, teamId: state.teamId }
-  document.getElementById('pd-team-logo').src = getTeamLogo(team.teamId) || NOPHOTO
+  var teamLogo = getTeamLogo(team.teamId) || (team.logo) || (player.teamId ? getTeamLogo(player.teamId) : '') || NOPHOTO
+  document.getElementById('pd-team-logo').src = teamLogo
   document.getElementById('pd-team').textContent = team.name || '\u2014'
   const posLabel = POSITIONS[posKey] ? POSITIONS[posKey].label : player.position
   document.getElementById('pd-position').textContent = posLabel + ' (' + (POS_ABBR[posKey] || player.position) + ')'

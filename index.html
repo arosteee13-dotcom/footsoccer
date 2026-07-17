@@ -224,6 +224,48 @@
           <div class="market-search-wrap">
             <input class="market-search" id="market-search" type="text" placeholder="🔍 Buscar jugador...">
           </div>
+          <div class="market-filters-wrap" id="market-filters">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;padding:6px 10px">
+              <select id="mf-pos" style="flex:1;min-width:70px;padding:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
+                <option value="">Posición</option>
+                <option value="POR">POR</option>
+                <option value="DFC">DFC</option>
+                <option value="LD">LD</option>
+                <option value="LI">LI</option>
+                <option value="CAD">CAD</option>
+                <option value="CAI">CAI</option>
+                <option value="MCD">MCD</option>
+                <option value="MC">MC</option>
+                <option value="MCO">MCO</option>
+                <option value="MD">MD</option>
+                <option value="MI">MI</option>
+                <option value="ED">ED</option>
+                <option value="EI">EI</option>
+                <option value="DC">DC</option>
+              </select>
+              <select id="mf-nat" style="flex:1;min-width:70px;padding:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
+                <option value="">Nacionalidad</option>
+              </select>
+              <select id="mf-age" style="flex:1;min-width:60px;padding:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
+                <option value="">Edad</option>
+                <option value="15-19">15-19</option>
+                <option value="20-24">20-24</option>
+                <option value="25-29">25-29</option>
+                <option value="30-34">30-34</option>
+                <option value="35-50">35+</option>
+              </select>
+              <select id="mf-skill" style="flex:1;min-width:60px;padding:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
+                <option value="">Skill</option>
+                <option value="0-39">0-39</option>
+                <option value="40-49">40-49</option>
+                <option value="50-59">50-59</option>
+                <option value="60-69">60-69</option>
+                <option value="70-79">70-79</option>
+                <option value="80-89">80-89</option>
+                <option value="90-99">90-99</option>
+              </select>
+            </div>
+          </div>
           <div id="market-content"></div>
         </section>
 
@@ -489,6 +531,12 @@
     </div>
   </div>
 
+  <script src="js/data/spain.js"></script>
+  <script src="js/data/portugal.js"></script>
+  <script src="js/data/poland.js"></script>
+  <script src="js/data/italy.js"></script>
+  <script src="js/data/brazil.js"></script>
+  <script src="js/data/argentina.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
