@@ -791,7 +791,7 @@ window.SaveSystem = {
       const idx = saves.findIndex(s => Number(s.id) === Number(gameId))
       const matchday = state.stats.wins + state.stats.draws + state.stats.losses + 1
       const cleanup = p => {
-        const { enPista, minutosEnPista, convocado, titular, _yellowsInThisMatch, _redThisMatch, _goalsInMatch, ...rest } = p
+        const { enPista, minutosEnPista, convocado, titular, _yellowThisMatch, _redThisMatch, _goalsInMatch, _assistThisMatch, ...rest } = p
         if (rest.positionExperience) rest.positionExperience = Object.assign({}, rest.positionExperience)
         return rest
       }
@@ -4475,6 +4475,40 @@ function simularPartidoRapido(fixture, rivalId) {
       'Jornada ' + state.currentMatchday + ' \u00b7 ' + (us > them ? '+' : us === them ? '+' : '') + (us > them ? rew.win : us === them ? rew.draw : rew.loss) + ' \u20ac'
     )
 
+    /* Individual match ratings per player */
+    try {
+      var _rn = getTeamName(rivalId)
+      state.players.filter(function(p) { return p.minutosEnPista > 0 }).forEach(function(p) {
+        if (!p.matchHistory) p.matchHistory = []
+        var _wb = (us > them) ? 0.3 : (us === them) ? 0.1 : 0
+        var _yp = p._yellowThisMatch ? -0.5 : 0
+        var _rpd = p._redThisMatch ? -2.0 : 0
+        var _gb = (p._goalsInMatch || 0) * 0.8
+        var _ab = (p._assistThisMatch || 0) * 0.4
+        var _rf = (Math.random() - 0.5) * 1.0
+        var _cs = 0
+        if (them === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) _cs = 0.5
+        var _rr = Math.min(10, Math.max(1, 6.0 + _wb + _yp + _rpd + _gb + _ab + _rf + _cs))
+        p.matchHistory.push({
+          matchday: state.currentMatchday,
+          rival: _rn,
+          minutes: p.minutosEnPista || 0,
+          rating: Math.min(10, Math.max(1, _rr)),
+          goals: p._goalsInMatch || 0,
+          yellow: !!p._yellowThisMatch,
+          red: !!p._redThisMatch,
+        })
+        if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
+        if (!p.teamStats) p.teamStats = {}
+        if (!p.teamStats[state.teamId]) p.teamStats[state.teamId] = { matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0 }
+        p.teamStats[state.teamId].matches++
+        p.teamStats[state.teamId].goals += (p._goalsInMatch || 0)
+        if (p._assistThisMatch) p.teamStats[state.teamId].assists++
+        if (p._yellowThisMatch) p.teamStats[state.teamId].yellowCards++
+        if (p._redThisMatch) p.teamStats[state.teamId].redCards++
+      })
+    } catch (e) { console.error('[RATING] Error computing match ratings:', e) }
+
     updateLeagueStandings()
 
     /* 4. Show jornada summary modal */
@@ -4486,6 +4520,9 @@ function simularPartidoRapido(fixture, rivalId) {
 
     showJornadaModal(state.currentMatchday, allResults, userGoalscorers, rivalGoalscorers)
     hideLoading()
+
+    /* Cleanup temp match vars after modal is rendered */
+    state.players.forEach(function(p) { delete p._yellowThisMatch; delete p._redThisMatch; delete p._goalsInMatch; delete p._assistThisMatch })
   }, 400)
 }
 
@@ -4625,6 +4662,8 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
         else if (Math.random() < 0.2) rivalCards[rivalLineup[rc].player.name] = 'yellow'
       }
 
+      var _uScore = userMatch.homeId === state.teamId ? userMatch.homeScore : userMatch.awayScore
+      var _rScore = userMatch.homeId === state.teamId ? userMatch.awayScore : userMatch.homeScore
       for (var ri = 0; ri < rivalLineup.length; ri++) {
         var rItem = rivalLineup[ri]
         var rp = rItem.player
@@ -4637,7 +4676,16 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
         var rCardIcon = ''
         if (rivalCards[rp.name] === 'red') rCardIcon = ' <span style="color:#e74c3c">\ud83d\udfe5</span>'
         else if (rivalCards[rp.name] === 'yellow') rCardIcon = ' <span style="color:#f1c40f">\ud83d\udfe8</span>'
-        lineupsHtml += '<div class="mr-lineup-row"><span class="mr-lineup-pos" style="background:' + rPosColor + ';color:#fff">' + rPosLabel + '</span><span class="mr-lineup-name">' + rp.name + rGoalIcon + rAssistIcon + rCardIcon + '</span><span class="mr-lineup-rating">-</span></div>'
+        var rWinBonus = (_rScore > _uScore) ? 0.3 : (_rScore === _uScore) ? 0.1 : 0
+        var rGoalBonus = (rGoles || 0) * 0.8
+        var rAssistBonus = rivalAssistNames[rp.name] ? 0.4 : 0
+        var rYellowPenalty = rivalCards[rp.name] === 'yellow' ? -0.5 : 0
+        var rRedPenalty = rivalCards[rp.name] === 'red' ? -2.0 : 0
+        var rCsBonus = 0
+        if (_uScore === 0 && (rp.position === 'POR' || rp.position === 'defensa_central' || rp.position === 'lateral_der' || rp.position === 'lateral_izq')) rCsBonus = 0.5
+        var rRandom = (Math.random() - 0.5) * 1.0
+        var rRating = Math.min(10, Math.max(1, 6.0 + rWinBonus + rGoalBonus + rAssistBonus + rYellowPenalty + rRedPenalty + rCsBonus + rRandom))
+        lineupsHtml += '<div class="mr-lineup-row"><span class="mr-lineup-pos" style="background:' + rPosColor + ';color:#fff">' + rPosLabel + '</span><span class="mr-lineup-name">' + rp.name + rGoalIcon + rAssistIcon + rCardIcon + '</span><span class="mr-lineup-rating">(' + rRating.toFixed(1) + ')</span></div>'
       }
     }
   document.getElementById('mr-lineups').innerHTML = lineupsHtml
