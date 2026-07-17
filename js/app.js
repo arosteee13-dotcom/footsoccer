@@ -36,6 +36,25 @@ const POS_ABBR = { portero: 'POR', cierre: 'DFC', ala: 'MC', pivot: 'DC', latera
 
 const SIGLA_TO_POS = Object.fromEntries(Object.entries(POS_ABBR).map(([k, v]) => [v, k]))
 
+function getGoalWeight(position) {
+  var fwds = ['delantero', 'extremo_der', 'extremo_izq']
+  var mids = ['mediocentro', 'medio_def', 'medio_ofensivo', 'medio_der', 'medio_izq']
+  if (fwds.includes(position)) return 10
+  if (mids.includes(position)) return 5
+  return 2
+}
+
+function pickWeightedRandom(arr, weightFn) {
+  var total = 0
+  for (var i = 0; i < arr.length; i++) total += weightFn(arr[i])
+  var r = Math.random() * total
+  for (var i = 0; i < arr.length; i++) {
+    r -= weightFn(arr[i])
+    if (r <= 0) return arr[i]
+  }
+  return arr[arr.length - 1]
+}
+
 function getPowerBadgeStyle(skill) {
   if (skill >= 90) return 'background:#fff;color:#B28100;border:2px solid #B28100'
   if (skill >= 75) return 'background:#000;color:#fff;border:2px solid #175A00'
@@ -314,6 +333,7 @@ function rebuildGlobalPlayerPool() {
         if (!teamObj || !teamObj.players) continue
         for (const p of teamObj.players) {
           if (p.onLoan && p.loanFrom) continue
+          if (state.boughtPlayerIds && state.boughtPlayerIds.indexOf(p.id) >= 0) continue
           state.globalPlayers.push({
             ...p, teamName: teamObj.name, teamId: teamObj.id,
             countryFlag: countryFlag, leagueId: l.id,
@@ -560,6 +580,7 @@ const state = {
   seasonNumber: 1,
   transferWindowOpen: false,
   loanPool: [],
+  boughtPlayerIds: [],
 }
 
 /* ============ HELPERS ============ */
@@ -623,6 +644,13 @@ function getTop11Average(players) {
   if (!players || players.length === 0) return 0
   const top = [...players].sort((a, b) => (b.skill || 0) - (a.skill || 0)).slice(0, 11)
   return Math.round(top.reduce((s, p) => s + (p.skill || 0), 0) / top.length)
+}
+
+function getTop11EnergyFactor(players) {
+  if (!players || players.length === 0) return 1
+  const top = [...players].sort((a, b) => (b.skill || 0) - (a.skill || 0)).slice(0, 11)
+  var avgE = top.reduce(function(s, p) { return s + (p.energy || 80) }, 0) / top.length
+  return 0.5 + 0.5 * (avgE / 100)
 }
 
 const MAX_SLOTS = 4
@@ -705,6 +733,7 @@ window.SaveSystem = {
         trophies: state.trophies,
         seasonNumber: state.seasonNumber,
         loanPool: state.loanPool || [],
+        boughtPlayerIds: state.boughtPlayerIds || [],
       }
       if (idx >= 0) saves[idx] = data; else saves.unshift(data)
       setSaves(saves)
@@ -787,7 +816,7 @@ window.MatchEngine = {
   MAX_CHANGES: 5,
   getMaxSubs(leagueId) {
     if (!leagueId) return 9
-    if (leagueId === 'lpl' || leagueId === 'lpl2') return 12
+    if (leagueId === 'lpl' || leagueId === 'lpl2' || leagueId === 'l1s' || leagueId === 'l2s' || leagueId === 'l1p' || leagueId === 'l2p') return 12
     if (leagueId.startsWith('lnfs') || leagueId.startsWith('l2b')) return 12
     return 9
   }
@@ -902,11 +931,10 @@ function getTeamObj(id) {
       const team = l.teams.find(x => x.id === id)
       if (team) {
         if (getRealSquad(team.id)) {
-          return { name: team.name, players: getRealSquad(team.id).map(p => ({ ...p })), teamId: team.id, staff: team.staff, formation: team.formation, gamePlan: team.gamePlan }
+          return { name: team.name, players: getRealSquad(team.id).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }).map(function(p) { return { ...p } }), teamId: team.id, staff: team.staff, formation: team.formation, gamePlan: team.gamePlan }
         }
-        /* Generate CPU squad on-the-fly for teams without real squads */
         const rating = team.rating || getBaseDato(id)?.rating || 70
-        return { name: team.name, players: generateCpuSquad(id, state.countryId, rating), teamId: id, staff: team.staff || generateStaff(team.name, state.countryId), formation: team.formation, gamePlan: team.gamePlan }
+        return { name: team.name, players: generateCpuSquad(id, state.countryId, rating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, staff: team.staff || generateStaff(team.name, state.countryId), formation: team.formation, gamePlan: team.gamePlan }
       }
     }
   }
@@ -919,8 +947,10 @@ function autoSimulateOtherMatch(homeId, awayId) {
   if (!home || !away) return { homeScore: 0, awayScore: 0 }
   const homeTact = calcTacticMultiplier(home.formation, home.gamePlan)
   const awayTact = calcTacticMultiplier(away.formation, away.gamePlan)
-  const homeSkill = avgSkill(home.players) * randInt(80, 120) / 100 * 1.05 * homeTact
-  const awaySkill = avgSkill(away.players) * randInt(80, 120) / 100 * awayTact
+  const homePower = getTop11Average(home.players) * getTop11EnergyFactor(home.players)
+  const awayPower = getTop11Average(away.players) * getTop11EnergyFactor(away.players)
+  const homeSkill = homePower * randInt(80, 120) / 100 * 1.05 * homeTact
+  const awaySkill = awayPower * randInt(80, 120) / 100 * awayTact
   let homeScore = 0, awayScore = 0
   for (let m = 0; m < 40; m++) {
     if (Math.random() > 0.35) continue
@@ -986,7 +1016,7 @@ function assignAIStats(players, goals, formation) {
 
   var scored = 0
   while (scored < goals) {
-    var scorer = fieldPlayers[Math.floor(Math.random() * fieldPlayers.length)]
+    var scorer = pickWeightedRandom(fieldPlayers, function(p) { return getGoalWeight(p.position) })
     scorer.goals = (scorer.goals || 0) + 1
     scored++
     if (Math.random() < 0.55) {
@@ -3790,7 +3820,7 @@ function simularPartidoRapido(fixture, rivalId) {
     const rivalTeam = getTeamObj(rivalId)
     let rivalPower = 0
     if (rivalTeam && rivalTeam.players && rivalTeam.players.length > 0) {
-      rivalPower = getTop11Average(rivalTeam.players)
+      rivalPower = Math.round(getTop11Average(rivalTeam.players) * getTop11EnergyFactor(rivalTeam.players))
     } else {
       const db = getBaseDato(rivalId)
       rivalPower = db ? db.rating : 70
@@ -3843,7 +3873,7 @@ function simularPartidoRapido(fixture, rivalId) {
     for (let g = 0; g < us; g++) {
       const valid = state.players.filter(p => startingIds.includes(p.id) && p.position !== 'POR' && !p.injury)
       if (valid.length === 0) break
-      const scorer = valid[Math.floor(Math.random() * valid.length)]
+      const scorer = pickWeightedRandom(valid, function(p) { return getGoalWeight(p.position) })
       scorer.goals = (scorer.goals || 0) + 1
       let assistName = null
       if (Math.random() < 0.35) {
@@ -3855,6 +3885,15 @@ function simularPartidoRapido(fixture, rivalId) {
         }
       }
       userGoalscorers.push({ scorerName: scorer.name, assistName })
+    }
+
+    /* Generate rival goalscorers */
+    const rivalGoalscorers = []
+    const rivalFieldPlayers = (rivalTeam.players || []).filter(function(p) { return p.position !== 'POR' })
+    for (var rg = 0; rg < them; rg++) {
+      if (rivalFieldPlayers.length === 0) break
+      var rScorer = rivalFieldPlayers[Math.floor(Math.random() * rivalFieldPlayers.length)]
+      rivalGoalscorers.push(rScorer.name)
     }
 
     /* Yellow and red cards for user's players */
@@ -3987,12 +4026,13 @@ function simularPartidoRapido(fixture, rivalId) {
       homeScore: f.homeScore, awayScore: f.awayScore, isUser: false
     })))
 
-    showJornadaModal(state.currentMatchday, allResults, userGoalscorers)
+    showJornadaModal(state.currentMatchday, allResults, userGoalscorers, rivalGoalscorers)
     hideLoading()
   }, 400)
 }
 
-function showJornadaModal(matchday, allResults, userGoalscorers) {
+function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorers) {
+  rivalGoalscorers = rivalGoalscorers || []
   const modal = document.getElementById('match-result-modal')
   document.getElementById('mr-matchday').textContent = 'Jornada ' + matchday
 
@@ -4037,13 +4077,23 @@ function showJornadaModal(matchday, allResults, userGoalscorers) {
     )
   }
 
-  let scorersHtml = ''
-  if (userGoalscorers.length > 0) {
-    for (const g of userGoalscorers) {
-      const a = g.assistName ? ' <span class="mr-assist">(' + g.assistName + ')</span>' : ''
-      scorersHtml += '<div style="padding:1px 4px;font-size:12px;font-weight:600;color:var(--text)">\u26bd ' + g.scorerName + a + '</div>'
+  let scorersHtml = '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:8px">'
+
+  if (userMatch) {
+    var leftScorers = []
+    var rightScorers = []
+    if (userMatch.homeId === state.teamId) {
+      leftScorers = userGoalscorers.map(function(g) { return '\u26bd ' + g.scorerName + (g.assistName ? ' (' + g.assistName + ')' : '') })
+      rightScorers = rivalGoalscorers.map(function(n) { return '\u26bd ' + n })
+    } else {
+      leftScorers = rivalGoalscorers.map(function(n) { return '\u26bd ' + n })
+      rightScorers = userGoalscorers.map(function(g) { return '\u26bd ' + g.scorerName + (g.assistName ? ' (' + g.assistName + ')' : '') })
     }
+    scorersHtml += '<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + leftScorers.join('<br>') + '</div>'
+    scorersHtml += '<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + rightScorers.join('<br>') + '</div>'
   }
+
+  scorersHtml += '</div>'
   document.getElementById('mr-scorers').innerHTML = scorersHtml
 
   document.getElementById('mr-all-results').innerHTML = otherHtml.join('')
@@ -4222,7 +4272,7 @@ function autoSimularPartidoUsuario(fixture) {
   const rivalTeam = getTeamObj(rivalId)
   let rivalPower = 0
   if (rivalTeam && rivalTeam.players && rivalTeam.players.length > 0) {
-    rivalPower = getTop11Average(rivalTeam.players)
+    rivalPower = Math.round(getTop11Average(rivalTeam.players) * getTop11EnergyFactor(rivalTeam.players))
   } else {
     const db = getBaseDato(rivalId)
     rivalPower = db ? db.rating : 70
@@ -4266,7 +4316,7 @@ function autoSimularPartidoUsuario(fixture) {
   for (let g = 0; g < us; g++) {
     const valid = state.players.filter(p => ids.includes(p.id) && p.position !== 'POR' && !p.injury)
     if (valid.length === 0) break
-    const scorer = valid[Math.floor(Math.random() * valid.length)]
+    const scorer = pickWeightedRandom(valid, function(p) { return getGoalWeight(p.position) })
     scorer.goals = (scorer.goals || 0) + 1
     if (Math.random() < 0.35) {
       const pool = state.players.filter(p => ids.includes(p.id) && p.id !== scorer.id && !p.injury)
@@ -4428,26 +4478,28 @@ function renderMarketContent() {
         const teamPlayer = team.players.find(p => p.id === pid)
         if (!teamPlayer) return
         if (state.players.length >= MAX_SQUAD || state.finances.balance < teamPlayer.value) return
-        buyPlayer(teamPlayer, team)
+        buyPlayer(teamPlayer, team, teamPlayer.value)
       })
     })
   }
 
-function buyPlayer(player, team) {
-  if (state.players.length >= MAX_SQUAD) return
+function buyPlayer(player, team, agreedPrice) {
+  if (state.players.length >= MAX_SQUAD) { alert('Plantilla completa (' + MAX_SQUAD + ' jugadores)'); return }
   const delegateCount = state.staff.filter(s => s.role === 'delegate').length
   const discount = Math.max(0, 1 - delegateCount * 0.1)
-  const finalValue = Math.round(player.value * discount)
-  if (state.finances.balance < finalValue) return
+  const basePrice = agreedPrice || player.value
+  const finalValue = Math.round(basePrice * discount)
+  if (state.finances.balance < finalValue) { alert('Fondos insuficientes. Necesitas ' + formatMoney(finalValue)); return }
   state.finances.balance -= finalValue
   state.finances.history.push({ reason: `Compra: ${player.name}${discount < 1 ? ' (-' + Math.round((1 - discount) * 100) + '% dto)' : ''}`, amount: -finalValue })
   /* Remove from source team */
   const ti = team.players.findIndex(p => p.id === player.id)
   if (ti >= 0) team.players.splice(ti, 1)
+  state.boughtPlayerIds.push(player.id)
   /* Remove from global pool */
   const gi = state.globalPlayers.findIndex(p => p.id === player.id)
   if (gi >= 0) state.globalPlayers.splice(gi, 1)
-  const newPlayer = { ...player, id: `user-${Date.now()}`, value: calcValue(player.skill), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, age: randInt(20, 35), foot: pickRandom(['DER', 'IZQ']), contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
+  const newPlayer = { ...player, id: `user-${Date.now()}`, value: calcValue(player.skill), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
   state.players.push(newPlayer)
   addNotification('transfer', `Fichaje completado: ${player.name}`, `${formatMoney(player.value)} · ${player.nationality}`)
   renderMarketContent()
@@ -4848,6 +4900,7 @@ function newGame(coach) {
         const teamObj = getTeamObj(t.id)
         if (!teamObj || !teamObj.players) continue
         for (const p of teamObj.players) {
+          if (state.boughtPlayerIds && state.boughtPlayerIds.indexOf(p.id) >= 0) continue
           state.globalPlayers.push({
             ...p,
             teamName: teamObj.name,
@@ -4954,6 +5007,7 @@ function loadGame(id) {
   state.trophies = data.trophies || []
   state.seasonNumber = data.seasonNumber || 1
   state.loanPool = data.loanPool || []
+  state.boughtPlayerIds = data.boughtPlayerIds || []
   loadCountryData(state.countryId, function() {
     normalizarPlantillas()
     startGame()
@@ -5232,6 +5286,7 @@ function showTeamPreview(teamId) {
   const reputation = displayPower < 42 ? 1 : displayPower < 58 ? 2 : displayPower < 72 ? 3 : displayPower < 85 ? 4 : 5
   const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
   const countryFlag = window.DB[foundCountryId] ? window.DB[foundCountryId].country.flag : ''
+  const teamBudget = team.budget || (foundLeague ? Math.round(getDivisionBaseBudget(foundLeague.id) * getCountryBudgetMult(foundCountryId) * ((team.rating || 50) / 50)) : 0)
   document.getElementById('tp-stats').innerHTML = `
     <div style="display:flex;flex-direction:column;gap:0;width:100%">
       <div style="display:flex;gap:1px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--border)">
@@ -5244,7 +5299,7 @@ function showTeamPreview(teamId) {
       <div style="display:flex;gap:1px;padding:8px 10px;background:var(--bg)">
         <div class="tp-stat"><span class="tp-stat-label">Formaci\u00f3n</span><span class="tp-stat-value">${team.formation || '\u2014'}</span></div>
         <div class="tp-stat"><span class="tp-stat-label">Presi\u00f3n</span><span class="tp-stat-value">${(GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014'}</span></div>
-        <div class="tp-stat" style="flex:2"></div>
+        <div class="tp-stat"><span class="tp-stat-label">Presupuesto</span><span class="tp-stat-value">\u20AC${formatShort(teamBudget)}</span></div>
       </div>
     </div>
   `
@@ -5794,7 +5849,7 @@ function showTeamInfo(teamId) {
     row.onclick = () => {
       const pid = row.dataset.playerId
       const player = team.players.find(p => p.id === pid)
-      if (player) openPlayerDetail(player)
+      if (player) openPlayerDetail(player, team)
     }
   })
 }
@@ -6457,8 +6512,8 @@ function openPlayerDetail(player, teamObj) {
     photo.innerHTML = `<div class="pd-photo-placeholder">${getInitials(player.name)}</div>`
   }
 
-  const team = teamObj || selectedTeam || { name: state.team, logo: state.teamLogo }
-  document.getElementById('pd-team-logo').src = team.logo || NOPHOTO
+  const team = teamObj || (player.teamId ? getTeamObj(player.teamId) : null) || { name: state.team, logo: state.teamLogo, teamId: state.teamId }
+  document.getElementById('pd-team-logo').src = getTeamLogo(team.teamId) || NOPHOTO
   document.getElementById('pd-team').textContent = team.name || '\u2014'
   const posLabel = POSITIONS[posKey] ? POSITIONS[posKey].label : player.position
   document.getElementById('pd-position').textContent = posLabel + ' (' + (POS_ABBR[posKey] || player.position) + ')'
@@ -6663,21 +6718,49 @@ function openPlayerDetail(player, teamObj) {
           if (!offer || offer < 1) return
           const result = evaluarOferta(player, offer)
           if (result.type === 'accepted') {
-            acceptedPrice = result.price
-            renderMercadoCPU('accepted')
+            if (state.finances.balance < result.price) { alert('No tienes fondos suficientes'); return }
+            var gi = state.globalPlayers.findIndex(function(p) { return p.id === player.id })
+            if (gi >= 0) state.globalPlayers.splice(gi, 1)
+            var team = getTeamObj(player.teamId)
+            if (team) {
+              var ti = team.players.findIndex(function(p) { return p.id === player.id })
+              if (ti >= 0) team.players.splice(ti, 1)
+            }
+            var newP = { ...player, id: 'user-' + Date.now(), value: calcValue(player.skill), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
+            state.players.push(newP)
+            state.boughtPlayerIds.push(player.id)
+            state.finances.balance -= result.price
+            state.finances.history.push({ reason: 'Compra: ' + player.name, amount: -result.price })
+            addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality)
+            document.getElementById('player-detail-modal').classList.remove('open')
+            renderMarketContent()
+            return
           } else if (result.type === 'counter') {
             const resEl = document.getElementById('pd-oferta-resultado')
             resEl.innerHTML = `<div style="text-align:center;padding:8px;background:rgba(245,158,11,0.1);border-radius:8px;font-size:13px;font-weight:600;color:#F59E0B">${result.msg}</div>
               <button class="btn-primary" id="pd-aceptar-contra" style="background:#10B981;margin-top:6px">ACEPTAR CONTRAOFERTA (${formatMoney(result.price)})</button>
               <button class="btn-secondary" id="pd-rechazar-contra" style="background:#EF4444;color:#fff;border-color:#EF4444;margin-top:4px">RECHAZAR</button>`
             document.getElementById('pd-aceptar-contra')?.addEventListener('click', () => {
-              if (state.finances.balance < result.price) { alert(`No tienes fondos suficientes. Necesitas ${formatMoney(result.price)}`); return }
-              acceptedPrice = result.price
-              const team = getTeamObj(player.teamId)
-              if (!team) return
-              const teamPlayer = team.players.find(p => p.id === player.id)
-              if (teamPlayer) buyPlayer(teamPlayer, team)
+              if (state.players.length >= MAX_SQUAD) { alert('Plantilla completa (' + MAX_SQUAD + ' jugadores)'); return }
+              if (state.finances.balance < result.price) { alert('Fondos insuficientes. Necesitas ' + formatMoney(result.price)); return }
+              /* Remove from global pool */
+              var gi = state.globalPlayers.findIndex(function(p) { return p.id === player.id })
+              if (gi >= 0) state.globalPlayers.splice(gi, 1)
+              /* Remove from source team if found */
+              var team = getTeamObj(player.teamId)
+              if (team) {
+                var ti = team.players.findIndex(function(p) { return p.id === player.id })
+                if (ti >= 0) team.players.splice(ti, 1)
+              }
+              /* Add to user's team */
+              var newP = { ...player, id: 'user-' + Date.now(), value: calcValue(player.skill), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
+              state.players.push(newP)
+              state.boughtPlayerIds.push(player.id)
+              state.finances.balance -= result.price
+              state.finances.history.push({ reason: 'Compra: ' + player.name, amount: -result.price })
+              addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality)
               document.getElementById('player-detail-modal').classList.remove('open')
+              renderMarketContent()
             })
             document.getElementById('pd-rechazar-contra')?.addEventListener('click', () => renderMercadoCPU('initial'))
           } else {
@@ -6707,7 +6790,7 @@ function openPlayerDetail(player, teamObj) {
           const team = getTeamObj(player.teamId)
           if (!team) return
           const teamPlayer = team.players.find(p => p.id === player.id)
-          if (teamPlayer) buyPlayer(teamPlayer, team)
+          if (teamPlayer) buyPlayer(teamPlayer, team, acceptedPrice)
           document.getElementById('player-detail-modal').classList.remove('open')
         })
       }
