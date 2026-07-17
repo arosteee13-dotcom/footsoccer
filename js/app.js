@@ -99,8 +99,32 @@ const FILIAL_MAP = {
   '1041': 's24',
 }
 
-function getFilialId(teamId) { return FILIAL_MAP[teamId] || null }
-function getParentTeamId(filialId) { return Object.keys(FILIAL_MAP).find(k => FILIAL_MAP[k] === filialId) || null }
+const B_TEAM_MAP = {
+  /* España */
+  'e28': 'e3',   /* Celta Fortuna → Celta de Vigo */
+  'e38': 'e17',  /* Real Sociedad B → Real Sociedad */
+  /* Portugal */
+  's2-4': 'pt3',  /* Benfica II → Benfica */
+  's2-13': 'pt2',  /* Porto II → Porto */
+  's2-14': 'pt5',  /* Sporting CP II → Sporting CP */
+  /* Polonia */
+  'p50': 'p2',   /* Legia Warszawa II → Legia Warszawa */
+  'p51': 'p8',   /* Śląsk Wrocław II → Śląsk Wrocław */
+  'p55': 'p7',   /* Jagiellonia II → Jagiellonia */
+  'p58': 'p23',  /* LKS Łódź II → ŁKS Łódź */
+  'p69': 'p13',  /* Widzew Łódź II → Widzew Łódź */
+  'p71': 'p15',  /* Wisła Płock II → Wisła Płock */
+  'p82': 'p3',   /* Lech Poznań II → Lech Poznań */
+  'p98': 'p24',  /* Miedź Legnica II → Miedź Legnica */
+  'p107': 'p11', /* Zagłębie Lubin II → Zagłębie Lubin */
+  'p114': 'p14', /* Korona Kielce II → Korona Kielce */
+  'p122': 'p18', /* Wieczysta Kraków II → Wieczysta Kraków */
+  'p124': 'p1',  /* Wisła Kraków II → Wisła Kraków */
+}
+
+function getBTeamParent(bTeamId) { return B_TEAM_MAP[bTeamId] || null }
+
+function getFTChild(parentId) { return FILIAL_MAP[parentId] || null }
 
 /* Pool de nombres españoles para CPU */
 const NOPHOTO = 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
