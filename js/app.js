@@ -67,7 +67,7 @@ const TRANSFER_WINDOW_SUMMER_START = 1
 const TRANSFER_WINDOW_SUMMER_END = 6
 const TRANSFER_WINDOW_WINTER_START = 15
 const TRANSFER_WINDOW_WINTER_END = 20
-const MIN_SQUAD_SIZE = 16
+const MIN_SQUAD_SIZE = 23
 const MIN_GK = 2
 const MIN_DC = 2
 const MIN_MC = 2
@@ -123,8 +123,9 @@ const B_TEAM_MAP = {
 }
 
 function getBTeamParent(bTeamId) { return B_TEAM_MAP[bTeamId] || null }
-
-function getFTChild(parentId) { return FILIAL_MAP[parentId] || null }
+function getFilialId(teamId) { return FILIAL_MAP[teamId] || null }
+function getParentTeamId(filialId) { return Object.keys(FILIAL_MAP).find(k => FILIAL_MAP[k] === filialId) || null }
+function findBTeamOf(parentId) { return Object.keys(B_TEAM_MAP).find(k => B_TEAM_MAP[k] === parentId) || null }
 
 /* Pool de nombres españoles para CPU */
 const NOPHOTO = 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
@@ -298,45 +299,18 @@ function generateCpuPlayer(teamId, countryId, teamRating, position, overrides) {
   }
 }
 
-function normalizarPlantilla(players, teamId, countryId, teamRating) {
-  const gks = players.filter(p => p.position === 'portero').length
-  const dcs = players.filter(p => p.position === 'defensa_central').length
-  const mcs = players.filter(p => p.position === 'mediocentro' || p.position === 'medio_def' || p.position === 'medio_ofensivo' || p.position === 'medio_der' || p.position === 'medio_izq').length
-  const fws = players.filter(p => p.position === 'delantero' || p.position === 'extremo_der' || p.position === 'extremo_izq').length
-  const added = []
-  while (players.filter(p => p.position === 'portero').length < MIN_GK) {
-    const p = generateCpuPlayer(teamId, countryId, teamRating, 'portero', { skill: randInt(8, 25), age: randInt(16, 30) })
-    p.number = 12 + added.length
-    players.push(p)
-    added.push(p)
-  }
-  while (players.filter(p => p.position === 'defensa_central').length < MIN_DC) {
-    const p = generateCpuPlayer(teamId, countryId, teamRating, 'defensa_central', { skill: randInt(10, 30) })
-    players.push(p)
-    added.push(p)
-  }
-  while (players.filter(p => p.position === 'mediocentro' || p.position === 'medio_def' || p.position === 'medio_ofensivo' || p.position === 'medio_der' || p.position === 'medio_izq').length < MIN_MC) {
-    const p = generateCpuPlayer(teamId, countryId, teamRating, pickRandom(['mediocentro', 'medio_def', 'medio_ofensivo']), { skill: randInt(10, 30) })
-    players.push(p)
-    added.push(p)
-  }
-  while (players.filter(p => p.position === 'delantero' || p.position === 'extremo_der' || p.position === 'extremo_izq').length < MIN_FW) {
-    const p = generateCpuPlayer(teamId, countryId, teamRating, pickRandom(['delantero', 'extremo_der', 'extremo_izq']), { skill: randInt(10, 30) })
-    players.push(p)
-    added.push(p)
-  }
-  return added
+function normalizarPlantillas() {
+  rebuildGlobalPlayerPool()
 }
 
-function normalizarPlantillas() {
-  const cid = state.countryId
-  const allTeams = [state]
-  for (const t of state.leagueTeams) {
-    const added = normalizarPlantilla(t.players, t.teamId, cid, t.rating)
-    if (added.length > 0) console.log(`[NORM] ${t.name}: añadidos ${added.length} jugadores`)
+function procesarFichajesIniciales() {
+  for (var ti = 0; ti < state.leagueTeams.length; ti++) {
+    var team = state.leagueTeams[ti]
+    if (team.teamId === state.teamId) continue
+    procesarIAFichajes(team)
+    if (team.players.length < MIN_SQUAD_SIZE) procesarIAFichajes(team)
+    if (team.players.length < MIN_SQUAD_SIZE) procesarIAFichajes(team)
   }
-  const myAdded = normalizarPlantilla(state.players, state.teamId, cid, teamRating())
-  if (myAdded.length > 0) console.log(`[NORM] ${state.team}: añadidos ${myAdded.length} jugadores`)
   rebuildGlobalPlayerPool()
 }
 
@@ -992,7 +966,13 @@ function autoSimulateOtherMatch(homeId, awayId) {
 function assignAIStats(players, goals, formation) {
   var fieldPlayers = players.filter(function(p) { return p.position !== 'POR' })
   if (fieldPlayers.length === 0) return
-  fieldPlayers.forEach(function(p) { p.matches = (p.matches || 0) + 1 })
+
+  /* Track matches for starters: top GK + top 10 field players by skill */
+  var gkPool = players.filter(function(p) { return p.position === 'POR' })
+  gkPool.sort(function(a, b) { return (b.skill || 0) - (a.skill || 0) })
+  fieldPlayers.sort(function(a, b) { return (b.skill || 0) - (a.skill || 0) })
+  var matchPlayers = gkPool.slice(0, 1).concat(fieldPlayers.slice(0, 10))
+  matchPlayers.forEach(function(p) { p.matches = (p.matches || 0) + 1 })
 
   /* Track position experience for AI players */
   if (formation && FORMATIONS[formation]) {
@@ -2627,6 +2607,18 @@ function resetSeason() {
   normalizarPlantillas()
   rebuildGlobalPlayerPool()
 
+  /* Process forced filial relegation (parent relegated to same division as B team) */
+  if (state._filialRelegue) {
+    var frId = state._filialRelegue
+    var frTeam = state.leagueTeams.find(function(t) { return t.teamId === frId })
+    if (frTeam) {
+      var frIdx = state.leagueTeams.indexOf(frTeam)
+      if (frIdx >= 0) state.leagueTeams.splice(frIdx, 1)
+      addNotification('general', '\u2B07 Filial relegado: ' + frTeam.name, 'Relegado autom\u00e1ticamente al descender el primer equipo')
+    }
+    state._filialRelegue = null
+  }
+
   /* Reset tactics */
   state.tacticsSlots = []
   state.benchIds = []
@@ -2816,12 +2808,12 @@ function procesarIAOfertasAlUsuario() {
 function procesarCesionesCPU() {
   if (!state.transferWindowOpen) return
   for (const team of state.leagueTeams) {
-    if (team.players.length < MIN_SQUAD_SIZE - 1) {
+    if (team.players.length < 18) {
       const loanPool = state.globalPlayers.filter(p => p.loanListed && p.skill > 20 && p.teamId !== team.teamId)
       if (loanPool.length === 0) continue
       loanPool.sort((a, b) => b.skill - a.skill)
       const pick = loanPool[0]
-      const sourceTeam = state.leagueTeams.find(t => t.teamId === pick.teamId)
+    const sourceTeam = getTeamObj(pick.teamId)
       if (!sourceTeam) continue
       const sourcePlayer = sourceTeam.players.find(p => p.id === pick.id)
       if (!sourcePlayer) continue
@@ -3110,6 +3102,9 @@ function procesarFinTemporada(skipAging, skipStandings) {
     const totalTeams = standings.length
 
     if (esPrimeraSpain && pos >= 18) {
+      var filialId = findBTeamOf(state.teamId)
+      var filialInL2s = filialId && getLeagueTeams('l2s').some(function(t) { return t.id === filialId })
+      if (filialInL2s) state._filialRelegue = filialId
       cambioDivision = true
     } else if (esPrimera && pos >= 15) {
       state.leagueId = 'lnfs2'
@@ -3161,11 +3156,19 @@ function procesarFinTemporada(skipAging, skipStandings) {
       state.leagueId = pickRandom(grupos2a)
       cambioDivision = true
     } else if (esPolaca1 && pos >= 15) {
+      var _filialId = findBTeamOf(state.teamId)
+      var filialInLpl2 = _filialId && getLeagueTeams('lpl2').some(function(t) { return t.id === _filialId })
+      if (filialInLpl2) state._filialRelegue = _filialId
       state.leagueId = 'lpl2'
       cambioDivision = true
     } else if (esPolaca2 && pos <= 2) {
-      state.leagueId = 'lpl'
-      cambioDivision = true
+      var _parentId = getBTeamParent(state.teamId)
+      if (_parentId && getLeagueTeams('lpl').some(function(t) { return t.id === _parentId })) {
+        msg = '\uD83C\uDFF4 El filial no puede ascender. El primer equipo ya est\u00e1 en Liga Polaca.'
+      } else {
+        state.leagueId = 'lpl'
+        cambioDivision = true
+      }
     } else if (esPolaca2 && pos >= 3 && pos <= 6) {
       esPlayoffPolaca2 = true
     } else if (esPolaca2 && pos >= 16) {
@@ -3188,21 +3191,33 @@ function procesarFinTemporada(skipAging, skipStandings) {
     } else if (esPolaca4 && pos === 2) {
       esPlayoffAscensoLP4 = true
     } else if (esSegundaSpain && pos <= 2) {
-      state.leagueId = 'l1s'
-      cambioDivision = true
+      var _p = getBTeamParent(state.teamId)
+      if (_p && getLeagueTeams('l1s').some(function(t) { return t.id === _p })) {
+        msg = '\uD83C\uDFF4 El filial no puede ascender a LaLiga. El primer equipo ya est\u00e1 en Primera.'
+      } else {
+        state.leagueId = 'l1s'
+        cambioDivision = true
+      }
     } else if (esSegundaSpain && pos >= 3 && pos <= 6) {
       esPlayoffSegundaSpain = true
     } else if (esSegundaSpain && pos >= 19) {
       state.leagueId = 'l2b1'
       cambioDivision = true
     } else if (esPrimeraPortugal && pos >= 17) {
+      var _f = findBTeamOf(state.teamId)
+      if (_f && getLeagueTeams('l2p').some(function(t) { return t.id === _f })) state._filialRelegue = _f
       state.leagueId = 'l2p'
       cambioDivision = true
     } else if (esPrimeraPortugal && pos === 16) {
       esPlayoffDescensoPortugal = true
     } else if (esSegundaPortugal && pos <= 2) {
-      state.leagueId = 'l1p'
-      cambioDivision = true
+      var _p2 = getBTeamParent(state.teamId)
+      if (_p2 && getLeagueTeams('l1p').some(function(t) { return t.id === _p2 })) {
+        msg = '\uD83C\uDFF4 El filial no puede ascender. El primer equipo ya est\u00e1 en Primeira Liga.'
+      } else {
+        state.leagueId = 'l1p'
+        cambioDivision = true
+      }
     } else if (esSegundaPortugal && pos === 3) {
       esPlayoffAscensoPortugal = true
     }
@@ -3225,7 +3240,10 @@ function procesarFinTemporada(skipAging, skipStandings) {
     else if (cambioDivision && esSegonaCat && pos <= 2) msg += '\n🎉 ¡ASCENSO a 1a Divisió Catalana!'
     else if (cambioDivision && esSegonaCat) msg += '\n⚠️ DESCENSO a 3a Divisió Catalana'
     else if (cambioDivision && esTerceraCat) msg += '\n🎉 ¡ASCENSO a 2a Divisió Catalana!'
-    else if (cambioDivision && esPolaca1) msg += '\n⚠️ DESCENSO a Segunda Polaca'
+    else if (cambioDivision && esPolaca1) {
+      msg += '\n⚠️ DESCENSO a Segunda Polaca'
+      if (state._filialRelegue) msg += '\n⚠️ Tu filial desciende automáticamente a Tercera Polaca.'
+    }
     else if (cambioDivision && esPolaca2 && pos <= 2) msg += '\n🎉 ¡ASCENSO a Liga Polaca!'
     else if (cambioDivision && esPolaca2) msg += '\n⚠️ DESCENSO a Tercera Polaca'
     else if (esPlayoffPolaca2) msg += '\n🏆 Accedes a la Fase de Ascenso a Liga Polaca'
@@ -3235,8 +3253,13 @@ function procesarFinTemporada(skipAging, skipStandings) {
     else if (esPlayoffDescensoLP3) msg += '\n⚠️ Playoff de Descenso — te la juegas por la permanencia'
     else if (cambioDivision && esPolaca4) msg += '\n🎉 ¡ASCENSO a Tercera Polaca!'
     else if (esPlayoffAscensoLP4) msg += '\n🏆 Accedes a la Fase de Ascenso a Tercera Polaca'
-    else if (cambioDivision && esPrimeraPortugal) msg += '\n⚠️ DESCENSO a Segunda Liga Portugal'
-    else if (cambioDivision && esSegundaPortugal) msg += '\n🎉 ¡ASCENSO a Liga Portugal Betclic!'
+    else if (cambioDivision && esPrimeraPortugal) {
+      msg += '\n⚠️ DESCENSO a Segunda Liga Portugal'
+      if (state._filialRelegue) msg += '\n⚠️ Tu filial desciende automáticamente a la siguiente categoría.'
+    }
+    else if (esSegundaPortugal && pos <= 2 && !cambioDivision && getBTeamParent(state.teamId) && getLeagueTeams('l1p').some(t => t.id === getBTeamParent(state.teamId))) {
+      /* promotion blocked — msg already set */
+    } else if (cambioDivision && esSegundaPortugal) msg += '\n🎉 ¡ASCENSO a Liga Portugal Betclic!'
     else if (esPlayoffAscensoPortugal) msg += '\n🏆 Accedes al Playoff de Ascenso a Primeira Liga'
     else if (esPlayoffDescensoPortugal) msg += '\n⚠️ Playoff de Descenso — te la juegas por la permanencia en Primeira Liga'
     else if (esTercera) msg += '\nPermanencia en 3ª División Nacional'
@@ -3255,7 +3278,10 @@ function procesarFinTemporada(skipAging, skipStandings) {
     else if (esPrimeraSpain && pos <= 4) msg += '\n✅ Clasificado a Champions League'
     else if (esPrimeraSpain && pos === 5) msg += '\n✅ Clasificado a Europa League'
     else if (esPrimeraSpain && pos === 6) msg += '\n✅ Clasificado a Conference League'
-    else if (esPrimeraSpain && pos >= 18) msg += '\n⚠️ DESCENSO a Segunda División'
+    else if (esPrimeraSpain && pos >= 18) {
+      msg += '\n⚠️ DESCENSO a Segunda División'
+      if (state._filialRelegue) msg += '\n⚠️ Tu filial desciende automáticamente a 1ª Federación.'
+    }
     else if (esPrimeraSpain) msg += '\nPermanencia en Primera División'
     else msg += '\nPermanencia en la categoría'
   }
@@ -4936,6 +4962,8 @@ function newGame(coach) {
       }
     }
   }
+
+  procesarFichajesIniciales()
 
   /* Assign dates and schedules */
   const WEEKEND_DAYS = [
