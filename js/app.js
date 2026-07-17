@@ -142,6 +142,11 @@ const FILIAL_MAP = {
   /* España */
   'e3': 'e28',   /* Celta de Vigo → Celta Fortuna */
   'e17': 'e38',  /* Real Sociedad → Real Sociedad B */
+  'e1': 'e46',   /* Athletic Club → Bilbao Ath. */
+  'e14': 'e52',  /* RC Deportivo → Deportivo Fabril */
+  'e2': 'e67',   /* Atlético de Madrid → Atlético Madrileño */
+  'e16': 'e79',  /* Real Madrid → RM Castilla */
+  'e20': 'e82',  /* Villarreal CF → Villarreal B */
   /* Portugal */
   'pt1': 's2-4',  /* Benfica → Benfica II */
   'pt2': 's2-13', /* Porto → Porto II */
@@ -157,6 +162,11 @@ const B_TEAM_MAP = {
   /* España */
   'e28': 'e3',   /* Celta Fortuna → Celta de Vigo */
   'e38': 'e17',  /* Real Sociedad B → Real Sociedad */
+  'e46': 'e1',   /* Bilbao Ath. → Athletic Club */
+  'e52': 'e14',  /* Deportivo Fabril → RC Deportivo */
+  'e67': 'e2',   /* Atlético Madrileño → Atlético de Madrid */
+  'e79': 'e16',  /* RM Castilla → Real Madrid */
+  'e82': 'e20',  /* Villarreal B → Villarreal CF */
   /* Portugal */
   's2-4': 'pt1',  /* Benfica II → Benfica */
   's2-13': 'pt2',  /* Porto II → Porto */
