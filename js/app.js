@@ -4480,15 +4480,16 @@ function simularPartidoRapido(fixture, rivalId) {
       var _rn = getTeamName(rivalId)
       state.players.filter(function(p) { return p.minutosEnPista > 0 }).forEach(function(p) {
         if (!p.matchHistory) p.matchHistory = []
-        var _wb = (us > them) ? 0.3 : (us === them) ? 0.1 : 0
+        var _wb = (us > them) ? 0.5 : (us === them) ? 0.2 : 0
         var _yp = p._yellowThisMatch ? -0.5 : 0
         var _rpd = p._redThisMatch ? -2.0 : 0
-        var _gb = (p._goalsInMatch || 0) * 0.8
-        var _ab = (p._assistThisMatch || 0) * 0.4
-        var _rf = (Math.random() - 0.5) * 1.0
+        var _gb = (p._goalsInMatch || 0) * 1.2
+        var _ab = (p._assistThisMatch || 0) * 0.6
+        var _clean = (p._yellowThisMatch || p._redThisMatch) ? 0 : 0.2
+        var _rf = (Math.random() - 0.5) * 0.6
         var _cs = 0
         if (them === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) _cs = 0.5
-        var _rr = Math.min(10, Math.max(1, 6.0 + _wb + _yp + _rpd + _gb + _ab + _rf + _cs))
+        var _rr = Math.min(10, Math.max(1, 6.2 + _wb + _yp + _rpd + _gb + _ab + _clean + _rf + _cs))
         p.matchHistory.push({
           matchday: state.currentMatchday,
           rival: _rn,
@@ -4676,15 +4677,16 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
         var rCardIcon = ''
         if (rivalCards[rp.name] === 'red') rCardIcon = ' <span style="color:#e74c3c">\ud83d\udfe5</span>'
         else if (rivalCards[rp.name] === 'yellow') rCardIcon = ' <span style="color:#f1c40f">\ud83d\udfe8</span>'
-        var rWinBonus = (_rScore > _uScore) ? 0.3 : (_rScore === _uScore) ? 0.1 : 0
-        var rGoalBonus = (rGoles || 0) * 0.8
-        var rAssistBonus = rivalAssistNames[rp.name] ? 0.4 : 0
+        var rWinBonus = (_rScore > _uScore) ? 0.5 : (_rScore === _uScore) ? 0.2 : 0
+        var rGoalBonus = (rGoles || 0) * 1.2
+        var rAssistBonus = rivalAssistNames[rp.name] ? 0.6 : 0
         var rYellowPenalty = rivalCards[rp.name] === 'yellow' ? -0.5 : 0
         var rRedPenalty = rivalCards[rp.name] === 'red' ? -2.0 : 0
+        var rClean = (rivalCards[rp.name] === 'yellow' || rivalCards[rp.name] === 'red') ? 0 : 0.2
         var rCsBonus = 0
         if (_uScore === 0 && (rp.position === 'POR' || rp.position === 'defensa_central' || rp.position === 'lateral_der' || rp.position === 'lateral_izq')) rCsBonus = 0.5
-        var rRandom = (Math.random() - 0.5) * 1.0
-        var rRating = Math.min(10, Math.max(1, 6.0 + rWinBonus + rGoalBonus + rAssistBonus + rYellowPenalty + rRedPenalty + rCsBonus + rRandom))
+        var rRandom = (Math.random() - 0.5) * 0.6
+        var rRating = Math.min(10, Math.max(1, 6.2 + rWinBonus + rGoalBonus + rAssistBonus + rClean + rYellowPenalty + rRedPenalty + rCsBonus + rRandom))
         lineupsHtml += '<div class="mr-lineup-row"><span class="mr-lineup-pos" style="background:' + rPosColor + ';color:#fff">' + rPosLabel + '</span><span class="mr-lineup-name">' + rp.name + rGoalIcon + rAssistIcon + rCardIcon + '</span><span class="mr-lineup-rating">(' + rRating.toFixed(1) + ')</span></div>'
       }
     }
