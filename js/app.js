@@ -791,15 +791,18 @@ function persistSaves(saves) {
 
 /* Load saves into memory cache from best available source */
 function initSaves() {
-  var raw = null
-  try { raw = localStorage.getItem(STORAGE_KEY) } catch(e) {}
-  if (raw) { try { _memorySaves = JSON.parse(raw); _storageMode = 'local'; return } catch(e) {} }
-  try { raw = sessionStorage.getItem(STORAGE_KEY) } catch(e) {}
-  if (raw) { try { _memorySaves = JSON.parse(raw); _storageMode = 'session'; return } catch(e) {} }
-  /* Async load from IndexedDB */
-  _storageMode = null
-  idbGet(STORAGE_KEY).then(function(data) {
-    if (data) { _memorySaves = data; _storageMode = 'idb' }
+  return new Promise(function(resolve) {
+    var raw = null
+    try { raw = localStorage.getItem(STORAGE_KEY) } catch(e) {}
+    if (raw) { try { _memorySaves = JSON.parse(raw); _storageMode = 'local'; resolve(); return } catch(e) {} }
+    try { raw = sessionStorage.getItem(STORAGE_KEY) } catch(e) {}
+    if (raw) { try { _memorySaves = JSON.parse(raw); _storageMode = 'session'; resolve(); return } catch(e) {} }
+    /* Async load from IndexedDB */
+    _storageMode = null
+    idbGet(STORAGE_KEY).then(function(data) {
+      if (data) { _memorySaves = data; _storageMode = 'idb' }
+      resolve()
+    })
   })
 }
 
@@ -6392,6 +6395,13 @@ function showLoadMenu() {
   document.getElementById('menu-main').classList.add('hidden')
   document.getElementById('menu-newgame').classList.add('hidden')
   document.getElementById('menu-load').classList.remove('hidden')
+  /* Si IndexedDB a\u00fan est\u00e1 cargando, reintentar en 300ms */
+  if (_memorySaves === null && _storageMode === null) {
+    var loadingEl = document.getElementById('load-content')
+    if (loadingEl) loadingEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">Cargando partidas...</div>'
+    setTimeout(showLoadMenu, 300)
+    return
+  }
   const slots = window.SaveSystem.getEmptySlots()
   const content = document.getElementById('load-content')
   content.innerHTML = slots.filter(Boolean).map((save, idx) => {
@@ -7184,8 +7194,7 @@ try {
       const action = item.dataset.action
       if (action === 'quit') {
         saveGame()
-initSaves()
-showMainMenu()
+initSaves().then(showMainMenu)
         initMenuParticles()
       } else if (action === 'save') {
         saveGame()
