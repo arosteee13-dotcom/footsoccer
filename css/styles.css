@@ -2284,28 +2284,58 @@ html, body {
   border-radius: 50%;
   background: var(--accent);
   flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 7px;
+}
+
+.family-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.family-top-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .family-item-name {
   font-weight: 600;
   color: var(--text);
-}
-
-.family-badge {
-  font-size: 10px;
-  color: rgba(0,0,0,0.15);
-  margin-left: 4px;
+  font-size: 13px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
 .family-league-name {
   font-size: 10px;
   color: rgba(0,0,0,0.12);
-  margin-left: auto;
-  text-align: right;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.family-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
   white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+}
+
+.family-badge--filial {
+  background: rgba(38, 99, 235, 0.1);
+  color: var(--accent);
+}
+
+.family-badge--parent {
+  background: rgba(0,0,0,0.05);
+  color: rgba(0,0,0,0.4);
 }
 
 .dropdown-item .nav-icon {
@@ -2625,7 +2655,7 @@ html, body {
 #settings-modal .settings-handle {
   width: 36px;
   height: 4px;
-  background: rgba(0,0,0,0.10);
+  background: var(--text-muted);
   border-radius: 4px;
   margin: 8px auto 0;
 }
@@ -2635,7 +2665,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
+  border-bottom: 1px solid var(--border);
 }
 
 #settings-modal .settings-body {
@@ -2649,7 +2679,7 @@ html, body {
 #settings-modal .settings-group-title {
   font-size: 11px;
   font-weight: 700;
-  color: rgba(0,0,0,0.15);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 8px;
@@ -2686,7 +2716,7 @@ html, body {
 .settings-slider {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.07);
+  background: var(--text-muted);
   border-radius: 30px;
   transition: 0.3s;
   cursor: pointer;
@@ -2699,13 +2729,13 @@ html, body {
   height: 26px;
   left: 2px;
   bottom: 2px;
-  background: #fff;
+  background: var(--bg-surface);
   border-radius: 50%;
   transition: 0.3s;
 }
 
 .settings-toggle input:checked + .settings-slider {
-  background: #2563EB;
+  background: var(--accent);
 }
 
 .settings-toggle input:checked + .settings-slider::before {
@@ -2919,6 +2949,33 @@ td.pos-bar.bar-promotion-playoff { border-left-color: #38D996 }
 td.pos-bar.bar-permanencia { border-left-color: #BCBCBC }
 td.pos-bar.bar-relegation-playoff { border-left-color: #FCA6A1 }
 td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
+
+/* Group selector for Polish 4th division */
+.lpl4-group-selector {
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px 4px;
+  overflow-x: auto;
+}
+.lpl4-group-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.lpl4-group-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
 
 .table-legend {
   display: flex;
@@ -3416,6 +3473,23 @@ td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+}
+
+/* Per-team stats in player detail */
+.pd-team-stats {
+  margin-bottom: 4px;
+}
+
+.pd-team-stats + .pd-team-stats {
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding-top: 4px;
+}
+
+.pd-team-stats-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  padding: 4px 0 2px;
 }
 
 /* Match history */
