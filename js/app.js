@@ -2863,24 +2863,24 @@ function mostrarOfertaTransferencia(player, team, offer) {
   if (existing) existing.remove()
   const overlay = document.createElement('div')
   overlay.id = 'transfer-offer-modal'
-  overlay.className = 'progression-modal-overlay'
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(200,200,200,0.9);display:flex;align-items:center;justify-content:center;z-index:9999'
   overlay.innerHTML = `
-    <div class="progression-modal" style="max-width:400px">
-      <h3 style="margin:0 0 12px;font-size:18px">📩 Oferta de fichaje</h3>
-      <p style="margin:8px 0;font-size:14px;color:#ccc">
-        <b>${team.name}</b> quiere fichar a <b>${player.name}</b>
+    <div class="progression-modal" style="max-width:400px;background:#fff;border:1px solid #ddd">
+      <h3 style="margin:0 0 12px;font-size:18px;color:#222">Oferta de fichaje</h3>
+      <p style="margin:8px 0;font-size:14px;color:#555">
+        <b style="color:#222">${team.name}</b> quiere fichar a <b style="color:#222">${player.name}</b>
       </p>
-      <p style="margin:8px 0;font-size:16px;color:#fff">
-        Oferta: <b style="color:#4CAF50">${formatMoney(offer)}</b>
+      <p style="margin:8px 0;font-size:16px;color:#222">
+        Oferta: <b style="color:#2E7D32">${formatMoney(offer)}</b>
       </p>
-      <p style="margin:8px 0;font-size:13px;color:#999">
+      <p style="margin:8px 0;font-size:13px;color:#777">
         Valor de mercado: ${formatMoney(player.value)}
       </p>
       <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
-        <button class="btn-primary" style="flex:1;padding:10px;background:#4CAF50" onclick="aceptarOferta('${player.id}','${team.teamId}',${offer})">✅ Aceptar</button>
-        <button class="btn-primary" style="flex:1;padding:10px;background:#f44336" onclick="rechazarOferta('${player.id}')">❌ Rechazar</button>
+        <button class="btn-primary" style="flex:1;padding:10px;background:#4CAF50;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700" onclick="aceptarOferta('${player.id}','${team.teamId}',${offer})">Aceptar</button>
+        <button class="btn-primary" style="flex:1;padding:10px;background:#f44336;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700" onclick="rechazarOferta('${player.id}')">Rechazar</button>
       </div>
-      <button class="btn-primary" style="width:100%;margin-top:8px;padding:10px;background:#FF9800" onclick="contraOfertar('${player.id}','${team.teamId}',${offer})">📊 Contraofertar</button>
+      <button class="btn-primary" style="width:100%;margin-top:8px;padding:10px;background:#FF9800;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700" onclick="contraOfertar('${player.id}','${team.teamId}',${offer})">Contraofertar</button>
     </div>
   `
   document.body.appendChild(overlay)
@@ -3960,7 +3960,7 @@ function simularPartidoRapido(fixture, rivalId) {
     /* Recovery for unused players (bench/reserves who didn't play) */
     state.players.forEach(p => {
       if (!p.injury && p.minutosEnPista === 0 && p.energy < 100) {
-        p.energy = Math.min(100, p.energy + 8)
+        p.energy = Math.min(100, p.energy + 25)
       }
     })
 
@@ -4410,7 +4410,7 @@ function autoSimularPartidoUsuario(fixture) {
   /* Recovery for unused players */
   state.players.forEach(p => {
     if (!p.injury && !ids.includes(p.id) && p.energy < 100) {
-      p.energy = Math.min(100, p.energy + 8)
+      p.energy = Math.min(100, p.energy + 25)
     }
   })
 
@@ -6766,6 +6766,7 @@ function openPlayerDetail(player, teamObj) {
       if (screen === 'initial') {
         formatPriceInput(document.getElementById('pd-offer-price'))
         document.getElementById('pd-enviar-oferta')?.addEventListener('click', () => {
+          if (state.boughtPlayerIds.indexOf(player.id) >= 0) { alert('Este jugador ya ha sido fichado'); document.getElementById('player-detail-modal').classList.remove('open'); return }
           const offer = parseInt(document.getElementById('pd-offer-price').value.replace(/\./g, ''))
           if (!offer || offer < 1) return
           const result = evaluarOferta(player, offer)
@@ -6793,6 +6794,7 @@ function openPlayerDetail(player, teamObj) {
               <button class="btn-primary" id="pd-aceptar-contra" style="background:#10B981;margin-top:6px">ACEPTAR CONTRAOFERTA (${formatMoney(result.price)})</button>
               <button class="btn-secondary" id="pd-rechazar-contra" style="background:#EF4444;color:#fff;border-color:#EF4444;margin-top:4px">RECHAZAR</button>`
             document.getElementById('pd-aceptar-contra')?.addEventListener('click', () => {
+              if (state.boughtPlayerIds.indexOf(player.id) >= 0) { alert('Este jugador ya ha sido fichado'); document.getElementById('player-detail-modal').classList.remove('open'); return }
               if (state.players.length >= MAX_SQUAD) { alert('Plantilla completa (' + MAX_SQUAD + ' jugadores)'); return }
               if (state.finances.balance < result.price) { alert('Fondos insuficientes. Necesitas ' + formatMoney(result.price)); return }
               /* Remove from global pool */
