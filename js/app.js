@@ -3585,29 +3585,49 @@ function mostrarOfertaTransferencia(player, team, offer) {
   const offerStr = formatMoney(offer)
 
   function renderInitial() {
+    var teamLogoUrl = team.logo || NOPHOTO
+    var playerAvatarUrl = player.avatar || NOPHOTO
+    var exchangeSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>'
+    var arrowSvg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
+    var moneySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>'
+    var chartSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
+    var checkSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+    var crossSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+    var refreshSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>'
     overlay.innerHTML = `
       <div style="background:var(--bg-surface);border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 4px 24px rgba(0,0,0,0.15);color:var(--text);font-family:inherit;border:1px solid var(--text-muted)">
-        <div style="text-align:center;margin-bottom:20px">
-          <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px">Oferta de fichaje</div>
-          <div style="font-size:13px;color:var(--text-secondary)">${team.name} quiere fichar a ${player.name}</div>
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px">${exchangeSvg} Oferta de fichaje</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:16px">
+          <div style="text-align:center;flex:1">
+            <img src="${teamLogoUrl}" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:2px solid var(--text-muted);display:block;margin:0 auto 6px" onerror="this.src='${NOPHOTO}'">
+            <div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.2">${team.name}</div>
+          </div>
+          <div style="color:var(--text-muted)">${arrowSvg}</div>
+          <div style="text-align:center;flex:1">
+            <img src="${playerAvatarUrl}" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:2px solid var(--text-muted);display:block;margin:0 auto 6px" onerror="this.src='${NOPHOTO}'">
+            <div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.2">${player.name}</div>
+          </div>
         </div>
         <div style="background:var(--bg);border-radius:10px;padding:16px;margin-bottom:16px">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
-            <span style="font-size:14px;color:var(--text-secondary)">Oferta</span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-secondary)">${moneySvg} Oferta</span>
             <span style="font-size:18px;font-weight:700;color:#2E7D32">${offerStr}</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--text-muted)">
-            <span style="font-size:14px;color:var(--text-secondary)">Valor de mercado</span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-secondary)">${chartSvg} Valor de mercado</span>
             <span style="font-size:14px;color:var(--text)">${valueStr}</span>
           </div>
         </div>
         <div style="display:flex;gap:10px;margin-bottom:10px">
-          <div onclick="aceptarOferta('${player.id}','${team.teamId}',${offer})" style="flex:1;padding:14px;background:#2E7D32;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#388E3C'" onmouseout="this.style.background='#2E7D32'">Aceptar</div>
-          <div onclick="rechazarOferta('${player.id}')" style="flex:1;padding:14px;background:#c62828;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#d32f2f'" onmouseout="this.style.background='#c62828'">Rechazar</div>
+          <div onclick="aceptarOferta('${player.id}','${team.teamId}',${offer})" style="display:flex;align-items:center;justify-content:center;gap:6px;flex:1;padding:14px;background:#2E7D32;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#388E3C'" onmouseout="this.style.background='#2E7D32'">${checkSvg} Aceptar</div>
+          <div onclick="rechazarOferta('${player.id}')" style="display:flex;align-items:center;justify-content:center;gap:6px;flex:1;padding:14px;background:#c62828;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#d32f2f'" onmouseout="this.style.background='#c62828'">${crossSvg} Rechazar</div>
         </div>
-        <div onclick="renderContra()" style="padding:14px;background:var(--accent);border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#1E40AF'" onmouseout="this.style.background='var(--accent)'">Contraofertar</div>
+        <div onclick="window.renderContra()" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;background:var(--accent);border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#1E40AF'" onmouseout="this.style.background='var(--accent)'">${refreshSvg} Contraofertar</div>
       </div>`
   }
+  window.renderInitial = renderInitial
 
   function renderContra() {
     overlay.innerHTML = `
@@ -3623,13 +3643,14 @@ function mostrarOfertaTransferencia(player, team, offer) {
         </div>
         <div id="co-resultado" style="margin-bottom:10px"></div>
         <div onclick="enviarContraoferta('${player.id}','${team.teamId}')" style="padding:14px;background:var(--accent);border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s;margin-bottom:8px" onmouseover="this.style.background='#1E40AF'" onmouseout="this.style.background='var(--accent)'">Enviar contraoferta</div>
-        <div onclick="renderInitial()" style="padding:10px;background:transparent;border:1px solid var(--text-muted);border-radius:10px;text-align:center;font-size:14px;color:var(--text-secondary);cursor:pointer">Volver</div>
+        <div onclick="window.renderInitial()" style="padding:10px;background:transparent;border:1px solid var(--text-muted);border-radius:10px;text-align:center;font-size:14px;color:var(--text-secondary);cursor:pointer">Volver</div>
       </div>`
     document.getElementById('co-price').addEventListener('input', function() {
       var n = this.value.replace(/[^\d]/g, '')
       this.value = n ? parseInt(n, 10).toLocaleString('es-ES') : ''
     })
   }
+  window.renderContra = renderContra
 
   window.enviarContraoferta = function(pid, tid) {
     var raw = document.getElementById('co-price').value.replace(/\./g, '')
