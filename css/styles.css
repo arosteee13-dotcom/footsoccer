@@ -4751,15 +4751,6 @@ td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
 }
 
 /* ─── Team Preview Fullscreen ─── */
-#tp-fullscreen {
-  position: fixed;
-  inset: 0;
-  height: 100%;
-  z-index: 110;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg);
-}
 .tp-header {
   flex-shrink: 0;
   display: flex;
@@ -5893,6 +5884,26 @@ td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
 .cal-cup-row .cal-list-semana { color: #F59E0B; font-weight: 700; }
 .home-cup-card { border: 1px solid #F59E0B; background: rgba(245,158,11,0.04); }
 .home-cup-indicator { font-size: 12px; color: #F59E0B; font-weight: 600; padding: 4px 0 2px; text-align: center; }
+.copa-arrow { text-align: center; padding: 2px 0; color: var(--text-muted); font-size: 16px; }
+.copa-silhouette { display: inline-block; width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 2px dashed rgba(255,255,255,0.15); vertical-align: middle; position: relative; }
+.copa-silhouette::after { content: '?'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.2); }
+
+.trofeo-card { flex-shrink: 0; text-align: center; padding: 12px 8px; background: var(--bg); border-radius: 10px; cursor: pointer; transition: background 0.2s, transform 0.15s; }
+.trofeo-card:hover { background: rgba(255,255,255,0.08) !important; transform: scale(1.05); }
+.trofeo-card:active { transform: scale(0.95); }
+.chart-point { transition: r 0.15s; }
+.chart-point:hover { r: 6; }
+
+#view-team-preview {
+  position: fixed;
+  inset: 0;
+  height: 100%;
+  z-index: 110;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  padding: 10px;
+}
 
 /* Utilities */
 .hidden {

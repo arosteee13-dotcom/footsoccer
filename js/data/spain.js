@@ -5,102 +5,102 @@ window.DB.spain = {
     leagues: [
       { id: 'l1s', name: 'Primera Divisi\u00f3n', logo: 'https://cdn.resfu.com/media/img/league_logos/primera-division.png?size=120x&lossy=1',
         teams: [
-            { id: 'e1', name: 'Athletic Club', rating: 81, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/347.png?size=120x&lossy=1', budget: 20000000,
+            { id: 'e1', name: 'Athletic Club', rating: 81, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/347.png?size=120x&lossy=1', budget: 20000000, palmares: [{ comp: 'Primera Divisi\u00f3n', count: 8, years: ['1929-30', '1930-31', '1933-34', '1935-36', '1942-43', '1955-56', '1982-83', '1983-84'] }, { comp: 'Copa del Rey', count: 24, years: ['1903-04', '1909-10', '1910-11', '1913-14', '1914-15', '1915-16', '1920-21', '1922-23', '1929-30', '1930-31', '1931-32', '1932-33', '1942-43', '1943-44', '1944-45', '1949-50', '1954-55', '1955-56', '1957-58', '1968-69', '1972-73', '1983-84', '2023-24'] }, { comp: 'Supercopa de Espa\u00f1a', count: 3, years: ['2015', '2021'] }],
             staff: [{ name: 'Edin Terzic', nationality: '\ud83c\udde9\ud83c\uddea Alemania', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/45724.jpg?size=120x&lossy=1',
               career: [{ team: 'Athletic Club', from: '01/06/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }]
           },
-            { id: 'e2', name: 'Atl\u00e9tico de Madrid', rating: 84, formation: '3-4-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/369.png?size=120x&lossy=1', budget: 35000000,
+            { id: 'e2', name: 'Atl\u00e9tico de Madrid', rating: 84, formation: '3-4-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/369.png?size=120x&lossy=1', budget: 35000000, palmares: [{ comp: 'Primera Divisi\u00f3n', count: 11, years: ['1939-40', '1940-41', '1949-50', '1950-51', '1965-66', '1969-70', '1972-73', '1976-77', '1995-96', '2013-14', '2020-21'] }, { comp: 'Segunda Divisi\u00f3n', count: 1, years: ['2001-02'] }, { comp: 'Copa del Rey', count: 10, years: ['1959-60', '1960-61', '1964-65', '1971-72', '1975-76', '1984-85', '1990-91', '1991-92', '1995-96', '2012-13'] }, { comp: 'Supercopa de Espa\u00f1a', count: 2, years: ['1985', '2014'] }, { comp: 'Europa League', count: 3, years: ['2009-10', '2011-12', '2017-18'] }, { comp: 'Supercopa Europa', count: 3, years: ['2010', '2012', '2018'] }],
             staff: [{ name: 'Diego Simeone', nationality: '\ud83c\udde6\ud83c\uddf7 Argentina', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/13.jpg?size=120x&lossy=1',
               career: [{ team: 'Atl\u00e9tico de Madrid', from: '23/12/2011', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }]
           },
-{ id: 'e3', name: 'RC Celta', rating: 77, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/712.png?size=120x&lossy=1', budget: 7000000,
+{ id: 'e3', name: 'RC Celta', rating: 77, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/712.png?size=120x&lossy=1', budget: 7000000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 4, years: ['1934-35', '1935-36', '1981-82', '1991-92'] }, { comp: 'Primera Federaci\u00f3n', count: 1, years: ['1980-81'] }, { comp: 'Segunda Federaci\u00f3n', count: 1, years: ['1930-31'] }],
   staff: [{ name: 'Claudio Gir\u00e1ldez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/54512.jpg?size=120x&lossy=1',
     career: [{ team: 'RC Celta', from: '12/03/2024', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e4', name: 'Deportivo Alav\u00e9s', rating: 73, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/137.png?size=120x&lossy=1', budget: 3500000,
+{ id: 'e4', name: 'Deportivo Alav\u00e9s', rating: 73, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/137.png?size=120x&lossy=1', budget: 3500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 4, years: ['1929-30', '1953-54', '1997-98', '2015-16'] }, { comp: 'Primera Federaci\u00f3n', count: 4, years: ['1992-93', '1993-94', '1994-95', '2012-13'] }, { comp: 'Segunda Federaci\u00f3n', count: 7, years: ['1940-41', '1960-61', '1964-65', '1967-68', '1973-74', '1989-90'] }],
   staff: [{ name: 'Quique S\u00e1nchez Flores', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/players/medium/207179.jpg?size=120x&lossy=1',
     career: [{ team: 'Deportivo Alav\u00e9s', from: '03/03/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e5', name: 'Elche CF', rating: 72, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/975.png?size=120x&lossy=1', budget: 1200000,
+{ id: 'e5', name: 'Elche CF', rating: 72, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/975.png?size=120x&lossy=1', budget: 1200000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 2, years: ['1958-59', '2012-13'] }, { comp: 'Segunda Federaci\u00f3n', count: 7, years: ['1940-41', '1943-44', '1944-45', '1947-48', '1954-55', '1956-57', '1957-58'] }],
   staff: [{ name: 'Martin Anselmi', nationality: '\ud83c\udde6\ud83c\uddf7 Argentina', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/48210.jpg?size=120x&lossy=1',
     career: [{ team: 'Elche CF', from: '13/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e6', name: 'Espanyol', rating: 76, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/998.png?size=120x&lossy=1', budget: 2500000,
+{ id: 'e6', name: 'Espanyol', rating: 76, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/998.png?size=120x&lossy=1', budget: 2500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 2, years: ['1993-94', '2020-21'] }, { comp: 'Copa del Rey', count: 4, years: ['1928-29', '1939-40', '1999-00', '2005-06'] }],
   staff: [{ name: 'Manolo Gonz\u00e1lez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11434.jpg?size=120x&lossy=1',
     career: [{ team: 'Espanyol', from: '12/03/2024', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e7', name: 'FC Barcelona', rating: 79, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/429.png?size=120x&lossy=1', budget: 30000000,
+{ id: 'e7', name: 'FC Barcelona', rating: 79, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/429.png?size=120x&lossy=1', budget: 30000000, palmares: [{ comp: 'Primera Divisi\u00f3n', count: 29, years: ['1929', '1944-45', '1947-48', '1948-49', '1951-52', '1952-53', '1958-59', '1959-60', '1973-74', '1984-85', '1990-91', '1991-92', '1992-93', '1993-94', '1997-98', '1998-99', '2004-05', '2005-06', '2008-09', '2009-10', '2010-11', '2012-13', '2014-15', '2015-16', '2017-18', '2018-19', '2022-23', '2024-25', '2025-26'] }, { comp: 'Copa del Rey', count: 32, years: ['1909-10', '1911-12', '1912-13', '1919-20', '1921-22', '1924-25', '1925-26', '1927-28', '1941-42', '1950-51', '1951-52', '1952-53', '1956-57', '1958-59', '1962-63', '1967-68', '1970-71', '1977-78', '1980-81', '1982-83', '1987-88', '1989-90', '1996-97', '1997-98', '2008-09', '2011-12', '2014-15', '2015-16', '2016-17', '2017-18', '2020-21', '2024-25'] }, { comp: 'Supercopa de Espa\u00f1a', count: 16, years: ['1983', '1991', '1992', '1994', '1996', '2005', '2006', '2009', '2010', '2011', '2013', '2016', '2018', '2023', '2025', '2026'] }, { comp: 'Champions League', count: 5, years: ['1991-92', '2005-06', '2008-09', '2010-11', '2014-15'] }, { comp: 'Supercopa Europa', count: 5, years: ['1992', '1997', '2009', '2011', '2015'] }, { comp: 'Mundial de Clubes', count: 3, years: ['2010', '2012', '2016'] }],
   staff: [{ name: 'Hansi Flick', nationality: '\ud83c\udde9\ud83c\uddea Alemania', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/8143.jpg?size=120x&lossy=1',
     career: [{ team: 'FC Barcelona', from: '01/07/2024', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e8', name: 'Getafe CF', rating: 73, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1217.png?size=120x&lossy=1', budget: 3000000,
+           { id: 'e8', name: 'Getafe CF', rating: 73, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1217.png?size=120x&lossy=1', budget: 3000000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 1, years: ['1998-99'] }],
   staff: [{ name: 'Jos\u00e9 Bordal\u00e1s', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/20.jpg?size=120x&lossy=1',
     career: [{ team: 'Getafe CF', from: '29/04/2023', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e9', name: 'Levante UD', rating: 72, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1547.png?size=120x&lossy=1', budget: 2000000,
+{ id: 'e9', name: 'Levante UD', rating: 72, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1547.png?size=120x&lossy=1', budget: 2000000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 4, years: ['1939-40', '2003-04', '2016-17', '2024-25'] }, { comp: 'Primera Federaci\u00f3n', count: 5, years: ['1978-79', '1988-89', '1994-95', '1995-96', '1998-99'] }, { comp: 'Segunda Federaci\u00f3n', count: 7, years: ['1931-32', '1943-44', '1945-46', '1953-54', '1955-56', '1972-73', '1975-76'] }],
   staff: [{ name: 'Lu\u00eds Castro', nationality: '\ud83c\uddf5\ud83c\uddf9 Portugal', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/27968.jpg?size=120x&lossy=1',
     career: [{ team: 'Levante UD', from: '21/12/2025', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e10', name: 'M\u00e1laga CF', rating: 70, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1617.png?size=120x&lossy=1', budget: 2500000,
+{ id: 'e10', name: 'M\u00e1laga CF', rating: 70, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1617.png?size=120x&lossy=1', budget: 2500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['1998-99'] }, { comp: 'Primera Federaci\u00f3n', count: 1, years: ['1997-98'] }, { comp: 'Segunda Federaci\u00f3n', count: 1, years: ['1994-95'] }],
   staff: [{ name: 'Funes', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18302.jpg?size=120x&lossy=1',
     career: [{ team: 'M\u00e1laga CF', from: '19/11/2025', to: '30/06/2029', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e11', name: 'Osasuna', rating: 78, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1887.png?size=120x&lossy=1', budget: 5000000,
+{ id: 'e11', name: 'Osasuna', rating: 78, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1887.png?size=120x&lossy=1', budget: 5000000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 5, years: ['1934-35', '1952-53', '1955-56', '1960-61', '2018-19'] }, { comp: 'Segunda Federaci\u00f3n', count: 6, years: ['1931-32', '1947-48', '1948-49', '1968-69', '1974-75', '1976-77'] }],
   staff: [{ name: 'Luis Miguel Ramis', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/players/medium/993479.jpg?size=120x&lossy=1',
     career: [{ team: 'Osasuna', from: '10/06/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e12', name: 'Racing Santander', rating: 70, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2052.png?size=120x&lossy=1', budget: 1500000,
+{ id: 'e12', name: 'Racing Santander', rating: 70, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2052.png?size=120x&lossy=1', budget: 1500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 3, years: ['1949-50', '1959-60', '2025-26'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['1990-91', '2021-22'] }, { comp: 'Segunda Federaci\u00f3n', count: 3, years: ['1943-44', '1947-48', '1969-70'] }],
   staff: [{ name: 'Jos\u00e9 Alberto L\u00f3pez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/players/medium/868917.jpg?size=120x&lossy=1',
     career: [{ team: 'Racing Santander', from: '13/12/2022', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e13', name: 'Rayo Vallecano', rating: 78, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2080.png?size=120x&lossy=1', budget: 2000000,
+{ id: 'e13', name: 'Rayo Vallecano', rating: 78, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2080.png?size=120x&lossy=1', budget: 2000000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['2017-18'] }, { comp: 'Segunda Divisi\u00f3n B', count: 2, years: ['1984-85', '2007-08'] }],
   staff: [{ name: 'Be\u00f1at San Jos\u00e9', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/754.jpg?size=120x&lossy=1',
     career: [{ team: 'Rayo Vallecano', from: '18/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e14', name: 'RC Deportivo', rating: 72, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/901.png?size=120x&lossy=1', budget: 3000000,
+{ id: 'e14', name: 'RC Deportivo', rating: 72, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/901.png?size=120x&lossy=1', budget: 3000000, palmares: [{ comp: 'Primera Divisi\u00f3n', count: 1, years: ['1999-00'] }, { comp: 'Segunda Divisi\u00f3n', count: 6, years: ['1939-40', '1961-62', '1963-64', '1965-66', '1967-68', '2011-12'] }, { comp: 'Copa del Rey', count: 2, years: ['1994-95', '2001-02'] }, { comp: 'Supercopa de Espa\u00f1a', count: 3, years: ['1995', '2000', '2002'] }, { comp: 'Primera Federaci\u00f3n', count: 1, years: ['2023-24'] }, { comp: 'Segunda Federaci\u00f3n', count: 1, years: ['1974-75'] }],
   staff: [{ name: 'Antonio Hidalgo', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18195.jpg?size=120x&lossy=1',
     career: [{ team: 'RC Deportivo', from: '10/06/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e15', name: 'Real Betis', rating: 81, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/486.png?size=120x&lossy=1', budget: 12000000,
+           { id: 'e15', name: 'Real Betis', rating: 81, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/486.png?size=120x&lossy=1', budget: 12000000, palmares: [{ comp: 'Primera Divisi\u00f3n', count: 1, years: ['1934-35'] }, { comp: 'Segunda Divisi\u00f3n', count: 7, years: ['1931-32', '1941-42', '1957-58', '1970-71', '1973-74', '2010-11', '2014-15'] }, { comp: 'Copa del Rey', count: 3, years: ['1976-77', '2004-05', '2021-22'] }, { comp: 'Segunda Federaci\u00f3n', count: 1, years: ['1953-54'] }],
   staff: [{ name: 'Manuel Pellegrini', nationality: '\ud83c\udde8\ud83c\uddf1 Chile', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/129.jpg?size=120x&lossy=1',
     career: [{ team: 'Real Betis', from: '02/08/2020', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e16', name: 'Real Madrid', rating: 85, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2107.png?size=120x&lossy=1', budget: 120000000,
+{ id: 'e16', name: 'Real Madrid', rating: 85, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2107.png?size=120x&lossy=1', budget: 120000000, palmares: [{ comp: 'Primera Divisi\u00f3n', count: 36, years: ['1931-32', '1932-33', '1953-54', '1954-55', '1956-57', '1957-58', '1960-61', '1961-62', '1962-63', '1963-64', '1964-65', '1966-67', '1967-68', '1968-69', '1971-72', '1974-75', '1975-76', '1977-78', '1978-79', '1979-80', '1985-86', '1986-87', '1987-88', '1988-89', '1989-90', '1994-95', '1996-97', '2000-01', '2002-03', '2006-07', '2007-08', '2011-12', '2016-17', '2019-20', '2021-22', '2023-24'] }, { comp: 'Copa del Rey', count: 20, years: ['1904-05', '1905-06', '1906-07', '1907-08', '1916-17', '1933-34', '1935-36', '1945-46', '1946-47', '1961-62', '1969-70', '1973-74', '1974-75', '1979-80', '1981-82', '1988-89', '1992-93', '2010-11', '2013-14', '2022-23'] }, { comp: 'Supercopa de Espa\u00f1a', count: 13, years: ['1988', '1990', '1993', '1997', '2001', '2003', '2008', '2012', '2017', '2020', '2022', '2024'] }, { comp: 'Champions League', count: 15, years: ['1955-56', '1956-57', '1957-58', '1958-59', '1959-60', '1965-66', '1997-98', '1999-00', '2001-02', '2013-14', '2015-16', '2016-17', '2017-18', '2021-22', '2023-24'] }, { comp: 'Supercopa Europa', count: 6, years: ['2002', '2014', '2016', '2017', '2022', '2024'] }, { comp: 'Europa League', count: 2, years: ['1984-85', '1985-86'] }, { comp: 'Mundial de Clubes', count: 5, years: ['2015', '2017', '2018', '2019', '2023'] }],
   staff: [{ name: 'Jos\u00e9 Mourinho', nationality: '\ud83c\uddf5\ud83c\uddf9 Portugal', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/115.jpg?size=120x&lossy=1',
     career: [{ team: 'Real Madrid', from: '11/06/2026', to: '30/06/2029', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e17', name: 'Real Sociedad', rating: 78, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2120.png?size=120x&lossy=1', budget: 18000000,
+{ id: 'e17', name: 'Real Sociedad', rating: 78, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2120.png?size=120x&lossy=1', budget: 18000000, palmares: [{ comp: 'Primera Divisi\u00f3n', count: 2, years: ['1980-81', '1981-82'] }, { comp: 'Segunda Divisi\u00f3n', count: 6, years: ['1939-40', '1940-41', '1942-43', '1948-49', '1966-67', '2009-10'] }, { comp: 'Copa del Rey', count: 3, years: ['1986-87', '2019-20', '2025-26'] }, { comp: 'Supercopa de Espa\u00f1a', count: 1, years: ['1982'] }],
   staff: [{ name: 'Pellegrino Matarazzo', nationality: '\ud83c\uddfa\ud83c\uddf8 Estados Unidos', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/26035.jpg?size=120x&lossy=1',
     career: [{ team: 'Real Sociedad', from: '21/12/2025', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e18', name: 'Sevilla FC', rating: 73, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1102.png?size=120x&lossy=1', budget: 8000000,
+{ id: 'e18', name: 'Sevilla FC', rating: 73, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1102.png?size=120x&lossy=1', budget: 8000000, palmares: [{ comp: 'Primera Divisi\u00f3n', count: 1, years: ['1945-46'] }, { comp: 'Segunda Divisi\u00f3n', count: 4, years: ['1928-29', '1933-34', '1968-69', '2000-01'] }, { comp: 'Copa del Rey', count: 5, years: ['1934-35', '1938-39', '1947-48', '2006-07', '2009-10'] }, { comp: 'Supercopa de Espa\u00f1a', count: 1, years: ['2007'] }, { comp: 'Europa League', count: 7, years: ['2005-06', '2006-07', '2013-14', '2014-15', '2015-16', '2019-20', '2022-23'] }, { comp: 'Supercopa Europa', count: 1, years: ['2006'] }],
   staff: [{ name: 'Luis Garc\u00eda', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/921.jpg?size=120x&lossy=1',
     career: [{ team: 'Sevilla FC', from: '24/03/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e19', name: 'Valencia CF', rating: 76, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2647.png?size=120x&lossy=1', budget: 4000000,
+{ id: 'e19', name: 'Valencia CF', rating: 76, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2647.png?size=120x&lossy=1', budget: 4000000, palmares: [{ comp: 'Primera Divisi\u00f3n', count: 6, years: ['1941-42', '1943-44', '1946-47', '1970-71', '2001-02', '2003-04'] }, { comp: 'Segunda Divisi\u00f3n', count: 2, years: ['1930-31', '1986-87'] }, { comp: 'Copa del Rey', count: 8, years: ['1940-41', '1948-49', '1953-54', '1966-67', '1978-79', '1998-99', '2007-08', '2018-19'] }, { comp: 'Supercopa de Espa\u00f1a', count: 1, years: ['1999'] }, { comp: 'Europa League', count: 1, years: ['2003-04'] }, { comp: 'Supercopa Europa', count: 2, years: ['1980', '2004'] }],
   staff: [{ name: 'Carlos Corber\u00e1n', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/20123.jpg?size=120x&lossy=1',
     career: [{ team: 'Valencia CF', from: '25/12/2024', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
 },
-{ id: 'e20', name: 'Villarreal CF', rating: 77, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2716.png?size=120x&lossy=1', budget: 15000000,
+{ id: 'e20', name: 'Villarreal CF', rating: 77, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2716.png?size=120x&lossy=1', budget: 15000000, palmares: [{ comp: 'Europa League', count: 1, years: ['2020-21'] }],
   staff: [{ name: '\u00cd\u00f1igo P\u00e9rez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/65119.jpg?size=120x&lossy=1',
     career: [{ team: 'Villarreal CF', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
   }]
@@ -109,55 +109,55 @@ window.DB.spain = {
       },
       { id: 'l2s', name: 'LaLiga Hypermotion', logo: 'https://cdn.resfu.com/media/img/league_logos/segunda-division-hypermotion.png?size=120x&lossy=1',
         teams: [
-          { id: 'e21', name: 'AD Ceuta FC', rating: 65, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/665.png?size=120x&lossy=1', budget: 600000,
+          { id: 'e21', name: 'AD Ceuta FC', rating: 65, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/665.png?size=120x&lossy=1', budget: 600000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 1, years: ['2024-25'] }],
             staff: [{ name: 'Jos\u00e9 Juan Romero', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18198.jpg?size=120x&lossy=1',
               career: [{ team: 'AD Ceuta FC', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }]
           },
-          { id: 'e22', name: 'Albacete', rating: 65, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/140.png?size=120x&lossy=1', budget: 1000000,
+          { id: 'e22', name: 'Albacete', rating: 65, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/140.png?size=120x&lossy=1', budget: 1000000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['1990-91'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['1989-90', '2013-14'] }, { comp: 'Segunda Federaci\u00f3n', count: 8, years: ['1945-46', '1946-47', '1948-49', '1958-59', '1960-61', '1963-64', '1964-65', '1981-82'] }],
             staff: [{ name: 'Alberto González', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11563.jpg?size=120x&lossy=1' }]
           },
-          { id: 'e23', name: 'Almer\u00eda', rating: 70, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/183.png?size=120x&lossy=1', budget: 3500000,
+          { id: 'e23', name: 'Almer\u00eda', rating: 70, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/183.png?size=120x&lossy=1', budget: 3500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['2021-22'] }],
             staff: [{ name: 'Garc\u00eda Pimienta', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/43.jpg?size=120x&lossy=1',
               career: [{ team: 'Almer\u00eda', from: '30/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }]
           },
-           { id: 'e24', name: 'Burgos CF', rating: 65, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/565.png?size=120x&lossy=1', budget: 1200000,
+           { id: 'e24', name: 'Burgos CF', rating: 65, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/565.png?size=120x&lossy=1', budget: 1200000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['1975-76'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['2000-01', '2020-21'] }, { comp: 'Segunda Federaci\u00f3n', count: 11, years: ['1946-47', '1951-52', '1954-55', '1955-56', '1959-60', '1983-84', '1984-85', '1996-97', '2009-10', '2010-11', '2012-13'] }],
              staff: [{ name: 'Sergio Francisco', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11247.jpg?size=120x&lossy=1',
                career: [{ team: 'Burgos CF', from: '16/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
            },
-           { id: 'e25', name: 'C\u00e1diz', rating: 68, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/603.png?size=120x&lossy=1', budget: 2500000,
+           { id: 'e25', name: 'C\u00e1diz', rating: 68, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/603.png?size=120x&lossy=1', budget: 2500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 2, years: ['1939-40', '2004-05'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['2000-01', '2008-09'] }, { comp: 'Segunda Federaci\u00f3n', count: 2, years: ['1954-55', '1969-70'] }],
              staff: [{ name: 'Imanol Idi\u00e1kez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1494.jpg?size=120x&lossy=1',
                career: [{ team: 'C\u00e1diz', from: '22/04/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
            },
-            { id: 'e26', name: 'CD Castell\u00f3n', rating: 64, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/673.png?size=120x&lossy=1', budget: 1000000,
+            { id: 'e26', name: 'CD Castell\u00f3n', rating: 64, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/673.png?size=120x&lossy=1', budget: 1000000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 3, years: ['1940-41', '1980-81', '1988-89'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['2002-03', '2019-20'] }, { comp: 'Segunda Federaci\u00f3n', count: 7, years: ['1929-30', '1952-53', '1963-64', '1964-65', '1965-66', '1968-69', '2014-15'] }],
               staff: [{ name: 'Pablo Hern\u00e1ndez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/67745.jpg?size=120x&lossy=1',
                 career: [{ team: 'CD Castell\u00f3n', from: '16/09/2025', to: '30/06/2029', matches: 0, won: 0, drawn: 0, lost: 0 }]
               }]
             },
-           { id: 'e27', name: 'CE Sabadell', rating: 62, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2198.png?size=120x&lossy=1', budget: 500000,
+           { id: 'e27', name: 'CE Sabadell', rating: 62, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2198.png?size=120x&lossy=1', budget: 500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 2, years: ['1941-42', '1945-46'] }, { comp: 'Primera Federaci\u00f3n', count: 1, years: ['1983-84'] }, { comp: 'Segunda Federaci\u00f3n', count: 4, years: ['1931-32', '1963-64', '1976-77', '1993-94'] }],
              staff: [{ name: 'Ferran Costa', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/42209.jpg?size=120x&lossy=1',
                career: [{ team: 'CE Sabadell', from: '23/06/2025', to: '30/06/2028', matches: 48, won: 25, drawn: 14, lost: 9 }]
              }]
            },
-           { id: 'e28', name: 'Celta Fortuna', rating: 58, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/713.png?size=120x&lossy=1', budget: 400000,
+           { id: 'e28', name: 'Celta Fortuna', rating: 58, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/713.png?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 3, years: ['1957-58', '1999-00', '2000-01'] }],
              staff: [{ name: 'Fredi \u00c1lvarez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/players/medium/678449.jpg?size=120x&lossy=1',
                career: [{ team: 'Celta Fortuna', from: '12/03/2024', to: '30/06/2027', matches: 93, won: 40, drawn: 25, lost: 28 }]
              }]
            },
-           { id: 'e29', name: 'C\u00f3rdoba CF', rating: 63, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/831.png?size=120x&lossy=1', budget: 900000,
+           { id: 'e29', name: 'C\u00f3rdoba CF', rating: 63, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/831.png?size=120x&lossy=1', budget: 900000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['1961-62'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['1994-95', '1996-97'] }, { comp: 'Segunda Federaci\u00f3n', count: 2, years: ['1955-56', '2021-22'] }],
              staff: [{ name: 'Iv\u00e1n Ania', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11160.jpg?size=120x&lossy=1',
                career: [{ team: 'C\u00f3rdoba CF', from: '01/07/2023', to: '30/06/2027', matches: 128, won: 57, drawn: 32, lost: 39 }]
              }]
            },
-           { id: 'e30', name: 'Eibar', rating: 67, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/957.png?size=120x&lossy=1', budget: 2000000,
+           { id: 'e30', name: 'Eibar', rating: 67, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/957.png?size=120x&lossy=1', budget: 2000000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['2013-14'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['1987-88', '2006-07'] }, { comp: 'Segunda Federaci\u00f3n', count: 6, years: ['1950-51', '1952-53', '1961-62', '1962-63', '1981-82', '1985-86'] }],
              staff: [{ name: 'Jokin Aranbarri', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/47275.jpg?size=120x&lossy=1',
                career: [{ team: 'Eibar', from: '20/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
            },
-           { id: 'e31', name: 'Eldense', rating: 62, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/977.png?size=120x&lossy=1', budget: 700000,
+           { id: 'e31', name: 'Eldense', rating: 62, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/977.png?size=120x&lossy=1', budget: 700000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 1, years: ['2025-26'] }],
              staff: [{ name: 'Claudio Barrag\u00e1n', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/5462.jpg?size=120x&lossy=1',
                career: [{ team: 'Eldense', from: '19/10/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
@@ -167,52 +167,52 @@ window.DB.spain = {
                career: [{ team: 'FC Andorra', from: '24/11/2025', to: '30/06/2027', matches: 30, won: 13, drawn: 5, lost: 12 }]
              }]
            },
-            { id: 'e33', name: 'Girona FC', rating: 72, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/1236.png?size=120x&lossy=1', budget: 5500000,
+            { id: 'e33', name: 'Girona FC', rating: 72, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/1236.png?size=120x&lossy=1', budget: 5500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['1935-36'] }, { comp: 'Primera Federaci\u00f3n', count: 1, years: ['2007-08'] }, { comp: 'Segunda Federaci\u00f3n', count: 5, years: ['1933-34', '1947-48', '1954-55', '1988-89', '2005-06'] }],
               staff: [{ name: 'Quique \u00c1lvarez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/52860.jpg?size=120x&lossy=1',
                 career: [{ team: 'Girona FC', from: '22/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
               }]
             },
-           { id: 'e34', name: 'Granada', rating: 69, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/4235.png?size=120x&lossy=1', budget: 3000000,
+           { id: 'e34', name: 'Granada', rating: 69, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/4235.png?size=120x&lossy=1', budget: 3000000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 3, years: ['1956-57', '1967-68', '2022-23'] }, { comp: 'Primera Federaci\u00f3n', count: 3, years: ['1982-83', '1999-00', '2009-10'] }, { comp: 'Segunda Federaci\u00f3n', count: 3, years: ['1933-34', '2003-04', '2005-06'] }],
              staff: [{ name: 'Pacheta', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/3310.jpg?size=120x&lossy=1',
                career: [{ team: 'Granada', from: '14/05/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
            },
-           { id: 'e35', name: 'Legan\u00e9s', rating: 67, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1535.png?size=120x&lossy=1', budget: 4500000,
+           { id: 'e35', name: 'Legan\u00e9s', rating: 67, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1535.png?size=120x&lossy=1', budget: 4500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['2023-24'] }],
              staff: [{ name: 'Rub\u00e9n Alb\u00e9s', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/10991.jpg?size=120x&lossy=1',
                career: [{ team: 'Legan\u00e9s', from: '15/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
            },
-           { id: 'e36', name: 'Mallorca', rating: 70, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1623.png?size=120x&lossy=1', budget: 5000000,
+           { id: 'e36', name: 'Mallorca', rating: 70, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1623.png?size=120x&lossy=1', budget: 5000000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 2, years: ['1959-60', '1964-65'] }, { comp: 'Copa del Rey', count: 1, years: ['2002-03'] }, { comp: 'Supercopa de Espa\u00f1a', count: 1, years: ['1998'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['1980-81', '2017-18'] }, { comp: 'Segunda Federaci\u00f3n', count: 6, years: ['1943-44', '1954-55', '1956-57', '1957-58', '1958-59', '1979-80'] }],
              staff: [{ name: 'Luis Garc\u00eda', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/55511.jpg?size=120x&lossy=1',
                career: [{ team: 'Mallorca', from: '22/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
            },
-           { id: 'e37', name: 'Real Oviedo', rating: 66, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2115.png?size=120x&lossy=1', budget: 1800000,
+           { id: 'e37', name: 'Real Oviedo', rating: 66, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2115.png?size=120x&lossy=1', budget: 1800000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 5, years: ['1932-33', '1951-52', '1957-58', '1971-72', '1974-75'] }, { comp: 'Primera Federaci\u00f3n', count: 1, years: ['2014-15'] }, { comp: 'Segunda Federaci\u00f3n', count: 4, years: ['2003-04', '2004-05', '2007-08', '2008-09'] }],
              staff: [{ name: 'Juli\u00e1n Calero', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11144.jpg?size=120x&lossy=1',
                career: [{ team: 'Real Oviedo', from: '11/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
            },
-           { id: 'e38', name: 'Real Sociedad B', rating: 55, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2121.png?size=120x&lossy=1', budget: 400000,
+           { id: 'e38', name: 'Real Sociedad B', rating: 55, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2121.png?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 1, years: ['2020-21'] }],
              staff: [{ name: 'Ion Ansotegi', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/players/medium/374493.jpg?size=120x&lossy=1',
                career: [{ team: 'Real Sociedad B', from: '01/07/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
            },
-           { id: 'e39', name: 'Real Sporting', rating: 67, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2125.png?size=120x&lossy=1', budget: 1800000,
+           { id: 'e39', name: 'Real Sporting', rating: 67, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2125.png?size=120x&lossy=1', budget: 1800000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 7, years: ['1941-42', '1942-43', '1943-44', '1950-51', '1956-57', '1969-70', '1976-77'] }],
              staff: [{ name: 'Nicol\u00e1s Larcam\u00f3n', nationality: '\ud83c\udde6\ud83c\uddf7 Argentina', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/761.jpg?size=120x&lossy=1',
                career: [{ team: 'Real Sporting', from: '01/07/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
            },
-           { id: 'e40', name: 'Real Valladolid', rating: 69, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2654.png?size=120x&lossy=1', budget: 4000000,
+           { id: 'e40', name: 'Real Valladolid', rating: 69, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2654.png?size=120x&lossy=1', budget: 4000000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 3, years: ['1947-48', '1958-59', '2006-07'] }, { comp: 'Segunda Federaci\u00f3n', count: 4, years: ['1932-33', '1933-34', '1945-46', '1946-47'] }],
              staff: [{ name: 'Fran Escribá', nationality: '\ud83c\uddea\ud83c\uddf8 España', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/90.jpg?size=120x&lossy=1',
                career: [{ team: 'Real Valladolid', from: '16/02/2026', to: '30/06/2027', matches: 16, won: 5, drawn: 3, lost: 8 }]
              }]
            },
-           { id: 'e41', name: 'Tenerife', rating: 66, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2477.png?size=120x&lossy=1', budget: 1500000,
+           { id: 'e41', name: 'Tenerife', rating: 66, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2477.png?size=120x&lossy=1', budget: 1500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['1960-61'] }],
              staff: [{ name: '\u00c1lvaro Cervera', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/44.jpg?size=120x&lossy=1',
                career: [{ team: 'Tenerife', from: '23/12/2024', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
            },
-           { id: 'e42', name: 'UD Las Palmas', rating: 70, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2563.png?size=120x&lossy=1', budget: 6000000,
+           { id: 'e42', name: 'UD Las Palmas', rating: 70, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2563.png?size=120x&lossy=1', budget: 6000000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 4, years: ['1953-54', '1963-64', '1984-85', '1999-00'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['1992-93', '1995-96'] }],
              staff: [{ name: 'Rub\u00e9n de la Barrera', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/49.jpg?size=120x&lossy=1',
                career: [{ team: 'UD Las Palmas', from: '22/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
              }]
@@ -221,122 +221,122 @@ window.DB.spain = {
       },
       { id: 'l3sg1', name: 'Primera RFEF - Grupo 1', logo: 'https://cdn.resfu.com/media/img/league_logos/primera-federacion.png?size=120x&lossy=1',
         teams: [
-          { id: 'e43', name: 'AD M\u00e9rida', rating: 58, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/11989.jpg?size=120x&lossy=1', budget: 500000,
-            staff: [{ name: 'Fran Beltr\u00e1n', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/48469.jpg?size=120x&lossy=1',
+           { id: 'e43', name: 'AD M\u00e9rida', rating: 58, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/11989.jpg?size=120x&lossy=1', budget: 500000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 2, years: ['2018-19', '2014-15'] }],
+             staff: [{ name: 'Fran Beltr\u00e1n', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/48469.jpg?size=120x&lossy=1',
               career: [{ team: 'AD M\u00e9rida', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e44', name: 'Arenas de Getxo', rating: 57, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/4657.jpg?size=120x&lossy=1', budget: 450000,
-            staff: [{ name: 'Jon Erice', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/56097.jpg?size=120x&lossy=1',
+           { id: 'e44', name: 'Arenas de Getxo', rating: 57, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/4657.jpg?size=120x&lossy=1', budget: 450000, palmares: [{ comp: 'Copa del Rey', count: 1, years: ['1918-19'] }, { comp: 'Segunda Federaci\u00f3n', count: 4, years: ['2024-25', '1959-60', '1946-47', '1945-46'] }],
+             staff: [{ name: 'Jon Erice', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/56097.jpg?size=120x&lossy=1',
               career: [{ team: 'Arenas de Getxo', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e45', name: 'Barakaldo', rating: 58, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/425.jpg?size=120x&lossy=1', budget: 500000,
-            staff: [{ name: 'Imanol de la Sota', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18923.jpg?size=120x&lossy=1',
+           { id: 'e45', name: 'Barakaldo', rating: 58, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/425.jpg?size=120x&lossy=1', budget: 500000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 3, years: ['2001-02', '1997-98', '1979-80'] }, { comp: 'Segunda Federaci\u00f3n', count: 9, years: ['2022-23', '1987-88', '1976-77', '1971-72', '1963-64', '1962-63', '1957-58', '1930-31', '1929-30'] }],
+             staff: [{ name: 'Imanol de la Sota', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18923.jpg?size=120x&lossy=1',
               career: [{ team: 'Barakaldo', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e46', name: 'Bilbao Ath.', rating: 56, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/348.jpg?size=120x&lossy=1', budget: 300000,
-            staff: [{ name: 'Bittor Llopis', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/46490.jpg?size=120x&lossy=1',
+           { id: 'e46', name: 'Bilbao Ath.', rating: 56, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/348.jpg?size=120x&lossy=1', budget: 300000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 2, years: ['1988-89', '1982-83'] }, { comp: 'Segunda Federaci\u00f3n', count: 3, years: ['2023-24', '1968-69', '1966-67'] }],
+             staff: [{ name: 'Bittor Llopis', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/46490.jpg?size=120x&lossy=1',
               career: [{ team: 'Bilbao Ath.', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
           { id: 'e47', name: 'CD Coria', rating: 55, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/677.jpg?size=120x&lossy=1', budget: 400000,
             staff: [{ name: 'Rai Rosa', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/19093.jpg?size=120x&lossy=1',
               career: [{ team: 'CD Coria', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e48', name: 'CD Extremadura', rating: 56, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/152505.jpg?size=120x&lossy=1', budget: 400000,
-            staff: [{ name: 'David Rocha', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/55463.jpg?size=120x&lossy=1',
+           { id: 'e48', name: 'CD Extremadura', rating: 56, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/152505.jpg?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 2, years: ['2015-16', '2012-13'] }],
+             staff: [{ name: 'David Rocha', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/55463.jpg?size=120x&lossy=1',
               career: [{ team: 'CD Extremadura', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e49', name: 'CD Lugo', rating: 60, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1598.jpg?size=120x&lossy=1', budget: 600000,
-            staff: [{ name: 'Borja Fern\u00e1ndez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/54453.jpg?size=120x&lossy=1',
+           { id: 'e49', name: 'CD Lugo', rating: 60, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1598.jpg?size=120x&lossy=1', budget: 600000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 4, years: ['1985-86', '1980-81', '1977-78', '1961-62'] }],
+             staff: [{ name: 'Borja Fern\u00e1ndez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/54453.jpg?size=120x&lossy=1',
               career: [{ team: 'CD Lugo', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e50', name: 'CP Cacere\u00f1o', rating: 56, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/602.jpg?size=120x&lossy=1', budget: 400000,
-            staff: [{ name: 'Julio Cobos', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11555.jpg?size=120x&lossy=1',
+           { id: 'e50', name: 'CP Cacere\u00f1o', rating: 56, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/602.jpg?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 1, years: ['1997-98'] }, { comp: 'Segunda Federaci\u00f3n', count: 13, years: ['2020-21', '2016-17', '2001-02', '1995-96', '1986-87', '1981-82', '1977-78', '1967-68', '1964-65', '1960-61', '1951-52', '1950-51', '1943-44'] }],
+             staff: [{ name: 'Julio Cobos', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11555.jpg?size=120x&lossy=1',
               career: [{ team: 'CP Cacere\u00f1o', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e51', name: 'Cultural Leonesa', rating: 59, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/877.jpg?size=120x&lossy=1', budget: 600000,
-            staff: [{ name: 'Jandro Castro', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/54692.jpg?size=120x&lossy=1',
+           { id: 'e51', name: 'Cultural Leonesa', rating: 59, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/877.jpg?size=120x&lossy=1', budget: 600000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['1954-55'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['2016-17', '1998-99'] }, { comp: 'Segunda Federaci\u00f3n', count: 4, years: ['1994-95', '1973-74', '1970-71', '1958-59'] }],
+             staff: [{ name: 'Jandro Castro', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/54692.jpg?size=120x&lossy=1',
               career: [{ team: 'Cultural Leonesa', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e52', name: 'Deportivo Fabril', rating: 54, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/905.jpg?size=120x&lossy=1', budget: 300000,
-            staff: [{ name: 'Manuel Pablo', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/47866.jpg?size=120x&lossy=1',
+           { id: 'e52', name: 'Deportivo Fabril', rating: 54, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/905.jpg?size=120x&lossy=1', budget: 300000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 7, years: ['2025-26', '2022-23', '2016-17', '2009-10', '2006-07', '2005-06', '2002-03'] }],
+             staff: [{ name: 'Manuel Pablo', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/47866.jpg?size=120x&lossy=1',
               career: [{ team: 'Deportivo Fabril', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e53', name: 'Mirand\u00e9s', rating: 61, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1699.jpg?size=120x&lossy=1', budget: 700000,
-            staff: [{ name: 'Antxon Muneta', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/80755.jpg?size=120x&lossy=1',
+           { id: 'e53', name: 'Mirand\u00e9s', rating: 61, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1699.jpg?size=120x&lossy=1', budget: 700000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 4, years: ['2007-08', '2006-07', '2002-03', '1988-89'] }],
+             staff: [{ name: 'Antxon Muneta', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/80755.jpg?size=120x&lossy=1',
               career: [{ team: 'Mirand\u00e9s', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e54', name: 'Ponferradina', rating: 60, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/3287.jpg?size=120x&lossy=1', budget: 650000,
-            staff: [{ name: 'Mehdi Nafti', nationality: '\ud83c\uddf9\ud83c\uddf3 T\u00fanez', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11533.jpg?size=120x&lossy=1',
+           { id: 'e54', name: 'Ponferradina', rating: 60, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/3287.jpg?size=120x&lossy=1', budget: 650000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 2, years: ['2007-08', '2004-05'] }, { comp: 'Segunda Federaci\u00f3n', count: 3, years: ['1986-87', '1965-66', '1957-58'] }],
+             staff: [{ name: 'Mehdi Nafti', nationality: '\ud83c\uddf9\ud83c\uddf3 T\u00fanez', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11533.jpg?size=120x&lossy=1',
               career: [{ team: 'Ponferradina', from: '26/11/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e55', name: 'Pontevedra', rating: 57, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1997.jpg?size=120x&lossy=1', budget: 500000,
-            staff: [{ name: 'Rub\u00e9n Dom\u00ednguez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18772.jpg?size=120x&lossy=1',
+           { id: 'e55', name: 'Pontevedra', rating: 57, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1997.jpg?size=120x&lossy=1', budget: 500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 2, years: ['1964-65', '1962-63'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['2006-07', '2003-04'] }, { comp: 'Segunda Federaci\u00f3n', count: 10, years: ['2024-25', '2021-22', '2014-15', '1983-84', '1982-83', '1981-82', '1975-76', '1959-60', '1947-48', '1946-47'] }],
+             staff: [{ name: 'Rub\u00e9n Dom\u00ednguez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18772.jpg?size=120x&lossy=1',
               career: [{ team: 'Pontevedra', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e56', name: 'Racing Ferrol', rating: 62, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2055.jpg?size=120x&lossy=1', budget: 800000,
-            staff: [{ name: 'Javi V\u00e1zquez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18576.jpg?size=120x&lossy=1',
+           { id: 'e56', name: 'Racing Ferrol', rating: 62, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2055.jpg?size=120x&lossy=1', budget: 800000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 2, years: ['1994-95', '1977-78'] }, { comp: 'Segunda Federaci\u00f3n', count: 11, years: ['2018-19', '2012-13', '1991-92', '1987-88', '1965-66', '1964-65', '1962-63', '1960-61', '1943-44', '1931-32', '1929-30'] }],
+             staff: [{ name: 'Javi V\u00e1zquez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18576.jpg?size=120x&lossy=1',
               career: [{ team: 'Racing Ferrol', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e57', name: 'Real Avil\u00e9s Industrial', rating: 55, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2096.jpg?size=120x&lossy=1', budget: 400000,
-            staff: [{ name: 'Yago Iglesias', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18728.jpg?size=120x&lossy=1',
+           { id: 'e57', name: 'Real Avil\u00e9s Industrial', rating: 55, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2096.jpg?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 1, years: ['1989-90'] }, { comp: 'Segunda Federaci\u00f3n', count: 8, years: ['1967-68', '1966-67', '1964-65', '1960-61', '1955-56', '1951-52', '1944-45', '1932-33'] }],
+             staff: [{ name: 'Yago Iglesias', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18728.jpg?size=120x&lossy=1',
               career: [{ team: 'Real Avil\u00e9s Industrial', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e58', name: 'Real Uni\u00f3n Club', rating: 56, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2130.jpg?size=120x&lossy=1', budget: 450000,
-            staff: [{ name: 'Rams\u00e9s Gil', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/54376.jpg?size=120x&lossy=1',
+           { id: 'e58', name: 'Real Uni\u00f3n Club', rating: 56, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2130.jpg?size=120x&lossy=1', budget: 450000, palmares: [{ comp: 'Copa del Rey', count: 3, years: ['1926-27', '1923-24', '1917-18'] }, { comp: 'Primera Federaci\u00f3n', count: 1, years: ['2002-03'] }, { comp: 'Segunda Federaci\u00f3n', count: 6, years: ['2025-26', '1992-93', '1991-92', '1966-67', '1963-64', '1957-58'] }],
+             staff: [{ name: 'Rams\u00e9s Gil', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/54376.jpg?size=120x&lossy=1',
               career: [{ team: 'Real Uni\u00f3n Club', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e59', name: 'UD Logro\u00f1\u00e9s', rating: 58, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1578.jpg?size=120x&lossy=1', budget: 500000,
-            staff: [{ name: 'Unai Mendia', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/53183.jpg?size=120x&lossy=1',
+           { id: 'e59', name: 'UD Logro\u00f1\u00e9s', rating: 58, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1578.jpg?size=120x&lossy=1', budget: 500000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 1, years: ['2019-20'] }],
+             staff: [{ name: 'Unai Mendia', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/53183.jpg?size=120x&lossy=1',
               career: [{ team: 'UD Logro\u00f1\u00e9s', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e60', name: 'UD Ourense', rating: 55, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/27634.jpg?size=120x&lossy=1', budget: 400000,
-            staff: [{ name: 'Juan Carballo', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/91298.jpg?size=120x&lossy=1',
+           { id: 'e60', name: 'UD Ourense', rating: 55, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/27634.jpg?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 1, years: ['2024-25'] }],
+             staff: [{ name: 'Juan Carballo', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/91298.jpg?size=120x&lossy=1',
               career: [{ team: 'UD Ourense', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e61', name: 'Unionistas CF', rating: 56, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/54657.jpg?size=120x&lossy=1', budget: 450000,
-            staff: [{ name: 'Javi Medina', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/58829.jpg?size=120x&lossy=1',
+           { id: 'e61', name: 'Unionistas CF', rating: 56, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/54657.jpg?size=120x&lossy=1', budget: 450000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 1, years: ['2017-18'] }],
+             staff: [{ name: 'Javi Medina', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/58829.jpg?size=120x&lossy=1',
               career: [{ team: 'Unionistas CF', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e62', name: 'Zamora CF', rating: 55, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2785.jpg?size=120x&lossy=1', budget: 400000,
-            staff: [{ name: '\u00d3scar Cano', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/479.jpg?size=120x&lossy=1',
+           { id: 'e62', name: 'Zamora CF', rating: 55, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2785.jpg?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 7, years: ['2019-20', '2018-19', '2015-16', '1998-99', '1992-93', '1977-78', '1950-51'] }],
+             staff: [{ name: '\u00d3scar Cano', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/479.jpg?size=120x&lossy=1',
               career: [{ team: 'Zamora CF', from: '04/11/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
         ]
       },
       { id: 'l3sg2', name: 'Primera RFEF - Grupo 2', logo: 'https://cdn.resfu.com/media/img/league_logos/primera-federacion.png?size=120x&lossy=1',
         teams: [
-          { id: 'e63', name: '\u00c1guilas FC', rating: 56, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/90.jpg?size=120x&lossy=1', budget: 400000,
-            staff: [{ name: 'Adri\u00e1n Hern\u00e1ndez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/19044.jpg?size=120x&lossy=1',
+           { id: 'e63', name: '\u00c1guilas FC', rating: 56, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/90.jpg?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 2, years: ['2022-23', '2020-21'] }],
+             staff: [{ name: 'Adri\u00e1n Hern\u00e1ndez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/19044.jpg?size=120x&lossy=1',
               career: [{ team: '\u00c1guilas FC', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
           { id: 'e64', name: 'Alcorc\u00f3n', rating: 62, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/64.jpg?size=120x&lossy=1', budget: 800000,
             staff: [{ name: 'Fran Justo', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1',
               career: [{ team: 'Alcorc\u00f3n', from: '01/07/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e65', name: 'Algeciras CF', rating: 58, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/166.jpg?size=120x&lossy=1', budget: 500000,
-            staff: [{ name: 'Adri\u00e1n Colunga', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/63642.jpg?size=120x&lossy=1',
+           { id: 'e65', name: 'Algeciras CF', rating: 58, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/166.jpg?size=120x&lossy=1', budget: 500000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 1, years: ['2002-03'] }, { comp: 'Segunda Federaci\u00f3n', count: 7, years: ['2014-15', '2012-13', '2006-07', '1999-00', '1987-88', '1961-62', '1955-56'] }],
+             staff: [{ name: 'Adri\u00e1n Colunga', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/63642.jpg?size=120x&lossy=1',
               career: [{ team: 'Algeciras CF', from: '07/06/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e66', name: 'Antequera CF', rating: 57, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/227.jpg?size=120x&lossy=1', budget: 450000,
-            staff: [{ name: 'Abraham Paz', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/54679.jpg?size=120x&lossy=1',
+           { id: 'e66', name: 'Antequera CF', rating: 57, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/227.jpg?size=120x&lossy=1', budget: 450000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 1, years: ['2022-23'] }],
+             staff: [{ name: 'Abraham Paz', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/54679.jpg?size=120x&lossy=1',
               career: [{ team: 'Antequera CF', from: '30/11/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'e67', name: 'Atl\u00e9tico Madrile\u00f1o', rating: 58, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/323.jpg?size=120x&lossy=1', budget: 500000, staff: [{ name: 'Fernando Torres', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/47437.jpg?size=120x&lossy=1' }] },
-          { id: 'e68', name: 'CD Teruel', rating: 55, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2485.jpg?size=120x&lossy=1', budget: 400000 },
-          { id: 'e69', name: 'CE Europa', rating: 56, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/8760.jpg?size=120x&lossy=1', budget: 400000, staff: [{ name: 'Aday Ben\u00edtez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/64461.jpg?size=120x&lossy=1' }] },
-          { id: 'e70', name: 'FC Cartagena', rating: 61, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/643.jpg?size=120x&lossy=1', budget: 700000, staff: [{ name: 'I\u00f1igo V\u00e9lez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11292.jpg?size=120x&lossy=1' }] },
-          { id: 'e71', name: 'Gimn\u00e0stic Tarragona', rating: 59, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1228.jpg?size=120x&lossy=1', budget: 600000, staff: [{ name: 'Xisco Campos', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/91209.jpg?size=120x&lossy=1' }] },
-          { id: 'e72', name: 'H\u00e9rcules', rating: 58, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1311.jpg?size=120x&lossy=1', budget: 550000, staff: [{ name: 'Beto Company', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18471.jpg?size=120x&lossy=1' }] },
-          { id: 'e73', name: 'Huesca', rating: 63, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1339.jpg?size=120x&lossy=1', budget: 900000, staff: [{ name: 'Ra\u00fal Jardiel', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/19345.jpg?size=120x&lossy=1' }] },
-          { id: 'e74', name: 'Juventud Torremolinos', rating: 55, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/4770.jpg?size=120x&lossy=1', budget: 400000, staff: [{ name: 'Aitor Mart\u00ednez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/48476.jpg?size=120x&lossy=1' }] },
-          { id: 'e75', name: 'Rayo Majadahonda', rating: 57, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2078.jpg?size=120x&lossy=1', budget: 500000 },
-          { id: 'e76', name: 'Real Ja\u00e9n', rating: 56, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2104.jpg?size=120x&lossy=1', budget: 450000, staff: [{ name: 'Manolo Herrero', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/476.jpg?size=120x&lossy=1' }] },
-          { id: 'e77', name: 'Real Murcia', rating: 59, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2113.jpg?size=120x&lossy=1', budget: 650000, staff: [{ name: 'Sergi Guill\u00f3', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/64098.jpg?size=120x&lossy=1' }] },
-          { id: 'e78', name: 'Real Zaragoza', rating: 64, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2136.jpg?size=120x&lossy=1', budget: 1000000, staff: [{ name: 'Ibai G\u00f3mez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/62874.jpg?size=120x&lossy=1' }] },
-          { id: 'e79', name: 'RM Castilla', rating: 57, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2170.jpg?size=120x&lossy=1', budget: 500000, staff: [{ name: 'Juli\u00e1n L\u00f3pez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/73361.jpg?size=120x&lossy=1' }] },
-          { id: 'e80', name: 'UD Ibiza', rating: 58, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1352.jpg?size=120x&lossy=1', budget: 550000, staff: [{ name: 'Raúl Llona', nationality: '🇪🇸 España', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11195.jpg?size=120x&lossy=1' }] },
-          { id: 'e81', name: 'UE Sant Andreu', rating: 55, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2247.jpg?size=120x&lossy=1', budget: 400000, staff: [{ name: 'Natxo González', nationality: '🇪🇸 España', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/62.jpg?size=120x&lossy=1' }] },
-          { id: 'e82', name: 'Villarreal B', rating: 56, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2717.jpg?size=120x&lossy=1', budget: 450000, staff: [{ name: 'David Albelda', nationality: '🇪🇸 España', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18496.jpg?size=120x&lossy=1' }] },
+           { id: 'e67', name: 'Atl\u00e9tico Madrile\u00f1o', rating: 58, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/323.jpg?size=120x&lossy=1', budget: 500000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 3, years: ['2003-04', '2000-01', '1988-89'] }, { comp: 'Segunda Federaci\u00f3n', count: 2, years: ['2021-22', '2016-17'] }], staff: [{ name: 'Fernando Torres', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/47437.jpg?size=120x&lossy=1' }] },
+          { id: 'e68', name: 'CD Teruel', rating: 55, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2485.jpg?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 5, years: ['2000-01', '2009-10', '2017-18', '2020-21', '2022-23'] }] },
+           { id: 'e69', name: 'CE Europa', rating: 56, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/8760.jpg?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 5, years: ['2024-25', '2022-23', '2020-21', '1962-63', '1961-62'] }], staff: [{ name: 'Aday Ben\u00edtez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/64461.jpg?size=120x&lossy=1' }] },
+           { id: 'e70', name: 'FC Cartagena', rating: 61, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/643.jpg?size=120x&lossy=1', budget: 700000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 2, years: ['2019-20', '2005-06'] }, { comp: 'Segunda Federaci\u00f3n', count: 2, years: ['1997-98', '1996-97'] }], staff: [{ name: 'I\u00f1igo V\u00e9lez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11292.jpg?size=120x&lossy=1' }] },
+           { id: 'e71', name: 'Gimn\u00e0stic Tarragona', rating: 59, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1228.jpg?size=120x&lossy=1', budget: 600000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 1, years: ['1996-97'] }, { comp: 'Segunda Federaci\u00f3n', count: 6, years: ['1977-78', '1971-72', '1965-66', '1960-61', '1954-55', '1944-45'] }], staff: [{ name: 'Xisco Campos', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/91209.jpg?size=120x&lossy=1' }] },
+           { id: 'e72', name: 'H\u00e9rcules', rating: 58, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1311.jpg?size=120x&lossy=1', budget: 550000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 3, years: ['1995-96', '1965-66', '1934-35'] }, { comp: 'Segunda Federaci\u00f3n', count: 5, years: ['2023-24', '1968-69', '1959-60', '1932-33', '1931-32'] }], staff: [{ name: 'Beto Company', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18471.jpg?size=120x&lossy=1' }] },
+           { id: 'e73', name: 'Huesca', rating: 63, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1339.jpg?size=120x&lossy=1', budget: 900000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['2019-20'] }, { comp: 'Segunda Federaci\u00f3n', count: 6, years: ['1993-94', '1992-93', '1989-90', '1984-85', '1967-68', '1966-67'] }], staff: [{ name: 'Ra\u00fal Jardiel', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/19345.jpg?size=120x&lossy=1' }] },
+           { id: 'e74', name: 'Juventud Torremolinos', rating: 55, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/4770.jpg?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 3, years: ['2024-25', '2023-24', '2021-22'] }], staff: [{ name: 'Aitor Mart\u00ednez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/48476.jpg?size=120x&lossy=1' }] },
+          { id: 'e75', name: 'Rayo Majadahonda', rating: 57, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2078.jpg?size=120x&lossy=1', budget: 500000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 4, years: ['1995-96', '2000-01', '2014-15', '2025-26'] }] },
+           { id: 'e76', name: 'Real Ja\u00e9n', rating: 56, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2104.jpg?size=120x&lossy=1', budget: 450000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 2, years: ['1955-56', '1952-53'] }, { comp: 'Primera Federaci\u00f3n', count: 1, years: ['1995-96'] }, { comp: 'Segunda Federaci\u00f3n', count: 6, years: ['2018-19', '1987-88', '1975-76', '1966-67', '1964-65', '1951-52'] }], staff: [{ name: 'Manolo Herrero', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/476.jpg?size=120x&lossy=1' }] },
+           { id: 'e77', name: 'Real Murcia', rating: 59, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2113.jpg?size=120x&lossy=1', budget: 650000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 9, years: ['2002-03', '1985-86', '1982-83', '1979-80', '1972-73', '1962-63', '1954-55', '1939-40', '1935-36'] }, { comp: 'Primera Federaci\u00f3n', count: 2, years: ['2010-11', '1992-93'] }, { comp: 'Segunda Federaci\u00f3n', count: 3, years: ['1995-96', '1976-77', '1971-72'] }], staff: [{ name: 'Sergi Guill\u00f3', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/64098.jpg?size=120x&lossy=1' }] },
+           { id: 'e78', name: 'Real Zaragoza', rating: 64, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2136.jpg?size=120x&lossy=1', budget: 1000000, palmares: [{ comp: 'Copa del Rey', count: 6, years: ['2003-04', '2000-01', '1993-94', '1985-86', '1965-66', '1963-64'] }, { comp: 'Segunda Divisi\u00f3n', count: 1, years: ['1977-78'] }, { comp: 'Supercopa de Espa\u00f1a', count: 1, years: ['2004'] }, { comp: 'Segunda Federaci\u00f3n', count: 2, years: ['1933-34', '1932-33'] }], staff: [{ name: 'Ibai G\u00f3mez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/62874.jpg?size=120x&lossy=1' }] },
+           { id: 'e79', name: 'RM Castilla', rating: 57, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2170.jpg?size=120x&lossy=1', budget: 500000, palmares: [{ comp: 'Segunda Divisi\u00f3n', count: 1, years: ['1983-84'] }, { comp: 'Primera Federaci\u00f3n', count: 4, years: ['2011-12', '2004-05', '2001-02', '1990-91'] }], staff: [{ name: 'Juli\u00e1n L\u00f3pez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/73361.jpg?size=120x&lossy=1' }] },
+           { id: 'e80', name: 'UD Ibiza', rating: 58, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1352.jpg?size=120x&lossy=1', budget: 550000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 1, years: ['2020-21'] }, { comp: 'Segunda Federaci\u00f3n', count: 3, years: ['2006-07', '1991-92', '1977-78'] }], staff: [{ name: 'Ra\u00fal Llona', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/11195.jpg?size=120x&lossy=1' }] },
+           { id: 'e81', name: 'UE Sant Andreu', rating: 55, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2247.jpg?size=120x&lossy=1', budget: 400000, palmares: [{ comp: 'Primera Federaci\u00f3n', count: 1, years: ['1991-92'] }, { comp: 'Segunda Federaci\u00f3n', count: 5, years: ['2025-26', '1989-90', '1984-85', '1968-69', '1949-50'] }], staff: [{ name: 'Natxo Gonz\u00e1lez', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/62.jpg?size=120x&lossy=1' }] },
+           { id: 'e82', name: 'Villarreal B', rating: 56, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2717.jpg?size=120x&lossy=1', budget: 450000, palmares: [{ comp: 'Segunda Federaci\u00f3n', count: 1, years: ['2005-06'] }], staff: [{ name: 'David Albelda', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/18496.jpg?size=120x&lossy=1' }] },
         ]
       },
     ]

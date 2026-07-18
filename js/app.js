@@ -690,6 +690,7 @@ const state = {
   filialSquad: [],
   leagueViewCountry: '',
   trophies: [],
+  trophyHistory: { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] },
   seasonNumber: 1,
   transferWindowOpen: false,
   loanPool: [],
@@ -1313,10 +1314,10 @@ function getTeamObj(id) {
       const team = l.teams.find(x => x.id === id)
       if (team) {
         if (getRealSquad(team.id)) {
-          return { name: team.name, players: getRealSquad(team.id).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }).map(function(p) { return { ...p } }), teamId: team.id, staff: team.staff, formation: team.formation, gamePlan: team.gamePlan, logo: team.logo }
+          return { name: team.name, players: getRealSquad(team.id).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }).map(function(p) { return { ...p } }), teamId: team.id, staff: team.staff, formation: team.formation, gamePlan: team.gamePlan, logo: team.logo, palmares: team.palmares }
         }
         const rating = team.rating || getBaseDato(id)?.rating || 70
-        return { name: team.name, players: generateCpuSquad(id, state.countryId, rating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, staff: team.staff || generateStaff(team.name, state.countryId), formation: team.formation, gamePlan: team.gamePlan, logo: team.logo }
+        return { name: team.name, players: generateCpuSquad(id, state.countryId, rating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, staff: team.staff || generateStaff(team.name, state.countryId), formation: team.formation, gamePlan: team.gamePlan, logo: team.logo, palmares: team.palmares }
       }
     }
   }
@@ -1331,14 +1332,15 @@ function autoSimulateOtherMatch(homeId, awayId) {
   const awayTact = calcTacticMultiplier(away.formation, away.gamePlan)
   const homePower = getTop11Average(home.players) * getTop11EnergyFactor(home.players)
   const awayPower = getTop11Average(away.players) * getTop11EnergyFactor(away.players)
-  const homeSkill = homePower * randInt(80, 120) / 100 * 1.05 * homeTact
-  const awaySkill = awayPower * randInt(80, 120) / 100 * awayTact
+  const homeSkill = homePower * randInt(85, 115) / 100 * 1.05 * homeTact
+  const awaySkill = awayPower * randInt(85, 115) / 100 * awayTact
   let homeScore = 0, awayScore = 0
   for (let m = 0; m < 40; m++) {
     if (Math.random() > 0.35) continue
     const prob = (Math.random() < 0.5 ? homeSkill : awaySkill) / 100 * 0.3
     if (Math.random() < prob) {
-      if (Math.random() < 0.5) homeScore++; else awayScore++
+      var scoreProb = 1 / (1 + Math.pow(10, (awaySkill - homeSkill) / 15))
+      if (Math.random() < scoreProb) homeScore++; else awayScore++
     }
   }
   /* Track pre-match stats for AI rating computation */
@@ -1896,7 +1898,7 @@ function renderHome() {
       '<div class="home-section-title">' + (isPlayoffs ? (roundNames[state.playoffs.round] || 'Eliminatoria') : 'Pr\u00f3ximo encuentro') + '</div>' +
       cupInfo +
       '<div class="home-match-teams">' +
-        '<div class="home-team-side">' +
+        '<div class="home-team-side" style="cursor:pointer" onclick="showTeamInfo(\'' + state.teamId + '\')">' +
           '<img class="home-team-logo" src="' + (state.teamLogo || '') + '" alt="">' +
           '<div class="home-team-label">' + state.team + '</div>' +
           '<div class="home-team-pos">' + userPos + '\u00ba \u00b7 ' + getTeamFormation(state.teamId) + '</div>' +
@@ -1955,6 +1957,7 @@ function renderClub() {
   const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
   const countryFlag = window.DB[state.countryId]?.country.flag || ''
   const totalVal = state.players.reduce((s, p) => s + (p.value || 0), 0)
+  var leagueName = getTeamLeagueName(state.teamId)
   document.getElementById('club-team-info').innerHTML = `
     <div class="tp-stats" style="margin-bottom:6px">
       <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>
@@ -1964,9 +1967,9 @@ function renderClub() {
       <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
     </div>
     <div class="tp-stats" style="margin-bottom:12px">
+      <div class="tp-stat"><span class="tp-stat-label">División</span><span class="tp-stat-value">${leagueName || '\u2014'}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Formación</span><span class="tp-stat-value">${state.tactic.formation || '\u2014'}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Presión</span><span class="tp-stat-value">${(GAME_PLANS[state.tactic.gamePlan] || {}).label || state.tactic.gamePlan || '\u2014'}</span></div>
-      <div class="tp-stat" style="flex:2"></div>
     </div>`
 
   document.getElementById('club-squad-content').classList.add('hidden')
@@ -1975,10 +1978,11 @@ function renderClub() {
   document.getElementById('club-calendar-content').classList.add('hidden')
   document.getElementById('club-palmares-content').classList.add('hidden')
   var isHamburgerView = state.clubSubTab === 'inbox' || state.clubSubTab === 'calendar' || state.clubSubTab === 'palmares'
+  var isClubInfo = state.clubSubTab === 'club-info'
   var teamInfo = document.getElementById('club-team-info')
   var subTabs = document.querySelector('#view-club .sub-tabs')
-  if (teamInfo) teamInfo.style.display = isHamburgerView ? 'none' : ''
-  if (subTabs) subTabs.style.display = isHamburgerView ? 'none' : ''
+  if (teamInfo) teamInfo.style.display = isClubInfo ? '' : 'none'
+  if (subTabs) subTabs.style.display = (isHamburgerView || isClubInfo) ? 'none' : ''
   document.querySelectorAll('#view-club .sub-tab').forEach(b => b.classList.toggle('active', b.dataset.subtab === state.clubSubTab))
   if (state.clubSubTab === 'squad') {
     document.getElementById('club-squad-content').classList.remove('hidden')
@@ -2602,7 +2606,15 @@ function renderLeague(viewedLeagueId) {
   /* Añadir Copa del Rey para España */
   var cupLogoUrl = 'https://cdn.resfu.com/media/img/league_logos/copa-del-rey.png?size=120x&lossy=1'
   if (activeCountryId === 'es' && state.cup) {
-    displayLogos = [{ id: 'copa_del_rey', name: 'Copa del Rey', logo: cupLogoUrl }].concat(displayLogos)
+    var copaEntry = { id: 'copa_del_rey', name: 'Copa del Rey', logo: cupLogoUrl }
+    var insertIdx = displayLogos.length
+    for (var ci = displayLogos.length - 1; ci >= 0; ci--) {
+      if (displayLogos[ci].id && displayLogos[ci].id.startsWith('l3')) {
+        insertIdx = ci + 1
+        break
+      }
+    }
+    displayLogos.splice(insertIdx, 0, copaEntry)
   }
   const logosContainer = document.getElementById('league-logos')
   logosContainer.innerHTML = displayLogos.map(function(l) {
@@ -3297,7 +3309,7 @@ function procesarEconomiaSemanal() {
   checkTransferWindow()
   if (state.transferWindowOpen) {
     if (Math.random() < 0.4) procesarVentanaTransferencias()
-    if (Math.random() < 0.3) procesarIAOfertasAlUsuario()
+    procesarIAOfertasAlUsuario()
     gestionarFilialesCPU()
   }
 }
@@ -3511,19 +3523,54 @@ function procesarIAFichajes(team) {
 function procesarIAOfertasAlUsuario() {
   if (!state.transferWindowOpen) return
   const userPlayers = state.players.filter(p => !p.onLoan)
+  /* Higher probability for transfer-listed players */
   for (const team of state.leagueTeams) {
     if (team.players.length >= MAX_SQUAD) continue
     const budget = getTeamBudget(team)
     const targetSkill = (team.rating || 50) + randInt(-5, 10)
+    var offersMade = 0
     for (const p of userPlayers) {
+      if (offersMade >= 3) break
       if (p.skill < targetSkill - 10) continue
-      if (Math.random() > 0.05) continue
-      const offer = Math.round(p.value * (0.8 + Math.random() * 0.5))
+      var prob = p.transferListed ? 0.5 : 0.1
+      if (Math.random() > prob) continue
+      var minPrice = p.transferListed && p.transferPrice ? p.transferPrice : Math.round(p.value * 0.7)
+      var offer = Math.round(p.value * (0.8 + Math.random() * 0.5))
+      if (offer < minPrice) offer = minPrice
       if (offer > budget * 0.4) continue
       mostrarOfertaTransferencia(p, team, offer)
-      break
+      offersMade++
     }
   }
+}
+
+function generarOfertasParaJugador(player) {
+  if (!state.transferWindowOpen || !player) return
+  var cola = []
+  var posibles = state.leagueTeams.filter(function(t) {
+    return t.players.length < MAX_SQUAD && getTeamBudget(t) > Math.round(player.value * 0.5)
+  })
+  posibles.sort(function() { return Math.random() - 0.5 })
+  var maxOffers = Math.min(5, posibles.length)
+  for (var oi = 0; oi < maxOffers; oi++) {
+    var team = posibles[oi]
+    if (!team) continue
+    var targetSkill = (team.rating || 50) + randInt(-5, 10)
+    if (player.skill < targetSkill - 12) continue
+    var basePrice = player.transferPrice || Math.round(player.value * 0.7)
+    var offer = Math.max(basePrice, Math.round(player.value * (0.7 + Math.random() * 0.6)))
+    if (offer > getTeamBudget(team) * 0.4) continue
+    cola.push({ team: team, offer: offer })
+  }
+  /* Show offers one by one with sequential delays */
+  function mostrarSiguiente(idx) {
+    if (idx >= cola.length) return
+    setTimeout(function() {
+      mostrarOfertaTransferencia(player, cola[idx].team, cola[idx].offer)
+      mostrarSiguiente(idx + 1)
+    }, 1500)
+  }
+  if (cola.length > 0) mostrarSiguiente(0)
 }
 
 /* ============ LOAN SYSTEM ============ */
@@ -3696,7 +3743,7 @@ window.aceptarOferta = function(playerId, teamId, offer) {
     return
   }
   state.finances.balance += offer
-  state.finances.history.push({ reason: `💵 Traspaso: ${player.name} → ${team.name}`, amount: offer })
+  state.finances.history.push({ reason: `Traspaso: ${player.name}|${player.avatar || ''}|${team.name}|${player.position || ''}|${player.age || 0}|${player.value || 0}|${player.skill || 0}`, amount: offer })
   const newP = { ...player, id: `${teamId}-tr-${Date.now()}`, transferListed: false, transferPrice: 0, loanListed: false, energy: randInt(70, 100), goals: 0, matches: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [] }
   team.players.push(newP)
   const idx = state.players.indexOf(player)
@@ -4041,6 +4088,8 @@ function procesarFinTemporada(skipAging, skipStandings) {
     }
 
     msg = `📊 Temporada finalizada. Posición: ${pos}º`
+    var divName = getTeamLeagueName(state.teamId) || state.leagueId
+    registrarPosicionTemporada(pos, divName)
     if (esPlayoffSegundaSpain) msg += '\n🏆 Accedes a la Fase de Ascenso a LaLiga'
     else if (cambioDivision && esSegundaSpain && pos <= 2) msg += '\n🎉 ¡ASCENSO a LaLiga!'
     else if (cambioDivision && esSegundaSpain) msg += '\n⚠️ DESCENSO a Primera Federación'
@@ -4774,14 +4823,13 @@ function simularPartidoRapido(fixture, rivalId) {
 
     const homeFactor = isHome ? 1.05 : 1.0
     const awayFactor = isHome ? 0.97 : 1.0
-    const userFinal = userPower * (0.8 + Math.random() * 0.4) * homeFactor
-    const rivalFinal = rivalPower * (0.8 + Math.random() * 0.4) * awayFactor
-    const totalGoals = 2 + Math.floor(Math.random() * 5)
-    const probUser = userFinal / (userFinal + rivalFinal)
-    let rawUser = Math.round(totalGoals * probUser)
-    let rawRival = totalGoals - rawUser
-    if (rawUser === 0 && rawRival === 0 && totalGoals >= 2) {
-      if (Math.random() < 0.5) { rawUser++ } else { rawRival++ }
+    const userFinal = userPower * (0.95 + Math.random() * 0.1) * homeFactor
+    const rivalFinal = rivalPower * (0.95 + Math.random() * 0.1) * awayFactor
+    const probUser = 1 / (1 + Math.pow(10, (rivalFinal - userFinal) / 15))
+    const attempts = Math.floor(Math.random() * 6)
+    let rawUser = 0, rawRival = 0
+    for (let a = 0; a < attempts; a++) {
+      if (Math.random() < probUser) { rawUser++ } else { rawRival++ }
     }
     const us = Math.min(10, Math.max(0, rawUser))
     const them = Math.min(10, Math.max(0, rawRival))
@@ -5203,6 +5251,9 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa) {
       if (isSupercopa) { avanzarSupercopa() } else if (state.cup) { avanzarRondaCopa() }
       if (isSupercopa && state.supercopa && state.supercopa.final && fixture === state.supercopa.final) {
         state.supercopa.winner = state.teamId
+        if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] }
+        var cy3 = new Date().getFullYear() % 100
+        state.trophyHistory.supercopaWins.push({ season: (cy3 - 1) + '/' + cy3.toString().padStart(2, '0') })
         addNotification('transfer', '\ud83c\udfc6 \u00a1Campe\u00f3n de la Supercopa!', state.team + ' gana la Supercopa de Espa\u00f1a')
       }
     }
@@ -5268,6 +5319,11 @@ function autoSimularCopaRestante() {
     var winner = finalF[0].homeScore > finalF[0].awayScore ? finalF[0].home : finalF[0].away
     state.cupChampion = winner
     state.cupRunnerUp = winner === finalF[0].home ? finalF[0].away : finalF[0].home
+    if (winner === state.teamId) {
+      if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] }
+      var cy2 = new Date().getFullYear() % 100
+      state.trophyHistory.cupWins.push({ season: (cy2 - 1) + '/' + cy2.toString().padStart(2, '0'), competition: 'Copa del Rey' })
+    }
   }
 }
 
@@ -5941,7 +5997,7 @@ function buyPlayer(player, team, agreedPrice) {
   const finalValue = Math.round(basePrice * discount)
   if (state.finances.balance < finalValue) { alert('Fondos insuficientes. Necesitas ' + formatMoney(finalValue)); return }
   state.finances.balance -= finalValue
-  state.finances.history.push({ reason: `Compra: ${player.name}${discount < 1 ? ' (-' + Math.round((1 - discount) * 100) + '% dto)' : ''}`, amount: -finalValue })
+  state.finances.history.push({ reason: `Compra: ${player.name}|${player.avatar || ''}|${team.name}|${player.position || ''}|${player.age || 0}|${player.value || 0}|${player.skill || 0}${discount < 1 ? ' (-' + Math.round((1 - discount) * 100) + '% dto)' : ''}`, amount: -finalValue })
   /* Remove from source team */
   const ti = team.players.findIndex(p => p.id === player.id)
   if (ti >= 0) team.players.splice(ti, 1)
@@ -6216,7 +6272,7 @@ function renderCopaView() {
   resultsWrap.classList.add('hidden')
   var cup = state.cup
   var supercopa = state.supercopa
-  var html = '<div style="text-align:right;margin-bottom:8px"><button class="btn-back" onclick="renderLeague()" style="font-size:12px;padding:4px 10px">\u2190 Volver a Liga</button></div><div class="copa-wrap">'
+  var html = '<div style="text-align:right;margin-bottom:8px"><button class="btn-back" onclick="renderLeague()" style="font-size:12px;padding:4px 10px">\u2190 Volver a Competiciones</button></div><div class="copa-wrap">'
 
   /* Supercopa section */
   if (supercopa && supercopa.fixtures.length > 0) {
@@ -6244,36 +6300,55 @@ function renderCopaView() {
   }
 
   /* Copa del Rey section */
-  if (cup && cup.allFixtures && cup.allFixtures.length > 0) {
+  if (cup && cup.schedule && cup.schedule.length > 0) {
     html += '<div class="copa-section"><div class="copa-header"><img class="copa-logo" src="' + COPA_LOGO + '" alt="Copa del Rey"><span class="copa-title">Copa del Rey</span></div>'
     var userEliminated = cup.eliminated && cup.eliminated.indexOf(state.teamId) >= 0
     if (userEliminated && cup.cupChampion) {
       html += '<div class="copa-eliminated">\u274c Eliminado. Campe\u00f3n: ' + getTeamName(cup.cupChampion) + '</div>'
     }
-    /* Show all rounds */
+    /* Match count per round index (0=R1, 1=R2, 2=Dieciseisavos, 3=Octavos, 4=Cuartos, 5=Semif, 6=Final) */
+    var matchCounts = [31, 16, 16, 8, 4, 2, 1]
     cup.schedule.forEach(function(s, ri) {
       if (s.isSupercopa) return
-      var roundFixtures = cup.allFixtures.filter(function(f) { return f.week === s.week })
-      if (roundFixtures.length === 0) return
-      var allPlayed = roundFixtures.every(function(f) { return f.played })
-      var userInRound = roundFixtures.some(function(f) { return f.home === state.teamId || f.away === state.teamId })
+      var roundFixtures = cup.allFixtures ? cup.allFixtures.filter(function(f) { return f.week === s.week }) : []
+      var hasFixtures = roundFixtures.length > 0
       html += '<div class="copa-round"><div class="copa-round-title">' + s.label + '</div>'
-      roundFixtures.forEach(function(f) {
-        var played = f.played
-        var homeS = f.homeScore != null ? f.homeScore : '-'
-        var awayS = f.awayScore != null ? f.awayScore : '-'
-        var cls = played ? '' : ' copa-fixture-pending'
-        var isUser = f.home === state.teamId || f.away === state.teamId
-        html += '<div class="copa-fixture' + cls + '">' +
-          '<span class="copa-fixture-team' + (f.home === state.teamId ? ' copa-user' : '') + '">' + (isUser ? '\u2b50 ' : '') + getTeamName(f.home) + '</span>' +
-          '<span class="copa-fixture-score">' + homeS + ' - ' + awayS + '</span>' +
-          '<span class="copa-fixture-team' + (f.away === state.teamId ? ' copa-user' : '') + '">' + (isUser ? '\u2b50 ' : '') + getTeamName(f.away) + '</span>' +
-          '</div>'
-      })
+      if (hasFixtures) {
+        roundFixtures.forEach(function(f) {
+          var played = f.played
+          var homeS = f.homeScore != null ? f.homeScore : '-'
+          var awayS = f.awayScore != null ? f.awayScore : '-'
+          var cls = played ? '' : ' copa-fixture-pending'
+          var isUser = f.home === state.teamId || f.away === state.teamId
+          var homeName = f.home ? getTeamName(f.home) : '???'
+          var awayName = f.away ? getTeamName(f.away) : '???'
+          html += '<div class="copa-fixture' + cls + '">' +
+            '<span class="copa-fixture-team' + (f.home === state.teamId ? ' copa-user' : '') + '">' + (isUser ? '\u2b50 ' : '') + homeName + '</span>' +
+            '<span class="copa-fixture-score">' + homeS + ' - ' + awayS + '</span>' +
+            '<span class="copa-fixture-team' + (f.away === state.teamId ? ' copa-user' : '') + '">' + (isUser ? '\u2b50 ' : '') + awayName + '</span>' +
+            '</div>'
+        })
+      } else {
+        /* Show silhouettes for rounds not yet generated */
+        var count = ri < matchCounts.length ? matchCounts[ri] : 2
+        if (count > 6) count = 4 /* show fewer for display */
+        for (var si = 0; si < count; si++) {
+          html += '<div class="copa-fixture copa-fixture-pending">' +
+            '<span class="copa-fixture-team"><span class="copa-silhouette"></span></span>' +
+            '<span class="copa-fixture-score">-</span>' +
+            '<span class="copa-fixture-team"><span class="copa-silhouette"></span></span>' +
+            '</div>'
+        }
+      }
       html += '</div>'
+      /* Arrow to next round */
+      if (ri < cup.schedule.length - 1) {
+        html += '<div class="copa-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>'
+      }
     })
+    /* Champion */
     if (!userEliminated && cup.roundIdx < 0) {
-      var fF = cup.allFixtures.filter(function(f) { return f.week === cup.schedule[cup.schedule.length - 1].week })
+      var fF = cup.allFixtures ? cup.allFixtures.filter(function(f) { return f.week === cup.schedule[cup.schedule.length - 1].week }) : []
       if (fF.length > 0 && fF[0].played) {
         var w = fF[0].homeScore > fF[0].awayScore ? fF[0].home : fF[0].away
         html += '<div class="copa-winner">\ud83c\udfc6 Campe\u00f3n: ' + getTeamName(w) + '</div>'
@@ -6580,6 +6655,50 @@ function startGame() {
   updateInboxBadge()
   actualizarIndicadorTemporada()
   checkTransferWindow()
+  generarMockHistorial()
+}
+
+function generarMockHistorial() {
+  state.trophyHistory = state.trophyHistory || { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] }
+  if (state.trophyHistory.seasons.length > 0) return /* Already have data */
+  var divisionName = ''
+  for (var ci in window.DB) {
+    var data = window.DB[ci]
+    if (!data) continue
+    for (var li = 0; li < (data.country.leagues || []).length; li++) {
+      var league = data.country.leagues[li]
+      if (league.id === state.leagueId) { divisionName = league.name; break }
+    }
+    if (divisionName) break
+  }
+  if (!divisionName) divisionName = state.leagueId
+  /* Generate mock seasons from 26/27 up to last completed season */
+  var currentYear = new Date().getFullYear() % 100
+  var startYear = 26
+  var mockSeasons = []
+  for (var sy = startYear; sy < currentYear; sy++) {
+    var seasonLabel = sy + '/' + (sy + 1).toString().padStart(2, '0')
+    var idx = sy - startYear
+    var pos = idx % 5 === 0 ? 1 : (idx % 5 === 1 ? 4 : (idx % 5 === 2 ? 5 : (idx % 5 === 3 ? 6 : 8)))
+    state.trophyHistory.seasons.push({ season: seasonLabel, division: divisionName, position: pos })
+  }
+  if (state.trophyHistory.leagueTitles.length === 0) {
+    var th = state.trophyHistory
+    var champSeason = th.seasons.find(function(s) { return s.position === 1 })
+    if (champSeason) th.leagueTitles.push({ season: champSeason.season, competition: divisionName })
+    th.cupWins.push({ season: (currentYear - 2) + '/' + (currentYear - 1).toString().padStart(2, '0'), competition: 'Copa del Rey' })
+    th.supercopaWins.push({ season: (currentYear - 1) + '/' + currentYear.toString().padStart(2, '0') })
+  }
+}
+
+function registrarPosicionTemporada(position, divisionName) {
+  if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] }
+  var cy = new Date().getFullYear() % 100
+  var seasonLabel = (cy - 1) + '/' + cy.toString().padStart(2, '0')
+  state.trophyHistory.seasons.push({ season: seasonLabel, division: divisionName, position: position })
+  if (position === 1) {
+    state.trophyHistory.leagueTitles.push({ season: seasonLabel, competition: divisionName })
+  }
 }
 
 /* ============ MENU ============ */
@@ -6853,115 +6972,143 @@ function updateTeamBadge(team) {
 }
 
 function showTeamPreview(teamId) {
-  console.log('[PREVIEW] teamId:', teamId)
-  let team = null
-  let foundCountryId = 'poland'
-  let foundLeague = null
-  for (const cid in window.DB) {
-    const data = window.DB[cid]
-    if (!data) continue
-    for (const l of data.country.leagues || []) {
-      const t = l.teams.find(x => x.id === teamId)
-      if (t) { team = t; foundCountryId = cid; foundLeague = l; break }
+  try {
+    console.log('[PREVIEW] teamId:', teamId)
+    let team = null
+    let foundCountryId = 'poland'
+    let foundLeague = null
+    for (const cid in window.DB) {
+      const data = window.DB[cid]
+      if (!data) continue
+      for (const l of data.country.leagues || []) {
+        const t = l.teams.find(x => x.id === teamId)
+        if (t) { team = t; foundCountryId = cid; foundLeague = l; break }
+      }
+      if (team) break
     }
-    if (team) break
-  }
-  if (!team) return
+    if (!team) { console.warn('[PREVIEW] Team not found:', teamId); return }
 
-  const db = getBaseDato(teamId)
-  const rating = db ? db.rating : 70
-  const rawSquad = getRealSquad(teamId) || generateCpuSquad(teamId, foundCountryId, rating)
-  const realSquad = rawSquad.map(p => ({ ...p, value: p.value || calcValue(p.skill) }))
-  const staff = team.staff || []
-  const logo = team.logo || ''
-  const coachName = staff.find(s => s.role === 'headCoach')?.name || '—'
+    const db = getBaseDato(teamId)
+    const rating = db ? db.rating : 70
+    const rawSquad = getRealSquad(teamId) || generateCpuSquad(teamId, foundCountryId, rating)
+    const realSquad = rawSquad.map(p => ({ ...p, value: p.value || calcValue(p.skill) }))
+    const staff = team.staff || []
+    const logo = team.logo || ''
 
-  /* Set header title */
-  document.getElementById('tp-header-title').textContent = team.name
+    document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active') })
+    var preview = document.getElementById('view-team-preview')
+    if (!preview) return
+    preview.classList.remove('hidden')
+    preview.classList.add('active')
 
-  /* Stats panel — same as Club view */
-  const totalVal = realSquad.reduce((s, p) => s + (p.value || 0), 0)
-  const displayPower = getTop11Average(realSquad)
-  const reputation = displayPower < 42 ? 1 : displayPower < 58 ? 2 : displayPower < 72 ? 3 : displayPower < 85 ? 4 : 5
-  const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
-  const countryFlag = window.DB[foundCountryId] ? window.DB[foundCountryId].country.flag : ''
-  const teamBudget = team.budget || (foundLeague ? Math.round(getDivisionBaseBudget(foundLeague.id) * getCountryBudgetMult(foundCountryId) * ((team.rating || 50) / 50)) : 0)
-  document.getElementById('tp-stats').innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:0;width:100%">
-      <div style="display:flex;gap:1px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--border)">
-        <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>
-        <div class="tp-stat"><span class="tp-stat-label">Reputaci\u00f3n</span><span class="tp-stat-stars">${stars}</span></div>
-        <div class="tp-stat"><span class="tp-stat-label">Pa\u00eds</span><span class="tp-stat-flag">${countryFlag}</span></div>
-        <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
-        <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
-      </div>
-      <div style="display:flex;gap:1px;padding:8px 10px;background:var(--bg)">
-        <div class="tp-stat"><span class="tp-stat-label">Formaci\u00f3n</span><span class="tp-stat-value">${team.formation || '\u2014'}</span></div>
-        <div class="tp-stat"><span class="tp-stat-label">Presi\u00f3n</span><span class="tp-stat-value">${(GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014'}</span></div>
-        <div class="tp-stat"><span class="tp-stat-label">Presupuesto</span><span class="tp-stat-value">\u20AC${formatShort(teamBudget)}</span></div>
-      </div>
-    </div>
-  `
-  /* Staff section – cards in its own container after tp-stats */
-  if (staff.length > 0) {
-    var roleLabels = { headCoach: 'Entrenador', assistantCoach: '2\u00ba Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador f\u00edsico' }
-    var staffHtml = '<div class="tactics-subsection-label" style="margin-top:6px;padding:0 10px">Staff t\u00e9cnico (' + staff.length + ')</div>'
-    for (var si = 0; si < staff.length; si++) {
-      var s = staff[si]
-      var avatar = s.avatar || NOPHOTO
-      var avatarStyle = 'background-image:url(' + avatar + ');background-size:cover;background-position:center;background-color:var(--bg-surface)'
-      staffHtml += '<div class="staff-card"><div class="staff-card-avatar" style="' + avatarStyle + '"></div><div class="staff-card-info"><div class="staff-card-name">' + s.name + '</div><div class="staff-card-meta">' + s.nationality + '</div></div><span class="staff-card-role" data-role="' + s.role + '">' + (roleLabels[s.role] || s.role) + '</span></div>'
+    var totalVal = realSquad.reduce(function(s, p) { return s + (p.value || 0) }, 0)
+    var displayPower = getTop11Average(realSquad)
+    var reputation = displayPower < 42 ? 1 : displayPower < 58 ? 2 : displayPower < 72 ? 3 : displayPower < 85 ? 4 : 5
+    var stars = Array.from({ length: 5 }, function(_, i) { return '<span class="star' + (i < reputation ? ' filled' : '') + '">★</span>' }).join('')
+    var countryFlag = window.DB[foundCountryId] ? window.DB[foundCountryId].country.flag : ''
+    var teamBudget = team.budget || (foundLeague ? Math.round(getDivisionBaseBudget(foundLeague.id) * getCountryBudgetMult(foundCountryId) * ((team.rating || 50) / 50)) : 0)
+    var orderedPlayers = [...realSquad].sort(function(a, b) {
+      var posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
+      var posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
+      return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
+    })
+    var tptab = 'general'
+
+    var headerHtml = '<div class="view-header">' +
+      (logo ? '<div class="view-header-left"><img class="team-logo" src="' + logo + '" style="width:32px;height:32px"><h2>' + team.name + '</h2></div>' : '<div class="view-header-left"><h2>' + team.name + '</h2></div>') +
+      '<button class="btn-back" id="tp-header-back">\u2190 Volver</button></div>' +
+      '<div class="sub-tabs">' +
+      '<button class="sub-tab active" data-tptab="general">General</button>' +
+      '<button class="sub-tab" data-tptab="squad">Plantilla</button>' +
+      '<button class="sub-tab" data-tptab="history">Historial</button></div>'
+
+    var contentEl = document.getElementById('tp-view-content')
+    if (!contentEl) return
+    contentEl.innerHTML = ''
+    document.getElementById('tp-list').innerHTML = ''
+    document.getElementById('tp-list').style.display = 'none'
+    document.getElementById('tp-table-header').style.display = 'none'
+    /* Remove previously inserted header+tabs to avoid duplicates */
+    var oldHeader = document.querySelector('#view-team-preview > .view-header')
+    if (oldHeader) oldHeader.remove()
+    var oldTabs = document.querySelector('#view-team-preview > .sub-tabs')
+    if (oldTabs) oldTabs.remove()
+    contentEl.insertAdjacentHTML('beforebegin', headerHtml)
+
+    function renderPreviewTab() {
+      var content = ''
+      if (tptab === 'general') {
+        var leagueName = foundLeague ? foundLeague.name : ''
+        var coach = staff.find(function(s) { return s.role === 'headCoach' })
+        var captain = orderedPlayers.length > 0 ? orderedPlayers[0] : null
+        var bestPlayer = orderedPlayers.reduce(function(best, p) { return (!best || p.skill > best.skill) ? p : best }, null)
+        content += '<div class="tp-stats" style="margin-bottom:6px">' +
+          '<div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>' +
+          '<div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">' + stars + '</span></div>' +
+          '<div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">' + countryFlag + '</span></div>' +
+          '<div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">' + displayPower + '</span></div>' +
+          '<div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">€' + formatShort(totalVal) + '</span></div>' +
+          '</div>' +
+          '<div class="tp-stats" style="margin-bottom:6px">' +
+          '<div class="tp-stat"><span class="tp-stat-label">División</span><span class="tp-stat-value">' + (leagueName || '\u2014') + '</span></div>' +
+          '<div class="tp-stat"><span class="tp-stat-label">Formación</span><span class="tp-stat-value">' + (team.formation || '\u2014') + '</span></div>' +
+          '<div class="tp-stat"><span class="tp-stat-label">Presión</span><span class="tp-stat-value">' + ((GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014') + '</span></div>' +
+          '</div>' +
+          '<div style="padding:10px 14px;background:var(--bg);border-radius:8px;margin:0 14px 8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-secondary)">Presupuesto</span><span style="font-size:15px;font-weight:700;color:#10B981">€' + formatShort(teamBudget) + '</span></div>'
+        content += '<div class="tactics-subsection-label" style="margin-top:8px">Personal clave</div>'
+        if (coach) { var av = coach.avatar || NOPHOTO; content += '<div class="staff-card"><div class="staff-card-avatar" style="background-image:url(' + av + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + coach.name + '</div><div class="staff-card-meta">' + (coach.nationality || '') + '</div></div><span class="staff-card-role" style="background:var(--accent);color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Manager</span></div>' }
+        if (captain) { var av2 = captain.avatar || NOPHOTO; content += '<div class="staff-card"><div class="staff-card-avatar" style="background-image:url(' + av2 + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + captain.name + '</div><div class="staff-card-meta">' + (captain.nationality || '') + ' · ' + (POS_ABBR[captain.position] || captain.position) + '</div></div><span class="staff-card-role" style="background:var(--accent);color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Capitán</span></div>' }
+        if (bestPlayer) { var av3 = bestPlayer.avatar || NOPHOTO; content += '<div class="staff-card"><div class="staff-card-avatar" style="background-image:url(' + av3 + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + bestPlayer.name + '</div><div class="staff-card-meta">' + (bestPlayer.nationality || '') + ' · ' + (POS_ABBR[bestPlayer.position] || bestPlayer.position) + ' · ' + bestPlayer.skill + '</div></div><span class="staff-card-role" style="background:#F59E0B;color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Mejor jugador</span></div>' }
+        document.getElementById('tp-list').style.display = 'none'
+        document.getElementById('tp-table-header').style.display = 'none'
+      } else if (tptab === 'squad') {
+        document.getElementById('tp-list').style.display = ''
+        document.getElementById('tp-table-header').style.display = ''
+        var listHtml = orderedPlayers.map(function(p) {
+          var valShort = formatShort(p.value || 0)
+          return '<div class="tp-row"><span class="tp-cell-pos-badge" style="background:' + ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280') + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
+        }).join('')
+        document.getElementById('tp-list').innerHTML = listHtml
+        document.querySelectorAll('#tp-list .tp-row').forEach(function(row, idx) { row.onclick = function() { openPlayerDetail(orderedPlayers[idx]) } })
+        content = '<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (' + realSquad.length + ')</div>'
+      } else if (tptab === 'history') {
+        document.getElementById('tp-list').style.display = 'none'
+        document.getElementById('tp-table-header').style.display = 'none'
+        var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
+        content += '<div class="tactics-subsection-label">' + trophySvg + ' Palmar\u00e9s</div>'
+        var palmares = team.palmares || []
+        var logosMap = { 'Copa del Rey': 'https://cdn.resfu.com/media/img/league_logos/copa-del-rey.png?size=40x&lossy=1', 'Supercopa de Espa\u00f1a': 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=40x&lossy=1', 'Champions League': 'https://cdn.resfu.com/media/img/league_logos/champions.png?size=120x&lossy=1', 'Europa League': 'https://cdn.resfu.com/media/img/league_logos/europa-league.png?size=120x&lossy=1', 'Supercopa Europa': 'https://cdn.resfu.com/media/img/league_logos/supercopa_europa.png?size=120x&lossy=1', 'Mundial de Clubes': 'https://cdn.resfu.com/media/img/league_logos/mundial-clubes.png?size=120x&lossy=1', 'Primera Federaci\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/primera-federacion.png?size=120x&lossy=1', 'Segunda Divisi\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/segunda-division-hypermotion.png?size=120x&lossy=1', 'Primera Divisi\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/primera-division.png?size=120x&lossy=1', 'Segunda Federaci\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/segunda_rfef.png?size=120x&lossy=1' }
+        if (palmares.length === 0) { content += '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin trofeos</div>' } else {
+          content += '<div style="display:flex;gap:12px;padding:4px 14px 12px;overflow-x:auto;scrollbar-width:none">'
+          palmares.forEach(function(p, pi) {
+            var ys = p.years && p.years.length > 0 ? p.years.join(', ') : '\u2014'
+            var logoUrl = logosMap[p.comp] || null
+            if (!logoUrl) { for (var _c2 in window.DB) { var _d2 = window.DB[_c2]; if (_d2) { var _l2 = (_d2.country.leagues || []).find(function(x) { return x.name === p.comp || x.name.indexOf(p.comp) >= 0 }); if (_l2) { logoUrl = _l2.logo; break } } } }
+            content += '<div class="trofeo-card" data-years="' + ys + '" style="flex-shrink:0;width:100px;text-align:center;padding:12px 8px;background:var(--bg);border-radius:10px;cursor:pointer">' +
+              (logoUrl ? '<div style="margin-bottom:4px;height:32px;display:flex;align-items:center;justify-content:center"><img src="' + logoUrl + '" style="max-width:32px;max-height:32px;object-fit:contain"></div>' : '<div style="font-size:28px;margin-bottom:4px">\ud83c\udfc6</div>') +
+              '<div style="font-size:18px;font-weight:800;color:var(--text)">' + p.count + '</div>' +
+              '<div style="font-size:11px;color:var(--text-secondary);line-height:1.2">' + p.comp + '</div></div>'
+          })
+          content += '</div>'; content += '<div id="preview-trofeo-tip" style="display:none;margin:4px 14px 8px;padding:10px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:12px"></div>'
+        }
+        content += '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px;margin-top:8px">Inicia tu carrera para ver el historial de temporadas</div>'
+      }
+      var cEl = document.getElementById('tp-view-content')
+      if (cEl) cEl.innerHTML = content
+      if (tptab === 'history') {
+        document.querySelectorAll('#tp-view-content .trofeo-card').forEach(function(card) {
+          card.onclick = function() { var tip = document.getElementById('preview-trofeo-tip'); if (!tip) return; if (tip.style.display === 'block') { tip.style.display = 'none'; return }; tip.innerHTML = '\ud83c\udfc6 Temporadas: ' + card.dataset.years; tip.style.display = 'block' }
+        })
+      }
     }
-    document.getElementById('tp-staff-container').innerHTML = staffHtml
-  } else {
-    document.getElementById('tp-staff-container').innerHTML = ''
-  }
 
-  /* Squad label */
-  document.getElementById('tp-squad-label').textContent = 'PLANTILLA (' + realSquad.length + ')'
-
-  /* Player rows */
-  const ordered = [...realSquad].sort((a, b) => {
-    const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
-    const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
-    return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
-  })
-  const listHtml = ordered.map(p => {
-    const valShort = formatShort(p.value || 0)
-    return `<div class="tp-row">
-      <span class="tp-cell-pos-badge" style="background:${((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')};color:#fff">${POS_ABBR[p.position] || p.position}</span>
-      <div class="tp-cell">
-        <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
-        <div class="tp-cell-info">
-          <span class="tp-cell-name">${p.name}</span>
-          <span class="tp-cell-value">${p.nationality || ''}</span>
-        </div>
-      </div>
-      <span class="tp-cell-age">${p.age || '-'}</span>
-      <span class="tp-cell-market">${valShort}</span>
-      <span class="tp-cell-power" style="${getPowerBadgeStyle(p.skill)}">${p.skill}</span>
-    </div>`
-  }).join('')
-  document.getElementById('tp-list').innerHTML = listHtml
-
-  /* Row click → player detail modal */
-  document.querySelectorAll('#tp-list .tp-row').forEach((row, idx) => {
-    row.onclick = () => openPlayerDetail(ordered[idx])
-  })
-
-  /* Show fullscreen */
-  document.getElementById('tp-fullscreen').classList.remove('hidden')
-  selectedTeam = team
-
-  /* Button handlers */
-  const closePreview = () => {
-    document.getElementById('tp-fullscreen').classList.add('hidden')
-    updateTeamBadge(selectedTeam)
-    if (selectedLeague) {
-      document.querySelectorAll('.ng-team-row').forEach(r => r.classList.toggle('selected', r.dataset.tid === selectedTeam.id))
-    }
-  }
-  document.getElementById('tp-header-back').onclick = closePreview
+    renderPreviewTab()
+    document.querySelectorAll('#view-team-preview .sub-tab').forEach(function(btn) {
+      btn.onclick = function() { document.querySelectorAll('#view-team-preview .sub-tab').forEach(function(b) { b.classList.remove('active') }); btn.classList.add('active'); tptab = btn.dataset.tptab; renderPreviewTab() }
+    })
+    selectedTeam = team
+    document.getElementById('tp-header-back').onclick = function() { document.getElementById('view-team-preview').classList.add('hidden'); document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active') }); document.getElementById('view-newgame').classList.add('active'); if (selectedLeague) { updateTeamBadge(selectedTeam); document.querySelectorAll('.ng-team-row').forEach(function(r) { r.classList.toggle('selected', r.dataset.tid === selectedTeam.id) }) } }
+  } catch(e) { console.error('[PREVIEW] Error:', e); alert('Error: ' + e.message) }
 }
 
 function startNewGame() {
@@ -7397,20 +7544,304 @@ function showTeamInfo(teamId) {
   const reputation = displayPower < 42 ? 1 : displayPower < 58 ? 2 : displayPower < 72 ? 3 : displayPower < 85 ? 4 : 5
   const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
   const totalVal = team.players.reduce((s, p) => s + (p.value || 0), 0)
-  /* Find country flag for this team */
+  /* Find country flag and league name for this team */
   let teamFlag = ''
+  let leagueName = ''
   for (const cid in window.DB) {
     const data = window.DB[cid]
     if (!data) continue
     for (const l of data.country.leagues || []) {
       if (l.teams.find(x => x.id === teamId)) {
         teamFlag = data.country.flag || ''
+        leagueName = l.name
         break
       }
     }
     if (teamFlag) break
   }
-  let html = `
+  var roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
+  var teamViewTab = 'general'
+  var orderedPlayers = [...team.players].sort(function(a, b) {
+    var posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
+    var posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
+    return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
+  })
+
+  function renderTeamView() {
+    var content = ''
+    if (teamViewTab === 'general') {
+      content += '<div class="tp-stats" style="margin-bottom:6px">' +
+        '<div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">' + posDisplay + '</span></div>' +
+        '<div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">' + stars + '</span></div>' +
+        '<div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">' + teamFlag + '</span></div>' +
+        '<div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">' + displayPower + '</span></div>' +
+        '<div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC' + formatShort(totalVal) + '</span></div>' +
+        '</div>' +
+        '<div class="tp-stats" style="margin-bottom:12px">' +
+        '<div class="tp-stat"><span class="tp-stat-label">División</span><span class="tp-stat-value">' + (leagueName || '\u2014') + '</span></div>' +
+        '<div class="tp-stat"><span class="tp-stat-label">Formación</span><span class="tp-stat-value">' + (team.formation || '\u2014') + '</span></div>' +
+        '<div class="tp-stat"><span class="tp-stat-label">Presión</span><span class="tp-stat-value">' + ((GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014') + '</span></div>' +
+        '</div>'
+      if (teamId === state.teamId) {
+        var balance = state.finances ? state.finances.balance : 0
+        content += '<div style="padding:10px 14px;background:var(--bg);border-radius:8px;margin:0 14px 8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-secondary)">Presupuesto</span><span style="font-size:15px;font-weight:700;color:#10B981">\u20AC' + formatShort(balance) + '</span></div>'
+      }
+      var coach = team.staff ? team.staff.find(function(s) { return s.role === 'headCoach' }) : null
+      var captain = null
+      if (teamId === state.teamId && state.captainId) {
+        captain = team.players.find(function(p) { return p.id === state.captainId })
+      } else {
+        var sortedByMatches = [...team.players].sort(function(a, b) { return (b.matches || 0) - (a.matches || 0) })
+        captain = sortedByMatches.length > 0 ? sortedByMatches[0] : null
+      }
+      var bestPlayer = [...team.players].sort(function(a, b) { return (b.skill || 0) - (a.skill || 0) })[0]
+      if (coach || captain || bestPlayer) {
+        content += '<div class="tactics-subsection-label">Personal clave</div>'
+        if (coach) {
+          var coAv = coach.avatar || NOPHOTO
+          content += '<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="background-image:url(' + coAv + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + coach.name + '</div><div class="staff-card-meta">' + (coach.nationality || '') + '</div></div><span class="staff-card-role" style="background:var(--accent);color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Manager</span></div>'
+        }
+        if (captain) {
+          var caAv = captain.avatar || NOPHOTO
+          content += '<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="background-image:url(' + caAv + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + captain.name + '</div><div class="staff-card-meta">' + (captain.nationality || '') + ' · ' + (POS_ABBR[captain.position] || captain.position) + '</div></div><span class="staff-card-role" style="background:var(--accent);color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Capit\u00e1n</span></div>'
+        }
+        if (bestPlayer) {
+          var bpAv = bestPlayer.avatar || NOPHOTO
+          content += '<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="background-image:url(' + bpAv + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + bestPlayer.name + '</div><div class="staff-card-meta">' + (bestPlayer.nationality || '') + ' · ' + (POS_ABBR[bestPlayer.position] || bestPlayer.position) + ' · ' + bestPlayer.skill + '</div></div><span class="staff-card-role" style="background:#F59E0B;color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Mejor jugador</span></div>'
+        }
+      }
+    } else if (teamViewTab === 'squad') {
+      var squadTab = 'info'
+      content += '<div class="tactics-subsection-label">PLANTILLA (' + team.players.length + ')</div>'
+      content += '<div class="sub-tabs" style="display:flex;gap:4px;padding:4px 14px"><button class="sub-tab team-subtab active" data-tab="info">Info</button><button class="sub-tab team-subtab" data-tab="performance">Rendimiento</button></div>'
+      content += '<div class="tp-table-header" style="padding:6px 14px"><span class="tp-th-pos">Pos</span><span class="tp-th-name">Nombre</span><span class="tp-th-age">Edad</span><span class="tp-th-value">Valor</span><span class="tp-th-power">Pod</span></div><div class="tp-list">'
+      content += orderedPlayers.map(function(p) {
+        var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
+        var valShort = formatShort(p.value || 0)
+        return '<div class="tp-row" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
+      }).join('')
+      content += '</div>'
+    } else if (teamViewTab === 'transfers') {
+      var transferVal = team.players.reduce(function(s, p) { return s + ((p.transferListed ? (p.transferPrice || Math.round(p.value * 0.7)) : 0)) }, 0)
+      content += '<div class="tactics-subsection-label">Fichajes</div>' +
+        '<div style="padding:14px;background:var(--bg);border-radius:8px;margin:8px 14px">' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="font-size:13px;color:var(--text-secondary)">Valor plantilla</span><span style="font-size:15px;font-weight:700;color:var(--text)">\u20AC' + formatShort(totalVal) + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="font-size:13px;color:var(--text-secondary)">Jugadores</span><span style="font-size:15px;font-weight:700;color:var(--text)">' + team.players.length + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;padding:6px 0"><span style="font-size:13px;color:var(--text-secondary)">Transferibles</span><span style="font-size:15px;font-weight:700;color:var(--text)">' + team.players.filter(function(p) { return p.transferListed }).length + '</span></div>' +
+        '</div>'
+      var fichajesMovs = [], salidasMovs = []
+      if (teamId === state.teamId && state.finances) {
+        ;(state.finances.history || []).forEach(function(h) {
+          if (!h.reason) return
+          var sMatch = h.reason.match(/^Traspaso:\s*(.+?)\|(.+?)\|(.+?)\|(.+?)\|(\d+)\|(\d+)\|(\d+)$/)
+          if (sMatch) {
+            salidasMovs.push({ player: sMatch[1], avatar: sMatch[2], toTeam: sMatch[3], position: sMatch[4], age: parseInt(sMatch[5]), value: parseInt(sMatch[6]), skill: parseInt(sMatch[7]), amount: h.amount })
+            return
+          }
+          var fMatch = h.reason.match(/^Compra:\s*(.+?)\|(.+?)\|(.+?)\|(.+?)\|(\d+)\|(\d+)\|(\d+)(?:\s*\(|$)/)
+          if (fMatch) {
+            fichajesMovs.push({ player: fMatch[1], avatar: fMatch[2], fromTeam: fMatch[3], position: fMatch[4], age: parseInt(fMatch[5]), value: parseInt(fMatch[6]), skill: parseInt(fMatch[7]), amount: Math.abs(h.amount) })
+          }
+        })
+      }
+      content += '<div style="font-size:14px;font-weight:700;color:#10B981;padding:8px 14px 4px;margin-top:8px">Fichajes</div>'
+      if (fichajesMovs.length > 0) {
+        fichajesMovs.forEach(function(f) {
+          var av = f.avatar || NOPHOTO
+          var posLabel = POS_ABBR[f.position] || f.position || ''
+          content += '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-radius:8px;margin:4px 14px"><img src="' + av + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--bg-card)" onerror="this.src=\'' + NOPHOTO + '\'"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">' + f.player + '</div><div style="font-size:11px;color:var(--text-muted)">' + posLabel + ' · ' + f.age + ' años · ' + f.skill + '</div><div style="font-size:11px;color:var(--text-muted)">Procedente de: ' + f.fromTeam + ' · ' + formatShort(f.amount) + '\u20AC</div></div></div>'
+        })
+      } else {
+        content += '<div style="padding:5px 14px;font-size:12px;color:var(--text-muted)">Sin fichajes esta temporada</div>'
+      }
+      content += '<div style="font-size:14px;font-weight:700;color:#EF4444;padding:8px 14px 4px;margin-top:12px">Salidas</div>'
+      if (salidasMovs.length > 0) {
+        salidasMovs.forEach(function(s) {
+          var av = s.avatar || NOPHOTO
+          var posLabel = POS_ABBR[s.position] || s.position || ''
+          content += '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-radius:8px;margin:4px 14px"><img src="' + av + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--bg-card)" onerror="this.src=\'' + NOPHOTO + '\'"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">' + s.player + '</div><div style="font-size:11px;color:var(--text-muted)">' + posLabel + ' · ' + s.age + ' años · ' + s.skill + '</div><div style="font-size:11px;color:var(--text-muted)">→ ' + s.toTeam + ' · ' + formatShort(s.amount) + '\u20AC</div></div></div>'
+        })
+      } else {
+        content += '<div style="padding:5px 14px;font-size:12px;color:var(--text-muted)">Sin salidas esta temporada</div>'
+      }
+    } else if (teamViewTab === 'history') {
+      var th = state.trophyHistory || { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] }
+      /* Merge historical palmares from team data with in-game achievements */
+      var mergedTrophies = {}
+      if (team.palmares) {
+        team.palmares.forEach(function(p) {
+          mergedTrophies[p.comp] = { comp: p.comp, count: p.count, years: p.years || [] }
+        })
+      }
+      /* Add in-game trophies (for user's team) */
+      if (th.leagueTitles && th.leagueTitles.length > 0) {
+        var ltComp = th.leagueTitles[0].competition || 'Liga'
+        if (!mergedTrophies[ltComp]) mergedTrophies[ltComp] = { comp: ltComp, count: 0, years: [] }
+        mergedTrophies[ltComp].count += th.leagueTitles.length
+        mergedTrophies[ltComp].years = mergedTrophies[ltComp].years.concat(th.leagueTitles.map(function(t) { return t.season }))
+      }
+      if (th.cupWins && th.cupWins.length > 0) {
+        var cpComp = th.cupWins[0].competition || 'Copa'
+        if (!mergedTrophies[cpComp]) mergedTrophies[cpComp] = { comp: cpComp, count: 0, years: [] }
+        mergedTrophies[cpComp].count += th.cupWins.length
+        mergedTrophies[cpComp].years = mergedTrophies[cpComp].years.concat(th.cupWins.map(function(t) { return t.season }))
+      }
+      if (th.supercopaWins && th.supercopaWins.length > 0) {
+        if (!mergedTrophies['Supercopa']) mergedTrophies['Supercopa'] = { comp: 'Supercopa', count: 0, years: [] }
+        mergedTrophies['Supercopa'].count += th.supercopaWins.length
+        mergedTrophies['Supercopa'].years = mergedTrophies['Supercopa'].years.concat(th.supercopaWins.map(function(t) { return t.season }))
+      }
+      var trophiesList = Object.keys(mergedTrophies).map(function(k) { return mergedTrophies[k] })
+      var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
+      content += '<div class="tactics-subsection-label">' + trophySvg + ' Palmar\u00e9s</div>'
+      var logosMap = {
+        'Copa del Rey': 'https://cdn.resfu.com/media/img/league_logos/copa-del-rey.png?size=40x&lossy=1',
+        'Supercopa': 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=40x&lossy=1',
+        'Supercopa de Espa\u00f1a': 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=40x&lossy=1',
+        'Champions League': 'https://cdn.resfu.com/media/img/league_logos/champions.png?size=120x&lossy=1',
+        'Europa League': 'https://cdn.resfu.com/media/img/league_logos/europa-league.png?size=120x&lossy=1',
+        'Supercopa Europa': 'https://cdn.resfu.com/media/img/league_logos/supercopa_europa.png?size=120x&lossy=1',
+        'Mundial de Clubes': 'https://cdn.resfu.com/media/img/league_logos/mundial-clubes.png?size=120x&lossy=1',
+        'Primera Federaci\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/primera-federacion.png?size=120x&lossy=1',
+        'Segunda Divisi\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/segunda-division-hypermotion.png?size=120x&lossy=1',
+        'Primera Divisi\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/primera-division.png?size=120x&lossy=1',
+        'Segunda Federaci\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/segunda_rfef.png?size=120x&lossy=1',
+      }
+      /* Add logo to each trophy */
+      trophiesList.forEach(function(t) {
+        t.logo = logosMap[t.comp] || null
+        if (!t.logo) {
+          for (var _c2 in window.DB) { var _d2 = window.DB[_c2]; if (_d2) { var _l2 = (_d2.country.leagues || []).find(function(x) { return x.name === t.comp || x.name.indexOf(t.comp) >= 0 }); if (_l2) { t.logo = _l2.logo; break } } }
+        }
+      })
+      if (trophiesList.length === 0) {
+        content += '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin trofeos</div>'
+      } else {
+        content += '<div style="display:flex;gap:12px;padding:4px 14px 12px;overflow-x:auto;scrollbar-width:none">'
+        trophiesList.forEach(function(t, ti) {
+          var yearsStr = t.years.length > 0 ? t.years.join(', ') : '—'
+          content += '<div class="trofeo-card" data-years="' + yearsStr + '" data-idx="' + ti + '" style="flex-shrink:0;width:100px;text-align:center;padding:12px 8px;background:var(--bg);border-radius:10px;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background=\'rgba(255,255,255,0.08)\'" onmouseout="this.style.background=\'var(--bg)\'">' +
+            (t.logo ? '<div style="margin-bottom:4px;height:32px;display:flex;align-items:center;justify-content:center"><img src="' + t.logo + '" style="max-width:32px;max-height:32px;object-fit:contain"></div>' : '<div style="font-size:28px;margin-bottom:4px">\ud83c\udfc6</div>') +
+            '<div style="font-size:18px;font-weight:800;color:var(--text)">' + t.count + '</div>' +
+            '<div style="font-size:11px;color:var(--text-secondary);line-height:1.2">' + t.comp + '</div>' +
+            '</div>'
+        })
+        content += '</div>'
+        /* Tooltip container */
+        content += '<div id="trofeo-tooltip" style="display:none;margin:4px 14px 8px;padding:10px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:12px;line-height:1.4"></div>'
+      }
+
+      /* League history chart */
+      var chartSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
+      content += '<div class="tactics-subsection-label" style="margin-top:12px">' + chartSvg + ' Historial en liga</div>'
+      var seasons = th.seasons || []
+      if (seasons.length === 0) {
+        content += '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin datos de temporadas anteriores</div>'
+      } else {
+        var chartH = 170
+        var padL = 32, padR = 12, padT = 12, padB = 28
+        var drawW = 300 - padL - padR
+        var drawH = chartH - padT - padB
+        var maxPos = 20
+        var minPos = 1
+        var positions = seasons.map(function(s) { return s.position })
+        var maxSeasonPos = Math.max(maxPos, Math.max.apply(null, positions))
+        var yRange = maxSeasonPos - minPos || 1
+        var xStep = drawW / Math.max(seasons.length - 1, 1)
+
+        content += '<div style="padding:4px 14px 14px">'
+        content += '<svg width="100%" height="' + chartH + '" viewBox="0 0 300 ' + chartH + '" preserveAspectRatio="xMidYMid meet" style="display:block;max-width:400px;margin:0 auto">'
+
+        /* Y axis labels (every 5 positions) */
+        for (var yp = 1; yp <= maxSeasonPos; yp += 5) {
+          var yY = padT + drawH - ((yp - minPos) / yRange) * drawH
+          content += '<text x="' + (padL - 4) + '" y="' + (yY + 3) + '" text-anchor="end" font-size="8" fill="var(--text-muted)">' + yp + '</text>'
+          if (yp < maxSeasonPos) content += '<line x1="' + padL + '" y1="' + yY + '" x2="' + (300 - padR) + '" y2="' + yY + '" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>'
+        }
+
+        /* Line connecting points */
+        var linePath = ''
+        seasons.forEach(function(s, si) {
+          var x = padL + si * xStep
+          var y = padT + drawH - ((s.position - minPos) / yRange) * drawH
+          linePath += (si === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1)
+        })
+        content += '<path d="' + linePath + '" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linejoin="round"/>'
+
+        /* Points */
+        seasons.forEach(function(s, si) {
+          var x = padL + si * xStep
+          var y = padT + drawH - ((s.position - minPos) / yRange) * drawH
+          var tooltipData = s.season + '|' + (s.division || '—') + '|' + s.position
+          content += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4" fill="var(--accent)" stroke="var(--bg-surface)" stroke-width="1.5" class="chart-point" data-tip="' + tooltipData + '" style="cursor:pointer"/>'
+        })
+
+        /* X axis labels (show every 1 season) */
+        seasons.forEach(function(s, si) {
+          var x = padL + si * xStep
+          content += '<text x="' + x.toFixed(1) + '" y="' + (chartH - 5) + '" text-anchor="middle" font-size="7" fill="var(--text-muted)">' + s.season.slice(-5) + '</text>'
+        })
+
+        content += '</svg>'
+        /* Chart tooltip */
+        content += '<div id="chart-tooltip" style="display:none;margin-top:8px;padding:8px 12px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;text-align:center;line-height:1.4"></div>'
+        content += '</div>'
+      }
+    }
+    document.getElementById('team-view-content').innerHTML = content
+    /* Bind player rows for squad tab */
+    if (teamViewTab === 'squad') {
+      document.querySelectorAll('#team-view-content .tp-row').forEach(function(row) {
+        row.onclick = function() {
+          var pid = row.dataset.playerId
+          var player = team.players.find(function(p) { return p.id === pid })
+          if (player) openPlayerDetail(player, team)
+        }
+      })
+      document.querySelectorAll('#team-view-content .team-subtab').forEach(function(btn) {
+        btn.onclick = function(e) {
+          e.stopPropagation()
+          teamViewTab = 'squad'
+          renderTeamView()
+        }
+      })
+    }
+    /* Bind trofeo cards and chart points for history tab */
+    if (teamViewTab === 'history') {
+      document.querySelectorAll('#team-view-content .trofeo-card').forEach(function(card) {
+        card.onclick = function() {
+          var tip = document.getElementById('trofeo-tooltip')
+          if (!tip) return
+          var years = card.dataset.years
+          if (tip.style.display === 'block' && tip._activeCard === card) {
+            tip.style.display = 'none'
+            tip._activeCard = null
+          } else {
+            tip.innerHTML = trophySvg + ' Temporadas: ' + years
+            tip.style.display = 'block'
+            tip._activeCard = card
+          }
+        }
+      })
+      document.querySelectorAll('#team-view-content .chart-point').forEach(function(pt) {
+        pt.onclick = function() {
+          var tip = document.getElementById('chart-tooltip')
+          if (!tip) return
+          var data = this.getAttribute('data-tip').split('|')
+          if (tip.style.display === 'block' && tip._activePoint === this) {
+            tip.style.display = 'none'
+            tip._activePoint = null
+          } else {
+            tip.innerHTML = 'Temporada ' + data[0] + ' - ' + data[1] + ' - ' + data[2] + '\u00ba Puesto'
+            tip.style.display = 'block'
+            tip._activePoint = this
+          }
+        }
+      })
+    }
+  }
+
+  var html = `
     <div class="view-header">
       <div class="view-header-left">
         ${logo ? `<img class="team-logo" src="${logo}" style="width:32px;height:32px">` : ''}
@@ -7418,83 +7849,26 @@ function showTeamInfo(teamId) {
       </div>
       <button class="btn-back" id="btn-team-back">← Volver</button>
     </div>
-    <div class="tp-stats" style="margin-bottom:6px">
-      <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">${posDisplay}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${teamFlag}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
+    <div class="sub-tabs">
+      <button class="sub-tab${teamViewTab === 'general' ? ' active' : ''}" data-teamtab="general">General</button>
+      <button class="sub-tab${teamViewTab === 'squad' ? ' active' : ''}" data-teamtab="squad">Plantilla</button>
+      <button class="sub-tab${teamViewTab === 'transfers' ? ' active' : ''}" data-teamtab="transfers">Fichajes</button>
+      <button class="sub-tab${teamViewTab === 'history' ? ' active' : ''}" data-teamtab="history">Historial</button>
     </div>
-    <div class="tp-stats" style="margin-bottom:12px">
-      <div class="tp-stat"><span class="tp-stat-label">Formación</span><span class="tp-stat-value">${team.formation || '\u2014'}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">Presión</span><span class="tp-stat-value">${(GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014'}</span></div>
-      <div class="tp-stat" style="flex:2"></div>
-    </div>`
-  /* Staff */
-  const roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
-  if (team.staff && team.staff.length > 0) {
-    html += `<div class="tactics-subsection-label">Staff t\u00e9cnico (${team.staff.length})</div>`
-    team.staff.forEach(s => {
-      const avatar = s.avatar || 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
-      const avatarStyle = `background-image:url(${avatar});background-size:cover;background-position:center;background-color:var(--bg-surface)`
-      html += `<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="${avatarStyle}"></div><div class="staff-card-info"><div class="staff-card-name">${s.name}</div><div class="staff-card-meta">${s.nationality}</div></div><span class="staff-card-role" data-role="${s.role}">${roleLabels[s.role] || s.role}</span></div>`
-    })
-  }
-  /* Player section container (will be filled by tabs) */
-  html += '<div id="team-players-section"></div>'
-  html += '<button class="btn-secondary" id="btn-team-back-2" style="margin-top:12px">← Volver</button>'
+    <div id="team-view-content"></div>`
   document.getElementById('team-info-content').innerHTML = html
   document.getElementById('btn-team-back').onclick = goBackFromTeam
-  document.getElementById('btn-team-back-2').onclick = goBackFromTeam
 
-  /* Player table with tabs */
-  var teamInfoTab = 'info'
-  var orderedPlayers = [...team.players].sort(function(a, b) {
-    var posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
-    var posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
-    return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
-  })
+  renderTeamView()
 
-  function renderTeamPlayers() {
-    var tab = teamInfoTab
-    var html2 = ''
-    if (tab === 'info') {
-      html2 += '<div class="tactics-subsection-label">PLANTILLA (' + team.players.length + ')</div>'
-      html2 += '<div class="sub-tabs" style="display:flex;gap:4px;padding:4px 14px"><button class="sub-tab team-info-tab active" data-tab="info">Info</button><button class="sub-tab team-info-tab" data-tab="performance">Rendimiento</button></div>'
-      html2 += '<div class="tp-table-header" style="padding:6px 14px"><span class="tp-th-pos">Pos</span><span class="tp-th-name">Nombre</span><span class="tp-th-age">Edad</span><span class="tp-th-value">Valor</span><span class="tp-th-power">Pod</span></div><div class="tp-list">'
-      html2 += orderedPlayers.map(function(p) {
-        var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
-        var valShort = formatShort(p.value || 0)
-        return '<div class="tp-row" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
-      }).join('')
-      html2 += '</div>'
-    } else {
-      html2 += '<div class="tactics-subsection-label">PLANTILLA (' + team.players.length + ')</div>'
-      html2 += '<div class="sub-tabs" style="display:flex;gap:4px;padding:4px 14px"><button class="sub-tab team-info-tab" data-tab="info">Info</button><button class="sub-tab team-info-tab active" data-tab="performance">Rendimiento</button></div>'
-      html2 += '<div class="tp-table-header" style="padding:6px 14px"><span class="tp-th-pos">Pos</span><span class="tp-th-name">Nombre</span><span class="tp-th-pj">PJ</span><span class="tp-th-g">G</span><span class="tp-th-a">A</span><span style="width:30px;text-align:center;font-size:10px;color:var(--text-muted)">🟨</span><span style="width:28px;text-align:center;font-size:10px;color:var(--text-muted)">🟥</span></div><div class="tp-list">'
-      html2 += orderedPlayers.map(function(p) {
-        var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
-        return '<div class="tp-row" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + '</span></div></div><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.matches || 0) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.goals || 0) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.assists || 0) + '</span><span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">' + (p.yellowCards || 0) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">' + (p.redCards || 0) + '</span></div>'
-      }).join('')
-      html2 += '</div>'
+  document.querySelectorAll('#view-team .sub-tab').forEach(function(btn) {
+    btn.onclick = function() {
+      document.querySelectorAll('#view-team .sub-tab').forEach(function(b) { b.classList.remove('active') })
+      btn.classList.add('active')
+      teamViewTab = btn.dataset.teamtab
+      renderTeamView()
     }
-    document.getElementById('team-players-section').innerHTML = html2
-    document.querySelectorAll('#team-players-section .tp-row').forEach(function(row) {
-      row.onclick = function() {
-        var pid = row.dataset.playerId
-        var player = team.players.find(function(p) { return p.id === pid })
-        if (player) openPlayerDetail(player, team)
-      }
-    })
-    document.querySelectorAll('#team-players-section .team-info-tab').forEach(function(btn) {
-      btn.onclick = function(e) {
-        e.stopPropagation()
-        teamInfoTab = btn.dataset.tab
-        renderTeamPlayers()
-      }
-    })
-  }
-  renderTeamPlayers()
+  })
 }
 function goBackFromTeam() {
   document.getElementById('view-team').classList.remove('active')
@@ -7578,37 +7952,27 @@ function showSideMenu() {
   if (logo) logo.src = state.teamLogo || ''
   if (name) name.textContent = state.team || 'Footsoccer'
   /* Club family links */
-  const familyEl = document.getElementById('dropdown-family')
-  const family = getClubFamily(state.teamId)
-  if (familyEl) {
-    if (family.length > 0) {
-      familyEl.style.display = 'block'
-      const list = document.getElementById('dropdown-family-list')
-      if (list) {
-        list.innerHTML = family.map(f => {
-          const isFilial = getFilialId(state.teamId) === f.id
-          const isParent = getBTeamParent(state.teamId) === f.id
-          const badge = isFilial ? 'family-badge--filial' : 'family-badge--parent'
-          const badgeText = isFilial ? '\u2B07 FILIAL' : '\u2B06 PRIMER EQUIPO'
-          return `<div class="dropdown-item family-link" data-fid="${f.id}">
-            <span class="family-dot"></span>
-            <div class="family-info">
-              <div class="family-top-row">
-                <span class="family-item-name">${f.name}</span>
-                ${isFilial || isParent ? `<span class="family-badge ${badge}">${badgeText}</span>` : ''}
-              </div>
-              <span class="family-league-name">${f.leagueName}</span>
-            </div>
-          </div>`
-        }).join('')
-        list.querySelectorAll('.family-link').forEach(el => {
-          el.onclick = () => { hideSideMenu(); showTeamInfo(el.dataset.fid) }
-        })
-      } else {
-        familyEl.style.display = 'none'
-      }
-    } else {
-      familyEl.style.display = 'none'
+  var family = getClubFamily(state.teamId)
+  var existingFamily = document.querySelectorAll('.family-link')
+  existingFamily.forEach(function(el) { el.remove() })
+  if (family.length > 0) {
+    var plantillaEl = document.querySelector('[data-action="squad"]')
+    if (plantillaEl) {
+      var groupSvg = '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>'
+      var familyHtml = family.map(function(f) {
+        var isFilial = getFilialId(state.teamId) === f.id
+        var isParent = getBTeamParent(state.teamId) === f.id
+        var badgeHtml = isFilial ? '<span style="margin-left:auto;font-size:10px;color:var(--text-muted)">FILIAL</span>' : (isParent ? '<span style="margin-left:auto;font-size:10px;color:var(--text-muted)">PRI.</span>' : '')
+        return '<div class="dropdown-item family-link" data-fid="' + f.id + '">' +
+          groupSvg +
+          '<span>' + f.name + '</span>' +
+          badgeHtml +
+          '</div>'
+      }).join('')
+      plantillaEl.insertAdjacentHTML('afterend', familyHtml)
+      document.querySelectorAll('.family-link').forEach(function(el) {
+        el.onclick = function() { hideSideMenu(); showTeamInfo(el.dataset.fid) }
+      })
     }
   }
   dd.classList.add('open')
@@ -8034,6 +8398,8 @@ try {
         renderTab('market')
       } else if (action === 'finances') {
         renderTab('finances')
+      } else if (action === 'club-info') {
+        showTeamInfo(state.teamId)
       }
     }
   })
@@ -8356,6 +8722,8 @@ function openPlayerDetail(player, teamObj) {
       const price = parseInt(document.getElementById('pd-lt-price').value.replace(/\./g, ''))
       if (!price || price < 1) return
       player.transferListed = true; player.transferPrice = price; document.getElementById('player-detail-modal').classList.remove('open'); renderMarketContent(); renderSquad(state.players)
+      /* Generar ofertas inmediatas */
+      setTimeout(function() { generarOfertasParaJugador(player) }, 800)
     })
     document.getElementById('pd-retirar-lc')?.addEventListener('click', () => { player.loanListed = false; document.getElementById('player-detail-modal').classList.remove('open'); renderSquad(state.players) })
     document.getElementById('pd-listar-lc')?.addEventListener('click', () => { player.loanListed = true; document.getElementById('player-detail-modal').classList.remove('open'); renderSquad(state.players) })
@@ -8425,7 +8793,7 @@ function openPlayerDetail(player, teamObj) {
             state.players.push(newP)
             state.boughtPlayerIds.push(player.id)
             state.finances.balance -= result.price
-            state.finances.history.push({ reason: 'Compra: ' + player.name, amount: -result.price })
+            state.finances.history.push({ reason: 'Compra: ' + player.name + '|' + (player.avatar || '') + '|' + (team ? team.name : '') + '|' + (player.position || '') + '|' + (player.age || 0) + '|' + (player.value || 0) + '|' + (player.skill || 0), amount: -result.price })
             addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality)
             document.getElementById('player-detail-modal').classList.remove('open')
             renderMarketContent()
@@ -8453,7 +8821,7 @@ function openPlayerDetail(player, teamObj) {
               state.players.push(newP)
               state.boughtPlayerIds.push(player.id)
               state.finances.balance -= result.price
-              state.finances.history.push({ reason: 'Compra: ' + player.name, amount: -result.price })
+            state.finances.history.push({ reason: 'Compra: ' + player.name + '|' + (player.avatar || '') + '|' + (team ? team.name : '') + '|' + (player.position || '') + '|' + (player.age || 0) + '|' + (player.value || 0) + '|' + (player.skill || 0), amount: -result.price })
               addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality)
               document.getElementById('player-detail-modal').classList.remove('open')
               renderMarketContent()
