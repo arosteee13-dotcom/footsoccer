@@ -1756,6 +1756,7 @@ function renderHome() {
   const injured = state.players.filter(p => p.injury)
   var roundNames = { QF: 'Cuartos de final', SF: 'Semifinal', F: 'Final' }
 
+  console.log('[RENDER] renderHome ejecutada, fixture:', !!fixture, 'cupActive:', cupActive)
   /* Single match card — shows cup info line if it is a cup week */
   var matchHtml = ''
   if (fixture) {
@@ -1765,7 +1766,6 @@ function renderHome() {
     var mRivalLogo = getTeamLogo(mRivalId)
     var mRivalPos = standings.findIndex(function(s) { return s.teamId === mRivalId }) + 1
     var cupInfo = (cupActive && cupNext === fixture) ? '<div class="home-cup-indicator">\ud83c\udfc6 ' + cupLabel + ' \ud83d\udfe3 Mi\u00e9rcoles</div>' : ''
-    var matchId = (cupActive && cupNext === fixture) ? 'btn-home-cup' : 'btn-home-league'
     matchHtml = '<div class="home-card home-match' + (cupActive && cupNext === fixture ? ' home-cup-card' : '') + '">' +
       '<div class="home-section-title">' + (isPlayoffs ? (roundNames[state.playoffs.round] || 'Eliminatoria') : 'Pr\u00f3ximo encuentro') + '</div>' +
       cupInfo +
@@ -1784,7 +1784,7 @@ function renderHome() {
       '</div>' +
       (isPlayoffs ? '<div class="home-matchday-label">Eliminatoria</div>' : '<div class="home-matchday-label">Jornada ' + (fixture.matchday || state.currentMatchday) + ' de ' + state.totalMatchdays + ' \u00b7 ' + (fixture.horario || '') + '</div>') +
       '<div class="home-match-location">' + (mIsHome ? '\ud83c\udfe1 Local' : '\u2708\ufe0f Visitante') + '</div>' +
-      '<button class="btn-home-simulate" id="' + matchId + '"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Simular Partido</button>' +
+      '<button class="btn-home-simulate" id="btn-home-simulate"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Simular Partido</button>' +
     '</div>'
   }
 
@@ -1803,17 +1803,19 @@ function renderHome() {
     '<div class="home-injury-text">\ud83d\ude91 Bajas para hoy: ' + (injured.length > 0 ? injured.map(function(p) { return p.name }).join(', ') : 'Ninguna') + '</div>' +
   '</div>' +
   (matchHtml || '<div class="home-card home-match"><div class="home-section-title">\ud83c\udfc6 Temporada completada</div></div>')
-  }
 
-  var simBtn = document.getElementById('btn-home-cup') || document.getElementById('btn-home-league')
+  var simBtn = document.getElementById('btn-home-simulate')
   if (simBtn) simBtn.onclick = function() {
+    console.log('[SIM] Click - fixture:', !!fixture, 'rivalId:', rivalId, 'cupActive:', cupActive)
+    if (!rivalId) { alert('\u26a0\ufe0f Error: No se encontr\u00f3 rival. Revisa la alineaci\u00f3n o los datos del equipo.'); return }
     if (cupActive && cupNext === fixture) {
-      var sc = cupNext && cupNext.round && cupNext.round.startsWith('SF|F') ? false : /* isSupercopa check simpler: */ false
-      simularPartidoCopa(fixture, mRivalId, cupLabel.indexOf('Supercopa') >= 0)
+      simularPartidoCopa(fixture, rivalId, cupLabel.indexOf('Supercopa') >= 0)
     } else {
-      simularPartidoRapido(fixture, mRivalId)
+      simularPartidoRapido(fixture, rivalId)
     }
   }
+  console.log('[RENDER] onclick configurado para boton simulate - simBtn:', !!simBtn, 'rivalId:', rivalId)
+}
 function renderClub() {
   const titleEl = document.getElementById('club-title')
   if (titleEl) titleEl.textContent = state.team
@@ -4578,7 +4580,7 @@ function getPlayoffRival() {
 
 /* ============ QUICK SIMULATION ============ */
 function simularPartidoRapido(fixture, rivalId) {
-  if (!fixture || !rivalId) return
+  if (!fixture || !rivalId) { console.warn('[SIM] simularPartidoRapido cancelado - fixture o rivalId inv\u00e1lido', { fixture: !!fixture, rivalId: rivalId }); return }
   const slots = state.tacticsSlots || []
   var startingIds = slots.filter(Boolean)
   startingIds = startingIds.filter(function(pid) {
