@@ -1299,6 +1299,13 @@ function getTeamObj(id) {
   }
   let t = state.leagueTeams.find(x => x.teamId === id)
   if (t) return t
+  /* Check persistent teams from other leagues (allLeagueData) */
+  for (const [lid, d] of Object.entries(state.allLeagueData || {})) {
+    if (d.teams) {
+      const found = d.teams.find(function(x) { return x.teamId === id })
+      if (found) return found
+    }
+  }
   for (const cid in window.DB) {
     const data = window.DB[cid]
     if (!data) continue
@@ -1334,11 +1341,56 @@ function autoSimulateOtherMatch(homeId, awayId) {
       if (Math.random() < 0.5) homeScore++; else awayScore++
     }
   }
+  /* Track pre-match stats for AI rating computation */
+  home.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
+  away.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
   /* Assign stats to AI players with position experience tracking */
   assignAIStats(home.players, homeScore, home.formation, home.gamePlan)
   syncTeamStatsForTeam(home.players, homeId)
   assignAIStats(away.players, awayScore, away.formation, away.gamePlan)
   syncTeamStatsForTeam(away.players, awayId)
+  /* Compute and store match ratings for AI starters and apply fatigue */
+  ;[home, away].forEach(function(team, idx) {
+    var teamScore = idx === 0 ? homeScore : awayScore
+    var rivalScore = idx === 0 ? awayScore : homeScore
+    var rivalName = idx === 0 ? getTeamName(awayId) : getTeamName(homeId)
+    var gkPool = team.players.filter(function(p) { return p.position === 'POR' && !p.injury && !p._suspended })
+    var fieldPlayers = team.players.filter(function(p) { return p.position !== 'POR' && !p.injury && !p._suspended })
+    gkPool.sort(function(a, b) {
+      var aEff = (a.skill || 0) * Math.min(1, (a.energy != null ? a.energy : 80) / 100)
+      var bEff = (b.skill || 0) * Math.min(1, (b.energy != null ? b.energy : 80) / 100)
+      return bEff - aEff
+    })
+    fieldPlayers.sort(function(a, b) {
+      var aEff = (a.skill || 0) * Math.min(1, (a.energy != null ? a.energy : 80) / 100)
+      var bEff = (b.skill || 0) * Math.min(1, (b.energy != null ? b.energy : 80) / 100)
+      return bEff - aEff
+    })
+    var starters = gkPool.slice(0, 1).concat(fieldPlayers.slice(0, 10))
+    var gamePlan = team.gamePlan || 'extremo'
+    starters.forEach(function(p) {
+      var matchGoals = (p.goals || 0) - (p._preGoals || 0)
+      var matchYC = (p.yellowCards || 0) - (p._preYC || 0)
+      var matchRC = (p.redCards || 0) - (p._preRC || 0)
+      var winBonus = teamScore > rivalScore ? 0.5 : teamScore === rivalScore ? 0.2 : 0
+      var goalBonus = (matchGoals || 0) * 1.2
+      var yellowPen = matchYC > 0 ? -0.5 : 0
+      var redPen = matchRC > 0 ? -2.0 : 0
+      var cleanBonus = (matchYC === 0 && matchRC === 0) ? 0.2 : 0
+      var csBonus = 0
+      if (rivalScore === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) csBonus = 0.5
+      var randomFactor = (Math.random() - 0.5) * 0.6
+      var rating = Math.min(10, Math.max(1, 6.2 + winBonus + goalBonus + yellowPen + redPen + cleanBonus + csBonus + randomFactor))
+      if (!p.matchHistory) p.matchHistory = []
+      p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, yellow: matchYC > 0, red: matchRC > 0 })
+      if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
+      /* Apply fatigue */
+      p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - (GAME_PLANS[gamePlan]?.drain || 10))
+    })
+  })
+  /* Clean up temp properties */
+  home.players.forEach(function(p) { delete p._preGoals; delete p._preYC; delete p._preRC })
+  away.players.forEach(function(p) { delete p._preGoals; delete p._preYC; delete p._preRC })
   return { homeScore, awayScore }
 }
 
@@ -1346,10 +1398,19 @@ function assignAIStats(players, goals, formation, gamePlan) {
   var fieldPlayers = players.filter(function(p) { return p.position !== 'POR' })
   if (fieldPlayers.length === 0) return
 
-  /* Track matches for starters: top GK + top 10 field players by skill */
-  var gkPool = players.filter(function(p) { return p.position === 'POR' })
-  gkPool.sort(function(a, b) { return (b.skill || 0) - (a.skill || 0) })
-  fieldPlayers.sort(function(a, b) { return (b.skill || 0) - (a.skill || 0) })
+  /* Track matches for starters: top GK + top 10 field players, filtering injuries/suspensions and considering fatigue */
+  var gkPool = players.filter(function(p) { return p.position === 'POR' && !p.injury && !p._suspended })
+  gkPool.sort(function(a, b) {
+    var aEff = (a.skill || 0) * Math.min(1, (a.energy != null ? a.energy : 80) / 100)
+    var bEff = (b.skill || 0) * Math.min(1, (b.energy != null ? b.energy : 80) / 100)
+    return bEff - aEff
+  })
+  fieldPlayers = players.filter(function(p) { return p.position !== 'POR' && !p.injury && !p._suspended })
+  fieldPlayers.sort(function(a, b) {
+    var aEff = (a.skill || 0) * Math.min(1, (a.energy != null ? a.energy : 80) / 100)
+    var bEff = (b.skill || 0) * Math.min(1, (b.energy != null ? b.energy : 80) / 100)
+    return bEff - aEff
+  })
   var matchPlayers = gkPool.slice(0, 1).concat(fieldPlayers.slice(0, 10))
   matchPlayers.forEach(function(p) { p.matches = (p.matches || 0) + 1 })
 
@@ -1512,11 +1573,64 @@ function simularPartidoPorRating(homeId, awayId) {
   const goals = 2 + Math.round(Math.random() * 4)
   const homeScore = Math.min(10, Math.round((homeStrength / total) * goals))
   const awayScore = Math.min(10, Math.round((awayStrength / total) * goals))
-  /* Track individual player stats for CPU teams */
-  var home = getTeamObj(homeId)
-  var away = getTeamObj(awayId)
-  if (home && home.players) { assignAIStats(home.players, homeScore, null, null); syncTeamStatsForTeam(home.players, homeId) }
-  if (away && away.players) { assignAIStats(away.players, awayScore, null, null); syncTeamStatsForTeam(away.players, awayId) }
+  /* Track individual player stats for CPU teams (use persistent teams from allLeagueData) */
+  var home = null, away = null
+  for (const [lid, d] of Object.entries(state.allLeagueData || {})) {
+    if (!home && d.teams) home = d.teams.find(function(t) { return t.teamId === homeId })
+    if (!away && d.teams) away = d.teams.find(function(t) { return t.teamId === awayId })
+  }
+  if (!home) home = getTeamObj(homeId)
+  if (!away) away = getTeamObj(awayId)
+  if (home && home.players) {
+    home.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
+    assignAIStats(home.players, homeScore, null, null)
+    syncTeamStatsForTeam(home.players, homeId)
+  }
+  if (away && away.players) {
+    away.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
+    assignAIStats(away.players, awayScore, null, null)
+    syncTeamStatsForTeam(away.players, awayId)
+  }
+  /* Match ratings and fatigue */
+  ;[home, away].forEach(function(team, idx) {
+    if (!team || !team.players) return
+    var teamScore = idx === 0 ? homeScore : awayScore
+    var rivalScore = idx === 0 ? awayScore : homeScore
+    var rivalName = idx === 0 ? getTeamName(awayId) : getTeamName(homeId)
+    var gkPool = team.players.filter(function(p) { return p.position === 'POR' && !p.injury && !p._suspended })
+    var fieldPlayers = team.players.filter(function(p) { return p.position !== 'POR' && !p.injury && !p._suspended })
+    gkPool.sort(function(a, b) {
+      var aEff = (a.skill || 0) * Math.min(1, (a.energy != null ? a.energy : 80) / 100)
+      var bEff = (b.skill || 0) * Math.min(1, (b.energy != null ? b.energy : 80) / 100)
+      return bEff - aEff
+    })
+    fieldPlayers.sort(function(a, b) {
+      var aEff = (a.skill || 0) * Math.min(1, (a.energy != null ? a.energy : 80) / 100)
+      var bEff = (b.skill || 0) * Math.min(1, (b.energy != null ? b.energy : 80) / 100)
+      return bEff - aEff
+    })
+    var starters = gkPool.slice(0, 1).concat(fieldPlayers.slice(0, 10))
+    starters.forEach(function(p) {
+      var matchGoals = (p.goals || 0) - (p._preGoals || 0)
+      var matchYC = (p.yellowCards || 0) - (p._preYC || 0)
+      var matchRC = (p.redCards || 0) - (p._preRC || 0)
+      var winBonus = teamScore > rivalScore ? 0.5 : teamScore === rivalScore ? 0.2 : 0
+      var goalBonus = (matchGoals || 0) * 1.2
+      var yellowPen = matchYC > 0 ? -0.5 : 0
+      var redPen = matchRC > 0 ? -2.0 : 0
+      var cleanBonus = (matchYC === 0 && matchRC === 0) ? 0.2 : 0
+      var csBonus = 0
+      if (rivalScore === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) csBonus = 0.5
+      var randomFactor = (Math.random() - 0.5) * 0.6
+      var rating = Math.min(10, Math.max(1, 6.2 + winBonus + goalBonus + yellowPen + redPen + cleanBonus + csBonus + randomFactor))
+      if (!p.matchHistory) p.matchHistory = []
+      p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, yellow: matchYC > 0, red: matchRC > 0 })
+      if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
+      p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - 10)
+    })
+  })
+  if (home && home.players) home.players.forEach(function(p) { delete p._preGoals; delete p._preYC; delete p._preRC })
+  if (away && away.players) away.players.forEach(function(p) { delete p._preGoals; delete p._preYC; delete p._preRC })
   return { homeScore, awayScore }
 }
 
@@ -1562,17 +1676,29 @@ function initAllLeagueData() {
     const data = window.DB[cid]
     if (!data) continue
     for (const l of data.country.leagues || []) {
-      if (state.allLeagueData[l.id]) continue
+      if (state.allLeagueData[l.id] && state.allLeagueData[l.id].teams) continue
       const teamIds = l.teams.map(t => t.id)
       if (teamIds.length < 2) continue
       try {
-        const fx = generateFixtures(teamIds)
-        state.allLeagueData[l.id] = {
-          fixtures: fx,
-          currentMatchday: 0,
-          totalMatchdays: Math.max(...fx.map(f => f.matchday))
+        var leagueTeams = l.teams.map(function(t) {
+          var squad = getRealSquad(t.id)
+          var _cid = l.country ? l.country.id : 'es'
+          var players
+          if (squad) {
+            players = squad.map(function(p) { return { ...p } })
+          } else {
+            var rating = t.rating || (getBaseDato(t.id) ? getBaseDato(t.id).rating : null) || 70
+            players = generateCpuSquad(t.id, _cid, rating)
+          }
+          return { teamId: t.id, name: t.name, players: players, formation: t.formation, gamePlan: t.gamePlan, logo: t.logo }
+        })
+        if (state.allLeagueData[l.id]) {
+          state.allLeagueData[l.id].teams = leagueTeams
+        } else {
+          var fx = generateFixtures(teamIds)
+          state.allLeagueData[l.id] = { fixtures: fx, currentMatchday: 0, totalMatchdays: Math.max(...fx.map(function(f) { return f.matchday })), teams: leagueTeams }
         }
-      } catch (e) { console.warn('[INIT] Error generating fixtures for', l.id, e) }
+      } catch (e) { console.warn('[INIT] Error generating data for', l.id, e) }
     }
   }
 }
@@ -1973,7 +2099,7 @@ function renderTactics(tactic) {
     var isOutOfPosition = effectiveSkill && effectiveSkill < player.skill
     return '<div class="tp-player-card' + cls + '" data-' + dataset + '="' + dataVal + '" style="--pos-color:' + posColor + '">' +
       '<div class="tp-card-top"><span style="display:flex;align-items:center;gap:2px">' + (isOutOfPosition ? '<span style="font-size:9px">\u26a0\ufe0f</span>' : '') + '<span class="tp-stat-skill" style="' + getPowerBadgeStyle(displaySkill) + '">' + displaySkill + '</span></span><span class="tp-card-pos" style="color:' + posColor + '">' + posAbbr + '</span></div>' +
-      '<div class="tp-card-avatar" style="' + avatarStyle + '"></div>' +
+      '<div class="tp-card-avatar" style="position:relative;' + avatarStyle + '">' + (player._suspended ? '<span class="tp-card-susp-overlay"><span class="tp-susp-card">' + player._suspended + '</span></span>' : '') + '</div>' +
       '<span class="tp-card-name">' + (player.injury ? '\ud83d\udeb9 ' : '') + player.name.split(' ').slice(-1)[0] + '</span>' +
       '<div class="tp-energy-bar"><div class="tp-energy-fill" style="width:' + player.energy + '%;background:' + eneColor + '"></div></div>' +
       (player.injury ? '<div class="tp-injury-badge">\ud83d\udfe1 ' + player.injury.remaining + 'j</div>' : '') +
@@ -5172,8 +5298,14 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
   /* Lineups */
   var lineupsHtml = ''
   if (userMatch) {
-    /* User's lineup */
-    lineupsHtml += '<div class="mr-lineup-title">' + state.team + '</div>'
+    var isHome = userMatch.homeId === state.teamId
+    var rivalId = isHome ? userMatch.awayId : userMatch.homeId
+    var rivalTeam = getTeamObj(rivalId)
+    var rivalName = isHome ? userMatch.awayName : userMatch.homeName
+
+    /* Build user lineup */
+    var userHtml = ''
+    userHtml += '<div class="mr-lineup-title">' + state.team + '</div>'
     var slotIds = state.tacticsSlots || []
     var roles = state.tactic && state.tactic.formation ? state.tactic.formation : '4-3-3'
     var slotRoles = SLOT_ROLES[roles] || SLOT_ROLES['4-3-3']
@@ -5199,15 +5331,13 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
       var assistIcon = asistencias > 0 ? ' <span class="mr-lineup-goal">\ud83d\udc5f' + (asistencias > 1 ? asistencias : '') + '</span>' : ''
       var yellowIcon = pl._yellowThisMatch ? ' <span style="color:#f1c40f">\ud83d\udfe8</span>' : ''
       var redIcon = pl._redThisMatch ? ' <span style="color:#e74c3c">\ud83d\udfe5</span>' : ''
-      lineupsHtml += '<div class="mr-lineup-row"><span class="mr-lineup-pos" style="background:' + posColor + ';color:#fff">' + posLabel + '</span><span class="mr-lineup-name">' + pl.name + goalIcon + assistIcon + yellowIcon + redIcon + '</span><span class="mr-lineup-rating">(' + nota + ')</span></div>'
+      userHtml += '<div class="mr-lineup-row"><span class="mr-lineup-pos" style="background:' + posColor + ';color:#fff">' + posLabel + '</span><span class="mr-lineup-name">' + pl.name + goalIcon + assistIcon + yellowIcon + redIcon + '</span><span class="mr-lineup-rating">(' + nota + ')</span></div>'
     }
 
-    /* Rival lineup (formation-based) */
-    var rivalId = userMatch.homeId === state.teamId ? userMatch.awayId : userMatch.homeId
-    var rivalTeam = getTeamObj(rivalId)
+    /* Build rival lineup */
+    var rivalHtml = ''
     if (rivalTeam && rivalTeam.players) {
-      var rivalName = userMatch.homeId === state.teamId ? userMatch.awayName : userMatch.homeName
-      lineupsHtml += '<div class="mr-lineup-title">' + rivalName + '</div>'
+      rivalHtml += '<div class="mr-lineup-title">' + rivalName + '</div>'
 
       var formacion = rivalTeam.formation || '4-3-3'
       var roles = SLOT_ROLES[formacion] || SLOT_ROLES['4-3-3']
@@ -5279,9 +5409,13 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
         if (_uScore === 0 && (rp.position === 'POR' || rp.position === 'defensa_central' || rp.position === 'lateral_der' || rp.position === 'lateral_izq')) rCsBonus = 0.5
         var rRandom = (Math.random() - 0.5) * 0.6
         var rRating = Math.min(10, Math.max(1, 6.2 + rWinBonus + rGoalBonus + rAssistBonus + rClean + rYellowPenalty + rRedPenalty + rCsBonus + rRandom))
-        lineupsHtml += '<div class="mr-lineup-row"><span class="mr-lineup-pos" style="background:' + rPosColor + ';color:#fff">' + rPosLabel + '</span><span class="mr-lineup-name">' + rp.name + rGoalIcon + rAssistIcon + rCardIcon + '</span><span class="mr-lineup-rating">(' + rRating.toFixed(1) + ')</span></div>'
+        rivalHtml += '<div class="mr-lineup-row"><span class="mr-lineup-pos" style="background:' + rPosColor + ';color:#fff">' + rPosLabel + '</span><span class="mr-lineup-name">' + rp.name + rGoalIcon + rAssistIcon + rCardIcon + '</span><span class="mr-lineup-rating">(' + rRating.toFixed(1) + ')</span></div>'
       }
     }
+
+    /* Append in correct order */
+    lineupsHtml += isHome ? (userHtml + rivalHtml) : (rivalHtml + userHtml)
+  }
   document.getElementById('mr-lineups').innerHTML = lineupsHtml
 
   /* All results */
@@ -5337,7 +5471,6 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
     }
     autoSave()
     renderTab('home')
-  }
   }
   }
 
@@ -8105,6 +8238,11 @@ function openPlayerDetail(player, teamObj) {
   const rendStats = document.getElementById('pd-rend-stats')
   const pos = POSITIONS[posKey]
   const energyColor = player.energy >= 70 ? '#10B981' : (player.energy >= 40 ? '#F59E0B' : '#EF4444')
+  var avgRating = 0
+  var ratedMatches = (player.matchHistory || []).filter(function(m) { return m.rating })
+  if (ratedMatches.length > 0) {
+    avgRating = ratedMatches.reduce(function(sum, m) { return sum + m.rating }, 0) / ratedMatches.length
+  }
   var statsHtml = '<div class="modal-stats-row" style="padding:8px 0;gap:4px"><div class="modal-stat" style="flex:1;padding:8px"><span class="modal-stat-label">ENE</span><span class="modal-stat-value" style="font-size:20px;color:' + energyColor + '">' + (player.energy || 0) + '%</span><div class="modal-stat-bar"><div class="modal-stat-fill" style="width:' + (player.energy || 0) + '%;background:' + energyColor + '"></div></div></div></div>'
   /* Per-team stats */
   var teamStatsObj = player.teamStats || {}
@@ -8120,6 +8258,7 @@ function openPlayerDetail(player, teamObj) {
         '<div class="modal-sstat"><span class="modal-sstat-icon">👟</span><span class="modal-sstat-val">' + (ts.assists || 0) + '</span><span class="modal-sstat-lbl">Asist.</span></div>' +
         '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#F59E0B">🟨</span><span class="modal-sstat-val">' + (ts.yellowCards || 0) + '</span><span class="modal-sstat-lbl">Amar.</span></div>' +
         '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#EF4444">🟥</span><span class="modal-sstat-val">' + (ts.redCards || 0) + '</span><span class="modal-sstat-lbl">Roja</span></div>' +
+        '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#F59E0B">⭐</span><span class="modal-sstat-val">' + (avgRating ? avgRating.toFixed(1) : '-') + '</span><span class="modal-sstat-lbl">Media</span></div>' +
         '</div></div>'
     }
   } else {
@@ -8129,30 +8268,11 @@ function openPlayerDetail(player, teamObj) {
       '<div class="modal-sstat"><span class="modal-sstat-icon">👟</span><span class="modal-sstat-val">' + (player.assists || 0) + '</span><span class="modal-sstat-lbl">Asist.</span></div>' +
       '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#F59E0B">🟨</span><span class="modal-sstat-val">' + (player.yellowCards || 0) + '</span><span class="modal-sstat-lbl">Amar.</span></div>' +
       '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#EF4444">🟥</span><span class="modal-sstat-val">' + (player.redCards || 0) + '</span><span class="modal-sstat-lbl">Roja</span></div>' +
+      '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#F59E0B">⭐</span><span class="modal-sstat-val">' + (avgRating ? avgRating.toFixed(1) : '-') + '</span><span class="modal-sstat-lbl">Media</span></div>' +
       '</div>'
   }
   rendStats.innerHTML = statsHtml
-  const historyEl = document.getElementById('pd-rend-history')
-  const hist = (player.matchHistory || []).slice(-8).reverse()
-  historyEl.innerHTML = hist.length === 0
-    ? '<div class="hist-empty">Sin partidos jugados</div>'
-    : hist.map(m => {
-        const acts = []
-        if (m.goals > 0) acts.push(`⚽${m.goals}`)
-        if (m.yellow) acts.push('🟨')
-        if (m.red) acts.push('🟥')
-        let rClass = 'rating-mid'
-        if (m.rating >= 8) rClass = 'rating-high'
-        else if (m.rating <= 4) rClass = 'rating-low'
-        const label = pos ? pos.label : ''
-        return `<div class="hist-item">
-          <span class="hist-matchday">J${m.matchday}</span>
-          <span class="hist-rival">vs ${m.rival}</span>
-          <span class="hist-minutes">${m.minutes}'</span>
-          <span class="hist-rating ${rClass}">${'★'.repeat(Math.max(1, Math.round(m.rating / 2)))} ${m.rating}</span>
-          <span class="hist-actions">${acts.join(' ') || ''}</span>
-        </div>`
-      }).join('')
+  document.getElementById('pd-rend-history').innerHTML = ''
 
   /* === MERCADO TAB === */
   const actions = document.getElementById('pd-market-actions')
