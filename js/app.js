@@ -932,7 +932,6 @@ function formatTime(minute) {
 
 /* ============ SAVE / LOAD ============ */
 var _memorySaves = null
-var _storageMode = null
 
 /* IndexedDB wrapper */
 function openDB() {
@@ -952,10 +951,10 @@ function idbSet(key, value) {
     return new Promise(function(resolve, reject) {
       var tx = db.transaction('saves', 'readwrite')
       tx.objectStore('saves').put(value, key)
-      tx.oncomplete = function() { db.close(); resolve() }
+      tx.oncomplete = function() { db.close(); resolve(true) }
       tx.onerror = function(e) { db.close(); reject(e.target.error) }
     })
-  }).catch(function() {})
+  })
 }
 
 function idbGet(key) {
@@ -966,39 +965,38 @@ function idbGet(key) {
       req.onsuccess = function() { db.close(); resolve(req.result) }
       req.onerror = function(e) { db.close(); reject(e.target.error) }
     })
-  }).catch(function() { return null })
+  })
 }
 
-/* Persist memory cache to best available storage */
+/* Sync memory update + async IndexedDB write. Returns true immediately. */
 function persistSaves(saves) {
   _memorySaves = saves
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(saves))
-    _storageMode = 'local'
-    return true
-  } catch(e) { /* fall through */ }
-  try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(saves))
-    _storageMode = 'session'
-    return true
-  } catch(e) { /* fall through */ }
-  idbSet(STORAGE_KEY, saves)
-  _storageMode = 'idb'
+  /* Guardar también metadata en localStorage para acceso rápido */
+  var meta = saves.map(function(s) { return { id: s.id, meta: s.meta, teamId: s.teamId, leagueId: s.leagueId, matchday: s.matchday } })
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(meta)) } catch(e) { /* localStorage no disponible o lleno */ }
+  /* Guardar datos completos en IndexedDB (sin límite de tamaño) */
+  idbSet(STORAGE_KEY, saves).then(function() { console.log('[SAVE] IndexedDB OK') }).catch(function(e) { console.warn('[SAVE] IndexedDB falló:', e) })
   return true
 }
 
-/* Load saves into memory cache from best available source */
+/* Load saves from IndexedDB first, then try localStorage fallback */
 function initSaves() {
   return new Promise(function(resolve) {
-    var raw = null
-    try { raw = localStorage.getItem(STORAGE_KEY) } catch(e) {}
-    if (raw) { try { _memorySaves = JSON.parse(raw); _storageMode = 'local'; resolve(); return } catch(e) {} }
-    try { raw = sessionStorage.getItem(STORAGE_KEY) } catch(e) {}
-    if (raw) { try { _memorySaves = JSON.parse(raw); _storageMode = 'session'; resolve(); return } catch(e) {} }
-    /* Async load from IndexedDB */
-    _storageMode = null
     idbGet(STORAGE_KEY).then(function(data) {
-      if (data) { _memorySaves = data; _storageMode = 'idb' }
+      if (data && Array.isArray(data)) { _memorySaves = data; console.log('[SAVE] Cargado desde IndexedDB'); resolve(); return }
+      /* Fallback: cargar metadatos desde localStorage */
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY)
+        if (raw) { var p = JSON.parse(raw); if (Array.isArray(p)) { _memorySaves = p; console.log('[SAVE] Cargado desde localStorage (meta)'); resolve(); return } }
+      } catch(e) {}
+      _memorySaves = []
+      resolve()
+    }).catch(function() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY)
+        if (raw) { var p = JSON.parse(raw); if (Array.isArray(p)) { _memorySaves = p; resolve(); return } }
+      } catch(e) {}
+      _memorySaves = []
       resolve()
     })
   })
@@ -1010,13 +1008,7 @@ function getSaves() {
 
 function setSaves(saves) {
   persistSaves(saves)
-  if (_storageMode === 'idb') {
-    console.log('[SAVE] Usando IndexedDB')
-    addNotification('general', '\u26a0\ufe0f Guardado en IndexedDB', 'La partida se guard\u00f3 pero usa IndexedDB. Deber\u00eda persistir al recargar.')
-  } else if (_storageMode === 'session') {
-    console.log('[SAVE] Usando sessionStorage')
-    addNotification('general', '\u26a0\ufe0f Guardado temporal', 'La partida se perder\u00e1 al cerrar el navegador.')
-  }
+  console.log('[SAVE] OK -', saves.length, 'partidas')
   return true
 }
 
@@ -7030,12 +7022,18 @@ function showLoadMenu() {
   document.getElementById('menu-main').classList.add('hidden')
   document.getElementById('menu-newgame').classList.add('hidden')
   document.getElementById('menu-load').classList.remove('hidden')
-  /* Si IndexedDB a\u00fan est\u00e1 cargando, reintentar en 300ms */
-  if (_memorySaves === null && _storageMode === null) {
-    var loadingEl = document.getElementById('load-content')
-    if (loadingEl) loadingEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">Cargando partidas...</div>'
-    setTimeout(showLoadMenu, 300)
-    return
+  /* Si IndexedDB a\u00fan est\u00e1 cargando, reintentar hasta 10 veces (3s total) */
+  if (_memorySaves === null) {
+    var _retryCount = window._loadRetryCount || 0
+    window._loadRetryCount = _retryCount + 1
+    if (_retryCount < 10) {
+      var loadingEl = document.getElementById('load-content')
+      if (loadingEl) loadingEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">Cargando partidas...</div>'
+      setTimeout(showLoadMenu, 300)
+      return
+    }
+    _memorySaves = []; _storageMode = 'empty'
+    window._loadRetryCount = 0
   }
   const slots = window.SaveSystem.getEmptySlots()
   const content = document.getElementById('load-content')
