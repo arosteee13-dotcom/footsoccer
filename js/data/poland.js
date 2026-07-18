@@ -5,64 +5,64 @@ window.DB.poland = {
     leagues: [
       { id: 'lpl', name: 'Liga Polaca', logo: 'https://cdn.resfu.com/media/img/league_logos/liga_polonia.png?size=120x&lossy=1',
         teams: [
-          { id: 'p1', name: 'Wis\u0142a Krak\u00f3w', rating: 68, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/2757.png?size=120x&lossy=1', budget: 2800000,
-            staff: [{ name: 'Mariusz Jop', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/64015.jpg?size=120x&lossy=1',
+           { id: 'p1', name: 'Wis\u0142a Krak\u00f3w', rating: 68, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/2757.png?size=120x&lossy=1', budget: 2800000, palmares: [{ comp: 'Liga Polaca', count: 14, years: ['1927','1928','1949','1950','1951','1977-78','1998-99','2000-01','2002-03','2003-04','2004-05','2007-08','2008-09','2010-11']}, { comp: 'Copa Polonia', count: 5, years: ['1926-27','1966-67','2001-02','2002-03','2023-24']}, { comp: 'Supercopa Polonia', count: 1, years: ['2001']}, { comp: 'Segunda Polonia', count: 2, years: ['1964-65','2025-26']}],
+             staff: [{ name: 'Mariusz Jop', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/64015.jpg?size=120x&lossy=1',
               career: [{ team: 'Wis\u0142a Krak\u00f3w', from: '24/09/2024', to: '30/06/2027', matches: 35, won: 15, drawn: 8, lost: 12 }]
             }] },
-          { id: 'p2', name: 'Legia Warszawa', rating: 73, formation: '3-5-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/1465.png?size=120x&lossy=1', budget: 10000000,
-            staff: [{ name: 'Marek Papszun', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17838.jpg?size=120x&lossy=1',
+           { id: 'p2', name: 'Legia Warszawa', rating: 73, formation: '3-5-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/1465.png?size=120x&lossy=1', budget: 10000000, palmares: [{ comp: 'Liga Polaca', count: 15, years: ['1955','1956','1968-69','1969-70','1993-94','1994-95','2001-02','2005-06','2012-13','2013-14','2015-16','2016-17','2017-18','2019-20','2020-21']}, { comp: 'Copa Polonia', count: 21, years: ['1954-55','1955-56','1963-64','1965-66','1972-73','1979-80','1980-81','1988-89','1989-90','1993-94','1994-95','1996-97','2007-08','2010-11','2011-12','2012-13','2014-15','2015-16','2017-18','2022-23','2024-25']}, { comp: 'Supercopa Polonia', count: 6, years: ['1989','1994','1997','2008','2023','2025']}],
+             staff: [{ name: 'Marek Papszun', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17838.jpg?size=120x&lossy=1',
               career: [{ team: 'Legia Warszawa', from: '19/12/2025', to: '30/06/2028', matches: 35, won: 18, drawn: 8, lost: 9 }]
             }] },
-          { id: 'p3', name: 'Lech Pozna\u0144', rating: 73, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/10030.png?size=120x&lossy=1', budget: 8500000,
-            staff: [{ name: 'Niels Frederiksen', nationality: '\ud83c\udde9\ud83c\uddf0 Dinamarca', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/19779.jpg?size=120x&lossy=1',
+           { id: 'p3', name: 'Lech Pozna\u0144', rating: 73, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/10030.png?size=120x&lossy=1', budget: 8500000, palmares: [{ comp: 'Liga Polaca', count: 10, years: ['1982-83','1983-84','1989-90','1991-92','1992-93','2009-10','2014-15','2021-22','2024-25','2025-26']}, { comp: 'Copa Polonia', count: 5, years: ['1981-82','1983-84','1987-88','2003-04','2008-09']}, { comp: 'Supercopa Polonia', count: 7, years: ['1990','1992','2004','2009','2015','2016','2026']}, { comp: 'Segunda Polonia', count: 2, years: ['1960','2001-02']}],
+             staff: [{ name: 'Niels Frederiksen', nationality: '\ud83c\udde9\ud83c\uddf0 Dinamarca', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/19779.jpg?size=120x&lossy=1',
               career: [{ team: 'Lech Pozna\u0144', from: '01/07/2024', to: '30/06/2028', matches: 40, won: 20, drawn: 8, lost: 12 }]
             }] },
-          { id: 'p4', name: 'Rak\u00f3w Cz\u0119stochowa', rating: 73, formation: '3-4-2-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/17740.png?size=120x&lossy=1', budget: 7500000,
-            staff: [{ name: 'Dawid Kroczek', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/25970.jpg?size=120x&lossy=1',
+           { id: 'p4', name: 'Rak\u00f3w Cz\u0119stochowa', rating: 73, formation: '3-4-2-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/17740.png?size=120x&lossy=1', budget: 7500000, palmares: [{ comp: 'Liga Polaca', count: 1, years: ['2022-23']}, { comp: 'Copa Polonia', count: 2, years: ['2020-21','2021-22']}, { comp: 'Supercopa Polonia', count: 2, years: ['2021','2022']}, { comp: 'Segunda Polonia', count: 2, years: ['1993-94','2018-19']}, { comp: 'Tercera Polonia', count: 5, years: ['1962','1977-78','1980-81','1989-90','2016-17']}, { comp: 'Cuarta Polonia', count: 3, years: ['1936-37','1956','2004-05']}],
+             staff: [{ name: 'Dawid Kroczek', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/25970.jpg?size=120x&lossy=1',
               career: [{ team: 'Rak\u00f3w Cz\u0119stochowa', from: '04/05/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
           { id: 'p5', name: 'Pogo\u0144 Szczecin', rating: 70, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/4559.png?size=120x&lossy=1', budget: 5000000,
             staff: [{ name: '\u00d3scar Garc\u00eda', nationality: '\ud83c\uddea\ud83c\uddf8 Espa\u00f1a', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/251.jpg?size=120x&lossy=1',
               career: [{ team: 'Pogo\u0144 Szczecin', from: '01/07/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'p6', name: 'G\u00f3rnik Zabrze', rating: 70, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1468.png?size=120x&lossy=1', budget: 2200000,
-            staff: [{ name: 'Michal Gasparik', nationality: '\ud83c\uddf8\ud83c\uddf0 Eslovaquia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/45893.jpg?size=120x&lossy=1',
+           { id: 'p6', name: 'G\u00f3rnik Zabrze', rating: 70, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1468.png?size=120x&lossy=1', budget: 2200000, palmares: [{ comp: 'Liga Polaca', count: 14, years: ['1957','1959','1961','1962-63','1963-64','1964-65','1965-66','1966-67','1970-71','1971-72','1984-85','1985-86','1986-87','1987-88']}, { comp: 'Copa Polonia', count: 7, years: ['1964-65','1967-68','1968-69','1969-70','1970-71','1971-72','2025-26']}, { comp: 'Supercopa Polonia', count: 1, years: ['1988']}],
+             staff: [{ name: 'Michal Gasparik', nationality: '\ud83c\uddf8\ud83c\uddf0 Eslovaquia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/45893.jpg?size=120x&lossy=1',
               career: [{ team: 'G\u00f3rnik Zabrze', from: '01/07/2025', to: '30/06/2027', matches: 40, won: 22, drawn: 8, lost: 10 }]
             }] },
-          { id: 'p7', name: 'Jagiellonia Bia\u0142ystok', rating: 73, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/5816.png?size=120x&lossy=1', budget: 6000000,
-            staff: [{ name: 'Adrian Siemieniec', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/56928.jpg?size=120x&lossy=1',
+           { id: 'p7', name: 'Jagiellonia Bia\u0142ystok', rating: 73, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/5816.png?size=120x&lossy=1', budget: 6000000, palmares: [{ comp: 'Liga Polaca', count: 1, years: ['2023-24']}, { comp: 'Copa Polonia', count: 1, years: ['2009-10']}, { comp: 'Supercopa Polonia', count: 2, years: ['2010','2024']}, { comp: 'Segunda Polonia', count: 1, years: ['1986-87']}],
+             staff: [{ name: 'Adrian Siemieniec', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/56928.jpg?size=120x&lossy=1',
               career: [{ team: 'Jagiellonia Bia\u0142ystok', from: '04/04/2023', to: '30/06/2027', matches: 153, won: 76, drawn: 40, lost: 37 }]
             }] },
-          { id: 'p8', name: '\u015al\u0105sk Wroc\u0142aw', rating: 65, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/5813.png?size=120x&lossy=1', budget: 4500000,
-            staff: [{ name: 'Ante Simundza', nationality: '\ud83c\uddf8\ud83c\uddee Eslovenia', role: 'headCoach', avatar: 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1',
+           { id: 'p8', name: '\u015al\u0105sk Wroc\u0142aw', rating: 65, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/5813.png?size=120x&lossy=1', budget: 4500000, palmares: [{ comp: 'Liga Polaca', count: 2, years: ['1976-77','2011-12']}, { comp: 'Copa Polonia', count: 2, years: ['1975-76','1986-87']}, { comp: 'Supercopa Polonia', count: 2, years: ['1987','2012']}],
+             staff: [{ name: 'Ante Simundza', nationality: '\ud83c\uddf8\ud83c\uddee Eslovenia', role: 'headCoach', avatar: 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1',
               career: [{ team: '\u015al\u0105sk Wroc\u0142aw', from: '24/12/2024', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'p9', name: 'GKS Katowice', rating: 70, formation: '3-4-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/13374.png?size=120x&lossy=1', budget: 1200000,
-            staff: [{ name: 'Rafal Gorak', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17824.jpg?size=120x&lossy=1',
+           { id: 'p9', name: 'GKS Katowice', rating: 70, formation: '3-4-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/13374.png?size=120x&lossy=1', budget: 1200000, palmares: [{ comp: 'Copa Polonia', count: 3, years: ['1985-86','1990-91','1992-93']}, { comp: 'Supercopa Polonia', count: 2, years: ['1991','1995']}],
+             staff: [{ name: 'Rafal Gorak', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17824.jpg?size=120x&lossy=1',
               career: [{ team: 'GKS Katowice', from: '01/07/2024', to: 'Actualidad', matches: 30, won: 12, drawn: 8, lost: 10 }]
             }] },
-          { id: 'p10', name: 'KS Cracovia', rating: 69, formation: '3-4-2-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1703.png?size=120x&lossy=1', budget: 3500000,
-            staff: [{ name: 'Bartosz Grzelak', nationality: '\ud83c\uddf8\ud83c\uddea Suecia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17180.jpg?size=120x&lossy=1',
+           { id: 'p10', name: 'KS Cracovia', rating: 69, formation: '3-4-2-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1703.png?size=120x&lossy=1', budget: 3500000, palmares: [{ comp: 'Liga Polaca', count: 5, years: ['1921','1930','1932','1937','1948']}, { comp: 'Copa Polonia', count: 1, years: ['2019-20']}, { comp: 'Supercopa Polonia', count: 1, years: ['2020']}],
+             staff: [{ name: 'Bartosz Grzelak', nationality: '\ud83c\uddf8\ud83c\uddea Suecia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17180.jpg?size=120x&lossy=1',
               career: [{ team: 'KS Cracovia', from: '20/04/2026', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'p11', name: 'Zaglebie Lubin', rating: 69, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/3974.png?size=120x&lossy=1', budget: 3500000,
-            staff: [{ name: 'Leszek Ojrzynski', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1102.jpg?size=120x&lossy=1',
+           { id: 'p11', name: 'Zaglebie Lubin', rating: 69, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/3974.png?size=120x&lossy=1', budget: 3500000, palmares: [{ comp: 'Liga Polaca', count: 2, years: ['1990-91','2006-07']}, { comp: 'Supercopa Polonia', count: 1, years: ['2007']}, { comp: 'Segunda Polonia', count: 3, years: ['1984-85','1988-89','2014-15']}, { comp: 'Tercera Polonia', count: 2, years: ['1974-75','1977-78']}],
+             staff: [{ name: 'Leszek Ojrzynski', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1102.jpg?size=120x&lossy=1',
               career: [{ team: 'Zaglebie Lubin', from: '13/03/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'p12', name: 'Piast Gliwice', rating: 65, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1239.png?size=120x&lossy=1', budget: 2500000,
-            staff: [{ name: 'Daniel Mysliwiec', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/57859.jpg?size=120x&lossy=1',
+           { id: 'p12', name: 'Piast Gliwice', rating: 65, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1239.png?size=120x&lossy=1', budget: 2500000, palmares: [{ comp: 'Liga Polaca', count: 1, years: ['2018-19']}, { comp: 'Segunda Polonia', count: 1, years: ['2011-12']}],
+             staff: [{ name: 'Daniel Mysliwiec', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/57859.jpg?size=120x&lossy=1',
               career: [{ team: 'Piast Gliwice', from: '23/10/2025', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'p13', name: 'Widzew \u0141\u00f3d\u017a', rating: 72, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/5811.png?size=120x&lossy=1', budget: 2000000,
-            staff: [{ name: 'Aleksandar Vukovic', nationality: '\ud83c\uddf7\ud83c\uddf8 Serbia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17528.jpg?size=120x&lossy=1',
+           { id: 'p13', name: 'Widzew \u0141\u00f3d\u017a', rating: 72, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/5811.png?size=120x&lossy=1', budget: 2000000, palmares: [{ comp: 'Liga Polaca', count: 4, years: ['1980-81','1981-82','1995-96','1996-97']}, { comp: 'Copa Polonia', count: 1, years: ['1984-85']}, { comp: 'Supercopa Polonia', count: 1, years: ['1996']}, { comp: 'Segunda Polonia', count: 3, years: ['2005-06','2008-09','2009-10']}],
+             staff: [{ name: 'Aleksandar Vukovic', nationality: '\ud83c\uddf7\ud83c\uddf8 Serbia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17528.jpg?size=120x&lossy=1',
               career: [{ team: 'Widzew \u0141\u00f3d\u017a', from: '05/03/2026', to: '30/06/2027', matches: 11, won: 5, drawn: 3, lost: 3 }]
             }] },
-          { id: 'p14', name: 'Korona Kielce', rating: 69, formation: '4-1-4-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/3973.png?size=120x&lossy=1', budget: 1300000,
-            staff: [{ name: 'Jacek Zielinski', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1109.jpg?size=120x&lossy=1',
+           { id: 'p14', name: 'Korona Kielce', rating: 69, formation: '4-1-4-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/3973.png?size=120x&lossy=1', budget: 1300000, palmares: [{ comp: 'Segunda Polonia', count: 1, years: ['2004-05']}, { comp: 'Tercera Polonia', count: 3, years: ['1989-90','1996-97','2003-04']}],
+             staff: [{ name: 'Jacek Zielinski', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1109.jpg?size=120x&lossy=1',
               career: [{ team: 'Korona Kielce', from: '07/08/2024', to: '30/06/2027', matches: 72, won: 27, drawn: 21, lost: 24 }]
             }] },
-          { id: 'p15', name: 'Wis\u0142a P\u0142ock', rating: 69, formation: '3-4-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/13364.png?size=120x&lossy=1', budget: 1800000,
-            staff: [{ name: 'Adam Majewski', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/43191.jpg?size=120x&lossy=1',
+           { id: 'p15', name: 'Wis\u0142a P\u0142ock', rating: 69, formation: '3-4-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/13364.png?size=120x&lossy=1', budget: 1800000, palmares: [{ comp: 'Copa Polonia', count: 1, years: ['2005-06']}, { comp: 'Supercopa Polonia', count: 1, years: ['2006']}],
+             staff: [{ name: 'Adam Majewski', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/43191.jpg?size=120x&lossy=1',
               career: [{ team: 'Wis\u0142a P\u0142ock', from: '01/07/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
           { id: 'p16', name: 'Radomiak Radom', rating: 70, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/13380.png?size=120x&lossy=1', budget: 1500000,
@@ -80,7 +80,7 @@ window.DB.poland = {
         ] },
       { id: 'lpl2', name: 'Segunda Polonia', logo: 'https://cdn.resfu.com/media/img/league_logos/segunda_polonia.png?size=120x&lossy=1',
         teams: [
-          { id: 'p19', name: 'Arka Gdynia',           rating: 63, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/13262.png?size=120x&lossy=1', budget: 1200000 },
+           { id: 'p19', name: 'Arka Gdynia',           rating: 63, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/13262.png?size=120x&lossy=1', budget: 1200000, palmares: [{ comp: 'Copa Polonia', count: 2, years: ['1978-79','2016-17']}, { comp: 'Supercopa Polonia', count: 2, years: ['2017','2018']}, { comp: 'Segunda Polonia', count: 2, years: ['2015-16','2024-25']}] },
           { id: 'p20', name: 'Chrobry G\u0142og\u00f3w',  rating: 58, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/17735.png?size=120x&lossy=1', budget: 500000,
             staff: [{ name: 'Lukasz Becella', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/69885.jpg?size=120x&lossy=1',
               career: [{ team: 'Chrobry G\u0142og\u00f3w', from: '20/11/2024', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
@@ -89,12 +89,12 @@ window.DB.poland = {
             staff: [{ name: 'Tomasz Kafarski', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17593.jpg?size=120x&lossy=1',
               career: [{ team: 'GKS Pogon', from: '01/07/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'p22', name: 'Lechia Gda\u0144sk',     rating: 67, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/1889.png?size=120x&lossy=1', budget: 2200000,
-            staff: [{ name: 'Vladyslav Lupashko', nationality: '\ud83c\uddfa\ud83c\udde6 Ucrania', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/58896.jpg?size=120x&lossy=1',
+           { id: 'p22', name: 'Lechia Gda\u0144sk',     rating: 67, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/1889.png?size=120x&lossy=1', budget: 2200000, palmares: [{ comp: 'Copa Polonia', count: 2, years: ['1982-83','2018-19']}, { comp: 'Supercopa Polonia', count: 1, years: ['1983']}],
+             staff: [{ name: 'Vladyslav Lupashko', nationality: '\ud83c\uddfa\ud83c\udde6 Ucrania', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/58896.jpg?size=120x&lossy=1',
               career: [{ team: 'Lechia Gda\u0144sk', from: '01/07/2026', to: '30/06/2029', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'p23', name: 'LKS \u0141\u00f3d\u017a', rating: 66, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1568.png?size=120x&lossy=1', budget: 1800000,
-            staff: [{ name: 'Grzegorz Szoka', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/67511.jpg?size=120x&lossy=1',
+           { id: 'p23', name: 'LKS \u0141\u00f3d\u017a', rating: 66, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1568.png?size=120x&lossy=1', budget: 1800000, palmares: [{ comp: 'Liga Polaca', count: 2, years: ['1958','1997-98']}, { comp: 'Copa Polonia', count: 1, years: ['1956-57']}, { comp: 'Segunda Polonia', count: 2, years: ['2010-11','2022-23']}],
+             staff: [{ name: 'Grzegorz Szoka', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/67511.jpg?size=120x&lossy=1',
               career: [{ team: 'LKS \u0141\u00f3d\u017a', from: '11/11/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
           { id: 'p24', name: 'Mied\u017a Legnica',      rating: 65, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/13372.png?size=120x&lossy=1', budget: 1100000,
@@ -113,20 +113,20 @@ window.DB.poland = {
             staff: [{ name: 'Adam Nocon', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17847.jpg?size=120x&lossy=1',
               career: [{ team: 'Pogo\u0144 Siedlce', from: '01/10/2024', to: '30/06/2028', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'p28', name: 'Polonia Warszawa',       rating: 65, formation: '3-4-2-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/10034.png?size=120x&lossy=1', budget: 850000,
-            staff: [{ name: 'Piotr Stokowiec', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1097.jpg?size=120x&lossy=1',
+           { id: 'p28', name: 'Polonia Warszawa',       rating: 65, formation: '3-4-2-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/10034.png?size=120x&lossy=1', budget: 850000, palmares: [{ comp: 'Liga Polaca', count: 2, years: ['1946','1999-2000']}, { comp: 'Copa Polonia', count: 2, years: ['1952','2000-01']}, { comp: 'Supercopa Polonia', count: 1, years: ['2000']}, { comp: 'Segunda Polonia', count: 2, years: ['1992-93','1995-96']}, { comp: 'Tercera Polonia', count: 1, years: ['2022-23']}],
+             staff: [{ name: 'Piotr Stokowiec', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1097.jpg?size=120x&lossy=1',
               career: [{ team: 'Polonia Warszawa', from: '01/07/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
           { id: 'p29', name: 'Puszcza Niepo\u0142omice', rating: 60, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/13294.png?size=120x&lossy=1', budget: 1000000,
             staff: [{ name: 'Tomasz Tulacz', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17860.jpg?size=120x&lossy=1',
               career: [{ team: 'Puszcza Niepo\u0142omice', from: '13/08/2015', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'p30', name: 'Ruch Chorz\u00f3w',      rating: 65, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/1470.png?size=120x&lossy=1', budget: 1700000,
-            staff: [{ name: 'Waldemar Fornalik', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1115.jpg?size=120x&lossy=1',
+           { id: 'p30', name: 'Ruch Chorz\u00f3w',      rating: 65, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/1470.png?size=120x&lossy=1', budget: 1700000, palmares: [{ comp: 'Liga Polaca', count: 14, years: ['1933','1934','1935','1936','1938','1951','1952','1953','1960','1967-68','1973-74','1974-75','1978-79','1988-89']}, { comp: 'Copa Polonia', count: 3, years: ['1950-51','1973-74','1995-96']}, { comp: 'Segunda Polonia', count: 2, years: ['1987-88','2006-07']}, { comp: 'Tercera Polonia', count: 1, years: ['2020-21']}],
+             staff: [{ name: 'Waldemar Fornalik', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1115.jpg?size=120x&lossy=1',
               career: [{ team: 'Ruch Chorz\u00f3w', from: '06/08/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-          { id: 'p31', name: 'Stal Mielec',            rating: 61, formation: '3-4-2-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/13432.png?size=120x&lossy=1', budget: 1300000,
-            staff: [{ name: 'Damian Skiba', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/92475.jpg?size=120x&lossy=1',
+           { id: 'p31', name: 'Stal Mielec',            rating: 61, formation: '3-4-2-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/13432.png?size=120x&lossy=1', budget: 1300000, palmares: [{ comp: 'Liga Polaca', count: 2, years: ['1972-73','1975-76']}, { comp: 'Segunda Polonia', count: 3, years: ['1960','1984-85','1987-88']}, { comp: 'Tercera Polonia', count: 3, years: ['1955','1968-69','2015-16']}, { comp: 'Cuarta Polonia', count: 1, years: ['2012-13']}],
+             staff: [{ name: 'Damian Skiba', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/92475.jpg?size=120x&lossy=1',
               career: [{ team: 'Stal Mielec', from: '01/07/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
           { id: 'p32', name: 'Stal Rzesz\u00f3w',      rating: 55, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/13383.png?size=120x&lossy=1', budget: 700000,
@@ -137,7 +137,7 @@ window.DB.poland = {
             staff: [{ name: 'Marcin Brosz', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/17679.jpg?size=120x&lossy=1',
               career: [{ team: 'Termalica Nieciecza', from: '19/03/2024', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-           { id: 'p34', name: 'TS Polonia Bytom',       rating: 63, formation: '3-4-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2541.png?size=120x&lossy=1', budget: 450000,
+            { id: 'p34', name: 'TS Polonia Bytom',       rating: 63, formation: '3-4-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/2541.png?size=120x&lossy=1', budget: 450000, palmares: [{ comp: 'Liga Polaca', count: 2, years: ['1954','1962']}],
             staff: [{ name: 'Konrad Gerega', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: '',
               career: [{ team: 'TS Polonia Bytom', from: '01/07/2026', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
@@ -145,7 +145,7 @@ window.DB.poland = {
             staff: [{ name: 'Kamil Socha', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: '',
               career: [{ team: 'Unia Skierniewice', from: '01/07/2023', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
-           { id: 'p36', name: 'Warta Pozna\u0144',      rating: 59, formation: '3-4-2-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/13363.png?size=120x&lossy=1',
+            { id: 'p36', name: 'Warta Pozna\u0144',      rating: 59, formation: '3-4-2-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/13363.png?size=120x&lossy=1', palmares: [{ comp: 'Liga Polaca', count: 2, years: ['1929','1947']}],
             staff: [{ name: 'Maciej Tokarczyk', nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', role: 'headCoach', avatar: '',
               career: [{ team: 'Warta Pozna\u0144', from: '01/07/2025', to: '30/06/2027', matches: 0, won: 0, drawn: 0, lost: 0 }]
             }] },
