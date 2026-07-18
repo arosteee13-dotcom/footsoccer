@@ -5846,6 +5846,28 @@ td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
   color: #1E3A5F;
 }
 
+/* Copa view */
+.copa-wrap { padding: 12px; display: flex; flex-direction: column; gap: 16px; }
+.copa-section { background: var(--bg-surface); border-radius: 10px; padding: 14px; }
+.copa-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.copa-logo { width: 32px; height: 32px; object-fit: contain; }
+.copa-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.copa-round { margin-bottom: 10px; }
+.copa-round-title { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.copa-fixture { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,0.04); margin-bottom: 4px; }
+.copa-fixture-pending { opacity: 0.5; }
+.copa-fixture-team { flex: 1; font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.copa-fixture-team.copa-user { color: #10B981; font-weight: 700; }
+.copa-fixture-round { font-size: 10px; color: var(--text-muted); min-width: 55px; }
+.copa-fixture-score { font-size: 13px; font-weight: 700; color: var(--accent); min-width: 40px; text-align: center; }
+.copa-winner { text-align: center; font-size: 14px; font-weight: 700; color: #F59E0B; padding: 10px; background: rgba(245,158,11,0.1); border-radius: 8px; margin-top: 8px; }
+.copa-eliminated { text-align: center; font-size: 13px; color: #EF4444; padding: 8px; background: rgba(239,68,68,0.08); border-radius: 8px; margin-bottom: 10px; }
+.copa-empty { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+.cal-cup-row { background: rgba(245,158,11,0.06); border-left: 3px solid #F59E0B; }
+.cal-cup-row .cal-list-semana { color: #F59E0B; font-weight: 700; }
+.home-cup-card { border: 1px solid #F59E0B; background: rgba(245,158,11,0.04); }
+.home-cup-indicator { font-size: 12px; color: #F59E0B; font-weight: 600; padding: 4px 0 2px; text-align: center; }
+
 /* Utilities */
 .hidden {
   display: none !important;
