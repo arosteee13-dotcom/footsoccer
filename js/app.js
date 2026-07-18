@@ -1974,6 +1974,11 @@ function renderClub() {
   document.getElementById('club-inbox-content').classList.add('hidden')
   document.getElementById('club-calendar-content').classList.add('hidden')
   document.getElementById('club-palmares-content').classList.add('hidden')
+  var isHamburgerView = state.clubSubTab === 'inbox' || state.clubSubTab === 'calendar' || state.clubSubTab === 'palmares'
+  var teamInfo = document.getElementById('club-team-info')
+  var subTabs = document.querySelector('#view-club .sub-tabs')
+  if (teamInfo) teamInfo.style.display = isHamburgerView ? 'none' : ''
+  if (subTabs) subTabs.style.display = isHamburgerView ? 'none' : ''
   document.querySelectorAll('#view-club .sub-tab').forEach(b => b.classList.toggle('active', b.dataset.subtab === state.clubSubTab))
   if (state.clubSubTab === 'squad') {
     document.getElementById('club-squad-content').classList.remove('hidden')
@@ -6164,7 +6169,7 @@ function setupNavigation() {
     }
   })
 
-  /* Club sub-tabs */
+  /* Club sub-tabs (only those shown in the UI) */
   document.querySelectorAll('#view-club .sub-tab').forEach(btn => {
     btn.onclick = () => {
       state.clubSubTab = btn.dataset.subtab
@@ -6172,21 +6177,12 @@ function setupNavigation() {
       btn.classList.add('active')
       document.getElementById('club-squad-content').classList.add('hidden')
       document.getElementById('club-tactics-content').classList.add('hidden')
-      document.getElementById('club-inbox-content').classList.add('hidden')
-      document.getElementById('club-calendar-content').classList.add('hidden')
       if (state.clubSubTab === 'squad') {
         document.getElementById('club-squad-content').classList.remove('hidden')
         renderSquad(state.players)
       } else if (state.clubSubTab === 'tactics') {
         document.getElementById('club-tactics-content').classList.remove('hidden')
         renderTactics(state.tactic)
-      } else if (state.clubSubTab === 'inbox') {
-        document.getElementById('club-inbox-content').classList.remove('hidden')
-        hideInboxDetail()
-        renderInbox()
-      } else if (state.clubSubTab === 'calendar') {
-        document.getElementById('club-calendar-content').classList.remove('hidden')
-        renderCalendar()
       }
     }
   })
@@ -8018,6 +8014,26 @@ try {
         alert('📊 Historial — Próximamente')
       } else if (action === 'settings') {
         showSettingsModal()
+      } else if (action === 'inbox') {
+        state.clubSubTab = 'inbox'
+        renderTab('club')
+      } else if (action === 'calendar') {
+        state.clubSubTab = 'calendar'
+        renderTab('club')
+      } else if (action === 'palmares') {
+        state.clubSubTab = 'palmares'
+        renderTab('club')
+      } else if (action === 'home') {
+        renderTab('home')
+      } else if (action === 'squad') {
+        state.clubSubTab = 'squad'
+        renderTab('club')
+      } else if (action === 'league') {
+        renderTab('league')
+      } else if (action === 'market') {
+        renderTab('market')
+      } else if (action === 'finances') {
+        renderTab('finances')
       }
     }
   })

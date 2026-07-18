@@ -2262,6 +2262,11 @@ html, body {
   margin-top: 8px;
   padding-top: 16px;
 }
+.dropdown-divider {
+  height: 1px;
+  background: var(--border, rgba(255,255,255,0.08));
+  margin: 4px 12px;
+}
 
 .dropdown-label {
   font-size: 10px;
