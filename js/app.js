@@ -4364,11 +4364,6 @@ function renderMovements() {
   document.getElementById('btn-back-from-movements')?.addEventListener('click', function () {
     var overlay = document.getElementById('progression-modal')
     if (overlay) overlay.classList.remove('hidden')
-    var movementsNav = document.querySelector('[data-tab="movements"]')
-    if (movementsNav) movementsNav.style.display = 'none'
-    document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.remove('active') })
-    document.querySelector('[data-tab="home"]').classList.add('active')
-    renderTab('home')
   })
 }
 
