@@ -706,6 +706,7 @@ const state = {
   leagueViewCountry: '',
   trophies: [],
   trophyHistory: { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] },
+  allTeamsHistory: {},
   seasonNumber: 1,
   transferWindowOpen: false,
   loanPool: [],
@@ -1267,6 +1268,9 @@ window.SaveSystem = {
         const league = db.country.leagues.find(l => l.id === state.leagueId)
         if (league) leagueName = league.name
       }
+      var _sn = state.seasonNumber || 1
+      var _s1 = String(2026 + _sn - 1).slice(-2)
+      var _s2 = String(2026 + _sn).slice(-2)
       const data = {
         id: Number(gameId),
         meta: {
@@ -1276,6 +1280,7 @@ window.SaveSystem = {
           teamLogo: teamLogoUrl,
           leagueName: leagueName,
           countryDatabase: state.countryId || '',
+          seasonLabel: _s1 + '/' + _s2,
           gameDate: `Jornada ${matchday}`,
           saveDate: new Date().toISOString(),
         },
@@ -1313,6 +1318,7 @@ window.SaveSystem = {
         lastFinalStandings: state.lastFinalStandings,
         myPalmares: state.myPalmares,
         trophyHistory: state.trophyHistory,
+        allTeamsHistory: state.allTeamsHistory,
         lastSeasonMovements: state.lastSeasonMovements,
       }
       if (idx >= 0) saves[idx] = data; else saves.unshift(data)
@@ -3833,6 +3839,80 @@ function liberarSuspensiones() {
   })
 }
 
+function getSeasonLabel() {
+  var sn = state.seasonNumber || 1
+  var s1 = String(2026 + sn - 1).slice(-2)
+  var s2 = String(2026 + sn).slice(-2)
+  return s1 + '/' + s2
+}
+
+function recordAllTeamsSeasonHistory() {
+  if (!state.allTeamsHistory) state.allTeamsHistory = {}
+  var seasonLabel = getSeasonLabel()
+  for (var ci in window.DB) {
+    var cd = window.DB[ci]
+    if (!cd || !cd.country || !cd.country.leagues) continue
+    var leagues = cd.country.leagues
+    for (var li = 0; li < leagues.length; li++) {
+      var league = leagues[li]
+      var data = state.allLeagueData[league.id]
+      if (!data || !data.fixtures) continue
+      var teamIds = league.teams.map(function(t) { return t.id })
+      var standings = computeStandings(data.fixtures, teamIds)
+      if (!standings || standings.length === 0) continue
+      for (var si = 0; si < standings.length; si++) {
+        var tid = standings[si].teamId
+        if (!state.allTeamsHistory[tid]) state.allTeamsHistory[tid] = { seasons: [] }
+        state.allTeamsHistory[tid].seasons.push({ season: seasonLabel, division: league.name, position: si + 1 })
+      }
+    }
+  }
+}
+
+function recordSeasonTrophyWinners() {
+  if (!state.allTeamsHistory) state.allTeamsHistory = {}
+  var sl = getSeasonLabel()
+  /* League champions - all leagues in all countries */
+  for (var ci in window.DB) {
+    var cd = window.DB[ci]
+    if (!cd || !cd.country || !cd.country.leagues) continue
+    var leagues = cd.country.leagues
+    for (var li = 0; li < leagues.length; li++) {
+      var league = leagues[li]
+      var data = state.allLeagueData[league.id]
+      if (!data || !data.fixtures) continue
+      var teamIds = league.teams.map(function(t) { return t.id })
+      var standings = computeStandings(data.fixtures, teamIds)
+      if (!standings || standings.length === 0) continue
+      var champId = standings[0].teamId
+      if (!state.allTeamsHistory[champId]) state.allTeamsHistory[champId] = { seasons: [], trophies: [] }
+      if (!state.allTeamsHistory[champId].trophies) state.allTeamsHistory[champId].trophies = []
+      state.allTeamsHistory[champId].trophies.push({ competition: league.name, season: sl })
+    }
+  }
+  /* Cup champion */
+  if (state.cupChampion) {
+    var cupComp = getCupCompName(state.countryId)
+    if (!state.allTeamsHistory[state.cupChampion]) state.allTeamsHistory[state.cupChampion] = { seasons: [], trophies: [] }
+    if (!state.allTeamsHistory[state.cupChampion].trophies) state.allTeamsHistory[state.cupChampion].trophies = []
+    state.allTeamsHistory[state.cupChampion].trophies.push({ competition: cupComp, season: sl })
+  }
+  /* Supercopa */
+  if (state.supercopa && state.supercopa.winner) {
+    var scComp = getSupercopaCompName(state.countryId)
+    if (!state.allTeamsHistory[state.supercopa.winner]) state.allTeamsHistory[state.supercopa.winner] = { seasons: [], trophies: [] }
+    if (!state.allTeamsHistory[state.supercopa.winner].trophies) state.allTeamsHistory[state.supercopa.winner].trophies = []
+    state.allTeamsHistory[state.supercopa.winner].trophies.push({ competition: scComp, season: sl })
+  }
+  /* Taca da Liga */
+  if (state.tacaDaLigaChampion) {
+    var tacaComp = getTacaDaLigaCompName()
+    if (!state.allTeamsHistory[state.tacaDaLigaChampion]) state.allTeamsHistory[state.tacaDaLigaChampion] = { seasons: [], trophies: [] }
+    if (!state.allTeamsHistory[state.tacaDaLigaChampion].trophies) state.allTeamsHistory[state.tacaDaLigaChampion].trophies = []
+    state.allTeamsHistory[state.tacaDaLigaChampion].trophies.push({ competition: tacaComp, season: sl })
+  }
+}
+
 function procesarVentasCPU() {
   const transferibles = state.players.filter(p => p.transferListed && p.transferPrice > 0)
   for (const p of transferibles) {
@@ -4591,6 +4671,23 @@ function iniciarNuevaTemporada() {
   }
 }
 
+function showTrofeoModal(title, subtitle, logoUrl, onContinue) {
+  var modal = document.getElementById('trofeo-modal')
+  if (!modal) return
+  document.getElementById('tm-title').textContent = title
+  document.getElementById('tm-subtitle').textContent = subtitle
+  var logoEl = document.getElementById('tm-logo')
+  if (logoUrl) { logoEl.src = logoUrl; logoEl.style.display = '' }
+  else { logoEl.style.display = 'none' }
+  document.getElementById('tm-btn').onclick = function() {
+    modal.style.display = 'none'
+    modal.classList.remove('open')
+    if (onContinue) onContinue()
+  }
+  modal.style.display = ''
+  modal.classList.add('open')
+}
+
 function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, logros) {
   state.lastSeasonProgressionData = { result: result, msg: msg, skipStandings: skipStandings, nuevosTrofeos: nuevosTrofeos || [], logros: logros || [] }
   var modal = document.getElementById('season-progression-modal')
@@ -4605,6 +4702,7 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
   var html = '<div style="display:flex;gap:8px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px">'
   html += '<button class="sub-tab' + (activeTab === 'progresion' ? ' active' : '') + '" data-spm-tab="progresion">Progresi\u00f3n</button>'
   if (movementsData) html += '<button class="sub-tab' + (activeTab === 'movimientos' ? ' active' : '') + '" data-spm-tab="movimientos">Movimientos</button>'
+  html += '<button class="sub-tab' + (activeTab === 'competiciones' ? ' active' : '') + '" data-spm-tab="competiciones">Competiciones</button>'
   html += '</div>'
   if (activeTab === 'progresion') {
     html += '<p class="progression-msg">' + msg.replace(/\n/g, '<br>') + '</p>'
@@ -4635,6 +4733,10 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
       retirados.forEach(function(p) { html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + p.name + ' (' + p.age + ' a\u00f1os) se retira tras ' + (p.matches || 0) + ' partidos esta temporada</p>' })
       html += '</div>'
     }
+  } else if (activeTab === 'competiciones') {
+    html += '<p style="font-size:12px;color:var(--text-muted);margin:0 0 12px">Campeones de cada competici\u00f3n esta temporada</p>'
+    var winners = getSeasonWinners()
+    html += buildCompetitionsHtml(winners)
   } else {
     html += buildMovementsHtml(movementsData)
   }
@@ -4647,6 +4749,67 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
   modal.classList.add('open')
   var startBtn = document.getElementById('spm-btn-start')
   if (startBtn) startBtn.onclick = function() { modal.style.display = 'none'; modal.classList.remove('open'); modal.classList.add('hidden'); iniciarNuevaTemporada() }
+}
+
+function getSeasonWinners() {
+  var winners = []
+  /* Continentales */
+  winners.push({ type: 'continental', competition: 'Champions League', winner: '—', logo: null })
+  winners.push({ type: 'continental', competition: 'Europa League', winner: '—', logo: null })
+  winners.push({ type: 'continental', competition: 'Conference League', winner: '—', logo: null })
+  /* Nacionales */
+  if (!window.DB[state.countryId]) return winners
+  var leagues = window.DB[state.countryId].country.leagues
+  if (!leagues) return winners
+  for (var li = 0; li < leagues.length; li++) {
+    var league = leagues[li]
+    var data = state.allLeagueData[league.id]
+    if (!data || !data.fixtures) continue
+    var teamIds = league.teams.map(function(t) { return t.id })
+    var standings = computeStandings(data.fixtures, teamIds)
+    if (!standings || standings.length === 0) continue
+    var champId = standings[0].teamId
+    winners.push({ type: 'national', competition: league.name, winner: getTeamName(champId) || '—', logo: getTeamLogo(champId) })
+  }
+  /* Copa del Rey / Taça de Portugal */
+  if (state.cupChampion) {
+    var cupName = getCupCompName(state.countryId)
+    winners.push({ type: 'national', competition: cupName, winner: getTeamName(state.cupChampion) || '—', logo: getTeamLogo(state.cupChampion) })
+  }
+  /* Supercopa */
+  if (state.supercopa && state.supercopa.winner) {
+    var scName = getSupercopaCompName(state.countryId)
+    winners.push({ type: 'national', competition: scName, winner: getTeamName(state.supercopa.winner) || '—', logo: getTeamLogo(state.supercopa.winner) })
+  }
+  /* Taca da Liga (solo Portugal) */
+  if (state.tacaDaLigaChampion) {
+    winners.push({ type: 'national', competition: getTacaDaLigaCompName(), winner: getTeamName(state.tacaDaLigaChampion) || '—', logo: getTeamLogo(state.tacaDaLigaChampion) })
+  }
+  return winners
+}
+
+function buildCompetitionsHtml(winners) {
+  if (!winners || winners.length === 0) return '<p style="font-size:12px;color:var(--text-muted)">Sin datos de competiciones</p>'
+  var html = ''
+  var conts = winners.filter(function(w) { return w.type === 'continental' })
+  var nats = winners.filter(function(w) { return w.type === 'national' })
+  if (conts.length > 0) {
+    html += '<h3 style="font-size:13px;font-weight:700;margin:12px 0 6px;color:var(--text)">\ud83c\udf0d Continentales</h3>'
+    conts.forEach(function(w) {
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;color:var(--text)"><span style="flex:1">' + w.competition + '</span><span style="font-weight:600">' + w.winner + '</span></div>'
+    })
+  }
+  if (nats.length > 0) {
+    var flag = ''
+    if (window.DB[state.countryId]) flag = window.DB[state.countryId].country.flag || ''
+    html += '<h3 style="font-size:13px;font-weight:700;margin:12px 0 6px;color:var(--text)">' + flag + ' Nacionales</h3>'
+    nats.forEach(function(w) {
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;color:var(--text)"><span style="flex:1">' + w.competition + '</span>'
+      if (w.logo) html += '<img src="' + w.logo + '" style="width:18px;height:18px;border-radius:50%;object-fit:contain" onerror="this.style.display=\'none\'">'
+      html += '<span style="font-weight:600">' + w.winner + '</span></div>'
+    })
+  }
+  return html
 }
 
 function buildMovementsHtml(movementsData) {
@@ -4967,6 +5130,19 @@ function divName(leagueId) {
 
 function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
   state.lastFinalStandings = updateLeagueStandings()
+  /* Auto-simulate remaining cup/taca rounds if user eliminated */
+  try {
+    if (state.cup && state.cup.roundIdx >= 0) {
+      var userInCup = state.cup.allFixtures && state.cup.allFixtures.some(function(f) { return !f.played && (f.home === state.teamId || f.away === state.teamId) })
+      if (!userInCup) autoSimularCopaRestante()
+    }
+  } catch(e) { console.warn('[SEASON] autoSimularCopaRestante error:', e) }
+  try {
+    if (state.tacaDaLiga && !state.tacaDaLigaChampion) {
+      var userInTaca = state.tacaDaLiga.fixtures && state.tacaDaLiga.fixtures.some(function(f) { return !f.played && (f.home === state.teamId || f.away === state.teamId) })
+      if (!userInTaca) autoSimularTacaDaLigaRestante()
+    }
+  } catch(e) { console.warn('[SEASON] autoSimularTacaDaLigaRestante error:', e) }
   if (!skipAging) var agingResult = envejecerYProgresar()
   let cambioDivision = false
   let pos = 0
@@ -5294,6 +5470,8 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
   /* Compute season movements for all leagues in the country */
   if (!skipStandings) {
     state.lastSeasonMovements = computeSeasonMovements(state.countryId)
+    recordAllTeamsSeasonHistory()
+    recordSeasonTrophyWinners()
   }
 
   if (esPlayoffSegundaSpain) {
@@ -5320,21 +5498,28 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
   if (!skipStandings) {
     var nuevosTrofeos = []
     var logros = []
-    if (pos === 1) {
-      var _league = getLeagueFromId(state.leagueId)
-      var trofeo = { competition: 'Campeón de ' + (_league ? _league.name : state.leagueId), season: state.seasonNumber }
-      state.trophies.push(trofeo)
-      nuevosTrofeos.push(trofeo)
-      /* Store champion for next season's Supercopa */
-      state.leagueChampion = state.teamId
-    }
     if (pos === 2) {
       state.leagueRunnerUp = state.teamId
     }
     if (cambioDivision && pos <= 2) {
       logros.push('Ascenso directo de categoría')
     }
-    showSeasonProgressionModal(agingResult || { changes: [], retirados: [] }, msg, skipStandings, nuevosTrofeos, logros)
+    if (pos === 1) {
+      var _league2 = getLeagueFromId(state.leagueId)
+      var trofeo2 = { competition: 'Campeón de ' + (_league2 ? _league2.name : state.leagueId), season: state.seasonNumber }
+      state.trophies.push(trofeo2)
+      nuevosTrofeos.push(trofeo2)
+      state.leagueChampion = state.teamId
+      var _sn3 = state.seasonNumber || 1
+      var _a3 = String(2026 + _sn3 - 1).slice(-2)
+      var _b3 = String(2026 + _sn3).slice(-2)
+      var lSeason = _a3 + '/' + _b3
+      showTrofeoModal('¡Campeón de ' + (_league2 ? _league2.name : state.leagueId) + '!', 'Temporada ' + lSeason, _league2 ? _league2.logo || null : null, function() {
+        showSeasonProgressionModal(agingResult || { changes: [], retirados: [] }, msg, skipStandings, nuevosTrofeos, logros)
+      })
+    } else {
+      showSeasonProgressionModal(agingResult || { changes: [], retirados: [] }, msg, skipStandings, nuevosTrofeos, logros)
+    }
     return
   }
 
@@ -5342,6 +5527,8 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
   try {
     var postAging = envejecerYProgresar()
     state.lastSeasonMovements = computeSeasonMovements(state.countryId)
+    recordAllTeamsSeasonHistory()
+    recordSeasonTrophyWinners()
     showSeasonProgressionModal(postAging, extraMsg || '', skipStandings, [], [])
   } catch (err) {
     console.error('[SEASON-POST] Error in post-playoff modal:', err)
@@ -6381,14 +6568,26 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga) {
           state.supercopa.winner = state.teamId
           if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
           var cy3 = new Date().getFullYear() % 100
-          state.trophyHistory.supercopaWins.push({ season: (cy3 - 1) + '/' + cy3.toString().padStart(2, '0'), competition: getSupercopaCompName(state.countryId) })
-          addNotification('transfer', '\ud83c\udfc6 \u00a1Campe\u00f3n de la Supercopa!', state.team + ' gana la ' + getSupercopaCompName(state.countryId))
+          var scSeason = (cy3 - 1) + '/' + cy3.toString().padStart(2, '0')
+          state.trophyHistory.supercopaWins.push({ season: scSeason, competition: getSupercopaCompName(state.countryId) })
+          state.trophies.push({ competition: getSupercopaCompName(state.countryId), season: state.seasonNumber })
+          showTrofeoModal('¡Campeón de la ' + getSupercopaCompName(state.countryId) + '!', 'Temporada ' + scSeason, getSupercopaLogo(state.countryId))
+        }
+        if (state.cup && state.cup.allFixtures && state.cup.roundIdx === -1 && state.cupChampion === state.teamId) {
+          if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
+          var cyCup = new Date().getFullYear() % 100
+          var cupSeason = (cyCup - 1) + '/' + cyCup.toString().padStart(2, '0')
+          state.trophyHistory.cupWins.push({ season: cupSeason, competition: getCupCompName(state.countryId) })
+          state.trophies.push({ competition: getCupCompName(state.countryId), season: state.seasonNumber })
+          showTrofeoModal('¡Campeón de la ' + getCupCompName(state.countryId) + '!', 'Temporada ' + cupSeason, getCupLogo(state.countryId))
         }
         if (isTacaDaLiga && state.tacaDaLigaChampion === state.teamId) {
           if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
           var cy4 = new Date().getFullYear() % 100
-          state.trophyHistory.tacaDaLigaWins.push({ season: (cy4 - 1) + '/' + cy4.toString().padStart(2, '0'), competition: getTacaDaLigaCompName() })
-          addNotification('transfer', '\ud83c\udfc6 \u00a1Campe\u00f3n de la Copa de la Liga!', state.team + ' gana la ' + getTacaDaLigaCompName())
+          var tacaSeason = (cy4 - 1) + '/' + cy4.toString().padStart(2, '0')
+          state.trophyHistory.tacaDaLigaWins.push({ season: tacaSeason, competition: getTacaDaLigaCompName() })
+          state.trophies.push({ competition: getTacaDaLigaCompName(), season: state.seasonNumber })
+          showTrofeoModal('¡Campeón de la ' + getTacaDaLigaCompName() + '!', 'Temporada ' + tacaSeason, getTacaDaLigaLogo())
         }
       }
     }
@@ -7711,6 +7910,7 @@ function newGame(coach) {
   state.inbox = []
   state.captainId = null
   state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
+  state.allTeamsHistory = {}
 
   /* Assign user squad based on selected team */
   const userSquad = getRealSquad(state.teamId) || generateCpuSquad(state.teamId, state.countryId, selectedTeam.rating)
@@ -7864,6 +8064,17 @@ function newGame(coach) {
   startGame()
 }
 
+function loadAllCountries(callback) {
+  var list = ['spain', 'portugal', 'poland']
+  if (list.indexOf(state.countryId) === -1) list.push(state.countryId)
+  var remaining = list.length
+  list.forEach(function(cid) {
+    loadCountryData(cid, function() {
+      if (--remaining <= 0) callback()
+    })
+  })
+}
+
 function loadGame(id) {
   const saves = getSaves()
   const data = saves.find(s => Number(s.id) === Number(id))
@@ -7911,13 +8122,14 @@ function loadGame(id) {
   state.lastFinalStandings = data.lastFinalStandings || null
   state.myPalmares = data.myPalmares || null
   state.trophyHistory = data.trophyHistory || null
+  state.allTeamsHistory = data.allTeamsHistory || {}
   state.lastSeasonMovements = data.lastSeasonMovements || null
   /* Clean up stale cup data: Copa del Rey is Spain-only now */
   if (state.countryId !== 'spain') {
     state.cup = null
     state.supercopa = null
   }
-  loadCountryData(state.countryId, function() {
+  loadAllCountries(function() {
     normalizarPlantillas()
     startGame()
   })
@@ -7944,7 +8156,11 @@ function startGame() {
 
 function generarMockHistorial() {
   state.trophyHistory = state.trophyHistory || { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
-  if (state.trophyHistory.seasons.length > 0) return /* Already have data */
+  if (!state.allTeamsHistory) state.allTeamsHistory = {}
+  if (state.allTeamsHistory[state.teamId] && state.allTeamsHistory[state.teamId].seasons && state.allTeamsHistory[state.teamId].seasons.length > 0) return
+  var currentYear = new Date().getFullYear() % 100
+  var startYear = 26
+  /* Find user's division name for legacy trophyHistory */
   var divisionName = ''
   for (var ci in window.DB) {
     var data = window.DB[ci]
@@ -7957,14 +8173,35 @@ function generarMockHistorial() {
   }
   if (!divisionName) divisionName = state.leagueId
   /* Generate mock seasons from 26/27 up to last completed season */
-  var currentYear = new Date().getFullYear() % 100
-  var startYear = 26
-  var mockSeasons = []
   for (var sy = startYear; sy < currentYear; sy++) {
     var seasonLabel = sy + '/' + (sy + 1).toString().padStart(2, '0')
     var idx = sy - startYear
     var pos = idx % 5 === 0 ? 1 : (idx % 5 === 1 ? 4 : (idx % 5 === 2 ? 5 : (idx % 5 === 3 ? 6 : 8)))
     state.trophyHistory.seasons.push({ season: seasonLabel, division: divisionName, position: pos })
+  }
+  /* Generate mock history for ALL teams across all countries */
+  for (var ciB in window.DB) {
+    var dataB = window.DB[ciB]
+    if (!dataB || !dataB.country || !dataB.country.leagues) continue
+    for (var liB = 0; liB < dataB.country.leagues.length; liB++) {
+      var leagueB = dataB.country.leagues[liB]
+      if (!leagueB.teams) continue
+      for (var ti = 0; ti < leagueB.teams.length; ti++) {
+        var tid = leagueB.teams[ti].id
+        if (!tid) continue
+        if (!state.allTeamsHistory[tid]) state.allTeamsHistory[tid] = { seasons: [] }
+        if (state.allTeamsHistory[tid].seasons.length > 0) continue
+        /* Vary position pattern per team using teamId chars as seed */
+        var seed = 0
+        for (var si = 0; si < String(tid).length; si++) seed += String(tid).charCodeAt(si)
+        for (var syB = startYear; syB < currentYear; syB++) {
+          var seasonLabelB = syB + '/' + (syB + 1).toString().padStart(2, '0')
+          var idxB = (syB - startYear + seed) % 6
+          var posB = idxB === 0 ? 1 : idxB === 1 ? 3 : idxB === 2 ? 5 : idxB === 3 ? 8 : idxB === 4 ? 12 : 15
+          state.allTeamsHistory[tid].seasons.push({ season: seasonLabelB, division: leagueB.name, position: posB })
+        }
+      }
+    }
   }
 }
 
@@ -8058,44 +8295,49 @@ function showTeamSelectionStep() {
   const msg = document.getElementById('ng-error-msg')
   if (msg) { msg.classList.add('hidden'); msg.textContent = '' }
 
-  loadCountryData(countryId, function(data) {
-    if (!data) {
-      if (msg) { msg.textContent = 'No se pudieron cargar los datos de ' + selectedCountry.name + '. Intenta de nuevo.'; msg.classList.remove('hidden') }
-      return
-    }
-
-    selectedLeague = null
-    selectedTeam = null
-
-    const leagues = data.country.leagues || []
-
-    if (leagues.length > 0) {
-      var firstGrouped = leagues.find(function(l) { return l.id && isGroupedLeague(l.id) })
-      if (firstGrouped) {
-        var gCfg = getGroupedConfig(firstGrouped.id)
-        var grpAll = leagues.filter(function(l) { return l.id && isGroupedLeague(l.id) })
-        var mergedG = []
-        for (var gi3 = 0; gi3 < grpAll.length; gi3++) {
-          mergedG = mergedG.concat(grpAll[gi3].teams || [])
-        }
-        selectedLeague = { id: gCfg.groups[0].replace(/[0-9]+$/, ''), name: gCfg.name, logo: grpAll[0].logo, teams: mergedG, _groups: grpAll }
-      } else {
-        selectedLeague = leagues[0]
+  var allCids = [countryId]
+  ;['spain', 'portugal', 'poland'].forEach(function(c) { if (allCids.indexOf(c) === -1) allCids.push(c) })
+  var loaded = 0
+  allCids.forEach(function(cid) {
+    loadCountryData(cid, function(data) {
+      if (++loaded !== allCids.length) return
+      if (!window.DB[countryId]) {
+        if (msg) { msg.textContent = 'No se pudieron cargar los datos de ' + selectedCountry.name + '. Intenta de nuevo.'; msg.classList.remove('hidden') }
+        return
       }
-    }
+      const db = window.DB[countryId]
+      selectedLeague = null
+      selectedTeam = null
+      const leagues = db.country.leagues || []
 
-    renderLeagueSelector(leagues)
-    if (selectedLeague) renderTeamList(selectedLeague)
+      if (leagues.length > 0) {
+        var firstGrouped = leagues.find(function(l) { return l.id && isGroupedLeague(l.id) })
+        if (firstGrouped) {
+          var gCfg = getGroupedConfig(firstGrouped.id)
+          var grpAll = leagues.filter(function(l) { return l.id && isGroupedLeague(l.id) })
+          var mergedG = []
+          for (var gi3 = 0; gi3 < grpAll.length; gi3++) {
+            mergedG = mergedG.concat(grpAll[gi3].teams || [])
+          }
+          selectedLeague = { id: gCfg.groups[0].replace(/[0-9]+$/, ''), name: gCfg.name, logo: grpAll[0].logo, teams: mergedG, _groups: grpAll }
+        } else {
+          selectedLeague = leagues[0]
+        }
+      }
 
-    document.querySelectorAll('.ng-step').forEach((s, i) => {
-      s.classList.toggle('done', i === 0)
-      s.classList.toggle('active', i === 1)
+      renderLeagueSelector(leagues)
+      if (selectedLeague) renderTeamList(selectedLeague)
+
+      document.querySelectorAll('.ng-step').forEach((s, i) => {
+        s.classList.toggle('done', i === 0)
+        s.classList.toggle('active', i === 1)
+      })
+
+      document.getElementById('ng-step-countries').classList.add('ng-hidden')
+      document.getElementById('ng-step-teams').classList.remove('ng-hidden')
     })
-
-    document.getElementById('ng-step-countries').classList.add('ng-hidden')
-    document.getElementById('ng-step-teams').classList.remove('ng-hidden')
-  })
-}
+    })
+  }
 
 function renderLeagueSelector(leagues) {
   var groupedSets = {}
@@ -8619,6 +8861,9 @@ function showLoadMenu() {
     const teamName = m.teamName || save.team || '—'
     const logo = m.teamLogo || save.teamLogo || ''
     const leagueName = m.leagueName || ''
+    const seasonLabel = m.seasonLabel || (function(){
+      var _s = save.seasonNumber || 1; var _a = String(2026 + _s - 1).slice(-2); var _b = String(2026 + _s).slice(-2); return _a + '/' + _b
+    })()
     const gameDate = m.gameDate || `Jornada ${save.matchday || 1}`
     const saveDate = m.saveDate || save.date || ''
     const ago = timeAgo(saveDate)
@@ -8628,7 +8873,7 @@ function showLoadMenu() {
       <div class="ls-info">
         <div class="ls-team">${teamName}</div>
         <div class="ls-manager">${mgrName}</div>
-        <div class="ls-meta">${gameDate}${leagueName ? ` · ${leagueName}` : ''}</div>
+        <div class="ls-meta">${seasonLabel} · ${gameDate}${leagueName ? ` · ${leagueName}` : ''}</div>
       </div>
       <div class="ls-actions">
         <span class="ls-time">${ago}</span>
@@ -8949,7 +9194,6 @@ function showTeamInfo(teamId) {
         content += '<div style="padding:5px 14px;font-size:12px;color:var(--text-muted)">Sin salidas esta temporada</div>'
       }
     } else if (teamViewTab === 'history') {
-      var th = state.trophyHistory || { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
       /* Merge historical palmares from team data with in-game achievements */
       var mergedTrophies = {}
       if (team.palmares) {
@@ -8957,30 +9201,21 @@ function showTeamInfo(teamId) {
           mergedTrophies[p.comp] = { comp: p.comp, count: p.count, years: p.years || [] }
         })
       }
-      /* Add in-game trophies (only for user's team) */
-      if (teamId === state.teamId && th.leagueTitles && th.leagueTitles.length > 0) {
-        var ltComp = th.leagueTitles[0].competition || 'Liga'
-        if (!mergedTrophies[ltComp]) mergedTrophies[ltComp] = { comp: ltComp, count: 0, years: [] }
-        mergedTrophies[ltComp].count += th.leagueTitles.length
-        mergedTrophies[ltComp].years = mergedTrophies[ltComp].years.concat(th.leagueTitles.map(function(t) { return t.season }))
-      }
-      if (teamId === state.teamId && th.cupWins && th.cupWins.length > 0) {
-        var cpComp = th.cupWins[0].competition || 'Copa'
-        if (!mergedTrophies[cpComp]) mergedTrophies[cpComp] = { comp: cpComp, count: 0, years: [] }
-        mergedTrophies[cpComp].count += th.cupWins.length
-        mergedTrophies[cpComp].years = mergedTrophies[cpComp].years.concat(th.cupWins.map(function(t) { return t.season }))
-      }
-      if (teamId === state.teamId && th.supercopaWins && th.supercopaWins.length > 0) {
-        var scComp = (th.supercopaWins[0] && th.supercopaWins[0].competition) || getSupercopaCompName(state.countryId)
-        if (!mergedTrophies[scComp]) mergedTrophies[scComp] = { comp: scComp, count: 0, years: [] }
-        mergedTrophies[scComp].count += th.supercopaWins.length
-        mergedTrophies[scComp].years = mergedTrophies[scComp].years.concat(th.supercopaWins.map(function(t) { return t.season }))
-      }
-      if (teamId === state.teamId && th.tacaDaLigaWins && th.tacaDaLigaWins.length > 0) {
-        var tdlComp = (th.tacaDaLigaWins[0] && th.tacaDaLigaWins[0].competition) || getTacaDaLigaCompName()
-        if (!mergedTrophies[tdlComp]) mergedTrophies[tdlComp] = { comp: tdlComp, count: 0, years: [] }
-        mergedTrophies[tdlComp].count += th.tacaDaLigaWins.length
-        mergedTrophies[tdlComp].years = mergedTrophies[tdlComp].years.concat(th.tacaDaLigaWins.map(function(t) { return t.season }))
+      /* Add in-game trophies from allTeamsHistory (all teams) */
+      var ath = state.allTeamsHistory || {}
+      var teamTrophies = ath[teamId] ? ath[teamId].trophies || [] : []
+      if (teamTrophies.length > 0) {
+        var grouped = {}
+        teamTrophies.forEach(function(t) {
+          if (!grouped[t.competition]) grouped[t.competition] = { comp: t.competition, count: 0, years: [] }
+          grouped[t.competition].count++
+          grouped[t.competition].years.push(t.season)
+        })
+        for (var comp in grouped) {
+          if (!mergedTrophies[comp]) mergedTrophies[comp] = { comp: comp, count: 0, years: [] }
+          mergedTrophies[comp].count += grouped[comp].count
+          mergedTrophies[comp].years = mergedTrophies[comp].years.concat(grouped[comp].years)
+        }
       }
       var trophiesList = Object.keys(mergedTrophies).map(function(k) { return mergedTrophies[k] })
       var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
@@ -9034,14 +9269,15 @@ function showTeamInfo(teamId) {
         content += '<div id="trofeo-tooltip" style="display:none;margin:4px 14px 8px;padding:10px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:12px;line-height:1.4"></div>'
       }
 
-      /* League history */
+      /* League history — from allTeamsHistory */
+      var teamHistory = state.allTeamsHistory || {}
+      var teamSeasons = teamHistory[teamId] ? teamHistory[teamId].seasons || [] : []
       content += '<div class="tactics-subsection-label" style="margin-top:12px">\ud83d\udcca Historial en liga</div>'
-      var seasons = th.seasons || []
-      if (seasons.length === 0) {
+      if (teamSeasons.length === 0) {
         content += '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin datos de temporadas anteriores</div>'
       } else {
         content += '<div style="padding:4px 14px 14px">'
-        var reversedSeasons = seasons.slice().reverse()
+        var reversedSeasons = teamSeasons.slice().reverse()
         reversedSeasons.forEach(function(s) {
           var posDisplay = s.position + '\u00ba'
           var posColor = s.position === 1 ? '#10B981' : s.position <= 4 ? '#3B82F6' : s.position <= 6 ? '#F59E0B' : '#EF4444'
