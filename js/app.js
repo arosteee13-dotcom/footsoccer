@@ -4576,6 +4576,7 @@ function iniciarNuevaTemporada() {
     state.players.forEach(function(p) { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
     document.getElementById('league-results-wrap').classList.add('hidden')
     renderTab('home')
+    actualizarIndicadorTemporada()
     saveGame()
     if (!skipStandings) {
       addNotification('general', msg, 'Nueva temporada en ' + divName(state.leagueId))
@@ -9510,6 +9511,13 @@ function addNotification(type, title, body) {
 function actualizarIndicadorTemporada() {
   var el = document.getElementById('season-display')
   if (el) el.textContent = 'T' + (state.seasonNumber || 1)
+  var homeLabel = document.getElementById('home-season-label')
+  if (homeLabel) {
+    var sn = state.seasonNumber || 1
+    var s1 = String(2026 + sn - 1).slice(-2)
+    var s2 = String(2026 + sn).slice(-2)
+    homeLabel.textContent = 'Temporada ' + s1 + '/' + s2
+  }
 }
 
 function updateInboxBadge() {
