@@ -2137,17 +2137,6 @@ function renderHome() {
     '</div>'
   }
 
-  /* Season-end fallback: show buttons when no matches left */
-  if (!matchFixture && state.currentMatchday >= state.totalMatchdays && state.totalMatchdays > 0 && !state.playoffs) {
-    matchHtml = '<div class="home-card home-match">' +
-      '<div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;text-align:center">\ud83c\udfc6 Temporada Completada</div>' +
-      '<div style="display:flex;flex-direction:column;gap:8px">' +
-        '<button class="btn-home-simulate" id="btn-show-season-summary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Ver resumen de temporada</button>' +
-        '<button class="btn-home-simulate" id="btn-advance-season" style="background:linear-gradient(135deg,#2E7D32,#1b5e20)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Avanzar siguiente temporada</button>' +
-      '</div>' +
-    '</div>'
-  }
-
   container.innerHTML = '<div class="home-card">' +
     '<div class="home-avatar-wrap">' + (state.teamLogo ? '<img class="home-logo" src="' + state.teamLogo + '" alt="">' : '') + '</div>' +
     '<div class="home-team-name">' + state.team + '</div>' +
@@ -2177,22 +2166,15 @@ function renderHome() {
       simularPartidoRapido(matchFixture, simRivalId)
     }
   }
-  var summaryBtn = document.getElementById('btn-show-season-summary')
-  if (summaryBtn) summaryBtn.onclick = function() {
-    if (state.lastSeasonProgressionData) {
-      var d = state.lastSeasonProgressionData
-      showSeasonProgressionModal(d.result, d.msg, d.skipStandings, d.nuevosTrofeos, d.logros)
-    } else {
-      showSeasonProgressionModal({ changes: [], retirados: [] }, 'Temporada finalizada', true, [], [])
-    }
-  }
-  var advanceBtn = document.getElementById('btn-advance-season')
-  if (advanceBtn) advanceBtn.onclick = function() {
-    if (state.lastSeasonProgressionData) {
-      iniciarNuevaTemporada()
-    } else {
-      state.lastSeasonProgressionData = { result: { changes: [], retirados: [] }, msg: 'Nueva temporada', skipStandings: true, nuevosTrofeos: [], logros: [] }
-      iniciarNuevaTemporada()
+
+  /* Season-end fallback: show modal when no matches left */
+  if (!matchFixture && state.totalMatchdays > 0 && !state.playoffs && (state.currentMatchday >= state.totalMatchdays || !!state.lastSeasonProgressionData)) {
+    var sem = document.getElementById('season-end-modal')
+    var spm = document.getElementById('season-progression-modal')
+    var semVisible = sem && sem.style.display !== 'none' && sem.classList.contains('open')
+    var spmVisible = spm && spm.style.display !== 'none' && spm.classList.contains('open')
+    if (!semVisible && !spmVisible) {
+      showSeasonEndFallback()
     }
   }
   console.log('[RENDER] onclick configurado para boton simulate - simBtn:', !!simBtn, 'simRivalId:', matchFixture ? (matchFixture.home == state.teamId ? matchFixture.away : matchFixture.home) : null)
@@ -4586,7 +4568,7 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
   var modal = document.getElementById('season-progression-modal')
   var content = document.getElementById('spm-content')
   var subtitle = document.getElementById('spm-subtitle')
-  if (!modal || !content) { renderTab('home'); return }
+  if (!modal || !content) { showSeasonEndFallback(); return }
   subtitle.textContent = 'T' + (state.seasonNumber || 1) + ' \u2014 Resumen del curso'
   var changes = result.changes || []
   var retirados = result.retirados || []
@@ -4634,7 +4616,9 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
   })
   modal.style.display = ''
   modal.classList.remove('hidden')
-  document.getElementById('spm-btn-start').onclick = function() { modal.style.display = 'none'; modal.classList.remove('open'); modal.classList.add('hidden'); iniciarNuevaTemporada() }
+  modal.classList.add('open')
+  var startBtn = document.getElementById('spm-btn-start')
+  if (startBtn) startBtn.onclick = function() { modal.style.display = 'none'; modal.classList.remove('open'); modal.classList.add('hidden'); iniciarNuevaTemporada() }
 }
 
 function buildMovementsHtml(movementsData) {
@@ -4719,6 +4703,38 @@ function buildMovementsHtml(movementsData) {
     html += '</div>'
   }
   return html
+}
+
+function showSeasonEndFallback() {
+  var modal = document.getElementById('season-end-modal')
+  if (!modal) return
+  modal.style.display = ''
+  modal.classList.remove('hidden')
+  modal.classList.add('open')
+  var summaryBtn = document.getElementById('sem-btn-summary')
+  var advanceBtn = document.getElementById('sem-btn-advance')
+  if (summaryBtn) summaryBtn.onclick = function() {
+    modal.style.display = 'none'
+    modal.classList.remove('open')
+    modal.classList.add('hidden')
+    if (state.lastSeasonProgressionData) {
+      var d = state.lastSeasonProgressionData
+      showSeasonProgressionModal(d.result, d.msg, d.skipStandings, d.nuevosTrofeos, d.logros)
+    } else {
+      showSeasonProgressionModal({ changes: [], retirados: [] }, 'Temporada finalizada', true, [], [])
+    }
+  }
+  if (advanceBtn) advanceBtn.onclick = function() {
+    modal.style.display = 'none'
+    modal.classList.remove('open')
+    modal.classList.add('hidden')
+    if (state.lastSeasonProgressionData) {
+      iniciarNuevaTemporada()
+    } else {
+      state.lastSeasonProgressionData = { result: { changes: [], retirados: [] }, msg: 'Nueva temporada', skipStandings: true, nuevosTrofeos: [], logros: [] }
+      iniciarNuevaTemporada()
+    }
+  }
 }
 
 function renderProgression() {

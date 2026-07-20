@@ -550,6 +550,19 @@
     </div>
   </div>
 
+  <!-- SEASON END FALLBACK MODAL -->
+  <div id="season-end-modal" class="modal-overlay" style="display:none;padding:0">
+    <div style="display:flex;align-items:center;justify-content:center;height:100dvh;width:100vw;padding:20px">
+      <div style="background:var(--bg-card);border-radius:16px;max-width:360px;width:100%;text-align:center;padding:32px 24px">
+        <div style="font-size:42px;margin-bottom:8px">🏆</div>
+        <h2 style="font-size:18px;font-weight:700;margin:0 0 4px;color:var(--text)">Temporada Completada</h2>
+        <p style="font-size:13px;color:var(--text-muted);margin:0 0 24px">La temporada ha finalizado. ¿Qué deseas hacer?</p>
+        <button class="btn-primary" id="sem-btn-summary" style="width:100%;margin-bottom:8px">Ver resumen de temporada</button>
+        <button class="btn-primary" id="sem-btn-advance" style="width:100%;background:linear-gradient(135deg,#2E7D32,#1b5e20)">Avanzar siguiente temporada →</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/app.js?v=7"></script>
 </body>
 </html>
