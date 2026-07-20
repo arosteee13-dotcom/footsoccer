@@ -2103,6 +2103,24 @@ function renderHome() {
   var roundNames = { QF: 'Cuartos de final', SF: 'Semifinal', F: 'Final' }
 
   console.log('[RENDER] renderHome ejecutada, fixture:', !!fixture, 'cupActive:', cupActive)
+
+  /* Season ended — show summary button instead of match card */
+  if (state.lastSeasonProgressionData) {
+    container.innerHTML = '<div class="home-card">' +
+      '<div class="home-avatar-wrap">' + (state.teamLogo ? '<img class="home-logo" src="' + state.teamLogo + '" alt="">' : '') + '</div>' +
+      '<div class="home-team-name">' + state.team + '</div>' +
+      '<div class="home-stats">' +
+        '<div class="home-stat"><span class="home-stat-icon">\ud83c\udfc6</span><span>' + userPos + '\u00ba de ' + standings.length + '</span></div>' +
+        '<div class="home-stat"><span class="home-stat-icon">\ud83d\udcb0</span><span>' + formatMoney(state.finances.balance) + '</span></div>' +
+        '<div class="home-stat"><span class="home-stat-icon">\ud83d\udc65</span><span>' + state.players.length + '/' + MAX_SQUAD + '</span></div>' +
+        '<div class="home-stat"><span class="home-stat-icon">\ud83d\udcca</span><span>' + state.stats.wins + 'V ' + state.stats.draws + 'E ' + state.stats.losses + 'D</span></div>' +
+      '</div>' +
+      '<button id="btn-view-season-summary" class="btn-primary" style="margin-top:16px;width:100%">\ud83d\udcca VER RESUMEN DE TEMPORADA</button>' +
+    '</div>'
+    document.getElementById('btn-view-season-summary')?.addEventListener('click', function() { renderTab('progression') })
+    return
+  }
+
   /* Always build match card — use first fixture as fallback */
   var matchFixture = fixture
   if (!matchFixture && state.fixtures && state.fixtures.length > 0) {
@@ -3771,9 +3789,7 @@ function computeSeasonMovements(countryId) {
 }
 
 function showMovementsTab(visible) {
-  const btn = document.querySelector('[data-tab="movements"]')
-  if (!btn) return
-  btn.style.display = visible ? '' : 'none'
+  /* No longer used — movements shown inside progression view */
 }
 
 /* ============ ECONOMÍA SEMANAL ============ */
@@ -4368,10 +4384,7 @@ function renderMovements() {
 
 function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, logros) {
   state.lastSeasonProgressionData = { result: result, msg: msg, skipStandings: skipStandings, nuevosTrofeos: nuevosTrofeos || [], logros: logros || [] }
-  if (state.lastSeasonMovements) {
-    showMovementsTab(true)
-  }
-  renderTab('progression')
+  renderTab('home')
 }
 
 function renderProgression() {
@@ -4386,67 +4399,171 @@ function renderProgression() {
   var logros = data.logros || []
   var msg = data.msg
   var skipStandings = data.skipStandings
+  var movementsData = state.lastSeasonMovements
+  var activeTab = state._progTab || 'progresion'
 
   var html = '<div style="padding:12px 14px">'
   html += '<h2 style="font-size:16px;font-weight:700;margin:0 0 8px;color:var(--text)">Fin de Temporada</h2>'
-  html += '<p class="progression-msg">' + msg.replace(/\n/g, '<br>') + '</p>'
 
-  if (nuevosTrofeos.length > 0) {
-    html += '<div style="margin-top:12px">'
-    html += '<h3 style="font-size:14px;font-weight:700;margin:0 0 6px;color:var(--text)">\ud83c\udfc6 Trofeos</h3>'
-    nuevosTrofeos.forEach(function(t) {
-      html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + t.competition + ' <span style="color:var(--text-muted)">(Temp. ' + t.season + ')</span></p>'
-    })
-    html += '</div>'
+  /* Sub-tab navigation */
+  html += '<div style="display:flex;gap:8px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px">'
+  html += '<button class="sub-tab' + (activeTab === 'progresion' ? ' active' : '') + '" data-prog-tab="progresion">Progresi\u00f3n</button>'
+  if (movementsData) {
+    html += '<button class="sub-tab' + (activeTab === 'movimientos' ? ' active' : '') + '" data-prog-tab="movimientos">Movimientos</button>'
   }
+  html += '</div>'
 
-  if (logros.length > 0) {
-    html += '<div style="margin-top:12px">'
-    html += '<h4 style="font-size:13px;font-weight:700;margin:0 0 4px;color:var(--text)">\ud83d\udcca Logros</h4>'
-    logros.forEach(function(l) {
-      html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + l + '</p>'
-    })
-    html += '</div>'
-  }
+  if (activeTab === 'progresion') {
+    html += '<p class="progression-msg">' + msg.replace(/\n/g, '<br>') + '</p>'
 
-  if (changes.length > 0) {
-    html += '<h3 style="font-size:14px;font-weight:700;margin:16px 0 6px;color:var(--text)">Cambios de Valoraci\u00f3n</h3>'
-    html += '<div>'
-    changes.sort(function(a, b) { return Math.abs(b.change) - Math.abs(a.change) })
-    changes.forEach(function(c) {
-      var arrow = c.change > 0 ? '\u25b2' : '\u25bc'
-      var cls = c.change > 0 ? 'color:#22c55e' : 'color:#ef4444'
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px">'
-      html += '<span style="font-weight:600;color:var(--text);flex:1">' + c.name + '</span>'
-      html += '<span style="' + cls + ';font-weight:700">' + arrow + (c.change > 0 ? '+' : '') + c.change + '</span>'
-      html += '<span style="color:var(--text-muted)">' + c.oldSkill + '\u2192' + c.newSkill + '</span>'
+    if (nuevosTrofeos.length > 0) {
+      html += '<div style="margin-top:12px">'
+      html += '<h3 style="font-size:14px;font-weight:700;margin:0 0 6px;color:var(--text)">\ud83c\udfc6 Trofeos</h3>'
+      nuevosTrofeos.forEach(function(t) {
+        html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + t.competition + ' <span style="color:var(--text-muted)">(Temp. ' + t.season + ')</span></p>'
+      })
       html += '</div>'
-    })
-    html += '</div>'
+    }
+
+    if (logros.length > 0) {
+      html += '<div style="margin-top:12px">'
+      html += '<h4 style="font-size:13px;font-weight:700;margin:0 0 4px;color:var(--text)">\ud83d\udcca Logros</h4>'
+      logros.forEach(function(l) {
+        html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + l + '</p>'
+      })
+      html += '</div>'
+    }
+
+    if (changes.length > 0) {
+      html += '<h3 style="font-size:14px;font-weight:700;margin:16px 0 6px;color:var(--text)">Cambios de Valoraci\u00f3n</h3>'
+      html += '<div>'
+      changes.sort(function(a, b) { return Math.abs(b.change) - Math.abs(a.change) })
+      changes.forEach(function(c) {
+        var arrow = c.change > 0 ? '\u25b2' : '\u25bc'
+        var cls = c.change > 0 ? 'color:#22c55e' : 'color:#ef4444'
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px">'
+        html += '<span style="font-weight:600;color:var(--text);flex:1">' + c.name + '</span>'
+        html += '<span style="' + cls + ';font-weight:700">' + arrow + (c.change > 0 ? '+' : '') + c.change + '</span>'
+        html += '<span style="color:var(--text-muted)">' + c.oldSkill + '\u2192' + c.newSkill + '</span>'
+        html += '</div>'
+      })
+      html += '</div>'
+    }
+
+    if (retirados.length > 0) {
+      html += '<div style="margin-top:12px">'
+      html += '<h4 style="font-size:13px;font-weight:700;margin:0 0 4px;color:var(--text)">\ud83d\ude91 Retiradas</h4>'
+      retirados.forEach(function(p) {
+        html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + p.name + ' (' + p.age + ' a\u00f1os) se retira tras ' + (p.matches || 0) + ' partidos esta temporada</p>'
+      })
+      html += '</div>'
+    }
+  } else {
+    /* MOVIMIENTOS TAB */
+    if (movementsData && movementsData.divisions && movementsData.divisions.length > 0) {
+      html += '<p style="font-size:12px;color:var(--text-muted);margin:0 0 16px">Ascensos y descensos en todas las categor\u00edas</p>'
+      for (var di = 0; di < movementsData.divisions.length; di++) {
+        var div = movementsData.divisions[di]
+        if (div.promoted.length === 0 && div.playoff.length === 0 && div.relegated.length === 0 && !div.crossPlayoff && !div.relegationPlayoff && !div.promotionPlayoff) continue
+        var hasMovements = div.promoted.length > 0 || div.relegated.length > 0 || !!div.crossPlayoff || !!div.relegationPlayoff || !!div.promotionPlayoff
+        if (!hasMovements && div.playoff.length === 0) continue
+        html += '<div style="background:var(--bg-surface);border-radius:10px;padding:12px;margin-bottom:12px">'
+        html += '<h3 style="font-size:14px;font-weight:700;margin:0 0 10px;color:var(--text)">' + div.name + '</h3>'
+        if (div.promoted.length > 0) {
+          html += '<div style="margin-bottom:8px">'
+          html += '<div style="font-size:11px;font-weight:600;color:#22c55e;text-transform:uppercase;margin-bottom:4px">\u2b06 Ascienden</div>'
+          for (var pi = 0; pi < div.promoted.length; pi++) {
+            var t = div.promoted[pi]
+            var viaLabel = t.via === 'playoff' ? ' (promoci\u00f3n)' : ''
+            html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(t.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + t.name + viaLabel + '</span></div>'
+          }
+          html += '</div>'
+        }
+        if (div.playoff.length > 0) {
+          html += '<div style="margin-bottom:8px">'
+          html += '<div style="font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;margin-bottom:4px">\ud83c\udfc6 Promoci\u00f3n</div>'
+          for (var qi = 0; qi < div.playoff.length; qi++) {
+            var q = div.playoff[qi]
+            html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(q.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + q.name + ' (' + q.pos + '\u00ba)</span></div>'
+          }
+          html += '</div>'
+        }
+        if (div.relegated.length > 0) {
+          html += '<div>'
+          html += '<div style="font-size:11px;font-weight:600;color:#ef4444;text-transform:uppercase;margin-bottom:4px">\u2b07 Descienden</div>'
+          for (var ri = 0; ri < div.relegated.length; ri++) {
+            var r = div.relegated[ri]
+            html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(r.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + r.name + '</span></div>'
+          }
+          html += '</div>'
+        }
+        if (div.crossPlayoff) {
+          var cp = div.crossPlayoff
+          var isHigher = cp.verdict === 'saved' || cp.verdict === 'relegated'
+          html += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">'
+          html += '<div style="font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;margin-bottom:4px">' + (isHigher ? '\u2694 Playoff permanencia' : '\u2694 Playoff ascenso') + '</div>'
+          html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(cp.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + getTeamName(cp.teamId) + ' ' + cp.scoreTeam + ' - ' + cp.scoreOpponent + ' <img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(cp.opponentId) + '" onerror="this.style.display=\'none\'"> ' + cp.opponentName + '</span></div>'
+          if (isHigher) {
+            var savedText = cp.verdict === 'saved' ? '\u2705 Se salva y permanece en ' + div.name : '\u274c Desciende a ' + cp.opponentLeagueName
+            html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;padding-left:24px">' + savedText + '</div>'
+            html += '<div style="font-size:12px;color:var(--text-muted);padding-left:24px">' + (cp.verdict !== 'saved' ? '\u2705 ' + cp.opponentName + ' asciende a ' + div.name : '\u274c ' + cp.opponentName + ' sigue en ' + cp.opponentLeagueName) + '</div>'
+          } else {
+            var promotedText = cp.verdict === 'promoted' ? '\u2705 Asciende a ' + cp.opponentLeagueName : '\u274c Sigue en ' + div.name
+            html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;padding-left:24px">' + promotedText + '</div>'
+          }
+          html += '</div>'
+        }
+        if (div.relegationPlayoff && div.relegationPlayoff.length > 0) {
+          html += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">'
+          html += '<div style="font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;margin-bottom:4px">\u2694 Promoci\u00f3n permanencia</div>'
+          for (var rpi = 0; rpi < div.relegationPlayoff.length; rpi++) {
+            var rp = div.relegationPlayoff[rpi]
+            if (rp.opponentId) {
+              html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(rp.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + rp.name + ' (' + rp.pos + '\u00ba) ' + rp.teamScore + ' - ' + rp.opponentScore + ' <img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(rp.opponentId) + '" onerror="this.style.display=\'none\'"> ' + rp.opponentName + '</span></div>'
+              var rpVerdict = rp.verdict === 'saved' ? '\u2705 Se salva y permanece en ' + div.name : '\u274c Desciende a ' + (rp.opponentLeague || 'divisi\u00f3n inferior')
+              html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;padding-left:24px">' + rpVerdict + '</div>'
+              html += '<div style="font-size:12px;color:var(--text-muted);padding-left:24px">' + (rp.verdict === 'saved' ? '\u274c ' + rp.opponentName + ' no asciende' : '\u2705 ' + rp.opponentName + ' asciende a ' + div.name) + '</div>'
+            } else {
+              html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(rp.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + rp.name + ' (' + rp.pos + '\u00ba)</span></div>'
+            }
+          }
+          html += '</div>'
+        }
+        if (div.promotionPlayoff) {
+          var pp = div.promotionPlayoff
+          html += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">'
+          html += '<div style="font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;margin-bottom:4px">\u2694 Promoci\u00f3n ascenso</div>'
+          html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(pp.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + pp.teamName
+          if (pp.intergroup) {
+            var ig = pp.intergroup
+            html += ' ' + ig.teamScore + ' - ' + ig.opponentScore + ' <img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(ig.opponentId) + '" onerror="this.style.display=\'none\'"> ' + ig.opponentName + '</span></div>'
+            html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;padding-left:24px">' + (ig.won ? '\u2705 Gana la semifinal intergrupos' : '\u274c Pierde la semifinal intergrupos - sigue en ' + div.name) + '</div>'
+            if (pp.crossFinal) {
+              var cf = pp.crossFinal
+              html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text);padding-left:24px"><span>Final vs ' + cf.opponentName + ': ' + pp.teamName + ' ' + cf.teamScore + ' - ' + cf.opponentScore + ' ' + cf.opponentName + '</span></div>'
+              html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;padding-left:24px">' + (cf.verdict === 'promoted' ? '\u2705 Asciende a ' + cf.opponentLeague : '\u274c Sigue en ' + div.name) + '</div>'
+            }
+          } else {
+            html += '</span></div>'
+          }
+          html += '</div>'
+        }
+        html += '</div>'
+      }
+    }
   }
 
-  if (retirados.length > 0) {
-    html += '<div style="margin-top:12px">'
-    html += '<h4 style="font-size:13px;font-weight:700;margin:0 0 4px;color:var(--text)">\ud83d\ude91 Retiradas</h4>'
-    retirados.forEach(function(p) {
-      html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + p.name + ' (' + p.age + ' a\u00f1os) se retira tras ' + (p.matches || 0) + ' partidos esta temporada</p>'
-    })
-    html += '</div>'
-  }
-
-  html += '<button id="btn-next-season" class="btn-primary" style="margin-top:16px">COMENZAR SIGUIENTE TEMPORADA</button>'
-  if (state.lastSeasonMovements) {
-    html += '<button id="btn-view-movements" class="btn-secondary" style="display:block;width:100%;margin-top:8px;padding:10px;font-size:13px;border-radius:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);cursor:pointer">\ud83d\udcca Ver Movimientos de la Temporada</button>'
-  }
+  html += '<button id="btn-next-season" class="btn-primary" style="margin-top:16px;width:100%">COMENZAR SIGUIENTE TEMPORADA</button>'
   html += '</div>'
   container.innerHTML = html
 
-  var viewMovementsBtn = document.getElementById('btn-view-movements')
-  if (viewMovementsBtn) {
-    viewMovementsBtn.addEventListener('click', function() {
-      renderTab('movements')
+  /* Sub-tab switching */
+  container.querySelectorAll('[data-prog-tab]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      state._progTab = this.dataset.progTab
+      renderProgression()
     })
-  }
+  })
 
   document.getElementById('btn-next-season').addEventListener('click', function() {
     try {
@@ -4485,7 +4602,7 @@ function renderProgression() {
     state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
     state.playoffs = null
     state.lastSeasonMovements = null
-    showMovementsTab(false)
+    state.lastSeasonProgressionData = null
     state.seasonNumber++
     /* Regenerate cups for new season — country-specific */
     try {
@@ -4875,7 +4992,6 @@ function procesarFinTemporada(skipAging, skipStandings) {
   /* Compute season movements for all leagues in the country */
   if (!skipStandings) {
     state.lastSeasonMovements = computeSeasonMovements(state.countryId)
-    if (state.lastSeasonMovements) showMovementsTab(true)
   }
 
   if (esPlayoffSegundaSpain) {
@@ -5811,6 +5927,24 @@ function simularPartidoRapido(fixture, rivalId) {
 
     /* Cleanup temp match vars after modal is rendered */
     state.players.forEach(function(p) { delete p._yellowThisMatch; delete p._redThisMatch; delete p._goalsInMatch; delete p._assistThisMatch })
+
+    /* Playoff: auto-simulate other fixtures, advance round, override continue */
+    if (state.playoffs && state.playoffs.fixtures && state.playoffs.fixtures.some(function(f) { return f === fixture })) {
+      state.playoffs.fixtures.forEach(function(f) {
+        if (f === fixture || f.played) return
+        var result = autoSimulateOtherMatch(f.home, f.away)
+        f.homeScore = result.homeScore
+        f.awayScore = result.awayScore
+        f.played = true
+      })
+      avanzarRondaPlayoff()
+      document.getElementById('mr-btn-continue').onclick = function() {
+        document.getElementById('match-result-modal').style.display = 'none'
+        document.getElementById('match-result-modal').classList.remove('open')
+        autoSave()
+        renderTab('home')
+      }
+    }
   }, 400)
 }
 
@@ -7035,7 +7169,6 @@ function renderTab(tab) {
     case 'home': renderHome(); break
     case 'market': renderMarket(); break
     case 'finances': renderFinances(); break
-    case 'movements': renderMovements(); break
     case 'progression': renderProgression(); break
   }
 }
