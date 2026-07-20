@@ -4362,89 +4362,88 @@ function renderMovements() {
   html += '</div>'
   container.innerHTML = html
   document.getElementById('btn-back-from-movements')?.addEventListener('click', function () {
-    var overlay = document.getElementById('progression-modal')
-    if (overlay) overlay.classList.remove('hidden')
+    renderTab('progression')
   })
 }
 
 function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, logros) {
-  var overlay = document.getElementById('progression-modal')
-  if (!overlay) {
-    overlay = document.createElement('div')
-    overlay.id = 'progression-modal'
-    overlay.className = 'progression-modal-overlay'
-    document.body.appendChild(overlay)
+  state.lastSeasonProgressionData = { result: result, msg: msg, skipStandings: skipStandings, nuevosTrofeos: nuevosTrofeos || [], logros: logros || [] }
+  if (state.lastSeasonMovements) {
+    showMovementsTab(true)
   }
+  renderTab('progression')
+}
 
-  var changes = result.changes || []
-  var retirados = result.retirados || []
-  nuevosTrofeos = nuevosTrofeos || []
-  logros = logros || []
+function renderProgression() {
+  var container = document.getElementById('progression-content')
+  if (!container) return
+  var data = state.lastSeasonProgressionData
+  if (!data) { container.innerHTML = ''; return }
 
-  var html = '<div class="progression-modal-card">'
-  html += '<h2>Fin de Temporada</h2>'
+  var changes = data.result.changes || []
+  var retirados = data.result.retirados || []
+  var nuevosTrofeos = data.nuevosTrofeos || []
+  var logros = data.logros || []
+  var msg = data.msg
+  var skipStandings = data.skipStandings
+
+  var html = '<div style="padding:12px 14px">'
+  html += '<h2 style="font-size:16px;font-weight:700;margin:0 0 8px;color:var(--text)">Fin de Temporada</h2>'
   html += '<p class="progression-msg">' + msg.replace(/\n/g, '<br>') + '</p>'
 
   if (nuevosTrofeos.length > 0) {
-    html += '<div class="progression-trophies">'
-    html += '<h3>🏆 Trofeos</h3>'
+    html += '<div style="margin-top:12px">'
+    html += '<h3 style="font-size:14px;font-weight:700;margin:0 0 6px;color:var(--text)">\ud83c\udfc6 Trofeos</h3>'
     nuevosTrofeos.forEach(function(t) {
-      html += '<p class="prog-trophy">' + t.competition + ' <span class="prog-season">(Temp. ' + t.season + ')</span></p>'
+      html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + t.competition + ' <span style="color:var(--text-muted)">(Temp. ' + t.season + ')</span></p>'
     })
     html += '</div>'
   }
 
   if (logros.length > 0) {
-    html += '<div class="progression-logros">'
-    html += '<h4>📊 Logros</h4>'
+    html += '<div style="margin-top:12px">'
+    html += '<h4 style="font-size:13px;font-weight:700;margin:0 0 4px;color:var(--text)">\ud83d\udcca Logros</h4>'
     logros.forEach(function(l) {
-      html += '<p>' + l + '</p>'
+      html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + l + '</p>'
     })
     html += '</div>'
   }
 
   if (changes.length > 0) {
-    html += '<h3>Cambios de Valoración</h3>'
-    html += '<div class="progression-list">'
+    html += '<h3 style="font-size:14px;font-weight:700;margin:16px 0 6px;color:var(--text)">Cambios de Valoraci\u00f3n</h3>'
+    html += '<div>'
     changes.sort(function(a, b) { return Math.abs(b.change) - Math.abs(a.change) })
     changes.forEach(function(c) {
-      var arrow = c.change > 0 ? '▲' : '▼'
-      var cls = c.change > 0 ? 'change-up' : 'change-down'
-      html += '<div class="progression-item ' + cls + '">'
-      html += '<span class="prog-name">' + c.name + '</span>'
-      html += '<span class="prog-arrow">' + arrow + '</span>'
-      html += '<span class="prog-change">' + (c.change > 0 ? '+' : '') + c.change + '</span>'
-      html += '<span class="prog-old">' + c.oldSkill + '</span>'
-      html += '<span class="prog-arrow">→</span>'
-      html += '<span class="prog-new">' + c.newSkill + '</span>'
+      var arrow = c.change > 0 ? '\u25b2' : '\u25bc'
+      var cls = c.change > 0 ? 'color:#22c55e' : 'color:#ef4444'
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px">'
+      html += '<span style="font-weight:600;color:var(--text);flex:1">' + c.name + '</span>'
+      html += '<span style="' + cls + ';font-weight:700">' + arrow + (c.change > 0 ? '+' : '') + c.change + '</span>'
+      html += '<span style="color:var(--text-muted)">' + c.oldSkill + '\u2192' + c.newSkill + '</span>'
       html += '</div>'
     })
     html += '</div>'
   }
 
   if (retirados.length > 0) {
-    html += '<div class="progression-retirados">'
-    html += '<h4>🚑 Retiradas</h4>'
+    html += '<div style="margin-top:12px">'
+    html += '<h4 style="font-size:13px;font-weight:700;margin:0 0 4px;color:var(--text)">\ud83d\ude91 Retiradas</h4>'
     retirados.forEach(function(p) {
-      html += '<p>' + p.name + ' (' + p.age + ' años) se retira tras ' + (p.matches || 0) + ' partidos esta temporada</p>'
+      html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + p.name + ' (' + p.age + ' a\u00f1os) se retira tras ' + (p.matches || 0) + ' partidos esta temporada</p>'
     })
     html += '</div>'
   }
 
-  html += '<button id="btn-next-season" class="btn-primary">COMENZAR SIGUIENTE TEMPORADA</button>'
+  html += '<button id="btn-next-season" class="btn-primary" style="margin-top:16px">COMENZAR SIGUIENTE TEMPORADA</button>'
   if (state.lastSeasonMovements) {
-    html += '<button id="btn-view-movements" class="btn-secondary" style="display:block;width:100%;margin-top:8px;padding:10px;font-size:13px;border-radius:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);cursor:pointer">📊 Ver Movimientos de la Temporada</button>'
+    html += '<button id="btn-view-movements" class="btn-secondary" style="display:block;width:100%;margin-top:8px;padding:10px;font-size:13px;border-radius:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);cursor:pointer">\ud83d\udcca Ver Movimientos de la Temporada</button>'
   }
   html += '</div>'
-  overlay.innerHTML = html
-  overlay.classList.remove('hidden')
+  container.innerHTML = html
 
   var viewMovementsBtn = document.getElementById('btn-view-movements')
   if (viewMovementsBtn) {
     viewMovementsBtn.addEventListener('click', function() {
-      overlay.classList.add('hidden')
-      var movementsNav = document.querySelector('[data-tab="movements"]')
-      if (movementsNav) movementsNav.style.display = ''
       renderTab('movements')
     })
   }
@@ -4513,7 +4512,6 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
     }
     state.players.forEach(function(p) { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
     document.getElementById('league-results-wrap').classList.add('hidden')
-    overlay.classList.add('hidden')
     renderTab('home')
     saveGame()
 
@@ -4523,7 +4521,6 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
     }
     } catch (err) {
       console.error('[SEASON] Critical error in btn-next-season:', err)
-      overlay.classList.add('hidden')
       document.getElementById('league-results-wrap').classList.add('hidden')
       state.currentMatchday = 1
       renderTab('home')
@@ -7039,6 +7036,7 @@ function renderTab(tab) {
     case 'market': renderMarket(); break
     case 'finances': renderFinances(); break
     case 'movements': renderMovements(); break
+    case 'progression': renderProgression(); break
   }
 }
 
