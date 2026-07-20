@@ -2137,6 +2137,17 @@ function renderHome() {
     '</div>'
   }
 
+  /* Season-end fallback: show buttons when no matches left */
+  if (!matchFixture && state.currentMatchday >= state.totalMatchdays && state.totalMatchdays > 0 && !state.playoffs) {
+    matchHtml = '<div class="home-card home-match">' +
+      '<div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;text-align:center">\ud83c\udfc6 Temporada Completada</div>' +
+      '<div style="display:flex;flex-direction:column;gap:8px">' +
+        '<button class="btn-home-simulate" id="btn-show-season-summary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Ver resumen de temporada</button>' +
+        '<button class="btn-home-simulate" id="btn-advance-season" style="background:linear-gradient(135deg,#2E7D32,#1b5e20)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Avanzar siguiente temporada</button>' +
+      '</div>' +
+    '</div>'
+  }
+
   container.innerHTML = '<div class="home-card">' +
     '<div class="home-avatar-wrap">' + (state.teamLogo ? '<img class="home-logo" src="' + state.teamLogo + '" alt="">' : '') + '</div>' +
     '<div class="home-team-name">' + state.team + '</div>' +
@@ -2164,6 +2175,24 @@ function renderHome() {
       simularPartidoCopa(matchFixture, simRivalId, isSc, isTdl)
     } else {
       simularPartidoRapido(matchFixture, simRivalId)
+    }
+  }
+  var summaryBtn = document.getElementById('btn-show-season-summary')
+  if (summaryBtn) summaryBtn.onclick = function() {
+    if (state.lastSeasonProgressionData) {
+      var d = state.lastSeasonProgressionData
+      showSeasonProgressionModal(d.result, d.msg, d.skipStandings, d.nuevosTrofeos, d.logros)
+    } else {
+      showSeasonProgressionModal({ changes: [], retirados: [] }, 'Temporada finalizada', true, [], [])
+    }
+  }
+  var advanceBtn = document.getElementById('btn-advance-season')
+  if (advanceBtn) advanceBtn.onclick = function() {
+    if (state.lastSeasonProgressionData) {
+      iniciarNuevaTemporada()
+    } else {
+      state.lastSeasonProgressionData = { result: { changes: [], retirados: [] }, msg: 'Nueva temporada', skipStandings: true, nuevosTrofeos: [], logros: [] }
+      iniciarNuevaTemporada()
     }
   }
   console.log('[RENDER] onclick configurado para boton simulate - simBtn:', !!simBtn, 'simRivalId:', matchFixture ? (matchFixture.home == state.teamId ? matchFixture.away : matchFixture.home) : null)
@@ -3554,19 +3583,19 @@ function getLeagueFromId(leagueId) {
 
 function getLeagueRules(leagueId) {
   const rules = {
-    'l1s': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 3 },
-    'l2s': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 4 },
-    'l3sg1': { directPromotion: 1, playoffSpots: 4, playoffPromotions: 1, relegation: 4 },
-    'l3sg2': { directPromotion: 1, playoffSpots: 4, playoffPromotions: 1, relegation: 4 },
-    'l1p': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 2, crossPlayoff: { pos: 16, opponent: 'l2p', opponentPos: 3 } },
-    'l2p': { directPromotion: 2, playoffSpots: 0, playoffPromotions: 0, relegation: 0 },
-    'lpl': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 3 },
-    'lpl2': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 3 },
-    'lpl3': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 6, relegationPlayoff: [15, 16] },
-    'lpl4g1': { directPromotion: 1, runnerUpPlayoff: true },
-    'lpl4g2': { directPromotion: 1, runnerUpPlayoff: true },
-    'lpl4g3': { directPromotion: 1, runnerUpPlayoff: true },
-    'lpl4g4': { directPromotion: 1, runnerUpPlayoff: true },
+    'l1s': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 3, relegatesTo: 'l2s' },
+    'l2s': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 4, promotesTo: 'l1s', relegatesTo: ['l3sg1', 'l3sg2'] },
+    'l3sg1': { directPromotion: 1, playoffSpots: 4, playoffPromotions: 1, relegation: 4, promotesTo: 'l2s' },
+    'l3sg2': { directPromotion: 1, playoffSpots: 4, playoffPromotions: 1, relegation: 4, promotesTo: 'l2s' },
+    'l1p': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 2, crossPlayoff: { pos: 16, opponent: 'l2p', opponentPos: 3 }, relegatesTo: 'l2p' },
+    'l2p': { directPromotion: 2, playoffSpots: 0, playoffPromotions: 0, relegation: 0, promotesTo: 'l1p' },
+    'lpl': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 3, relegatesTo: 'lpl2' },
+    'lpl2': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 3, promotesTo: 'lpl', relegatesTo: 'lpl3' },
+    'lpl3': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 6, relegationPlayoff: [15, 16], promotesTo: 'lpl2', relegatesTo: ['lpl4g1','lpl4g2','lpl4g3','lpl4g4'] },
+    'lpl4g1': { directPromotion: 1, runnerUpPlayoff: true, promotesTo: 'lpl3' },
+    'lpl4g2': { directPromotion: 1, runnerUpPlayoff: true, promotesTo: 'lpl3' },
+    'lpl4g3': { directPromotion: 1, runnerUpPlayoff: true, promotesTo: 'lpl3' },
+    'lpl4g4': { directPromotion: 1, runnerUpPlayoff: true, promotesTo: 'lpl3' },
   }
   return rules[leagueId] || null
 }
@@ -4365,6 +4394,132 @@ function renderMovements() {
   })
 }
 
+function applySeasonMovements(movementsData, countryId) {
+  if (!movementsData || !movementsData.divisions) return
+  var leagues = window.DB[countryId].country.leagues
+  if (!leagues) return
+
+  var allTeams = {}
+  for (var l = 0; l < leagues.length; l++) {
+    for (var t = 0; t < leagues[l].teams.length; t++) {
+      allTeams[leagues[l].teams[t].id] = leagues[l].teams[t]
+    }
+  }
+
+  function addToLeague(leagueId, teamObjs) {
+    var target = leagues.find(function(l) { return l.id === leagueId })
+    if (!target || !teamObjs || teamObjs.length === 0) return
+    for (var x = 0; x < teamObjs.length; x++) {
+      if (!target.teams.some(function(e) { return e.id === teamObjs[x].id })) {
+        target.teams.push(teamObjs[x])
+      }
+    }
+  }
+
+  /* Phase 1: Remove outgoing teams from current leagues */
+  for (var i = 0; i < movementsData.divisions.length; i++) {
+    var div = movementsData.divisions[i]
+    var league = leagues.find(function(l) { return l.id === div.id })
+    if (!league) continue
+    var rules = getLeagueRules(div.id)
+    if (!rules) continue
+
+    var toRemove = []
+
+    for (var p = 0; p < div.promoted.length; p++) {
+      toRemove.push(div.promoted[p].teamId)
+    }
+
+    if (rules.relegatesTo) {
+      for (var r = 0; r < div.relegated.length; r++) {
+        toRemove.push(div.relegated[r].teamId)
+      }
+      if (div.relegationPlayoff) {
+        for (var rp = 0; rp < div.relegationPlayoff.length; rp++) {
+          if (div.relegationPlayoff[rp].verdict === 'relegated') {
+            toRemove.push(div.relegationPlayoff[rp].teamId)
+          }
+        }
+      }
+    }
+
+    if (div.crossPlayoff) {
+      if (div.crossPlayoff.verdict === 'relegated' && rules.relegatesTo) {
+        toRemove.push(div.crossPlayoff.teamId)
+      } else if (div.crossPlayoff.verdict === 'promoted' && rules.promotesTo) {
+        toRemove.push(div.crossPlayoff.teamId)
+      }
+    }
+
+    if (div.promotionPlayoff && div.promotionPlayoff.crossFinal && div.promotionPlayoff.crossFinal.verdict === 'promoted') {
+      toRemove.push(div.promotionPlayoff.teamId)
+    }
+
+    league.teams = league.teams.filter(function(t) { return toRemove.indexOf(t.id) === -1 })
+  }
+
+  /* Phase 2: Add incoming teams to target leagues */
+  for (var i = 0; i < movementsData.divisions.length; i++) {
+    var div = movementsData.divisions[i]
+    var rules = getLeagueRules(div.id)
+    if (!rules) continue
+
+    /* Promotions */
+    if (rules.promotesTo) {
+      var targets = Array.isArray(rules.promotesTo) ? rules.promotesTo : [rules.promotesTo]
+      var promoting = []
+      for (var p = 0; p < div.promoted.length; p++) {
+        var pt = allTeams[div.promoted[p].teamId]
+        if (pt) promoting.push(pt)
+      }
+      if (div.crossPlayoff && div.crossPlayoff.verdict === 'promoted') {
+        var cpt = allTeams[div.crossPlayoff.teamId]
+        if (cpt) promoting.push(cpt)
+      }
+      if (div.promotionPlayoff && div.promotionPlayoff.crossFinal && div.promotionPlayoff.crossFinal.verdict === 'promoted') {
+        var ppt = allTeams[div.promotionPlayoff.teamId]
+        if (ppt) promoting.push(ppt)
+      }
+      if (targets.length === 1) {
+        addToLeague(targets[0], promoting)
+      } else {
+        for (var j = 0; j < targets.length && promoting.length > 0; j++) {
+          addToLeague(targets[j], [promoting.shift()])
+        }
+      }
+    }
+
+    /* Relegations */
+    if (rules.relegatesTo) {
+      var targets = Array.isArray(rules.relegatesTo) ? rules.relegatesTo : [rules.relegatesTo]
+      var relegated = []
+      for (var r = 0; r < div.relegated.length; r++) {
+        var rt = allTeams[div.relegated[r].teamId]
+        if (rt) relegated.push(rt)
+      }
+      if (div.crossPlayoff && div.crossPlayoff.verdict === 'relegated') {
+        var crt = allTeams[div.crossPlayoff.teamId]
+        if (crt) relegated.push(crt)
+      }
+      if (div.relegationPlayoff) {
+        for (var rp = 0; rp < div.relegationPlayoff.length; rp++) {
+          if (div.relegationPlayoff[rp].verdict === 'relegated') {
+            var rpt = allTeams[div.relegationPlayoff[rp].teamId]
+            if (rpt) relegated.push(rpt)
+          }
+        }
+      }
+      for (var j = 0; j < targets.length; j++) {
+        var group = []
+        for (var k = j; k < relegated.length; k += targets.length) {
+          group.push(relegated[k])
+        }
+        addToLeague(targets[j], group)
+      }
+    }
+  }
+}
+
 function iniciarNuevaTemporada() {
   var data = state.lastSeasonProgressionData
   if (!data) return
@@ -4372,6 +4527,7 @@ function iniciarNuevaTemporada() {
   var msg = data.msg || ''
   var skipStandings = data.skipStandings
   try {
+    try { if (state.lastSeasonMovements) applySeasonMovements(state.lastSeasonMovements, state.countryId) } catch (e) { console.error('[SEASON] Error applying movements:', e) }
     state.players.forEach(function(p) { p.age = (p.age || 22) + 1; p.value = calcValue(p.skill, p.age, p.position) })
     state.leagueTeams.forEach(function(t) { t.players.forEach(function(p) { p.age = (p.age || 22) + 1; p.value = calcValue(p.skill, p.age, p.position) }) })
     retirados.forEach(function(p) { var idx = state.players.indexOf(p); if (idx >= 0) state.players.splice(idx, 1) })
@@ -4386,7 +4542,7 @@ function iniciarNuevaTemporada() {
     state.leagueTeams = filteredTeams.map(function(t) {
       var existing = state.leagueTeams.find(function(x) { return x.teamId === t.id })
       return {
-        teamId: t.id, name: t.name, palmares: t.palmares || null,
+        teamId: t.id, name: t.name, logo: t.logo || null, palmares: t.palmares || null,
         players: existing ? existing.players.map(function(p) { return Object.assign({}, p, { energy: 100, injury: null, goals: 0, matches: 0 }) })
           : (getRealSquad(t.id) || []).map(function(p) { return Object.assign({}, p, { value: calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 }) }),
         staff: t.staff || existing && existing.staff || [],
