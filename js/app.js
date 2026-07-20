@@ -763,12 +763,12 @@ var TACA_DA_LIGA_SCHEDULE = [
 ]
 
 function getCupReward(roundIdx) {
-  var rewards = [500000, 1000000, 2500000, 5000000, 10000000, 20000000, 50000000]
+  var rewards = [50000, 100000, 250000, 500000, 1000000, 2000000, 5000000]
   return rewards[roundIdx] || 0
 }
 
 function getCupRewardLoss(roundIdx) {
-  var losses = [0, 0, 0, 0, 0, 0, 10000000]
+  var losses = [0, 0, 0, 0, 0, 0, 500000]
   return losses[roundIdx] || 0
 }
 
@@ -1020,7 +1020,7 @@ function getTacaDaLigaLabel(roundIdx) {
 }
 
 function getTacaDaLigaReward(roundIdx) {
-  var rewards = [2000000, 5000000, 15000000]
+  var rewards = [200000, 500000, 1500000]
   return rewards[roundIdx] || 0
 }
 
@@ -3566,7 +3566,7 @@ function resetSeason() {
   state.selectedPlayerId = null
 
   /* Season prize based on division */
-  const seasonPrize = Math.round(getDivisionBaseBudget(state.leagueId) * 0.2)
+  const seasonPrize = Math.round(getDivisionBaseBudget(state.leagueId) * 0.1)
   state.finances.balance += seasonPrize
   state.finances.history.push({ reason: '🏆 Premio temporada', amount: seasonPrize })
 
@@ -3812,9 +3812,9 @@ function showMovementsTab(visible) {
 
 /* ============ ECONOMÍA SEMANAL ============ */
 function procesarEconomiaSemanal() {
-  /* Gastos operativos semanales (0.5% del presupuesto inicial) */
+  /* Gastos operativos semanales (0.8% del presupuesto inicial) */
   if (state.presupuestoInicial > 0) {
-    var gastos = Math.round(state.presupuestoInicial * 0.005)
+    var gastos = Math.round(state.presupuestoInicial * 0.008)
     state.finances.balance -= gastos
     state.finances.history.push({ reason: 'Gastos operativos semanales', amount: -gastos })
   }
@@ -4661,6 +4661,7 @@ function iniciarNuevaTemporada() {
     state.lastSeasonMovements = null
     state.lastSeasonProgressionData = null
     state.seasonNumber++
+    state.presupuestoInicial = Math.round(getDivisionBaseBudget(state.leagueId) * getCountryBudgetMult(state.countryId))
     try {
       if (state.countryId === 'spain') { state.cup = generarCopa(); state.supercopa = generarSupercopa() }
       else if (state.countryId === 'portugal') { state.cup = null; state.supercopa = null; state.tacaDaLiga = generarTacaDaLiga() }
@@ -4711,6 +4712,7 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
   subtitle.textContent = 'T' + (state.seasonNumber || 1) + ' \u2014 Resumen del curso'
   var changes = result.changes || []
   var retirados = result.retirados || []
+  var valueChanges = result.valueChanges || []
   var activeTab = state._progTab || 'progresion'
   var movementsData = state.lastSeasonMovements
   var html = '<div style="display:flex;gap:8px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px">'
@@ -4732,13 +4734,24 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
       lgs.forEach(function(l) { html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + l + '</p>' })
       html += '</div>'
     }
-    if (changes.length > 0) {
+      if (changes.length > 0) {
       html += '<h3 style="font-size:14px;font-weight:700;margin:16px 0 6px;color:var(--text)">Cambios de Valoraci\u00f3n</h3><div>'
       changes.sort(function(a, b) { return Math.abs(b.change) - Math.abs(a.change) })
       changes.forEach(function(c) {
         var arrow = c.change > 0 ? '\u25b2' : '\u25bc'
         var cls = c.change > 0 ? 'color:#22c55e' : 'color:#ef4444'
         html += '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px"><span style="font-weight:600;color:var(--text);flex:1">' + c.name + '</span><span style="' + cls + ';font-weight:700">' + arrow + (c.change > 0 ? '+' : '') + c.change + '</span><span style="color:var(--text-muted)">' + c.oldSkill + '\u2192' + c.newSkill + '</span></div>'
+      })
+      html += '</div>'
+    }
+    if (valueChanges.length > 0) {
+      html += '<h3 style="font-size:14px;font-weight:700;margin:12px 0 6px;color:var(--text)">\ud83d\udcb0 Cambios de Valor de Mercado</h3><div>'
+      valueChanges.sort(function(a, b) { return Math.abs(b.change) - Math.abs(a.change) })
+      valueChanges.forEach(function(v) {
+        var arrow = v.change > 0 ? '\u25b2' : '\u25bc'
+        var cls = v.change > 0 ? 'color:#22c55e' : 'color:#ef4444'
+        var diffStr = formatMoney(Math.abs(v.change))
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px"><span style="font-weight:600;color:var(--text);flex:1">' + v.name + '</span><span style="' + cls + ';font-weight:700">' + arrow + ' ' + diffStr + '</span><span style="color:var(--text-muted)">' + formatMoney(v.oldValue) + ' \u2192 ' + formatMoney(v.newValue) + '</span></div>'
       })
       html += '</div>'
     }
@@ -6292,13 +6305,13 @@ function simularPartidoRapido(fixture, rivalId) {
     if (state.presupuestoInicial > 0) {
       var mIngresos = 0
       if (isHome) {
-        var taquilla = Math.round(state.presupuestoInicial * 0.004)
+        var taquilla = Math.round(state.presupuestoInicial * 0.0015)
         state.finances.balance += taquilla
         state.finances.history.push({ reason: 'Ingresos por d\u00eda de partido (local)', amount: taquilla })
         mIngresos += taquilla
       }
       if (us > them) {
-        var bono = Math.round(state.presupuestoInicial * 0.002)
+        var bono = Math.round(state.presupuestoInicial * 0.0008)
         state.finances.balance += bono
         state.finances.history.push({ reason: 'Prima por victoria', amount: bono })
         mIngresos += bono
@@ -6544,12 +6557,12 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga) {
     else { state.finances.losses++; state.finances.balance += getCupRewardLoss(cupRoundIdx) }
     state.finances.history.push({ reason: (isSupercopa ? getSupercopaCompName(state.countryId) : getCupCompName(state.countryId)) + ': ' + us + '-' + them + ' vs ' + getTeamName(rivalId), amount: us > them ? rew : getCupRewardLoss(cupRoundIdx) })
     if (state.presupuestoInicial > 0 && isHome) {
-      var taquillaCopa = Math.round(state.presupuestoInicial * 0.004)
+      var taquillaCopa = Math.round(state.presupuestoInicial * 0.0015)
       state.finances.balance += taquillaCopa
       state.finances.history.push({ reason: 'Taquilla Copa (local)', amount: taquillaCopa })
     }
     if (state.presupuestoInicial > 0 && us > them) {
-      var bonoCopa = Math.round(state.presupuestoInicial * 0.003)
+      var bonoCopa = Math.round(state.presupuestoInicial * 0.0012)
       state.finances.balance += bonoCopa
       state.finances.history.push({ reason: 'Prima victoria Copa', amount: bonoCopa })
     }
@@ -7225,12 +7238,12 @@ function autoSimularPartidoUsuario(fixture) {
   /* Matchday income */
   if (state.presupuestoInicial > 0) {
     if (isHome) {
-      var taquilla = Math.round(state.presupuestoInicial * 0.004)
+      var taquilla = Math.round(state.presupuestoInicial * 0.0015)
       state.finances.balance += taquilla
       state.finances.history.push({ reason: 'Ingresos por d\u00eda de partido (local)', amount: taquilla })
     }
     if (us > them) {
-      var bono = Math.round(state.presupuestoInicial * 0.002)
+      var bono = Math.round(state.presupuestoInicial * 0.0008)
       state.finances.balance += bono
       state.finances.history.push({ reason: 'Prima por victoria', amount: bono })
     }
@@ -7449,8 +7462,10 @@ function envejecerYProgresar() {
   var totalM = state.totalMatchdays || 34
   var changes = []
   var retirados = []
+  var valueChanges = []
 
   state.players.forEach(function(p) {
+    var oldValue = p.value || 0
     var oldSkill = p.skill
     var playRate = Math.min(1, (p.matches || 0) / totalM)
     var avgRating = calcularAvgRating(p.matchHistory)
@@ -7520,14 +7535,27 @@ function envejecerYProgresar() {
     })
   }
 
-  /* Recalcular valores tras cambios de skill */
-  state.players.forEach(function(p) { p.value = calcValue(p.skill, p.age, p.position) })
+  /* Recalcular valores tras cambios de skill y aplicar rendimiento */
+  state.players.forEach(function(p) {
+    var oldVal = p.value || 0
+    p.value = calcValue(p.skill, p.age, p.position)
+    var perfAvg = calcularAvgRating(p.matchHistory)
+    var perfPlay = Math.min(1, (p.matches || 0) / totalM)
+    var ratingBonus = (perfAvg - 5) / 5
+    var confianza = 0.3 + perfPlay * 0.7
+    var perfMult = 1.0 + ratingBonus * confianza
+    perfMult = Math.max(0.7, Math.min(1.3, perfMult))
+    p.value = Math.round(p.value * perfMult)
+    if (p.value !== oldVal) {
+      valueChanges.push({ name: p.name, oldValue: oldVal, newValue: p.value, change: p.value - oldVal })
+    }
+  })
 
   /* Progress AI teams' players too */
   var iaRetirados = progresarJugadoresIA(totalM)
   retirados.push.apply(retirados, iaRetirados)
 
-  return { changes: changes, retirados: retirados }
+  return { changes: changes, retirados: retirados, valueChanges: valueChanges }
 }
 
 function progresarJugadoresIA(totalM) {
@@ -7587,8 +7615,19 @@ function progresarJugadoresIA(totalM) {
     })
     team.players = keep
   })
-  /* Recalcular valores de jugadores IA tras cambios de skill */
-  state.leagueTeams.forEach(function(t) { (t.players || []).forEach(function(p) { p.value = calcValue(p.skill, p.age, p.position) }) })
+  /* Recalcular valores de jugadores IA tras cambios de skill + rendimiento */
+  state.leagueTeams.forEach(function(t) {
+    (t.players || []).forEach(function(p) {
+      p.value = calcValue(p.skill, p.age, p.position)
+      var perfAvg = calcularAvgRating(p.matchHistory)
+      var perfPlay = Math.min(1, (p.matches || 0) / totalM)
+      var ratingBonus = (perfAvg - 5) / 5
+      var confianza = 0.3 + perfPlay * 0.7
+      var perfMult = 1.0 + ratingBonus * confianza
+      perfMult = Math.max(0.7, Math.min(1.3, perfMult))
+      p.value = Math.round(p.value * perfMult)
+    })
+  })
   return retirados
 }
 
@@ -7925,20 +7964,20 @@ function getSupercopaLogo(countryId) {
 }
 
 function getDivisionMatchReward(leagueId) {
-  if (leagueId === 'lnfs1') return { win: 200000, draw: 80000, loss: -30000 }
-  if (leagueId === 'lnfs2') return { win: 120000, draw: 50000, loss: -20000 }
-  if (leagueId === 'lpl') return { win: 100000, draw: 40000, loss: -15000 }
-  if (leagueId === 'lpl2') return { win: 50000, draw: 20000, loss: -8000 }
-  if (leagueId === 'lpl3') return { win: 25000, draw: 10000, loss: -3000 }
-  if (leagueId.startsWith('lpl4g')) return { win: 10000, draw: 4000, loss: -1000 }
-  if (leagueId.startsWith('l3sg')) return { win: 30000, draw: 12000, loss: -4000 }
-  if (leagueId.startsWith('l2b')) return { win: 60000, draw: 25000, loss: -10000 }
-  if (leagueId.startsWith('l3g')) return { win: 40000, draw: 15000, loss: -5000 }
-  if (leagueId.startsWith('lhc')) return { win: 25000, draw: 10000, loss: -3000 }
-  if (leagueId.startsWith('lc')) return { win: 15000, draw: 6000, loss: -2000 }
-  if (leagueId.startsWith('l2c')) return { win: 10000, draw: 4000, loss: -1000 }
-  if (leagueId.startsWith('l3c')) return { win: 7500, draw: 3000, loss: -500 }
-  return { win: 30000, draw: 12500, loss: -5000 }
+  if (leagueId === 'lnfs1') return { win: 60000, draw: 25000, loss: -10000 }
+  if (leagueId === 'lnfs2') return { win: 35000, draw: 15000, loss: -6000 }
+  if (leagueId === 'lpl') return { win: 30000, draw: 12000, loss: -5000 }
+  if (leagueId === 'lpl2') return { win: 15000, draw: 6000, loss: -2500 }
+  if (leagueId === 'lpl3') return { win: 8000, draw: 3000, loss: -1000 }
+  if (leagueId.startsWith('lpl4g')) return { win: 3000, draw: 1200, loss: -500 }
+  if (leagueId.startsWith('l3sg')) return { win: 8000, draw: 3500, loss: -2000 }
+  if (leagueId.startsWith('l2b')) return { win: 15000, draw: 6000, loss: -3000 }
+  if (leagueId.startsWith('l3g')) return { win: 10000, draw: 4000, loss: -2000 }
+  if (leagueId.startsWith('lhc')) return { win: 6000, draw: 2500, loss: -1500 }
+  if (leagueId.startsWith('lc')) return { win: 4000, draw: 1500, loss: -1000 }
+  if (leagueId.startsWith('l2c')) return { win: 2500, draw: 1000, loss: -500 }
+  if (leagueId.startsWith('l3c')) return { win: 2000, draw: 800, loss: -300 }
+  return { win: 12000, draw: 5000, loss: -3000 }
 }
 
 /* ============ GAME INIT ============ */
