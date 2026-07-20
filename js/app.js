@@ -3550,6 +3550,14 @@ function getLeagueFromId(leagueId) {
   return null
 }
 
+function balanceLeagueTeams(leagueTeams, allTeams) {
+  if (leagueTeams.length + 1 > allTeams.length) {
+    const excess = leagueTeams.length + 1 - allTeams.length
+    leagueTeams.sort(function(a, b) { return (b.rating || 0) - (a.rating || 0) })
+    leagueTeams.splice(leagueTeams.length - excess, excess)
+  }
+  return leagueTeams
+}
 /* ============ ECONOMÍA SEMANAL ============ */
 function procesarEconomiaSemanal() {
   /* Gastos operativos semanales (0.5% del presupuesto inicial) */
@@ -4119,7 +4127,13 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
     var league = getLeagueFromId(state.leagueId)
     if (!league) { console.error('[SEASON] League not found for', state.leagueId, '- retrying load'); loadCountryData(state.countryId).then(function() { league = getLeagueFromId(state.leagueId) }) }
     var allTeams = league ? league.teams : []
-    state.leagueTeams = allTeams.filter(function(t) { return t.id !== state.teamId }).map(function(t) {
+    /* Balance: if user enters a league where they don't exist in DB, trim lowest-rated to keep correct count */
+    var filteredTeams = allTeams.filter(function(t) { return t.id !== state.teamId })
+    if (filteredTeams.length + 1 > allTeams.length) {
+      filteredTeams.sort(function(a, b) { return (a.rating || 0) - (b.rating || 0) })
+      filteredTeams.splice(0, filteredTeams.length + 1 - allTeams.length)
+    }
+    state.leagueTeams = filteredTeams.map(function(t) {
       var existing = state.leagueTeams.find(function(x) { return x.teamId === t.id })
       return {
         teamId: t.id, name: t.name, palmares: t.palmares || null,
@@ -4207,6 +4221,7 @@ function procesarFinTemporada(skipAging, skipStandings) {
   let esPrimeraPortugal = false, esSegundaPortugal = false
   let esPlayoffTercera = false, esPlayoffPolaca2 = false, esPlayoffPolaca3 = false, esPlayoffDescensoLP3 = false, esPlayoffAscensoLP4 = false
   let esPlayoffSegundaSpain = false
+  let esPlayoffTerceraRFEF = false
   let esPlayoffAscensoPortugal = false, esPlayoffDescensoPortugal = false
   let msg = ''
 
@@ -4355,11 +4370,11 @@ function procesarFinTemporada(skipAging, skipStandings) {
       }
     } else if (esSegundaPortugal && pos === 3) {
       esPlayoffAscensoPortugal = true
-    } else if (esTerceraRFEF && pos <= 2) {
+    } else if (esTerceraRFEF && pos === 1) {
       state.leagueId = 'l2s'
       cambioDivision = true
-    } else if (esTerceraRFEF && pos >= 3 && pos <= 6) {
-      esPlayoffSegundaSpain = true
+    } else if (esTerceraRFEF && pos >= 2 && pos <= 5) {
+      esPlayoffTerceraRFEF = true
     } else if (esTerceraRFEF && pos >= 17) {
       if (leagueExists('l2b1')) {
         state.leagueId = 'l2b1'
@@ -4437,8 +4452,9 @@ function procesarFinTemporada(skipAging, skipStandings) {
       if (state._filialRelegue) msg += '\n⚠️ Tu filial desciende automáticamente a 1ª Federación.'
     }
     else if (esPrimeraSpain) msg += '\nPermanencia en Primera División'
-    else if (esTerceraRFEF && cambioDivision && pos <= 2) msg += '\n🎉 ¡ASCENSO a Segunda División!'
+    else if (esTerceraRFEF && cambioDivision && pos === 1) msg += '\n🎉 ¡ASCENSO a Segunda División!'
     else if (esTerceraRFEF && cambioDivision) msg += '\n⚠️ DESCENSO a 2ª División B'
+    else if (esTerceraRFEF && esPlayoffTerceraRFEF) msg += '\n🏆 Accedes a la Fase de Ascenso a Segunda División'
     else if (esTerceraRFEF) msg += '\nPermanencia en Primera RFEF'
     else if (noLowerDivision) msg += '\n⚠️ No hay divisiones inferiores. El equipo permanece en la categoría.'
     else msg += '\nPermanencia en la categoría'
@@ -4531,6 +4547,16 @@ function procesarFinTemporada(skipAging, skipStandings) {
     return
   }
 
+  if (esPlayoffTerceraRFEF) {
+    state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
+    document.getElementById('league-results-wrap').classList.add('hidden')
+    renderLeague()
+    saveGame()
+    addNotification('match', `🏆 ${msg}`, 'Playoff de Ascenso a Segunda División')
+    setTimeout(() => { alert(msg); iniciarPlayoffTerceraRFEF() }, 100)
+    return
+  }
+
   /* Normal season end — detect trophies & logros, show progression modal */
   if (!skipStandings) {
     var nuevosTrofeos = []
@@ -4557,7 +4583,12 @@ function procesarFinTemporada(skipAging, skipStandings) {
   try {
   const league = getLeagueFromId(state.leagueId)
   const allTeams = league ? league.teams : []
-  state.leagueTeams = allTeams.filter(t => t.id !== state.teamId).map(t => {
+  var filteredTeamsPost = allTeams.filter(t => t.id !== state.teamId)
+  if (filteredTeamsPost.length + 1 > allTeams.length) {
+    filteredTeamsPost.sort(function(a, b) { return (a.rating || 0) - (b.rating || 0) })
+    filteredTeamsPost.splice(0, filteredTeamsPost.length + 1 - allTeams.length)
+  }
+  state.leagueTeams = filteredTeamsPost.map(t => {
     const existing = state.leagueTeams.find(x => x.teamId === t.id)
     return {
       teamId: t.id, name: t.name, palmares: t.palmares || null,
@@ -4689,6 +4720,21 @@ function avanzarRondaPlayoff() {
       addNotification('match', '🎉 ¡ASCENSO a LaLiga!', 'Ganaste la semifinal del Playoff de Ascenso')
       setTimeout(() => alert('🎉 ¡ASCENSO a LaLiga!\n\nGanaste la semifinal y consigues el ascenso de categoría.'), 200)
     }
+  } else if (pf.esPlayoffTerceraRFEF && pf.round === 'SF') {
+    const userFixture = pf.fixtures.find(f => f.home === state.teamId || f.away === state.teamId)
+    if (userFixture) {
+      const userScore = userFixture.home === state.teamId ? userFixture.homeScore : userFixture.awayScore
+      const rivalScore = userFixture.home === state.teamId ? userFixture.awayScore : userFixture.homeScore
+      pf.promoted = userScore > rivalScore
+    }
+    pf.round = 'F'
+    pf.fixtures = [
+      { round: 'F', home: winners[0], away: winners[1], homeScore: null, awayScore: null, played: false },
+    ]
+    if (pf.promoted) {
+      addNotification('match', '🎉 ¡A la Final!', 'Ganaste la semifinal del Playoff de Ascenso a Segunda')
+      setTimeout(() => alert('🎉 ¡A la final!\n\nGanaste la semifinal. Ahora te juegas el ascenso a Segunda División.'), 200)
+    }
   } else if (pf.esTercera && pf.round === 'SF') {
     /* Tercera: SF done → check promotion, then F */
     const userFixture = pf.fixtures.find(f => f.home === state.teamId || f.away === state.teamId)
@@ -4763,6 +4809,7 @@ function avanzarRondaPlayoff() {
     const esPolaca2 = pf.esPolaca2
     const esPolaca3 = pf.esPolaca3
     const esPlayoffSegundaSpain = pf.esPlayoffSegundaSpain
+    const esPlayoffTerceraRFEF = pf.esPlayoffTerceraRFEF
     const promovio = pf.promoted
     const msg = `🏆 ${esCampeon ? '¡CAMPEÓN!' : 'Subcampeón'} — ${esCampeon ? 'Ganaste el título' : 'El campeón es ' + getTeamName(campeon)}`
     addNotification('match', msg, 'Playoff finalizado')
@@ -4780,6 +4827,19 @@ function avanzarRondaPlayoff() {
         setTimeout(() => {
           const divName = state.leagueId && state.leagueId.startsWith('l3sg') ? 'Primera RFEF' : 'Segunda División'
           alert(`${msg}\n\nNo lograste el ascenso. Una temporada más en ${divName}.`)
+          procesarFinTemporada(true, true)
+        }, 300)
+      }
+    } else if (esPlayoffTerceraRFEF) {
+      if (promovio) {
+        state.leagueId = 'l2s'
+        setTimeout(() => {
+          alert(`${msg}\n\n${esCampeon ? '¡Ascenso a Segunda División y título!' : 'Ascenso a Segunda División conseguido'}`)
+          procesarFinTemporada(true, true)
+        }, 300)
+      } else {
+        setTimeout(() => {
+          alert(`${msg}\n\nNo lograste el ascenso. Una temporada más en Primera RFEF.`)
           procesarFinTemporada(true, true)
         }, 300)
       }
@@ -4928,6 +4988,25 @@ function iniciarPlayoffSegundaSpain() {
   }
   const rivalName = getTeamName(teamIds[2] === state.teamId ? teamIds[5] : teamIds[2])
   addNotification('match', '🏆 Playoff Ascenso — Semifinal', `Te enfrentas a ${rivalName} por el ascenso a LaLiga`)
+  saveGame()
+}
+
+function iniciarPlayoffTerceraRFEF() {
+  const standings = updateLeagueStandings()
+  const teamIds = standings.map(s => s.teamId)
+  /* Positions 2-5 enter the promotion playoff: 2nd vs 5th, 3rd vs 4th */
+  state.playoffs = {
+    round: 'SF',
+    fixtures: [
+      { round: 'SF', home: teamIds[1], away: teamIds[4], homeScore: null, awayScore: null, played: false },
+      { round: 'SF', home: teamIds[2], away: teamIds[3], homeScore: null, awayScore: null, played: false },
+    ],
+    esPlayoffTerceraRFEF: true,
+    promoted: false,
+  }
+  const rivalId = teamIds[1] === state.teamId ? teamIds[4] : teamIds[1]
+  const rivalName = getTeamName(rivalId)
+  addNotification('match', '🏆 Playoff Ascenso — Semifinal', `Te enfrentas a ${rivalName} por el ascenso a Segunda División`)
   saveGame()
 }
 
