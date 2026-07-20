@@ -1,7 +1,7 @@
 window.DB = window.DB || {}
 window.DB.poland = {
   country: {
-    id: 'pl', name: 'Polonia', flag: '🇵🇱',
+    id: 'poland', name: 'Polonia', flag: '🇵🇱',
     leagues: [
       { id: 'lpl', name: 'Liga Polaca', logo: 'https://cdn.resfu.com/media/img/league_logos/liga_polonia.png?size=120x&lossy=1',
         teams: [

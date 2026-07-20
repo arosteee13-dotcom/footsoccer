@@ -356,8 +356,13 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-function calcValue(skill) {
-  return skill * 80 + randInt(0, 2000)
+function calcValue(skill, age, position) {
+  var base = Math.round(Math.pow(1.2, skill - 30) * 3000)
+  var pm = { 'delantero': 1.0, 'extremo_izq': 1.0, 'extremo_der': 1.0,
+    'medio_ofensivo': 0.9, 'medio_centro': 0.85, 'medio_defensivo': 0.85,
+    'defensa_central': 0.75, 'lateral_der': 0.78, 'lateral_izq': 0.78, 'portero': 0.7 }
+  var am = age <= 18 ? 0.5 : age <= 21 ? 0.75 : age <= 28 ? 1.0 : age <= 32 ? 0.85 : age <= 35 ? 0.65 : 0.4
+  return Math.round(base * (pm[position] || 0.8) * am)
 }
 
 function generateStaffMember(teamName, countryId, role) {
@@ -401,7 +406,7 @@ function generateCpuPlayer(teamId, countryId, teamRating, position, overrides) {
     number: 99,
     nationality: nat.label,
     goals: 0, matches: 0,
-    value: calcValue(skill),
+    value: calcValue(skill, age, position),
     transferListed: false, transferPrice: 0, loanListed: false,
     assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [],
     avatar: NOPHOTO,
@@ -474,7 +479,8 @@ function generateCpuSquad(teamId, countryId, teamRating) {
       const sur = pickRandom(surPool)
       const name = `${first} ${sur}`
       const skill = randInt(minS, maxS)
-      const value = calcValue(skill)
+      const pAge = randInt(20, 35)
+      const value = calcValue(skill, pAge, pos)
       players.push({
         id: `${teamId}-cpu-${pid++}`,
         name, position: pos, skill,
@@ -483,7 +489,7 @@ function generateCpuSquad(teamId, countryId, teamRating) {
         goals: 0, matches: 0,
         value, transferListed: false, transferPrice: 0, loanListed: false, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [],
         avatar: NOPHOTO,
-        enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, age: randInt(20, 35), foot: pickRandom(['DER', 'IZQ']),
+        enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, age: pAge, foot: pickRandom(['DER', 'IZQ']),
         contractUntil: '30/06/' + (2027 + randInt(0, 2)),
         onLoan: false, loanFrom: null, loanUntil: null,
       })
@@ -566,7 +572,7 @@ function createDummyTeam(name, id, countryId) {
       age: edad,
       skill: skill,
       position: pos,
-      value: calcValue(skill),
+      value: calcValue(skill, edad, pos),
       avatar: '',
       nationality: natCode,
       matches: 0, goals: 0, assists: 0, injured: false, injuryWeeks: 0,
@@ -601,22 +607,31 @@ function ensureCountryLeagues(countryId) {
 
 function loadCountryData(countryId, callback) {
   if (window.DB[countryId]) { callback(window.DB[countryId]); return }
-  const script = document.createElement('script')
-  script.src = `js/data/${countryId}.js`
-  script.onload = () => {
-    if (window.DB[countryId]) {
-      callback(window.DB[countryId])
-    } else {
-      callback(null)
+  function executeAndVerify(code) {
+    try { new Function(code)() } catch(e) { console.error('[CACHE] Execute error:', e); return false }
+    var d = window.DB[countryId]
+    if (!d || !d.country || !d.country.id) { console.warn('[CACHE] No data for', countryId); return false }
+    if (d.country.id !== countryId) {
+      if (d.country.id && window.DB[d.country.id] !== d) {
+        window.DB[d.country.id] = d
+      }
+      console.warn('[CACHE] ID mismatch: expected', countryId, 'got', d.country.id, '- accepting anyway')
     }
+    return true
   }
-  script.onerror = () => {
-    console.error('Error al cargar datos de', countryId)
-    const msg = document.getElementById('ng-error-msg')
-    if (msg) { msg.textContent = 'Error al cargar los datos. Verifica que los archivos de datos existen.'; msg.classList.remove('hidden') }
-    callback(null)
+  function loadWithBust(attempt) {
+    var url = 'js/data/' + countryId + '.js?_=' + Date.now() + (attempt ? '_r' + attempt : '')
+    fetch(url, { cache: 'no-store' }).then(function(r) { return r.text() }).then(function(code) {
+      if (executeAndVerify(code)) { callback(window.DB[countryId]); return }
+      if (attempt < 2) { loadWithBust(attempt + 1); return }
+      callback(null)
+    }).catch(function() {
+      var msg = document.getElementById('ng-error-msg')
+      if (msg) { msg.textContent = 'Error al cargar los datos.'; msg.classList.remove('hidden') }
+      callback(null)
+    })
   }
-  document.head.appendChild(script)
+  loadWithBust(0)
 }
 
 /* ============ ENGINE ============ */
@@ -669,7 +684,7 @@ const state = {
   stats: { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
   players: [],
   tactic: { formation: '4-3-3', gamePlan: 'pesado' },
-  finances: { balance: 5000, history: [] },
+  finances: { balance: 500000, history: [] },
   leagueTeams: [],
   currentMatchday: 1,
   totalMatchdays: 0,
@@ -690,7 +705,7 @@ const state = {
   filialSquad: [],
   leagueViewCountry: '',
   trophies: [],
-  trophyHistory: { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] },
+  trophyHistory: { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] },
   seasonNumber: 1,
   transferWindowOpen: false,
   loanPool: [],
@@ -698,10 +713,14 @@ const state = {
   presupuestoInicial: 0,
   cup: null,
   supercopa: null,
+  tacaDaLiga: null,
+  tacaDaLigaChampion: null,
   cupChampion: null,
   cupRunnerUp: null,
   leagueChampion: null,
   leagueRunnerUp: null,
+  lastFinalStandings: null,
+  myPalmares: null,
 }
 
 /* ============ HELPERS ============ */
@@ -716,28 +735,34 @@ function formatMoney(amount) {
 
 /* ============ COPA / CUP SYSTEM ============ */
 var COPA_SCHEDULE = [
-  { week: 6, label: '1\u00aa Ronda' },
-  { week: 10, label: '2\u00aa Ronda' },
-  { week: 15, label: 'Dieciseisavos' },
-  { week: 18, label: 'SUPERCOPA', isSupercopa: true },
-  { week: 21, label: 'Octavos' },
-  { week: 25, label: 'Cuartos' },
-  { week: 30, label: 'Semifinales' },
+  { week: 5, label: '1/64' },
+  { week: 10, label: '1/32' },
+  { week: 15, label: '1/16' },
+  { week: 20, label: 'SUPERCOPA', isSupercopa: true },
+  { week: 23, label: 'Octavos' },
+  { week: 27, label: 'Cuartos' },
+  { week: 31, label: 'Semifinal' },
   { week: 35, label: 'Final' },
 ]
 
+var TACA_DA_LIGA_SCHEDULE = [
+  { week: 9, label: 'Cuartos' },
+  { week: 17, label: 'Semifinal' },
+  { week: 19, label: 'Final' },
+]
+
 function getCupReward(roundIdx) {
-  var rewards = [5000, 10000, 20000, 0, 50000, 100000, 200000, 500000]
+  var rewards = [500000, 1000000, 2500000, 5000000, 10000000, 20000000, 50000000]
   return rewards[roundIdx] || 0
 }
 
 function getCupRewardLoss(roundIdx) {
-  var losses = [0, 0, 0, 0, 0, 0, 0, 100000]
+  var losses = [0, 0, 0, 0, 0, 0, 10000000]
   return losses[roundIdx] || 0
 }
 
 function getCupLabel(roundIdx) {
-  var labels = ['1\u00aa Ronda', '2\u00aa Ronda', 'Dieciseisavos', 'Supercopa', 'Octavos', 'Cuartos', 'Semifinales', 'Final']
+  var labels = ['1/64', '1/32', '1/16', 'Octavos', 'Cuartos', 'Semifinal', 'Final']
   return labels[roundIdx] || 'Copa'
 }
 
@@ -745,41 +770,33 @@ function getSupercopaTeams() {
   if (state.seasonNumber === 1) {
     return ['e16', 'e7', 'e2', 'e1'] /* Real Madrid, Barcelona, Atl\u00e9tico, Athletic */
   }
-  var teams = []
-  if (state.leagueChampion) teams.push(state.leagueChampion)
-  if (state.cupChampion && state.cupChampion !== state.leagueChampion) teams.push(state.cupChampion)
-  if (state.leagueRunnerUp) teams.push(state.leagueRunnerUp)
-  if (state.cupRunnerUp && teams.length < 4) teams.push(state.cupRunnerUp)
-  /* Fill remaining with top teams if needed */
-  while (teams.length < 4) {
-    var standings = updateLeagueStandings()
-    for (var si = 0; si < standings.length && teams.length < 4; si++) {
-      if (teams.indexOf(standings[si].teamId) < 0) teams.push(standings[si].teamId)
+  /* 4 slots: Liga 1\u00ba, Liga 2\u00ba, Copa Campe\u00f3n, Copa Subcampe\u00f3n */
+  var slots = [state.leagueChampion, state.leagueRunnerUp, state.cupChampion, state.cupRunnerUp].filter(Boolean)
+  /* Eliminar duplicados (equipo repetido en Liga y Copa \u2192 la plaza pasa al siguiente en Liga) */
+  var unique = []
+  slots.forEach(function(id) {
+    if (unique.indexOf(id) < 0) unique.push(id)
+  })
+  /* Si faltan equipos, completar con la clasificaci\u00f3n de Liga */
+  if (unique.length < 4) {
+    var standings = state.lastFinalStandings || updateLeagueStandings()
+    for (var si = 0; si < standings.length && unique.length < 4; si++) {
+      if (unique.indexOf(standings[si].teamId) < 0) unique.push(standings[si].teamId)
     }
   }
-  return teams.slice(0, 4)
+  return unique.slice(0, 4)
 }
 
 function getCopaTeamsForRound(roundIdx) {
-  var allTeams = []
   if (roundIdx === 0) {
-    /* R1: Segunda + Primera RFEF + Segunda B */
+    /* R0: Todas las divisiones - Primera + Segunda + Primera Fed */
+    var allTeams = []
+    var l1s = getLeagueTeams('l1s')
     var l2s = getLeagueTeams('l2s')
     var l3sg1 = getLeagueTeams('l3sg1')
     var l3sg2 = getLeagueTeams('l3sg2')
-    var l2bTeams = []
-    for (var gi = 1; gi <= 6; gi++) l2bTeams = l2bTeams.concat(getLeagueTeams('l2b' + gi))
-    allTeams = (l2s || []).concat(l3sg1 || []).concat(l3sg2 || []).concat(l2bTeams)
-    allTeams = allTeams.filter(function(t) { return t.id !== 'e79' && t.id !== 'e67' && t.id !== 'e82' })
+    allTeams = (l1s || []).concat(l2s || []).concat(l3sg1 || []).concat(l3sg2 || [])
     return allTeams
-  }
-  if (roundIdx === 1) {
-    var l1s = getLeagueTeams('l1s')
-    var superTeams = getSupercopaTeams()
-    return (l1s || []).filter(function(t) { return superTeams.indexOf(t.id) < 0 })
-  }
-  if (roundIdx === 2) {
-    return getSupercopaTeams().map(function(id) { return { id: id } })
   }
   return []
 }
@@ -791,37 +808,49 @@ function generarRondaCopa(roundIdx, previousWinners, cupState) {
   var roundTeams = []
 
   if (roundIdx === 0) {
+    /* R0: All 82 teams, 41 matches */
     roundTeams = getCopaTeamsForRound(0).sort(function() { return Math.random() - 0.5 })
-    /* R1 con bye: 62 equipos → 1 bye + 30 partidos + 1 suelto = 32 clasificados */
-    var byeTeam = roundTeams.pop()
-    if (cupState) cupState._byeR1 = byeTeam.id
     var fixtures = []
-    for (var fi = 0; fi < 30; fi++) {
+    for (var fi = 0; fi < Math.floor(roundTeams.length / 2); fi++) {
       var home = roundTeams[fi * 2].id
       var away = roundTeams[fi * 2 + 1].id
       if (!home || !away) continue
       fixtures.push({ round: 'R' + roundIdx, label: entry.label, week: entry.week, home: home, away: away, homeScore: null, awayScore: null, played: false })
     }
-    /* El 61º equipo que quedó sin emparejar también pasa */
-    if (cupState && roundTeams.length > 60) {
-      cupState._extraR1 = roundTeams[60].id
+    /* Odd team gets bye */
+    if (roundTeams.length % 2 !== 0 && cupState) {
+      cupState._pendingByes = cupState._pendingByes || {}
+      cupState._pendingByes[roundIdx] = roundTeams[roundTeams.length - 1].id
     }
     return fixtures
   }
 
-  if (roundIdx === 1) {
-    roundTeams = getCopaTeamsForRound(1)
-    var l1s = getLeagueTeams('l1s')
-    var inL1s = (previousWinners || []).filter(function(id) { return l1s.some(function(t) { return t.id === id }) })
-    roundTeams = roundTeams.concat(inL1s.map(function(id) { return { id: id } }))
-  } else if (roundIdx === 2) {
-    var superTeams = getCopaTeamsForRound(2)
-    roundTeams = (previousWinners || []).map(function(id) { return { id: id } }).concat(superTeams)
-  } else {
-    roundTeams = (previousWinners || []).map(function(id) { return { id: id } })
+  /* R1+: Only previous winners (no new entries) */
+  roundTeams = (previousWinners || []).map(function(id) { return { id: id } })
+
+  /* Add pending bye from previous round */
+  if (cupState && cupState._pendingByes && cupState._pendingByes[roundIdx - 1]) {
+    roundTeams.push({ id: cupState._pendingByes[roundIdx - 1] })
+    delete cupState._pendingByes[roundIdx - 1]
   }
 
   roundTeams = roundTeams.sort(function() { return Math.random() - 0.5 })
+
+  /* Semifinal: 2-legged (ida y vuelta) when 2 teams play, 1 bye */
+  var isSemifinal = entry.label === 'Semifinal'
+  if (isSemifinal && roundTeams.length === 3) {
+    var byeTeam = roundTeams.pop()
+    cupState._pendingByes = cupState._pendingByes || {}
+    cupState._pendingByes[roundIdx] = byeTeam.id
+    var home = roundTeams[0].id
+    var away = roundTeams[1].id
+    return [
+      { round: 'R' + roundIdx, label: 'Semifinal Ida', week: entry.week, home: home, away: away, homeScore: null, awayScore: null, played: false, isTwoLegged: true, leg: 1 },
+      { round: 'R' + roundIdx, label: 'Semifinal Vuelta', week: entry.week, home: away, away: home, homeScore: null, awayScore: null, played: false, isTwoLegged: true, leg: 2 }
+    ]
+  }
+
+  /* Standard single-leg fixtures */
   var fixtures = []
   for (var fi = 0; fi < Math.floor(roundTeams.length / 2); fi++) {
     var home = roundTeams[fi * 2].id
@@ -829,12 +858,17 @@ function generarRondaCopa(roundIdx, previousWinners, cupState) {
     if (!home || !away) continue
     fixtures.push({ round: 'R' + roundIdx, label: entry.label, week: entry.week, home: home, away: away, homeScore: null, awayScore: null, played: false })
   }
+  /* Odd team gets bye */
+  if (roundTeams.length % 2 !== 0 && cupState) {
+    cupState._pendingByes = cupState._pendingByes || {}
+    cupState._pendingByes[roundIdx] = roundTeams[roundTeams.length - 1].id
+  }
   return fixtures
 }
 
 /* Initial cup setup: generate only R1, rest are generated on-demand */
 function generarCopa() {
-  var cupState = { schedule: COPA_SCHEDULE, roundIdx: 0, allFixtures: [], eliminated: [], advancing: [] }
+  var cupState = { schedule: COPA_SCHEDULE, roundIdx: 0, allFixtures: [], eliminated: [], advancing: [], _pendingByes: {} }
   var r1 = generarRondaCopa(0, [], cupState)
   cupState.allFixtures = r1.slice()
   return cupState
@@ -848,16 +882,57 @@ function avanzarRondaCopa() {
   var currentFixtures = state.cup.allFixtures.filter(function(f) { return f.week === COPA_SCHEDULE[ri].week })
   var winners = []
   var eliminated = state.cup.eliminated || []
-  currentFixtures.forEach(function(f) {
-    if (!f.played) return
-    var winner = f.homeScore > f.awayScore ? f.home : f.away
-    winners.push(winner)
-    eliminated.push(winner === f.home ? f.away : f.home)
-  })
-  /* R1: añadir el bye y el extra que pasaron directos */
-  if (ri === 0) {
-    if (state.cup._byeR1) { winners.push(state.cup._byeR1); delete state.cup._byeR1 }
-    if (state.cup._extraR1) { winners.push(state.cup._extraR1); delete state.cup._extraR1 }
+
+  /* Check if this round has two-legged fixtures (semifinal) */
+  var hasTwoLegged = currentFixtures.some(function(f) { return f.isTwoLegged })
+  if (hasTwoLegged) {
+    /* Two-legged: determine winner by aggregate score */
+    var pairIds = {}
+    currentFixtures.forEach(function(f) {
+      if (!f.isTwoLegged) return
+      if (!pairIds[f.pairId || (f.home + '-' + f.away)]) pairIds[f.pairId || (f.home + '-' + f.away)] = []
+      pairIds[f.pairId || (f.home + '-' + f.away)].push(f)
+    })
+    /* Group by unique pairing */
+    var processed = {}
+    currentFixtures.forEach(function(f) {
+      if (!f.isTwoLegged) return
+      var pairKey = [f.home, f.away].sort().join('-')
+      if (processed[pairKey]) return
+      processed[pairKey] = true
+      var pairFixtures = currentFixtures.filter(function(ff) {
+        return ff.isTwoLegged && [ff.home, ff.away].sort().join('-') === pairKey
+      })
+      var aggHome = 0, aggAway = 0
+      pairFixtures.forEach(function(ff) {
+        if (!ff.played) return
+        aggHome += (ff.homeScore || 0)
+        aggAway += (ff.awayScore || 0)
+      })
+      var homeTeam = pairFixtures[0].home
+      var awayTeam = pairFixtures[0].away
+      if (aggHome > aggAway) {
+        winners.push(homeTeam)
+        eliminated.push(awayTeam)
+      } else {
+        winners.push(awayTeam)
+        eliminated.push(homeTeam)
+      }
+    })
+  } else {
+    /* Single-leg: standard winner determination */
+    currentFixtures.forEach(function(f) {
+      if (!f.played) return
+      var winner = f.homeScore > f.awayScore ? f.home : f.away
+      winners.push(winner)
+      eliminated.push(winner === f.home ? f.away : f.home)
+    })
+  }
+
+  /* Add bye from current round if exists */
+  if (state.cup._pendingByes && state.cup._pendingByes[ri]) {
+    winners.push(state.cup._pendingByes[ri])
+    delete state.cup._pendingByes[ri]
   }
   state.cup.eliminated = eliminated
 
@@ -891,9 +966,9 @@ function avanzarRondaCopa() {
 function generarSupercopa() {
   var teams = getSupercopaTeams()
   if (teams.length < 4) return null
-  var sf1 = { round: 'SF', label: 'Semifinal', week: 18, home: teams[0], away: teams[1], homeScore: null, awayScore: null, played: false }
-  var sf2 = { round: 'SF', label: 'Semifinal', week: 18, home: teams[2], away: teams[3], homeScore: null, awayScore: null, played: false }
-  return { week: 18, fixtures: [sf1, sf2], final: null, winner: null }
+  var sf1 = { round: 'SF', label: 'Semifinal', week: 20, home: teams[0], away: teams[1], homeScore: null, awayScore: null, played: false }
+  var sf2 = { round: 'SF', label: 'Semifinal', week: 20, home: teams[2], away: teams[3], homeScore: null, awayScore: null, played: false }
+  return { week: 20, fixtures: [sf1, sf2], final: null, winner: null }
 }
 
 function avanzarSupercopa() {
@@ -903,7 +978,128 @@ function avanzarSupercopa() {
   if (!sf1.played || !sf2.played) return
   var w1 = sf1.homeScore > sf1.awayScore ? sf1.home : sf1.away
   var w2 = sf2.homeScore > sf2.awayScore ? sf2.home : sf2.away
-  state.supercopa.final = { round: 'F', label: 'Final', week: 18, home: w1, away: w2, homeScore: null, awayScore: null, played: false }
+  state.supercopa.final = { round: 'F', label: 'Final', week: 20, home: w1, away: w2, homeScore: null, awayScore: null, played: false }
+}
+
+/* ============ COPA DE LA LIGA PORTUGAL ============ */
+function getTacaDaLigaTeams() {
+  if (state.seasonNumber <= 1) {
+    return ['pt2', 'pt18', 'pt1', 'pt11', 'pt4', 'pt6', 'pt3', 'pt16']
+  }
+  var l1pTeams = getLeagueTeams('l1p')
+  var l2pTeams = getLeagueTeams('l2p')
+  var l1pSorted = l1pTeams.slice().sort(function(a, b) { return (b.rating || 0) - (a.rating || 0) })
+  var l2pSorted = l2pTeams.slice().sort(function(a, b) { return (b.rating || 0) - (a.rating || 0) })
+  var top6 = l1pSorted.slice(0, 6).map(function(t) { return t.id })
+  var top2 = l2pSorted.slice(0, 2).map(function(t) { return t.id })
+  return top6.concat(top2)
+}
+
+function getTacaDaLigaCompName() { return 'Copa de la Liga Portugal' }
+function getTacaDaLigaLogo() { return 'https://cdn.resfu.com/media/img/league_logos/taca_da_liga.png?size=120x&lossy=1' }
+
+function getTacaDaLigaLabel(roundIdx) {
+  var labels = ['Cuartos', 'Semifinal', 'Final']
+  return labels[roundIdx] || 'Copa de la Liga'
+}
+
+function getTacaDaLigaReward(roundIdx) {
+  var rewards = [2000000, 5000000, 15000000]
+  return rewards[roundIdx] || 0
+}
+
+function generarRondaTacaDaLiga(roundIdx, previousWinners, tdlState) {
+  var entry = TACA_DA_LIGA_SCHEDULE[roundIdx]
+  if (!entry) return []
+  var roundTeams = []
+  if (roundIdx === 0) {
+    var teamIds = getTacaDaLigaTeams().sort(function() { return Math.random() - 0.5 })
+    roundTeams = teamIds.map(function(id) { return { id: id } })
+  } else {
+    roundTeams = (previousWinners || []).map(function(id) { return { id: id } })
+    if (tdlState && tdlState._pendingByes && tdlState._pendingByes[roundIdx - 1]) {
+      roundTeams.push({ id: tdlState._pendingByes[roundIdx - 1] })
+      delete tdlState._pendingByes[roundIdx - 1]
+    }
+    roundTeams = roundTeams.sort(function() { return Math.random() - 0.5 })
+  }
+  var fixtures = []
+  for (var fi = 0; fi < Math.floor(roundTeams.length / 2); fi++) {
+    var home = roundTeams[fi * 2].id
+    var away = roundTeams[fi * 2 + 1].id
+    if (!home || !away) continue
+    fixtures.push({ round: 'R' + roundIdx, label: entry.label, week: entry.week, home: home, away: away, homeScore: null, awayScore: null, played: false })
+  }
+  if (roundTeams.length % 2 !== 0 && tdlState) {
+    tdlState._pendingByes = tdlState._pendingByes || {}
+    tdlState._pendingByes[roundIdx] = roundTeams[roundTeams.length - 1].id
+  }
+  return fixtures
+}
+
+function generarTacaDaLiga() {
+  var tdlState = { schedule: TACA_DA_LIGA_SCHEDULE, roundIdx: 0, allFixtures: [], eliminated: [], _pendingByes: {} }
+  var r0 = generarRondaTacaDaLiga(0, [], tdlState)
+  tdlState.allFixtures = r0.slice()
+  return tdlState
+}
+
+function avanzarRondaTacaDaLiga() {
+  if (!state.tacaDaLiga) return
+  var ri = state.tacaDaLiga.roundIdx
+  var currentFixtures = state.tacaDaLiga.allFixtures.filter(function(f) { return f.week === TACA_DA_LIGA_SCHEDULE[ri].week })
+  var winners = []
+  var eliminated = state.tacaDaLiga.eliminated || []
+  currentFixtures.forEach(function(f) {
+    if (!f.played) return
+    var winner = f.homeScore > f.awayScore ? f.home : f.away
+    winners.push(winner)
+    eliminated.push(winner === f.home ? f.away : f.home)
+  })
+  if (state.tacaDaLiga._pendingByes && state.tacaDaLiga._pendingByes[ri]) {
+    winners.push(state.tacaDaLiga._pendingByes[ri])
+    delete state.tacaDaLiga._pendingByes[ri]
+  }
+  state.tacaDaLiga.eliminated = eliminated
+  var nextRi = ri + 1
+  if (nextRi >= TACA_DA_LIGA_SCHEDULE.length) {
+    if (winners.length === 1) {
+      state.tacaDaLigaChampion = winners[0]
+    }
+    state.tacaDaLiga.roundIdx = -1
+    return
+  }
+  var fixtures = generarRondaTacaDaLiga(nextRi, winners, state.tacaDaLiga)
+  fixtures.forEach(function(f) { state.tacaDaLiga.allFixtures.push(f) })
+  state.tacaDaLiga.roundIdx = nextRi
+  var userInRound = fixtures.some(function(f) { return f.home === state.teamId || f.away === state.teamId })
+  if (!userInRound) {
+    fixtures.forEach(function(f) {
+      var r = autoSimulateOtherMatch(f.home, f.away)
+      f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+    })
+    avanzarRondaTacaDaLiga()
+  }
+}
+
+function autoSimularTacaDaLigaRestante() {
+  if (!state.tacaDaLiga) return
+  state.tacaDaLiga.allFixtures.forEach(function(f) {
+    if (f.played) return
+    var r = autoSimulateOtherMatch(f.home, f.away)
+    f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+  })
+  var lastSched = state.tacaDaLiga.schedule[state.tacaDaLiga.schedule.length - 1]
+  var finalF = state.tacaDaLiga.allFixtures.filter(function(f) { return f.week === lastSched.week })
+  if (finalF.length > 0 && finalF[0].played) {
+    var winner = finalF[0].homeScore > finalF[0].awayScore ? finalF[0].home : finalF[0].away
+    state.tacaDaLigaChampion = winner
+    if (winner === state.teamId) {
+      if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
+      var cy = new Date().getFullYear() % 100
+      state.trophyHistory.tacaDaLigaWins.push({ season: (cy - 1) + '/' + cy.toString().padStart(2, '0'), competition: getTacaDaLigaCompName() })
+    }
+  }
 }
 
 function formatValue(val) {
@@ -973,7 +1169,7 @@ function idbGet(key) {
 function persistSaves(saves) {
   _memorySaves = saves
   /* Guardar también metadata en localStorage para acceso rápido */
-  var meta = saves.map(function(s) { return { id: s.id, meta: s.meta, teamId: s.teamId, leagueId: s.leagueId, matchday: s.matchday } })
+  var meta = saves.map(function(s) { return { id: s.id, meta: s.meta, teamId: s.teamId, leagueId: s.leagueId, matchday: s.matchday, currentMatchday: s.currentMatchday } })
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(meta)) } catch(e) { /* localStorage no disponible o lleno */ }
   /* Guardar datos completos en IndexedDB (sin límite de tamaño) */
   idbSet(STORAGE_KEY, saves).then(function() { console.log('[SAVE] IndexedDB OK') }).catch(function(e) { console.warn('[SAVE] IndexedDB falló:', e) })
@@ -1109,6 +1305,9 @@ window.SaveSystem = {
         cupRunnerUp: state.cupRunnerUp,
         leagueChampion: state.leagueChampion,
         leagueRunnerUp: state.leagueRunnerUp,
+        lastFinalStandings: state.lastFinalStandings,
+        myPalmares: state.myPalmares,
+        trophyHistory: state.trophyHistory,
       }
       if (idx >= 0) saves[idx] = data; else saves.unshift(data)
       var saveOk = setSaves(saves)
@@ -1204,6 +1403,7 @@ function getEffectiveMaxBench() {
 
 function generateFixtures(teamIds) {
   const n = teamIds.length
+  if (n < 2) { console.warn('[FIXTURES] Not enough teams:', n); return [] }
   const rounds = n % 2 === 0 ? n - 1 : n
   const fixtures = []
   const ids = [...teamIds]
@@ -1293,7 +1493,20 @@ function getTeamFormation(id) {
 }
 
 function getTeamObj(id) {
-  if (id === state.teamId) return { name: state.team, players: state.players, teamId: state.teamId, staff: state.staff }
+  if (id === state.teamId) {
+    var palmares = state.myPalmares || null
+    if (!palmares) {
+      for (const cid in window.DB) {
+        const data = window.DB[cid]; if (!data) continue
+        for (const l of data.country.leagues || []) {
+          const t = l.teams.find(x => x.id === id)
+          if (t) { palmares = t.palmares; break }
+        }
+        if (palmares) break
+      }
+    }
+    return { name: state.team, players: state.players, teamId: state.teamId, staff: state.staff, palmares: palmares }
+  }
   const filialId = getFilialId(state.teamId)
   if (filialId && id === filialId && state.filialSquad) {
     return { name: getTeamName(id), players: state.filialSquad, teamId: id }
@@ -1692,7 +1905,7 @@ function initAllLeagueData() {
             var rating = t.rating || (getBaseDato(t.id) ? getBaseDato(t.id).rating : null) || 70
             players = generateCpuSquad(t.id, _cid, rating)
           }
-          return { teamId: t.id, name: t.name, players: players, formation: t.formation, gamePlan: t.gamePlan, logo: t.logo }
+          return { teamId: t.id, name: t.name, players: players, formation: t.formation, gamePlan: t.gamePlan, logo: t.logo, palmares: t.palmares }
         })
         if (state.allLeagueData[l.id]) {
           state.allLeagueData[l.id].teams = leagueTeams
@@ -1756,7 +1969,7 @@ function renderSquadInfo(players) {
     <div class="tp-list">`
   html += ordered.map(p => {
     const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')
-    const valShort = formatShort(p.value || calcValue(p.skill))
+    const valShort = formatShort(p.value || calcValue(p.skill, p.age, p.position))
     return `<div class="tp-row" data-player-id="${p.id}">
       <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
       <div class="tp-cell">
@@ -1851,52 +2064,58 @@ function renderHome() {
   /* Detect cup/supercopa fixture pending */
   var cupNext = null
   var cupLabel = ''
-  if (state.cup && !isPlayoffs) {
-    cupNext = state.cup.allFixtures.find(function(f) { return !f.played && (f.home === state.teamId || f.away === state.teamId) })
-    if (cupNext) cupLabel = '\ud83c\udfc6 Copa del Rey - ' + cupNext.label
+  if (state.tacaDaLiga && !isPlayoffs && state.tacaDaLiga.allFixtures && state.tacaDaLiga.roundIdx >= 0) {
+    cupNext = state.tacaDaLiga.allFixtures.find(function(f) { return !f.played && (f.home == state.teamId || f.away == state.teamId) && state.currentMatchday >= f.week })
+    if (cupNext) cupLabel = getTacaDaLigaCompName() + ' - ' + cupNext.label
   }
-  if (!cupNext && state.supercopa && !isPlayoffs) {
-    cupNext = state.supercopa.fixtures.find(function(f) { return !f.played && (f.home === state.teamId || f.away === state.teamId) })
-    if (cupNext) cupLabel = '\ud83c\udfc6 Supercopa - ' + cupNext.label
-    if (!cupNext && state.supercopa.final && !state.supercopa.final.played && (state.supercopa.final.home === state.teamId || state.supercopa.final.away === state.teamId)) { cupNext = state.supercopa.final; cupLabel = '\ud83c\udfc6 Supercopa - Final' }
+  if (!cupNext && state.cup && !isPlayoffs && state.cup.allFixtures && state.cup.roundIdx >= 0) {
+    cupNext = state.cup.allFixtures.find(function(f) { return !f.played && (f.home == state.teamId || f.away == state.teamId) && state.currentMatchday >= f.week })
+    if (cupNext) cupLabel = getCupCompName(state.countryId) + ' - ' + cupNext.label
+  }
+  if (!cupNext && state.supercopa && !isPlayoffs && state.supercopa.fixtures && state.supercopa.week) {
+    cupNext = state.supercopa.fixtures.find(function(f) { return !f.played && (f.home == state.teamId || f.away == state.teamId) && state.currentMatchday >= f.week })
+    if (cupNext) cupLabel = getSupercopaCompName(state.countryId) + ' - ' + cupNext.label
+    if (!cupNext && state.supercopa.final && !state.supercopa.final.played && (state.supercopa.final.home == state.teamId || state.supercopa.final.away == state.teamId) && state.currentMatchday >= state.supercopa.final.week) { cupNext = state.supercopa.final; cupLabel = getSupercopaCompName(state.countryId) + ' - Final' }
   }
   var cupActive = cupNext !== null
 
   /* Show cup match first if pending, otherwise league match */
   const fixture = isPlayoffs
-    ? state.playoffs.fixtures.find(function(f) { return !f.played && (f.home === state.teamId || f.away === state.teamId) })
-    : (cupActive ? cupNext : state.fixtures.find(function(f) { return f.played === false && (f.home === state.teamId || f.away === state.teamId) }))
-  const rivalId = fixture ? (fixture.home === state.teamId ? fixture.away : fixture.home) : null
+    ? state.playoffs.fixtures.find(function(f) { return !f.played && (f.home == state.teamId || f.away == state.teamId) })
+    : (cupActive ? cupNext : state.fixtures.find(function(f) { return f.played === false && (f.home == state.teamId || f.away == state.teamId) }))
+  const rivalId = fixture ? (fixture.home == state.teamId ? fixture.away : fixture.home) : null
   const rivalName = rivalId ? getTeamName(rivalId) : '—'
-  const isHome = fixture ? fixture.home === state.teamId : false
+  const isHome = fixture ? fixture.home == state.teamId : false
   const rivalPos = rivalId ? (standings.findIndex(s => s.teamId === rivalId) + 1) : '—'
   const rivalLogo = rivalId ? getTeamLogo(rivalId) : ''
   const nextMatchday = fixture ? fixture.matchday : state.currentMatchday
   const last5 = state.fixtures
-    .filter(f => f.played && (f.home === state.teamId || f.away === state.teamId))
+    .filter(f => f.played && (f.home == state.teamId || f.away == state.teamId))
     .sort((a, b) => b.matchday - a.matchday)
     .slice(0, 5)
     .map(f => {
-      const us = f.home === state.teamId ? f.homeScore : f.awayScore
-      const them = f.home === state.teamId ? f.awayScore : f.homeScore
+      const us = f.home == state.teamId ? f.homeScore : f.awayScore
+      const them = f.home == state.teamId ? f.awayScore : f.homeScore
       return us > them ? 'V' : us < them ? 'D' : 'E'
     })
   const injured = state.players.filter(p => p.injury)
   var roundNames = { QF: 'Cuartos de final', SF: 'Semifinal', F: 'Final' }
 
   console.log('[RENDER] renderHome ejecutada, fixture:', !!fixture, 'cupActive:', cupActive)
-  /* Single match card — shows cup info line if it is a cup week */
+  /* Always build match card — use first fixture as fallback */
+  var matchFixture = fixture
+  if (!matchFixture && state.fixtures && state.fixtures.length > 0) {
+    matchFixture = state.fixtures.find(function(f) { return !f.played }) || null
+  }
   var matchHtml = ''
-  if (fixture) {
-    var mIsHome = fixture.home === state.teamId
-    var mRivalId = mIsHome ? fixture.away : fixture.home
+  if (matchFixture) {
+    var mIsHome = matchFixture.home == state.teamId
+    var mRivalId = mIsHome ? matchFixture.away : matchFixture.home
     var mRivalName = getTeamName(mRivalId)
     var mRivalLogo = getTeamLogo(mRivalId)
     var mRivalPos = standings.findIndex(function(s) { return s.teamId === mRivalId }) + 1
-    var cupInfo = (cupActive && cupNext === fixture) ? '<div class="home-cup-indicator">\ud83c\udfc6 ' + cupLabel + ' \ud83d\udfe3 Mi\u00e9rcoles</div>' : ''
-    matchHtml = '<div class="home-card home-match' + (cupActive && cupNext === fixture ? ' home-cup-card' : '') + '">' +
+    matchHtml = '<div class="home-card home-match">' +
       '<div class="home-section-title">' + (isPlayoffs ? (roundNames[state.playoffs.round] || 'Eliminatoria') : 'Pr\u00f3ximo encuentro') + '</div>' +
-      cupInfo +
       '<div class="home-match-teams">' +
         '<div class="home-team-side" style="cursor:pointer" onclick="showTeamInfo(\'' + state.teamId + '\')">' +
           '<img class="home-team-logo" src="' + (state.teamLogo || '') + '" alt="">' +
@@ -1910,7 +2129,7 @@ function renderHome() {
           '<div class="home-team-pos">' + mRivalPos + '\u00ba \u00b7 ' + getTeamFormation(mRivalId) + '</div>' +
         '</div>' +
       '</div>' +
-      (isPlayoffs ? '<div class="home-matchday-label">Eliminatoria</div>' : '<div class="home-matchday-label">Jornada ' + (fixture.matchday || state.currentMatchday) + ' de ' + state.totalMatchdays + ' \u00b7 ' + (fixture.horario || '') + '</div>') +
+      (cupActive && cupNext === matchFixture ? '<div class="home-matchday-label">' + cupLabel + '</div>' : (isPlayoffs ? '<div class="home-matchday-label">Eliminatoria</div>' : '<div class="home-matchday-label">Jornada ' + (matchFixture.matchday || state.currentMatchday) + ' de ' + state.totalMatchdays + '</div>')) +
       '<div class="home-match-location">' + (mIsHome ? '\ud83c\udfe1 Local' : '\u2708\ufe0f Visitante') + '</div>' +
       '<button class="btn-home-simulate" id="btn-home-simulate"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Simular Partido</button>' +
     '</div>'
@@ -1930,19 +2149,22 @@ function renderHome() {
     '</div>' +
     '<div class="home-injury-text">\ud83d\ude91 Bajas para hoy: ' + (injured.length > 0 ? injured.map(function(p) { return p.name }).join(', ') : 'Ninguna') + '</div>' +
   '</div>' +
-  (matchHtml || '<div class="home-card home-match"><div class="home-section-title">\ud83c\udfc6 Temporada completada</div></div>')
+  matchHtml
 
   var simBtn = document.getElementById('btn-home-simulate')
   if (simBtn) simBtn.onclick = function() {
-    console.log('[SIM] Click - fixture:', !!fixture, 'rivalId:', rivalId, 'cupActive:', cupActive)
-    if (!rivalId) { alert('\u26a0\ufe0f Error: No se encontr\u00f3 rival. Revisa la alineaci\u00f3n o los datos del equipo.'); return }
-    if (cupActive && cupNext === fixture) {
-      simularPartidoCopa(fixture, rivalId, cupLabel.indexOf('Supercopa') >= 0)
+    var simRivalId = matchFixture ? (matchFixture.home == state.teamId ? matchFixture.away : matchFixture.home) : null
+    console.log('[SIM] Click - fixture:', !!matchFixture, 'rivalId:', simRivalId, 'cupActive:', cupActive)
+    if (!simRivalId) { alert('\u26a0\ufe0f Error: No se encontr\u00f3 rival. Revisa la alineaci\u00f3n o los datos del equipo.'); return }
+    if (cupActive && cupNext === matchFixture) {
+      var isTdl = cupLabel.indexOf('Copa de la Liga') >= 0
+      var isSc = cupLabel.indexOf('Supercopa') >= 0
+      simularPartidoCopa(matchFixture, simRivalId, isSc, isTdl)
     } else {
-      simularPartidoRapido(fixture, rivalId)
+      simularPartidoRapido(matchFixture, simRivalId)
     }
   }
-  console.log('[RENDER] onclick configurado para boton simulate - simBtn:', !!simBtn, 'rivalId:', rivalId)
+  console.log('[RENDER] onclick configurado para boton simulate - simBtn:', !!simBtn, 'simRivalId:', matchFixture ? (matchFixture.home == state.teamId ? matchFixture.away : matchFixture.home) : null)
 }
 function renderClub() {
   const titleEl = document.getElementById('club-title')
@@ -2603,23 +2825,32 @@ function renderLeague(viewedLeagueId) {
     }
   }
   displayLogos = otherLogos.concat(displayLogos)
-  /* Añadir Copa del Rey para España */
-  var cupLogoUrl = 'https://cdn.resfu.com/media/img/league_logos/copa-del-rey.png?size=120x&lossy=1'
-  if (activeCountryId === 'es' && state.cup) {
-    var copaEntry = { id: 'copa_del_rey', name: 'Copa del Rey', logo: cupLogoUrl }
-    var insertIdx = displayLogos.length
-    for (var ci = displayLogos.length - 1; ci >= 0; ci--) {
-      if (displayLogos[ci].id && displayLogos[ci].id.startsWith('l3')) {
-        insertIdx = ci + 1
-        break
-      }
-    }
-    displayLogos.splice(insertIdx, 0, copaEntry)
+  /* Añadir copa nacional */
+  var countryHasCup = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland'
+  if (countryHasCup) {
+    displayLogos.push({ id: 'copa_del_rey', name: getCupCompName(activeCountryId), logo: getCupLogo(activeCountryId) })
   }
+  /* Añadir supercopa nacional */
+  if (countryHasCup) {
+    displayLogos.push({ id: 'supercopa', name: getSupercopaCompName(activeCountryId), logo: getSupercopaLogo(activeCountryId) })
+  }
+  /* Añadir Copa de la Liga Portugal */
+  if (activeCountryId === 'portugal') {
+    displayLogos.push({ id: 'taca_da_liga', name: getTacaDaLigaCompName(), logo: getTacaDaLigaLogo() })
+  }
+  /* Añadir competiciones continentales */
+  var CONTINENTAL_LOGOS = [
+    { id: 'champions', name: 'Champions League', logo: 'https://cdn.resfu.com/media/img/league_logos/champions.png?size=120x&lossy=1' },
+    { id: 'europa_league', name: 'Europa League', logo: 'https://cdn.resfu.com/media/img/league_logos/europa-league.png?size=120x&lossy=1' },
+    { id: 'conference_league', name: 'Conference League', logo: 'https://cdn.resfu.com/media/img/league_logos/conf-league.png?size=120x&lossy=1' },
+    { id: 'supercopa_europa', name: 'Supercopa de Europa', logo: 'https://cdn.resfu.com/media/img/league_logos/supercopa_europa.png?size=120x&lossy=1' },
+    { id: 'mundial_clubes', name: 'Mundial de Clubes', logo: 'https://cdn.resfu.com/media/img/league_logos/mundial-clubes.png?size=120x&lossy=1' }
+  ]
+  displayLogos = displayLogos.concat(CONTINENTAL_LOGOS)
   const logosContainer = document.getElementById('league-logos')
   logosContainer.innerHTML = displayLogos.map(function(l) {
     var virtualId = l.vid ? l.id : null
-    var isActive = displayLid === 'copa_del_rey' && l.id === 'copa_del_rey'
+    var isActive = (l.id === 'copa_del_rey' || l.id === 'supercopa') && (displayLid === 'copa_del_rey' || displayLid === 'supercopa') && l.id === displayLid
     if (!isActive) isActive = (virtualId && displayLid && isGroupedLeague(displayLid) && displayLid.startsWith(l.id)) || l.id === displayLid
     return '<div class="ng-league-item' + (isActive ? ' active' : '') + '" data-lid="' + (virtualId || l.id) + '" title="' + l.name + '">' +
       (l.logo ? '<img class="ng-league-logo" src="' + l.logo + '" alt="' + l.name + '">' : '<span>' + l.name + '</span>') +
@@ -2627,8 +2858,30 @@ function renderLeague(viewedLeagueId) {
   }).join('')
   logosContainer.querySelectorAll('.ng-league-item').forEach(function(el) {
     var lid = el.dataset.lid
-    if (lid === 'copa_del_rey') {
-      el.onclick = function() { renderCopaView() }
+    if (lid === 'copa_del_rey' || lid === 'supercopa' || lid === 'taca_da_liga') {
+      el.onclick = function() {
+        if (lid === 'taca_da_liga') {
+          renderCopaView('tacaDaLiga')
+        } else if (activeCountryId === 'spain') {
+          renderCopaView(lid === 'copa_del_rey' ? 'copa' : 'supercopa')
+        } else {
+          var tableWrap = document.getElementById('league-table-wrap')
+          var resultsWrap = document.getElementById('league-results-wrap')
+          resultsWrap.classList.add('hidden')
+          var entry = displayLogos.find(function(c) { return c.id === lid })
+          var name = entry ? entry.name : lid
+          tableWrap.innerHTML = '<div style="text-align:center;padding:40px 20px"><img src="' + (entry ? entry.logo : '') + '" style="width:64px;height:64px;object-fit:contain;margin-bottom:12px;opacity:0.5"><div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px">' + name + '</div><div style="font-size:14px;color:var(--text-muted)">Próximamente disponible</div></div>'
+        }
+      }
+    } else if (lid === 'champions' || lid === 'europa_league' || lid === 'conference_league' || lid === 'supercopa_europa' || lid === 'mundial_clubes') {
+      el.onclick = function() {
+        var tableWrap = document.getElementById('league-table-wrap')
+        var resultsWrap = document.getElementById('league-results-wrap')
+        resultsWrap.classList.add('hidden')
+        var entry = CONTINENTAL_LOGOS.find(function(c) { return c.id === lid })
+        var name = entry ? entry.name : lid
+        tableWrap.innerHTML = '<div style="text-align:center;padding:40px 20px"><img src="' + (entry ? entry.logo : '') + '" style="width:64px;height:64px;object-fit:contain;margin-bottom:12px;opacity:0.5"><div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px">' + name + '</div><div style="font-size:14px;color:var(--text-muted)">Próximamente disponible</div></div>'
+      }
     } else if (isGroupedLeague(lid)) {
       el.onclick = function() {
         var firstGroup = leagues.find(function(l) { return l.id && isGroupedLeague(l.id) })
@@ -3405,7 +3658,7 @@ function gestionarFilialesCPU() {
     if (candidates.length === 0) continue
     candidates.sort(function(a, b) { return b.skill - a.skill })
     var best = candidates[0]
-    var newP = { ...best, id: 'cpu-promoted-' + best.id + '-' + Date.now(), value: calcValue(best.skill), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, teamStats: {} }
+    var newP = { ...best, id: 'cpu-promoted-' + best.id + '-' + Date.now(), value: calcValue(best.skill, best.age, best.position), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, teamStats: {} }
     team.players.push(newP)
     if (!isUserFilial) state.boughtPlayerIds.push(best.id)
     if (isUserFilial) {
@@ -3853,9 +4106,10 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
   overlay.classList.remove('hidden')
 
   document.getElementById('btn-next-season').addEventListener('click', function() {
-    state.players.forEach(function(p) { p.age = (p.age || 22) + 1 })
+    try {
+    state.players.forEach(function(p) { p.age = (p.age || 22) + 1; p.value = calcValue(p.skill, p.age, p.position) })
     /* Age AI team players too */
-    state.leagueTeams.forEach(function(t) { t.players.forEach(function(p) { p.age = (p.age || 22) + 1 }) })
+    state.leagueTeams.forEach(function(t) { t.players.forEach(function(p) { p.age = (p.age || 22) + 1; p.value = calcValue(p.skill, p.age, p.position) }) })
 
     retirados.forEach(function(p) {
       var idx = state.players.indexOf(p)
@@ -3863,33 +4117,65 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
     })
 
     var league = getLeagueFromId(state.leagueId)
+    if (!league) { console.error('[SEASON] League not found for', state.leagueId, '- retrying load'); loadCountryData(state.countryId).then(function() { league = getLeagueFromId(state.leagueId) }) }
     var allTeams = league ? league.teams : []
     state.leagueTeams = allTeams.filter(function(t) { return t.id !== state.teamId }).map(function(t) {
       var existing = state.leagueTeams.find(function(x) { return x.teamId === t.id })
       return {
-        teamId: t.id, name: t.name,
+        teamId: t.id, name: t.name, palmares: t.palmares || null,
         players: existing ? existing.players.map(function(p) { return Object.assign({}, p, { energy: 100, injury: null, goals: 0, matches: 0 }) })
-          : (getRealSquad(t.id) || []).map(function(p) { return Object.assign({}, p, { value: calcValue(p.skill), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 }) }),
+          : (getRealSquad(t.id) || []).map(function(p) { return Object.assign({}, p, { value: calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 }) }),
         staff: t.staff || existing && existing.staff || [],
       }
     })
     state.fixtures = generateFixtures([state.teamId].concat(state.leagueTeams.map(function(t) { return t.teamId })))
-    state.totalMatchdays = Math.max.apply(null, state.fixtures.map(function(f) { return f.matchday }))
+    state.totalMatchdays = state.fixtures.length > 0 ? Math.max.apply(null, state.fixtures.map(function(f) { return f.matchday })) : 38
     state.currentMatchday = 1
     state.allLeagueData = {}
     initAllLeagueData()
     state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
     state.playoffs = null
     state.seasonNumber++
+    /* Regenerate cups for new season — country-specific */
+    try {
+      if (state.countryId === 'spain') {
+        state.cup = generarCopa()
+        state.supercopa = generarSupercopa()
+      } else if (state.countryId === 'portugal') {
+        state.cup = null
+        state.supercopa = null
+        state.tacaDaLiga = generarTacaDaLiga()
+      } else if (state.countryId === 'poland') {
+        state.cup = null
+        state.supercopa = null
+      } else {
+        state.cup = null
+        state.supercopa = null
+        state.tacaDaLiga = null
+      }
+    } catch (cupErr) {
+      console.error('[SEASON] Error generating cups:', cupErr)
+      state.cup = null
+      state.supercopa = null
+      state.tacaDaLiga = null
+    }
     state.players.forEach(function(p) { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
     document.getElementById('league-results-wrap').classList.add('hidden')
     overlay.classList.add('hidden')
-    renderLeague()
+    renderTab('home')
     saveGame()
 
     if (!skipStandings) {
       addNotification('general', msg, 'Nueva temporada en ' + divName(state.leagueId))
       setTimeout(function() { alert(msg) }, 100)
+    }
+    } catch (err) {
+      console.error('[SEASON] Critical error in btn-next-season:', err)
+      overlay.classList.add('hidden')
+      document.getElementById('league-results-wrap').classList.add('hidden')
+      state.currentMatchday = 1
+      renderTab('home')
+      saveGame()
     }
   })
 }
@@ -3912,6 +4198,7 @@ function divName(leagueId) {
 }
 
 function procesarFinTemporada(skipAging, skipStandings) {
+  state.lastFinalStandings = updateLeagueStandings()
   if (!skipAging) var agingResult = envejecerYProgresar()
   let cambioDivision = false
   let pos = 0
@@ -4267,37 +4554,60 @@ function procesarFinTemporada(skipAging, skipStandings) {
   }
 
   /* Post-playflow — immediate reset (used for procesarFinTemporada(true, true) after playoffs) */
+  try {
   const league = getLeagueFromId(state.leagueId)
   const allTeams = league ? league.teams : []
   state.leagueTeams = allTeams.filter(t => t.id !== state.teamId).map(t => {
     const existing = state.leagueTeams.find(x => x.teamId === t.id)
     return {
-      teamId: t.id, name: t.name,
+      teamId: t.id, name: t.name, palmares: t.palmares || null,
       players: existing ? existing.players.map(p => ({ ...p, energy: 100, injury: null, goals: 0, matches: 0 }))
-        : (getRealSquad(t.id) || []).map(p => ({ ...p, value: calcValue(p.skill), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 })),
+        : (getRealSquad(t.id) || []).map(p => ({ ...p, value: calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 })),
       staff: t.staff || existing?.staff || [],
     }
   })
   state.fixtures = generateFixtures([state.teamId, ...state.leagueTeams.map(t => t.teamId)])
-  state.totalMatchdays = Math.max(...state.fixtures.map(f => f.matchday))
+  state.totalMatchdays = state.fixtures.length > 0 ? Math.max(...state.fixtures.map(f => f.matchday)) : 38
   state.currentMatchday = 1
   state.allLeagueData = {}
   initAllLeagueData()
   state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
   state.playoffs = null
   state.seasonNumber++
-  /* Regenerate cup for new season (Spain only) */
-  if (state.countryId === 'es') {
-    state.cup = generarCopa()
-    state.supercopa = generarSupercopa()
-  } else {
+  /* Regenerate cups for new season — country-specific */
+  try {
+    if (state.countryId === 'spain') {
+      state.cup = generarCopa()
+      state.supercopa = generarSupercopa()
+    } else if (state.countryId === 'portugal') {
+      state.cup = null
+      state.supercopa = null
+      state.tacaDaLiga = generarTacaDaLiga()
+    } else if (state.countryId === 'poland') {
+      state.cup = null
+      state.supercopa = null
+    } else {
+      state.cup = null
+      state.supercopa = null
+      state.tacaDaLiga = null
+    }
+  } catch (cupErr) {
+    console.error('[SEASON-POST] Error generating cups:', cupErr)
     state.cup = null
     state.supercopa = null
+    state.tacaDaLiga = null
   }
   state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
   document.getElementById('league-results-wrap').classList.add('hidden')
   renderLeague()
   saveGame()
+  } catch (err) {
+    console.error('[SEASON-POST] Critical error in post-playflow:', err)
+    state.currentMatchday = 1
+    document.getElementById('league-results-wrap').classList.add('hidden')
+    renderTab('home')
+    saveGame()
+  }
 }
 
 function getTerceraGroupIds() {
@@ -4459,14 +4769,16 @@ function avanzarRondaPlayoff() {
     state.playoffs = null
     if (esPlayoffSegundaSpain) {
       if (promovio) {
-        state.leagueId = 'l1s'
+        var desdeCategoriasPrevias = state.leagueId && (state.leagueId.startsWith('l3sg') || state.leagueId.startsWith('l2b'))
+        state.leagueId = desdeCategoriasPrevias ? 'l2s' : 'l1s'
+        var targetName = desdeCategoriasPrevias ? 'Segunda División' : 'LaLiga'
         setTimeout(() => {
-          alert(`${msg}\n\n${esCampeon ? '¡Ascenso a LaLiga y título!' : 'Ascenso a LaLiga conseguido'}`)
+          alert(`${msg}\n\n${esCampeon ? '¡Ascenso a ' + targetName + ' y título!' : 'Ascenso a ' + targetName + ' conseguido'}`)
           procesarFinTemporada(true, true)
         }, 300)
       } else {
         setTimeout(() => {
-          const divName = state.oldLeagueId && state.oldLeagueId.startsWith('l3sg') ? 'Primera RFEF' : 'Segunda División'
+          const divName = state.leagueId && state.leagueId.startsWith('l3sg') ? 'Primera RFEF' : 'Segunda División'
           alert(`${msg}\n\nNo lograste el ascenso. Una temporada más en ${divName}.`)
           procesarFinTemporada(true, true)
         }, 300)
@@ -5084,7 +5396,7 @@ function simularPartidoRapido(fixture, rivalId) {
 }
 
 /* ============ CUP MATCH SIMULATION ============ */
-function simularPartidoCopa(fixture, rivalId, isSupercopa) {
+function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga) {
   if (!fixture || !rivalId) return
   var slots = state.tacticsSlots || []
   var startingIds = slots.filter(Boolean)
@@ -5218,10 +5530,15 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa) {
     })
 
     /* Financial reward + taquilla local */
-    var rew = getCupReward(0)
+    var cupRoundIdx = 0
+    if (!isSupercopa && state.cup && fixture.round) {
+      var rndNum = parseInt(fixture.round.replace('R', ''))
+      if (!isNaN(rndNum)) cupRoundIdx = rndNum
+    }
+    var rew = getCupReward(cupRoundIdx)
     if (us > them) { state.finances.balance += rew; state.stats.wins++ }
-    else { state.finances.losses++; state.finances.balance += getCupRewardLoss(0) }
-    state.finances.history.push({ reason: (isSupercopa ? 'Supercopa' : 'Copa del Rey') + ': ' + us + '-' + them + ' vs ' + getTeamName(rivalId), amount: us > them ? rew : getCupRewardLoss(0) })
+    else { state.finances.losses++; state.finances.balance += getCupRewardLoss(cupRoundIdx) }
+    state.finances.history.push({ reason: (isSupercopa ? getSupercopaCompName(state.countryId) : getCupCompName(state.countryId)) + ': ' + us + '-' + them + ' vs ' + getTeamName(rivalId), amount: us > them ? rew : getCupRewardLoss(cupRoundIdx) })
     if (state.presupuestoInicial > 0 && isHome) {
       var taquillaCopa = Math.round(state.presupuestoInicial * 0.004)
       state.finances.balance += taquillaCopa
@@ -5242,19 +5559,54 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa) {
     })
 
     /* Check if user lost → eliminated */
-    var userLost = (isHome ? us < them : us > them)
-    if (userLost) {
-      addNotification('general', '\u274c Eliminado de la ' + (isSupercopa ? 'Supercopa' : 'Copa del Rey'), 'Perdiste ' + us + '-' + them + ' contra ' + getTeamName(rivalId))
-      if (isSupercopa) { avanzarSupercopa() } else if (state.cup) { avanzarRondaCopa() }
+    var isTwoLegged = fixture.isTwoLegged
+    var isLeg1 = isTwoLegged && fixture.leg === 1
+    var isLeg2 = isTwoLegged && fixture.leg === 2
+
+    if (isLeg1) {
+      /* Two-legged leg 1: just show result, don't advance yet */
+      var leg1Result = us + '-' + them
+      addNotification('transfer', '\u2694\ufe0f Ida jugada', 'Resultado: ' + leg1Result + ' contra ' + getTeamName(rivalId) + '. Vuelta la pr\u00f3xima semana.')
+    } else if (isLeg2) {
+      /* Two-legged leg 2: calculate aggregate */
+      var pairKey = [fixture.home, fixture.away].sort().join('-')
+      var pairFixtures = state.cup.allFixtures.filter(function(f) {
+        return f.isTwoLegged && f.played && [f.home, f.away].sort().join('-') === pairKey
+      })
+      var aggHome = 0, aggAway = 0
+      pairFixtures.forEach(function(f) { aggHome += (f.homeScore || 0); aggAway += (f.awayScore || 0) })
+      var homeTeam = pairFixtures[0].home
+      var userIsHome = homeTeam === state.teamId
+      var userAgg = userIsHome ? aggHome : aggAway
+      var rivalAgg = userIsHome ? aggAway : aggHome
+      if (userAgg > rivalAgg) {
+        addNotification('transfer', '\u2705 Avanzas en Copa (Global: ' + userAgg + '-' + rivalAgg + ')', 'Clasificado tras ida y vuelta contra ' + getTeamName(rivalId))
+        if (state.cup) avanzarRondaCopa()
+      } else {
+        addNotification('general', '\u274c Eliminado de la Copa (Global: ' + userAgg + '-' + rivalAgg + ')', 'Eliminado tras ida y vuelta contra ' + getTeamName(rivalId))
+        if (state.cup) avanzarRondaCopa()
+      }
     } else {
-      addNotification('transfer', '\u2705 Avanzas en ' + (isSupercopa ? 'Supercopa' : 'Copa'), 'Ganaste ' + us + '-' + them + ' contra ' + getTeamName(rivalId))
-      if (isSupercopa) { avanzarSupercopa() } else if (state.cup) { avanzarRondaCopa() }
-      if (isSupercopa && state.supercopa && state.supercopa.final && fixture === state.supercopa.final) {
-        state.supercopa.winner = state.teamId
-        if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] }
-        var cy3 = new Date().getFullYear() % 100
-        state.trophyHistory.supercopaWins.push({ season: (cy3 - 1) + '/' + cy3.toString().padStart(2, '0') })
-        addNotification('transfer', '\ud83c\udfc6 \u00a1Campe\u00f3n de la Supercopa!', state.team + ' gana la Supercopa de Espa\u00f1a')
+      var userLost = (isHome ? us < them : us > them)
+      if (userLost) {
+        addNotification('general', '\u274c Eliminado de la ' + (isTacaDaLiga ? getTacaDaLigaCompName() : isSupercopa ? getSupercopaCompName(state.countryId) : getCupCompName(state.countryId)), 'Perdiste ' + us + '-' + them + ' contra ' + getTeamName(rivalId))
+        if (isTacaDaLiga) { avanzarRondaTacaDaLiga() } else if (isSupercopa) { avanzarSupercopa() } else if (state.cup) { avanzarRondaCopa() }
+      } else {
+        addNotification('transfer', '\u2705 Avanzas en ' + (isTacaDaLiga ? 'Copa de la Liga' : isSupercopa ? 'Supercopa' : 'Copa'), 'Ganaste ' + us + '-' + them + ' contra ' + getTeamName(rivalId))
+        if (isTacaDaLiga) { avanzarRondaTacaDaLiga() } else if (isSupercopa) { avanzarSupercopa() } else if (state.cup) { avanzarRondaCopa() }
+        if (isSupercopa && state.supercopa && state.supercopa.final && fixture === state.supercopa.final) {
+          state.supercopa.winner = state.teamId
+          if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
+          var cy3 = new Date().getFullYear() % 100
+          state.trophyHistory.supercopaWins.push({ season: (cy3 - 1) + '/' + cy3.toString().padStart(2, '0'), competition: getSupercopaCompName(state.countryId) })
+          addNotification('transfer', '\ud83c\udfc6 \u00a1Campe\u00f3n de la Supercopa!', state.team + ' gana la ' + getSupercopaCompName(state.countryId))
+        }
+        if (isTacaDaLiga && state.tacaDaLigaChampion === state.teamId) {
+          if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
+          var cy4 = new Date().getFullYear() % 100
+          state.trophyHistory.tacaDaLigaWins.push({ season: (cy4 - 1) + '/' + cy4.toString().padStart(2, '0'), competition: getTacaDaLigaCompName() })
+          addNotification('transfer', '\ud83c\udfc6 \u00a1Campe\u00f3n de la Copa de la Liga!', state.team + ' gana la ' + getTacaDaLigaCompName())
+        }
       }
     }
 
@@ -5320,9 +5672,9 @@ function autoSimularCopaRestante() {
     state.cupChampion = winner
     state.cupRunnerUp = winner === finalF[0].home ? finalF[0].away : finalF[0].home
     if (winner === state.teamId) {
-      if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] }
+      if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
       var cy2 = new Date().getFullYear() % 100
-      state.trophyHistory.cupWins.push({ season: (cy2 - 1) + '/' + cy2.toString().padStart(2, '0'), competition: 'Copa del Rey' })
+      state.trophyHistory.cupWins.push({ season: (cy2 - 1) + '/' + cy2.toString().padStart(2, '0'), competition: getCupCompName(state.countryId) })
     }
   }
 }
@@ -6005,7 +6357,7 @@ function buyPlayer(player, team, agreedPrice) {
   /* Remove from global pool */
   const gi = state.globalPlayers.findIndex(p => p.id === player.id)
   if (gi >= 0) state.globalPlayers.splice(gi, 1)
-  const newPlayer = { ...player, id: 'user-' + Date.now(), value: calcValue(player.skill), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null, teamStats: {} }
+  const newPlayer = { ...player, id: 'user-' + Date.now(), value: calcValue(player.skill, player.age, player.position), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null, teamStats: {} }
   state.players.push(newPlayer)
   addNotification('transfer', `Fichaje completado: ${player.name}`, `${formatMoney(player.value)} · ${player.nationality}`)
   renderMarketContent()
@@ -6118,6 +6470,9 @@ function envejecerYProgresar() {
     })
   }
 
+  /* Recalcular valores tras cambios de skill */
+  state.players.forEach(function(p) { p.value = calcValue(p.skill, p.age, p.position) })
+
   /* Progress AI teams' players too */
   var iaRetirados = progresarJugadoresIA(totalM)
   retirados.push.apply(retirados, iaRetirados)
@@ -6182,6 +6537,8 @@ function progresarJugadoresIA(totalM) {
     })
     team.players = keep
   })
+  /* Recalcular valores de jugadores IA tras cambios de skill */
+  state.leagueTeams.forEach(function(t) { (t.players || []).forEach(function(p) { p.value = calcValue(p.skill, p.age, p.position) }) })
   return retirados
 }
 
@@ -6263,23 +6620,30 @@ function renderTab(tab) {
 }
 
 /* ============ COPA / SUPERCOPA VIEW ============ */
-var COPA_LOGO = 'https://cdn.resfu.com/media/img/league_logos/copa-del-rey.png?size=120x&lossy=1'
-var SUPERC_LOGO = 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=120x&lossy=1'
 
-function renderCopaView() {
+function renderCopaView(viewType, selectedRoundIdx) {
+  selectedRoundIdx = (selectedRoundIdx !== undefined) ? selectedRoundIdx : -1
   var tableWrap = document.getElementById('league-table-wrap')
   var resultsWrap = document.getElementById('league-results-wrap')
   resultsWrap.classList.add('hidden')
   var cup = state.cup
   var supercopa = state.supercopa
-  var html = '<div style="text-align:right;margin-bottom:8px"><button class="btn-back" onclick="renderLeague()" style="font-size:12px;padding:4px 10px">\u2190 Volver a Competiciones</button></div><div class="copa-wrap">'
+  var html = '<div class="copa-wrap">'
 
   /* Supercopa section */
-  if (supercopa && supercopa.fixtures.length > 0) {
-    html += '<div class="copa-section"><div class="copa-header"><img class="copa-logo" src="' + SUPERC_LOGO + '" alt="Supercopa"><span class="copa-title">Supercopa de Espa\u00f1a</span></div>'
+  if (viewType !== 'copa' && viewType !== 'tacaDaLiga' && supercopa && supercopa.fixtures.length > 0) {
+    /* Supercopa round selector (outside section) */
+    html += '<div class="copa-round-selector">'
+    html += '<button class="copa-round-btn' + (selectedRoundIdx === -1 ? ' active' : '') + '" data-round="-1">Todas</button>'
+    html += '<button class="copa-round-btn' + (selectedRoundIdx === 0 ? ' active' : '') + '" data-round="0">Semifinal</button>'
+    html += '<button class="copa-round-btn' + (selectedRoundIdx === 1 ? ' active' : '') + '" data-round="1">Final</button>'
+    html += '</div>'
+    html += '<div class="copa-section">'
     var allSupercopaFixtures = supercopa.fixtures.slice()
     if (supercopa.final) allSupercopaFixtures.push(supercopa.final)
     allSupercopaFixtures.forEach(function(f) {
+      var fRound = f.round === 'SF' ? 0 : 1
+      if (selectedRoundIdx >= 0 && fRound !== selectedRoundIdx) return
       var played = f.played
       var homeS = f.homeScore != null ? f.homeScore : '-'
       var awayS = f.awayScore != null ? f.awayScore : '-'
@@ -6288,31 +6652,43 @@ function renderCopaView() {
       var isUser = f.home === state.teamId || f.away === state.teamId
       html += '<div class="copa-fixture' + cls + '">' +
         '<span class="copa-fixture-round">' + elimLabel + '</span>' +
-        '<span class="copa-fixture-team' + (f.home === state.teamId ? ' copa-user' : '') + '">' + (isUser ? '\u2b50 ' : '') + getTeamName(f.home) + '</span>' +
+        '<span class="copa-fixture-team' + (f.home === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.home) + '"> ' + getTeamName(f.home) + '</span>' +
         '<span class="copa-fixture-score">' + homeS + ' - ' + awayS + '</span>' +
-        '<span class="copa-fixture-team' + (f.away === state.teamId ? ' copa-user' : '') + '">' + (isUser ? '\u2b50 ' : '') + getTeamName(f.away) + '</span>' +
+        '<span class="copa-fixture-team' + (f.away === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.away) + '"> ' + getTeamName(f.away) + '</span>' +
         '</div>'
     })
     if (supercopa.winner) {
-      html += '<div class="copa-winner">\ud83c\udfc6 Campe\u00f3n: ' + getTeamName(supercopa.winner) + '</div>'
+      html += '<div class="copa-winner">\ud83c\udfc6 <img class="copa-team-logo" src="' + getTeamLogo(supercopa.winner) + '"> ' + getTeamName(supercopa.winner) + '</div>'
     }
     html += '</div>'
   }
 
   /* Copa del Rey section */
-  if (cup && cup.schedule && cup.schedule.length > 0) {
-    html += '<div class="copa-section"><div class="copa-header"><img class="copa-logo" src="' + COPA_LOGO + '" alt="Copa del Rey"><span class="copa-title">Copa del Rey</span></div>'
+  if (viewType !== 'supercopa' && viewType !== 'tacaDaLiga' && cup && cup.schedule && cup.schedule.length > 0) {
+    /* Copa round selector (outside section) */
+    html += '<div class="copa-round-selector">'
+    html += '<button class="copa-round-btn' + (selectedRoundIdx === -1 ? ' active' : '') + '" data-round="-1">Todas</button>'
+    cup.schedule.forEach(function(s, ri) {
+      if (s.isSupercopa) return
+      html += '<button class="copa-round-btn' + (selectedRoundIdx === ri ? ' active' : '') + '" data-round="' + ri + '">' + s.label + '</button>'
+    })
+    html += '</div>'
+    html += '<div class="copa-section">'
     var userEliminated = cup.eliminated && cup.eliminated.indexOf(state.teamId) >= 0
     if (userEliminated && cup.cupChampion) {
       html += '<div class="copa-eliminated">\u274c Eliminado. Campe\u00f3n: ' + getTeamName(cup.cupChampion) + '</div>'
     }
-    /* Match count per round index (0=R1, 1=R2, 2=Dieciseisavos, 3=Octavos, 4=Cuartos, 5=Semif, 6=Final) */
-    var matchCounts = [31, 16, 16, 8, 4, 2, 1]
-    cup.schedule.forEach(function(s, ri) {
+    /* Filter schedule by selected round */
+    var copaSchedule = selectedRoundIdx >= 0 && selectedRoundIdx < cup.schedule.length
+      ? [cup.schedule[selectedRoundIdx]]
+      : cup.schedule
+    /* Match count per round index */
+    var matchCounts = [41, 20, 10, 5, 3, 2, 1]
+    copaSchedule.forEach(function(s, ri) {
       if (s.isSupercopa) return
       var roundFixtures = cup.allFixtures ? cup.allFixtures.filter(function(f) { return f.week === s.week }) : []
       var hasFixtures = roundFixtures.length > 0
-      html += '<div class="copa-round"><div class="copa-round-title">' + s.label + '</div>'
+      html += '<div class="copa-round">'
       if (hasFixtures) {
         roundFixtures.forEach(function(f) {
           var played = f.played
@@ -6322,16 +6698,34 @@ function renderCopaView() {
           var isUser = f.home === state.teamId || f.away === state.teamId
           var homeName = f.home ? getTeamName(f.home) : '???'
           var awayName = f.away ? getTeamName(f.away) : '???'
+          var legLabel = f.isTwoLegged ? (f.leg === 1 ? ' (Ida)' : ' (Vuelta)') : ''
           html += '<div class="copa-fixture' + cls + '">' +
-            '<span class="copa-fixture-team' + (f.home === state.teamId ? ' copa-user' : '') + '">' + (isUser ? '\u2b50 ' : '') + homeName + '</span>' +
+            '<span class="copa-fixture-team' + (f.home === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.home) + '"> ' + homeName + '</span>' +
             '<span class="copa-fixture-score">' + homeS + ' - ' + awayS + '</span>' +
-            '<span class="copa-fixture-team' + (f.away === state.teamId ? ' copa-user' : '') + '">' + (isUser ? '\u2b50 ' : '') + awayName + '</span>' +
+            '<span class="copa-fixture-team' + (f.away === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.away) + '"> ' + awayName + '</span>' +
+            '<span style="font-size:10px;color:var(--text-muted);margin-left:4px">' + legLabel + '</span>' +
             '</div>'
         })
+        /* Show aggregate for two-legged if both legs played */
+        var twoLeggedPairs = {}
+        roundFixtures.forEach(function(f) {
+          if (!f.isTwoLegged || !f.played) return
+          var pk = [f.home, f.away].sort().join('-')
+          if (!twoLeggedPairs[pk]) twoLeggedPairs[pk] = []
+          twoLeggedPairs[pk].push(f)
+        })
+        Object.keys(twoLeggedPairs).forEach(function(pk) {
+          var pair = twoLeggedPairs[pk]
+          if (pair.length === 2) {
+            var a = pair[0], b = pair[1]
+            var aggA = (a.homeScore || 0) + (b.awayScore || 0)
+            var aggB = (a.awayScore || 0) + (b.homeScore || 0)
+            html += '<div style="font-size:11px;color:var(--text-muted);padding:2px 14px;text-align:center">Global: <img class="copa-team-logo" src="' + getTeamLogo(a.home) + '"> ' + getTeamName(a.home) + ' ' + aggA + ' - ' + aggB + ' <img class="copa-team-logo" src="' + getTeamLogo(a.away) + '"> ' + getTeamName(a.away) + '</div>'
+          }
+        })
       } else {
-        /* Show silhouettes for rounds not yet generated */
         var count = ri < matchCounts.length ? matchCounts[ri] : 2
-        if (count > 6) count = 4 /* show fewer for display */
+        if (count > 6) count = 4
         for (var si = 0; si < count; si++) {
           html += '<div class="copa-fixture copa-fixture-pending">' +
             '<span class="copa-fixture-team"><span class="copa-silhouette"></span></span>' +
@@ -6341,74 +6735,160 @@ function renderCopaView() {
         }
       }
       html += '</div>'
-      /* Arrow to next round */
-      if (ri < cup.schedule.length - 1) {
+      /* Arrow to next round (only when showing all rounds) */
+      if (selectedRoundIdx === -1 && ri < copaSchedule.length - 1) {
         html += '<div class="copa-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>'
       }
     })
-    /* Champion */
-    if (!userEliminated && cup.roundIdx < 0) {
+    /* Champion (only when viewing all rounds or the final round) */
+    if (!userEliminated && cup.roundIdx < 0 && (selectedRoundIdx === -1 || selectedRoundIdx === cup.schedule.length - 1)) {
       var fF = cup.allFixtures ? cup.allFixtures.filter(function(f) { return f.week === cup.schedule[cup.schedule.length - 1].week }) : []
       if (fF.length > 0 && fF[0].played) {
         var w = fF[0].homeScore > fF[0].awayScore ? fF[0].home : fF[0].away
-        html += '<div class="copa-winner">\ud83c\udfc6 Campe\u00f3n: ' + getTeamName(w) + '</div>'
+        html += '<div class="copa-winner">\ud83c\udfc6 <img class="copa-team-logo" src="' + getTeamLogo(w) + '"> ' + getTeamName(w) + '</div>'
       }
     }
     html += '</div>'
   }
 
-  if (!cup && !supercopa) {
+  /* Copa de la Liga section */
+  if (viewType !== 'copa' && viewType !== 'supercopa' && state.tacaDaLiga && state.tacaDaLiga.schedule && state.tacaDaLiga.schedule.length > 0) {
+    var tdl = state.tacaDaLiga
+    html += '<div class="copa-round-selector">'
+    html += '<button class="copa-round-btn' + (selectedRoundIdx === -1 ? ' active' : '') + '" data-round="-1">Todas</button>'
+    tdl.schedule.forEach(function(s, ri) {
+      html += '<button class="copa-round-btn' + (selectedRoundIdx === ri ? ' active' : '') + '" data-round="' + ri + '">' + s.label + '</button>'
+    })
+    html += '</div>'
+    html += '<div class="copa-section">'
+    var tdlUserEliminated = tdl.eliminated && tdl.eliminated.indexOf(state.teamId) >= 0
+    if (tdlUserEliminated && state.tacaDaLigaChampion) {
+      html += '<div class="copa-eliminated">\u274c Eliminado. Campe\u00f3n: ' + getTeamName(state.tacaDaLigaChampion) + '</div>'
+    }
+    var tdlSchedule = selectedRoundIdx >= 0 && selectedRoundIdx < tdl.schedule.length
+      ? [tdl.schedule[selectedRoundIdx]]
+      : tdl.schedule
+    tdlSchedule.forEach(function(s, ri) {
+      var realRi = selectedRoundIdx >= 0 ? selectedRoundIdx : tdl.schedule.indexOf(s)
+      var roundFixtures = tdl.allFixtures ? tdl.allFixtures.filter(function(f) { return f.week === s.week }) : []
+      var hasFixtures = roundFixtures.length > 0
+      html += '<div class="copa-round">'
+      if (hasFixtures) {
+        roundFixtures.forEach(function(f) {
+          var played = f.played
+          var homeS = f.homeScore != null ? f.homeScore : '-'
+          var awayS = f.awayScore != null ? f.awayScore : '-'
+          var cls = played ? '' : ' copa-fixture-pending'
+          html += '<div class="copa-fixture' + cls + '">' +
+            '<span class="copa-fixture-team' + (f.home === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.home) + '"> ' + getTeamName(f.home) + '</span>' +
+            '<span class="copa-fixture-score">' + homeS + ' - ' + awayS + '</span>' +
+            '<span class="copa-fixture-team' + (f.away === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.away) + '"> ' + getTeamName(f.away) + '</span>' +
+            '</div>'
+        })
+      } else {
+        var count = realRi === 0 ? 4 : realRi === 1 ? 2 : 1
+        for (var si = 0; si < count; si++) {
+          html += '<div class="copa-fixture copa-fixture-pending">' +
+            '<span class="copa-fixture-team"><span class="copa-silhouette"></span></span>' +
+            '<span class="copa-fixture-score">-</span>' +
+            '<span class="copa-fixture-team"><span class="copa-silhouette"></span></span>' +
+            '</div>'
+        }
+      }
+      html += '</div>'
+      if (selectedRoundIdx === -1 && ri < tdlSchedule.length - 1) {
+        html += '<div class="copa-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>'
+      }
+    })
+    if (state.tacaDaLigaChampion) {
+      html += '<div class="copa-winner">\ud83c\udfc6 <img class="copa-team-logo" src="' + getTeamLogo(state.tacaDaLigaChampion) + '"> ' + getTeamName(state.tacaDaLigaChampion) + '</div>'
+    }
+    html += '</div>'
+  }
+
+  if (!cup && !supercopa && !state.tacaDaLiga) {
     html += '<div class="copa-empty">No hay competiciones de copa activas en este pa\u00eds.</div>'
   }
 
   html += '</div>'
   tableWrap.innerHTML = html
+
+  /* Bind round selector events */
+  tableWrap.querySelectorAll('.copa-round-btn').forEach(function(btn) {
+    btn.onclick = function() {
+      renderCopaView(viewType, parseInt(btn.dataset.round))
+    }
+  })
 }
 
 function getDivisionBaseBudget(leagueId) {
-  if (!leagueId) return 5000
-  if (leagueId === 'l1s') return 100000
-  if (leagueId === 'l2s') return 30000
-  if (leagueId === 'l1p') return 35000
-  if (leagueId === 'l2p') return 15000
-  if (leagueId === 'lnfs1') return 50000
-  if (leagueId === 'lnfs2') return 30000
-  if (leagueId === 'lpl') return 25000
-  if (leagueId === 'lpl2') return 12000
-  if (leagueId === 'lpl3') return 6000
-  if (leagueId.startsWith('lpl4g')) return 3000
-  if (leagueId.startsWith('l3sg')) return 5000
-  if (leagueId.startsWith('l2b')) return 15000
-  if (leagueId.startsWith('l3g')) return 8000
-  if (leagueId.startsWith('lhc')) return 5000
-  if (leagueId.startsWith('lc')) return 3000
-  if (leagueId.startsWith('l2c')) return 1500
-  if (leagueId.startsWith('l3c')) return 1000
-  return 8000
+  if (!leagueId) return 500000
+  if (leagueId === 'l1s') return 10000000
+  if (leagueId === 'l2s') return 3000000
+  if (leagueId === 'l1p') return 3500000
+  if (leagueId === 'l2p') return 1500000
+  if (leagueId === 'lnfs1') return 5000000
+  if (leagueId === 'lnfs2') return 3000000
+  if (leagueId === 'lpl') return 2500000
+  if (leagueId === 'lpl2') return 1200000
+  if (leagueId === 'lpl3') return 600000
+  if (leagueId.startsWith('lpl4g')) return 300000
+  if (leagueId.startsWith('l3sg')) return 500000
+  if (leagueId.startsWith('l2b')) return 1500000
+  if (leagueId.startsWith('l3g')) return 800000
+  if (leagueId.startsWith('lhc')) return 500000
+  if (leagueId.startsWith('lc')) return 300000
+  if (leagueId.startsWith('l2c')) return 150000
+  if (leagueId.startsWith('l3c')) return 100000
+  return 800000
 }
 
 function getCountryBudgetMult(countryId) {
-  if (countryId === 'es') return 1.0
-  if (countryId === 'pt') return 0.9
-  if (countryId === 'pl') return 1.0
+  if (countryId === 'spain') return 1.0
+  if (countryId === 'portugal') return 0.9
+  if (countryId === 'poland') return 1.0
   return 0.8
 }
 
+function getCupCompName(countryId) {
+  if (countryId === 'portugal') return 'Ta\u00e7a de Portugal'
+  if (countryId === 'poland') return 'Copa Polonia'
+  return 'Copa del Rey'
+}
+
+function getCupLogo(countryId) {
+  if (countryId === 'portugal') return 'https://cdn.resfu.com/media/img/league_logos/taca_portugal.png?size=120x&lossy=1'
+  if (countryId === 'poland') return 'https://cdn.resfu.com/media/img/league_logos/copa-polonia-27.png?size=120x&lossy=1'
+  return 'https://cdn.resfu.com/media/img/league_logos/copa-del-rey.png?size=120x&lossy=1'
+}
+
+function getSupercopaCompName(countryId) {
+  if (countryId === 'portugal') return 'Supercopa Portugal'
+  if (countryId === 'poland') return 'Supercopa Polonia'
+  return 'Supercopa de Espa\u00f1a'
+}
+
+function getSupercopaLogo(countryId) {
+  if (countryId === 'portugal') return 'https://cdn.resfu.com/media/img/league_logos/supertaca-portugal.png?size=120x&lossy=1'
+  if (countryId === 'poland') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_polonia.png?size=120x&lossy=1'
+  return 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=120x&lossy=1'
+}
+
 function getDivisionMatchReward(leagueId) {
-  if (leagueId === 'lnfs1') return { win: 2000, draw: 800, loss: -300 }
-  if (leagueId === 'lnfs2') return { win: 1200, draw: 500, loss: -200 }
-  if (leagueId === 'lpl') return { win: 1000, draw: 400, loss: -150 }
-  if (leagueId === 'lpl2') return { win: 500, draw: 200, loss: -80 }
-  if (leagueId === 'lpl3') return { win: 250, draw: 100, loss: -30 }
-  if (leagueId.startsWith('lpl4g')) return { win: 100, draw: 40, loss: -10 }
-  if (leagueId.startsWith('l3sg')) return { win: 300, draw: 120, loss: -40 }
-  if (leagueId.startsWith('l2b')) return { win: 600, draw: 250, loss: -100 }
-  if (leagueId.startsWith('l3g')) return { win: 400, draw: 150, loss: -50 }
-  if (leagueId.startsWith('lhc')) return { win: 250, draw: 100, loss: -30 }
-  if (leagueId.startsWith('lc')) return { win: 150, draw: 60, loss: -20 }
-  if (leagueId.startsWith('l2c')) return { win: 100, draw: 40, loss: -10 }
-  if (leagueId.startsWith('l3c')) return { win: 75, draw: 30, loss: -5 }
-  return { win: 300, draw: 125, loss: -50 }
+  if (leagueId === 'lnfs1') return { win: 200000, draw: 80000, loss: -30000 }
+  if (leagueId === 'lnfs2') return { win: 120000, draw: 50000, loss: -20000 }
+  if (leagueId === 'lpl') return { win: 100000, draw: 40000, loss: -15000 }
+  if (leagueId === 'lpl2') return { win: 50000, draw: 20000, loss: -8000 }
+  if (leagueId === 'lpl3') return { win: 25000, draw: 10000, loss: -3000 }
+  if (leagueId.startsWith('lpl4g')) return { win: 10000, draw: 4000, loss: -1000 }
+  if (leagueId.startsWith('l3sg')) return { win: 30000, draw: 12000, loss: -4000 }
+  if (leagueId.startsWith('l2b')) return { win: 60000, draw: 25000, loss: -10000 }
+  if (leagueId.startsWith('l3g')) return { win: 40000, draw: 15000, loss: -5000 }
+  if (leagueId.startsWith('lhc')) return { win: 25000, draw: 10000, loss: -3000 }
+  if (leagueId.startsWith('lc')) return { win: 15000, draw: 6000, loss: -2000 }
+  if (leagueId.startsWith('l2c')) return { win: 10000, draw: 4000, loss: -1000 }
+  if (leagueId.startsWith('l3c')) return { win: 7500, draw: 3000, loss: -500 }
+  return { win: 30000, draw: 12500, loss: -5000 }
 }
 
 /* ============ GAME INIT ============ */
@@ -6431,6 +6911,7 @@ function newGame(coach) {
   state.team = selectedTeam.name
   state.teamId = selectedTeam.id
   state.teamLogo = selectedTeam.logo || ''
+  state.myPalmares = selectedTeam.palmares || null
   const noface = 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
   const countryId = selectedCountry.id
   const natLabel = coachNationality ? (coachNationality.flag + ' ' + coachNationality.name) : (countryData ? (countryData.country.flag + ' ' + countryData.country.name) : '\ud83c\uddf5\ud83c\uddf1 Polonia')
@@ -6453,12 +6934,13 @@ function newGame(coach) {
   state.finances = { balance: startingBudget, history: [] }
   state.inbox = []
   state.captainId = null
+  state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
 
   /* Assign user squad based on selected team */
   const userSquad = getRealSquad(state.teamId) || generateCpuSquad(state.teamId, state.countryId, selectedTeam.rating)
   const teamCap = selectedTeam.rating || 99
   state.players = userSquad.map(p => ({
-    ...p, skill: Math.min(teamCap, p.skill), value: p.value || calcValue(p.skill),
+    ...p, skill: Math.min(teamCap, p.skill), value: p.value || calcValue(p.skill, p.age, p.position),
     enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null,
     teamStats: {},
   }))
@@ -6470,7 +6952,7 @@ function newGame(coach) {
     state.filialSquad = (getRealSquad(myFilialId) || []).map(p => {
       const bp = getBaseDato(myFilialId)
       const fCap = bp ? bp.rating : 99
-      return { ...p, skill: Math.min(fCap, p.skill), id: 'filial-' + p.id, value: calcValue(p.skill), energy: 100, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matches: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, teamStats: {} }
+      return { ...p, skill: Math.min(fCap, p.skill), id: 'filial-' + p.id, value: calcValue(p.skill, p.age, p.position), energy: 100, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matches: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, teamStats: {} }
     })
   } else {
     state.filialSquad = []
@@ -6484,10 +6966,10 @@ function newGame(coach) {
     const base = getRealSquad(t.id)
     const cap = t.rating || 99
     const squad = base
-      ? base.map(p => ({ ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null }))
+      ? base.map(p => ({ ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null }))
       : generateCpuSquad(t.id, state.countryId, t.rating)
     const defaultStaff = t.staff || generateStaff(t.name, state.countryId)
-    state.leagueTeams.push({ teamId: t.id, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: squad, staff: defaultStaff, rating: t.rating || 50 })
+    state.leagueTeams.push({ teamId: t.id, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: squad, staff: defaultStaff, rating: t.rating || 50, palmares: t.palmares })
     allTeamIds.push(t.id)
   }
   console.log('[INIT] leagueTeams:', state.leagueTeams.map(t => t.name + ': ' + t.players.length + ' players').join(', '))
@@ -6502,10 +6984,21 @@ function newGame(coach) {
   state.allLeagueData = {}
   initAllLeagueData()
 
-  /* Generate cup only for Spain */
-  if (state.countryId === 'es') {
+  /* Generate cup for supported countries */
+  if (state.countryId === 'spain') {
     state.cup = generarCopa()
     state.supercopa = generarSupercopa()
+  } else if (state.countryId === 'portugal') {
+    state.cup = null
+    state.supercopa = null
+    state.tacaDaLiga = generarTacaDaLiga()
+  } else if (state.countryId === 'poland') {
+    state.cup = null
+    state.supercopa = null
+  } else {
+    state.cup = null
+    state.supercopa = null
+    state.tacaDaLiga = null
   }
 
   /* Build global player pool for market */
@@ -6611,7 +7104,10 @@ function loadGame(id) {
   state.tactic = data.tactic || { formation: '4-3-3', gamePlan: 'pesado' }
   state.finances = data.finances || { balance: 5000, history: [] }
   state.leagueTeams = data.leagueTeams || []
-  state.currentMatchday = data.currentMatchday || 1
+  state.currentMatchday = data.currentMatchday || (function() {
+    try { var _raw = localStorage.getItem(STORAGE_KEY); if (_raw) { var _arr = JSON.parse(_raw); var _m = _arr.find(function(x) { return Number(x.id) === Number(data.id) }); if (_m && _m.currentMatchday) return _m.currentMatchday } } catch(e) {}
+    return 1
+  })()
   state.totalMatchdays = data.totalMatchdays || 0
   state.fixtures = data.fixtures || []
   state.allLeagueData = data.allLeagueData || {}
@@ -6636,6 +7132,14 @@ function loadGame(id) {
   state.cupRunnerUp = data.cupRunnerUp || null
   state.leagueChampion = data.leagueChampion || null
   state.leagueRunnerUp = data.leagueRunnerUp || null
+  state.lastFinalStandings = data.lastFinalStandings || null
+  state.myPalmares = data.myPalmares || null
+  state.trophyHistory = data.trophyHistory || null
+  /* Clean up stale cup data: Copa del Rey is Spain-only now */
+  if (state.countryId !== 'spain') {
+    state.cup = null
+    state.supercopa = null
+  }
   loadCountryData(state.countryId, function() {
     normalizarPlantillas()
     startGame()
@@ -6656,10 +7160,13 @@ function startGame() {
   actualizarIndicadorTemporada()
   checkTransferWindow()
   generarMockHistorial()
+  /* Recalcular valores de jugadores al cargar (para partidas existentes) */
+  state.players.forEach(function(p) { p.value = calcValue(p.skill, p.age, p.position) })
+  state.leagueTeams.forEach(function(t) { (t.players || []).forEach(function(p) { p.value = calcValue(p.skill, p.age, p.position) }) })
 }
 
 function generarMockHistorial() {
-  state.trophyHistory = state.trophyHistory || { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] }
+  state.trophyHistory = state.trophyHistory || { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
   if (state.trophyHistory.seasons.length > 0) return /* Already have data */
   var divisionName = ''
   for (var ci in window.DB) {
@@ -6682,17 +7189,10 @@ function generarMockHistorial() {
     var pos = idx % 5 === 0 ? 1 : (idx % 5 === 1 ? 4 : (idx % 5 === 2 ? 5 : (idx % 5 === 3 ? 6 : 8)))
     state.trophyHistory.seasons.push({ season: seasonLabel, division: divisionName, position: pos })
   }
-  if (state.trophyHistory.leagueTitles.length === 0) {
-    var th = state.trophyHistory
-    var champSeason = th.seasons.find(function(s) { return s.position === 1 })
-    if (champSeason) th.leagueTitles.push({ season: champSeason.season, competition: divisionName })
-    th.cupWins.push({ season: (currentYear - 2) + '/' + (currentYear - 1).toString().padStart(2, '0'), competition: 'Copa del Rey' })
-    th.supercopaWins.push({ season: (currentYear - 1) + '/' + currentYear.toString().padStart(2, '0') })
-  }
 }
 
 function registrarPosicionTemporada(position, divisionName) {
-  if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] }
+  if (!state.trophyHistory) state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
   var cy = new Date().getFullYear() % 100
   var seasonLabel = (cy - 1) + '/' + cy.toString().padStart(2, '0')
   state.trophyHistory.seasons.push({ season: seasonLabel, division: divisionName, position: position })
@@ -6991,7 +7491,7 @@ function showTeamPreview(teamId) {
     const db = getBaseDato(teamId)
     const rating = db ? db.rating : 70
     const rawSquad = getRealSquad(teamId) || generateCpuSquad(teamId, foundCountryId, rating)
-    const realSquad = rawSquad.map(p => ({ ...p, value: p.value || calcValue(p.skill) }))
+    const realSquad = rawSquad.map(p => ({ ...p, value: p.value || calcValue(p.skill, p.age, p.position) }))
     const staff = team.staff || []
     const logo = team.logo || ''
 
@@ -7428,7 +7928,14 @@ function renderCalendar() {
   if (state.cup) {
     state.cup.allFixtures.forEach(function(f) {
       if (f.home !== state.teamId && f.away !== state.teamId) return
-      events.push({ week: f.week, type: 'cup', fixture: f, compName: 'Copa del Rey', compLogo: COPA_LOGO })
+      events.push({ week: f.week, type: 'cup', fixture: f, compName: getCupCompName(state.countryId), compLogo: getCupLogo(state.countryId) })
+    })
+  }
+  /* Copa de la Liga fixtures */
+  if (state.tacaDaLiga) {
+    state.tacaDaLiga.allFixtures.forEach(function(f) {
+      if (f.home !== state.teamId && f.away !== state.teamId) return
+      events.push({ week: f.week, type: 'tacaDaLiga', fixture: f, compName: getTacaDaLigaCompName(), compLogo: getTacaDaLigaLogo() })
     })
   }
   /* Supercopa fixtures */
@@ -7437,11 +7944,11 @@ function renderCalendar() {
     if (state.supercopa.final) allSc.push(state.supercopa.final)
     allSc.forEach(function(f) {
       if (f.home !== state.teamId && f.away !== state.teamId) return
-      events.push({ week: state.supercopa.week, type: 'supercopa', fixture: f, compName: 'Supercopa', compLogo: SUPERC_LOGO })
+      events.push({ week: state.supercopa.week, type: 'supercopa', fixture: f, compName: getSupercopaCompName(state.countryId), compLogo: getSupercopaLogo(state.countryId) })
     })
   }
 
-  events.sort(function(a, b) { return a.week - b.week })
+  events.sort(function(a, b) { return a.week - b.week || (a.type === 'league' ? 1 : 0) - (b.type === 'league' ? 1 : 0) })
 
   let html = `<div class="cal-list">
     <div class="cal-list-header">
@@ -7476,7 +7983,7 @@ function renderCalendar() {
       var compHtml = e.compLogo
         ? '<img class="cal-list-comp-logo" src="' + e.compLogo + '" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'"><span style="display:none">' + badge + e.compName + '</span>'
         : '<span>' + badge + e.compName + '</span>'
-      return '<div class="cal-list-row' + (e.type !== 'league' ? ' cal-cup-row' : '') + '" data-md="' + f.matchday + '">' +
+      return '<div class="cal-list-row' + (e.type === 'cup' || e.type === 'supercopa' ? ' cal-cup-row' : '') + '" data-md="' + f.matchday + '">' +
         '<span class="cal-list-semana">' + e.week + '</span>' +
         '<span class="cal-list-comp">' + compHtml + '</span>' +
         '<span class="cal-list-equipo">' + equipoHtml + '</span>' +
@@ -7665,7 +8172,7 @@ function showTeamInfo(teamId) {
         content += '<div style="padding:5px 14px;font-size:12px;color:var(--text-muted)">Sin salidas esta temporada</div>'
       }
     } else if (teamViewTab === 'history') {
-      var th = state.trophyHistory || { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [] }
+      var th = state.trophyHistory || { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
       /* Merge historical palmares from team data with in-game achievements */
       var mergedTrophies = {}
       if (team.palmares) {
@@ -7673,23 +8180,30 @@ function showTeamInfo(teamId) {
           mergedTrophies[p.comp] = { comp: p.comp, count: p.count, years: p.years || [] }
         })
       }
-      /* Add in-game trophies (for user's team) */
-      if (th.leagueTitles && th.leagueTitles.length > 0) {
+      /* Add in-game trophies (only for user's team) */
+      if (teamId === state.teamId && th.leagueTitles && th.leagueTitles.length > 0) {
         var ltComp = th.leagueTitles[0].competition || 'Liga'
         if (!mergedTrophies[ltComp]) mergedTrophies[ltComp] = { comp: ltComp, count: 0, years: [] }
         mergedTrophies[ltComp].count += th.leagueTitles.length
         mergedTrophies[ltComp].years = mergedTrophies[ltComp].years.concat(th.leagueTitles.map(function(t) { return t.season }))
       }
-      if (th.cupWins && th.cupWins.length > 0) {
+      if (teamId === state.teamId && th.cupWins && th.cupWins.length > 0) {
         var cpComp = th.cupWins[0].competition || 'Copa'
         if (!mergedTrophies[cpComp]) mergedTrophies[cpComp] = { comp: cpComp, count: 0, years: [] }
         mergedTrophies[cpComp].count += th.cupWins.length
         mergedTrophies[cpComp].years = mergedTrophies[cpComp].years.concat(th.cupWins.map(function(t) { return t.season }))
       }
-      if (th.supercopaWins && th.supercopaWins.length > 0) {
-        if (!mergedTrophies['Supercopa']) mergedTrophies['Supercopa'] = { comp: 'Supercopa', count: 0, years: [] }
-        mergedTrophies['Supercopa'].count += th.supercopaWins.length
-        mergedTrophies['Supercopa'].years = mergedTrophies['Supercopa'].years.concat(th.supercopaWins.map(function(t) { return t.season }))
+      if (teamId === state.teamId && th.supercopaWins && th.supercopaWins.length > 0) {
+        var scComp = (th.supercopaWins[0] && th.supercopaWins[0].competition) || getSupercopaCompName(state.countryId)
+        if (!mergedTrophies[scComp]) mergedTrophies[scComp] = { comp: scComp, count: 0, years: [] }
+        mergedTrophies[scComp].count += th.supercopaWins.length
+        mergedTrophies[scComp].years = mergedTrophies[scComp].years.concat(th.supercopaWins.map(function(t) { return t.season }))
+      }
+      if (teamId === state.teamId && th.tacaDaLigaWins && th.tacaDaLigaWins.length > 0) {
+        var tdlComp = (th.tacaDaLigaWins[0] && th.tacaDaLigaWins[0].competition) || getTacaDaLigaCompName()
+        if (!mergedTrophies[tdlComp]) mergedTrophies[tdlComp] = { comp: tdlComp, count: 0, years: [] }
+        mergedTrophies[tdlComp].count += th.tacaDaLigaWins.length
+        mergedTrophies[tdlComp].years = mergedTrophies[tdlComp].years.concat(th.tacaDaLigaWins.map(function(t) { return t.season }))
       }
       var trophiesList = Object.keys(mergedTrophies).map(function(k) { return mergedTrophies[k] })
       var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
@@ -8577,7 +9091,7 @@ function openPlayerDetail(player, teamObj) {
   document.getElementById('pd-foot').textContent = player.foot === 'IZQ' ? 'Izq' : 'Der'
   document.getElementById('pd-height').textContent = player.height ? (player.height / 100).toFixed(2) + 'm' : '\u2014'
   document.getElementById('pd-age').textContent = player.age || '\u2014'
-  document.getElementById('pd-value').textContent = '\u20AC ' + formatShort(player.value || calcValue(player.skill))
+  document.getElementById('pd-value').textContent = '\u20AC ' + formatShort(player.value || calcValue(player.skill, player.age, player.position))
 
   /* Adaptability: main position 99%, other positions from data */
   const mainAbbr = POS_ABBR[posKey] || player.position
@@ -8759,7 +9273,7 @@ function openPlayerDetail(player, teamObj) {
       var idx = state.filialSquad.indexOf(player)
       if (idx < 0) return
       state.filialSquad.splice(idx, 1)
-      state.players.push({ ...player, id: 'promoted-' + Date.now(), value: calcValue(player.skill), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null, teamStats: player.teamStats || {} })
+      state.players.push({ ...player, id: 'promoted-' + Date.now(), value: calcValue(player.skill, player.age, player.position), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null, teamStats: player.teamStats || {} })
       addNotification('transfer', '\u2B06 ' + player.name + ' sube al primer equipo', 'Promocionado desde ' + filialTeamName)
       document.getElementById('player-detail-modal').classList.remove('open')
       renderSquad(state.players)
@@ -8801,7 +9315,7 @@ function openPlayerDetail(player, teamObj) {
               var ti = team.players.findIndex(function(p) { return p.id === player.id })
               if (ti >= 0) team.players.splice(ti, 1)
             }
-            var newP = { ...player, id: 'user-' + Date.now(), value: calcValue(player.skill), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
+            var newP = { ...player, id: 'user-' + Date.now(), value: calcValue(player.skill, player.age, player.position), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
             state.players.push(newP)
             state.boughtPlayerIds.push(player.id)
             state.finances.balance -= result.price
@@ -8829,7 +9343,7 @@ function openPlayerDetail(player, teamObj) {
                 if (ti >= 0) team.players.splice(ti, 1)
               }
               /* Add to user's team */
-              var newP = { ...player, id: 'user-' + Date.now(), value: calcValue(player.skill), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
+              var newP = { ...player, id: 'user-' + Date.now(), value: calcValue(player.skill, player.age, player.position), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
               state.players.push(newP)
               state.boughtPlayerIds.push(player.id)
               state.finances.balance -= result.price
