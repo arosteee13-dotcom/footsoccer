@@ -188,7 +188,7 @@ const B_TEAM_MAP = {
 
 var GROUPED_LEAGUES = {
   lpl4g: { name: '4\u00aa Divisi\u00f3n Polaca', groups: ['lpl4g1','lpl4g2','lpl4g3','lpl4g4'], groupNames: ['Grupo 1','Grupo 2','Grupo 3','Grupo 4'] },
-  l3sg:  { name: 'Primera RFEF', groups: ['l3sg1','l3sg2'], groupNames: ['Grupo 1','Grupo 2'] },
+  l3sg:  { name: 'Primera Federaci\u00f3n', groups: ['l3sg1','l3sg2'], groupNames: ['Grupo 1','Grupo 2'] },
 }
 
 function isGroupedLeague(lid) { return lid && (lid.startsWith('lpl4g') || lid.startsWith('l3sg')) }
@@ -197,6 +197,15 @@ function getGroupedConfig(lid) {
   if (!lid) return null
   for (var key in GROUPED_LEAGUES) { if (lid.startsWith(key)) return GROUPED_LEAGUES[key] }
   return null
+}
+
+function getCanonicalLeagueName(leagueId, fallback) {
+  var map = { l2s: 'Segunda Divisi\u00f3n' }
+  if (leagueId && isGroupedLeague(leagueId)) {
+    var cfg = getGroupedConfig(leagueId)
+    if (cfg) return cfg.name
+  }
+  return map[leagueId] || fallback
 }
 
 function getVisibleLeagueCount(countryId) {
@@ -716,6 +725,7 @@ const state = {
   supercopa: null,
   tacaDaLiga: null,
   tacaDaLigaChampion: null,
+  absoluteFinal: null,
   cupChampion: null,
   cupRunnerUp: null,
   leagueChampion: null,
@@ -1320,6 +1330,7 @@ window.SaveSystem = {
         trophyHistory: state.trophyHistory,
         allTeamsHistory: state.allTeamsHistory,
         lastSeasonMovements: state.lastSeasonMovements,
+        absoluteFinal: state.absoluteFinal,
       }
       if (idx >= 0) saves[idx] = data; else saves.unshift(data)
       var saveOk = setSaves(saves)
@@ -2091,10 +2102,12 @@ function renderHome() {
   }
   var cupActive = cupNext !== null
 
-  /* Show cup match first if pending, otherwise league match */
-  const fixture = isPlayoffs
-    ? state.playoffs.fixtures.find(function(f) { return !f.played && (f.home == state.teamId || f.away == state.teamId) })
-    : (cupActive ? cupNext : state.fixtures.find(function(f) { return f.played === false && (f.home == state.teamId || f.away == state.teamId) }))
+  /* Absolute final first, then playoffs, cup, league */
+  const fixture = state.absoluteFinal && !state.absoluteFinal.played
+    ? state.absoluteFinal
+    : isPlayoffs
+      ? state.playoffs.fixtures.find(function(f) { return !f.played && (f.home == state.teamId || f.away == state.teamId) })
+      : (cupActive ? cupNext : state.fixtures.find(function(f) { return f.played === false && (f.home == state.teamId || f.away == state.teamId) }))
   const rivalId = fixture ? (fixture.home == state.teamId ? fixture.away : fixture.home) : null
   const rivalName = rivalId ? getTeamName(rivalId) : '—'
   const isHome = fixture ? fixture.home == state.teamId : false
@@ -2142,7 +2155,7 @@ function renderHome() {
           '<div class="home-team-pos">' + mRivalPos + '\u00ba \u00b7 ' + getTeamFormation(mRivalId) + '</div>' +
         '</div>' +
       '</div>' +
-      (cupActive && cupNext === matchFixture ? '<div class="home-matchday-label">' + cupLabel + '</div>' : (isPlayoffs ? '<div class="home-matchday-label">Eliminatoria</div>' : '<div class="home-matchday-label">Jornada ' + (matchFixture.matchday || state.currentMatchday) + ' de ' + state.totalMatchdays + '</div>')) +
+      (state.absoluteFinal && state.absoluteFinal === matchFixture ? '<div class="home-matchday-label">\ud83c\udfc6 Final por el T\u00edtulo Absoluto de ' + (getGroupedConfig(state.leagueId) ? getGroupedConfig(state.leagueId).name : 'Primera Federaci\u00f3n') + '</div>' : (cupActive && cupNext === matchFixture ? '<div class="home-matchday-label">' + cupLabel + '</div>' : (isPlayoffs ? '<div class="home-matchday-label">Eliminatoria</div>' : '<div class="home-matchday-label">Jornada ' + (matchFixture.matchday || state.currentMatchday) + ' de ' + state.totalMatchdays + '</div>'))) +
       '<div class="home-match-location">' + (mIsHome ? '\ud83c\udfe1 Local' : '\u2708\ufe0f Visitante') + '</div>' +
       '<button class="btn-home-simulate" id="btn-home-simulate"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Simular Partido</button>' +
     '</div>'
@@ -2179,7 +2192,7 @@ function renderHome() {
   }
 
   /* Season-end fallback: show modal when no matches left */
-  if (!matchFixture && state.totalMatchdays > 0 && !state.playoffs && (state.currentMatchday >= state.totalMatchdays || !!state.lastSeasonProgressionData)) {
+  if (!matchFixture && state.totalMatchdays > 0 && !state.playoffs && !state.absoluteFinal && (state.currentMatchday >= state.totalMatchdays || !!state.lastSeasonProgressionData)) {
     var sem = document.getElementById('season-end-modal')
     var spm = document.getElementById('season-progression-modal')
     var semVisible = sem && sem.style.display !== 'none' && sem.classList.contains('open')
@@ -3863,7 +3876,7 @@ function recordAllTeamsSeasonHistory() {
       for (var si = 0; si < standings.length; si++) {
         var tid = standings[si].teamId
         if (!state.allTeamsHistory[tid]) state.allTeamsHistory[tid] = { seasons: [] }
-        state.allTeamsHistory[tid].seasons.push({ season: seasonLabel, division: league.name, position: si + 1 })
+        state.allTeamsHistory[tid].seasons.push({ season: seasonLabel, division: getCanonicalLeagueName(league.id, league.name), position: si + 1 })
       }
     }
   }
@@ -3887,7 +3900,7 @@ function recordSeasonTrophyWinners() {
       var champId = standings[0].teamId
       if (!state.allTeamsHistory[champId]) state.allTeamsHistory[champId] = { seasons: [], trophies: [] }
       if (!state.allTeamsHistory[champId].trophies) state.allTeamsHistory[champId].trophies = []
-      state.allTeamsHistory[champId].trophies.push({ competition: league.name, season: sl })
+      state.allTeamsHistory[champId].trophies.push({ competition: getCanonicalLeagueName(league.id, league.name), season: sl })
     }
   }
   /* Cup champion */
@@ -4644,6 +4657,7 @@ function iniciarNuevaTemporada() {
     initAllLeagueData()
     state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
     state.playoffs = null
+    state.absoluteFinal = null
     state.lastSeasonMovements = null
     state.lastSeasonProgressionData = null
     state.seasonNumber++
@@ -4769,7 +4783,7 @@ function getSeasonWinners() {
     var standings = computeStandings(data.fixtures, teamIds)
     if (!standings || standings.length === 0) continue
     var champId = standings[0].teamId
-    winners.push({ type: 'national', competition: league.name, winner: getTeamName(champId) || '—', logo: getTeamLogo(champId) })
+    winners.push({ type: 'national', competition: getCanonicalLeagueName(league.id, league.name), winner: getTeamName(champId) || '—', logo: getTeamLogo(champId) })
   }
   /* Copa del Rey / Taça de Portugal */
   if (state.cupChampion) {
@@ -5124,7 +5138,7 @@ function divName(leagueId) {
   if (leagueId === 'lpl2') return 'Segunda Polaca'
   if (leagueId === 'lpl3') return 'Tercera Polaca'
   if (leagueId.startsWith('lpl4g')) return 'Cuarta Polaca'
-  if (leagueId.startsWith('l3sg')) return 'Primera RFEF'
+  if (leagueId.startsWith('l3sg')) return 'Primera Federaci\u00f3n'
   return 'la categoría'
 }
 
@@ -5385,7 +5399,7 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
     else if (esTerceraRFEF && cambioDivision && pos === 1) msg += '\n🎉 ¡ASCENSO a Segunda División!'
     else if (esTerceraRFEF && cambioDivision) msg += '\n⚠️ DESCENSO a 2ª División B'
     else if (esTerceraRFEF && esPlayoffTerceraRFEF) msg += '\n🏆 Accedes a la Fase de Ascenso a Segunda División'
-    else if (esTerceraRFEF) msg += '\nPermanencia en Primera RFEF'
+    else if (esTerceraRFEF) msg += '\nPermanencia en Primera Federaci\u00f3n'
     else if (noLowerDivision) msg += '\n⚠️ No hay divisiones inferiores. El equipo permanece en la categoría.'
     else msg += '\nPermanencia en la categoría'
   }
@@ -5717,7 +5731,7 @@ function avanzarRondaPlayoff() {
         }, 300)
       } else {
         setTimeout(() => {
-          const divName2 = state.leagueId && state.leagueId.startsWith('l3sg') ? 'Primera RFEF' : 'Segunda División'
+          const divName2 = state.leagueId && state.leagueId.startsWith('l3sg') ? 'Primera Federaci\u00f3n' : 'Segunda División'
           procesarFinTemporada(true, true, `${msg}\n\nNo lograste el ascenso. Una temporada más en ${divName2}.`)
         }, 300)
       }
@@ -5729,7 +5743,7 @@ function avanzarRondaPlayoff() {
         }, 300)
       } else {
         setTimeout(() => {
-          procesarFinTemporada(true, true, `${msg}\n\nNo lograste el ascenso. Una temporada más en Primera RFEF.`)
+          procesarFinTemporada(true, true, `${msg}\n\nNo lograste el ascenso. Una temporada más en Primera Federación.`)
         }, 300)
       }
     } else if (esPolaca3) {
@@ -6362,6 +6376,26 @@ function simularPartidoRapido(fixture, rivalId) {
         renderTab('home')
       }
     }
+
+    /* Absolute Final: record result, trophy, override continue to end season */
+    if (state.absoluteFinal && state.absoluteFinal === fixture) {
+      state.absoluteFinal.played = true
+      state.absoluteFinal.homeScore = homeScore
+      state.absoluteFinal.awayScore = awayScore
+      document.getElementById('mr-btn-continue').onclick = function() {
+        document.getElementById('match-result-modal').style.display = 'none'
+        document.getElementById('match-result-modal').classList.remove('open')
+        var userWon = (state.absoluteFinal.home == state.teamId && state.absoluteFinal.homeScore > state.absoluteFinal.awayScore) ||
+                      (state.absoluteFinal.away == state.teamId && state.absoluteFinal.awayScore > state.absoluteFinal.homeScore)
+        if (userWon) {
+          var parent = state.leagueId ? getGroupedConfig(state.leagueId) : null
+          var compName = parent ? parent.name : 'Primera Federaci\u00f3n'
+          state.trophies.push({ competition: 'Campe\u00f3n Absoluto de ' + compName, season: state.seasonNumber })
+        }
+        state.absoluteFinal = null
+        procesarFinTemporada()
+      }
+    }
   }, 400)
 }
 
@@ -6856,8 +6890,49 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
     modal.style.display = 'none'
     modal.classList.remove('open')
 
+    /* Absolute final was played — record trophy and end season */
+    if (state.absoluteFinal && state.absoluteFinal.played) {
+      var userWon = (state.absoluteFinal.home == state.teamId && state.absoluteFinal.homeScore > state.absoluteFinal.awayScore) ||
+                    (state.absoluteFinal.away == state.teamId && state.absoluteFinal.awayScore > state.absoluteFinal.homeScore)
+      if (userWon) {
+        var parent = state.leagueId ? getGroupedConfig(state.leagueId) : null
+        var compName = parent ? parent.name : 'Primera Federaci\u00f3n'
+        state.trophies.push({ competition: 'Campe\u00f3n Absoluto de ' + compName, season: state.seasonNumber })
+      }
+      state.absoluteFinal = null
+      procesarFinTemporada()
+      return
+    }
+
     /* Advance matchday */
     if (state.currentMatchday >= state.totalMatchdays) {
+      /* Check for absolute final in grouped leagues */
+      if (state.leagueId && isGroupedLeague(state.leagueId) && !state.absoluteFinal) {
+        var league = getLeagueFromId(state.leagueId)
+        if (league) {
+          var teamIds = league.teams.map(function(t) { return t.id })
+          var standings = computeStandings(state.fixtures, teamIds)
+          if (standings && standings.length > 0 && standings[0].teamId === state.teamId) {
+            simularJornadaEnTodasLasLigas(state.currentMatchday)
+            var parent = getGroupedConfig(state.leagueId)
+            if (parent && parent.groups) {
+              var otherGroupId = parent.groups.find(function(g) { return g !== state.leagueId })
+              if (otherGroupId) {
+                var otherLeague = getLeagueFromId(otherGroupId)
+                if (otherLeague && state.allLeagueData[otherGroupId]) {
+                  var otherTeamIds = otherLeague.teams.map(function(t) { return t.id })
+                  var otherStandings = computeStandings(state.allLeagueData[otherGroupId].fixtures, otherTeamIds)
+                  if (otherStandings && otherStandings.length > 0) {
+                    state.absoluteFinal = { home: state.teamId, away: otherStandings[0].teamId, played: false, homeScore: null, awayScore: null }
+                    renderTab('home')
+                    return
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
       procesarFinTemporada()
       return
     }
@@ -8124,6 +8199,25 @@ function loadGame(id) {
   state.trophyHistory = data.trophyHistory || null
   state.allTeamsHistory = data.allTeamsHistory || {}
   state.lastSeasonMovements = data.lastSeasonMovements || null
+  state.absoluteFinal = data.absoluteFinal || null
+  /* Migrate stale allTeamsHistory competition/division names from before canonicalization */
+  if (state.allTeamsHistory) {
+    for (var _athid in state.allTeamsHistory) {
+      var _aent = state.allTeamsHistory[_athid]
+      if (_aent.trophies) {
+        _aent.trophies.forEach(function(_t) {
+          if (_t.competition === 'LaLiga Hypermotion') _t.competition = 'Segunda Divisi\u00f3n'
+          else if (_t.competition && _t.competition.indexOf('Primera RFEF') >= 0) _t.competition = 'Primera Federaci\u00f3n'
+        })
+      }
+      if (_aent.seasons) {
+        _aent.seasons.forEach(function(_s) {
+          if (_s.division === 'LaLiga Hypermotion') _s.division = 'Segunda Divisi\u00f3n'
+          else if (_s.division && _s.division.indexOf('Primera RFEF') >= 0) _s.division = 'Primera Federaci\u00f3n'
+        })
+      }
+    }
+  }
   /* Clean up stale cup data: Copa del Rey is Spain-only now */
   if (state.countryId !== 'spain') {
     state.cup = null
@@ -8198,7 +8292,7 @@ function generarMockHistorial() {
           var seasonLabelB = syB + '/' + (syB + 1).toString().padStart(2, '0')
           var idxB = (syB - startYear + seed) % 6
           var posB = idxB === 0 ? 1 : idxB === 1 ? 3 : idxB === 2 ? 5 : idxB === 3 ? 8 : idxB === 4 ? 12 : 15
-          state.allTeamsHistory[tid].seasons.push({ season: seasonLabelB, division: leagueB.name, position: posB })
+          state.allTeamsHistory[tid].seasons.push({ season: seasonLabelB, division: getCanonicalLeagueName(leagueB.id, leagueB.name), position: posB })
         }
       }
     }
