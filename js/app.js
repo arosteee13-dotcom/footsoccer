@@ -2104,23 +2104,6 @@ function renderHome() {
 
   console.log('[RENDER] renderHome ejecutada, fixture:', !!fixture, 'cupActive:', cupActive)
 
-  /* Season ended — show summary button instead of match card */
-  if (state.lastSeasonProgressionData) {
-    container.innerHTML = '<div class="home-card">' +
-      '<div class="home-avatar-wrap">' + (state.teamLogo ? '<img class="home-logo" src="' + state.teamLogo + '" alt="">' : '') + '</div>' +
-      '<div class="home-team-name">' + state.team + '</div>' +
-      '<div class="home-stats">' +
-        '<div class="home-stat"><span class="home-stat-icon">\ud83c\udfc6</span><span>' + userPos + '\u00ba de ' + standings.length + '</span></div>' +
-        '<div class="home-stat"><span class="home-stat-icon">\ud83d\udcb0</span><span>' + formatMoney(state.finances.balance) + '</span></div>' +
-        '<div class="home-stat"><span class="home-stat-icon">\ud83d\udc65</span><span>' + state.players.length + '/' + MAX_SQUAD + '</span></div>' +
-        '<div class="home-stat"><span class="home-stat-icon">\ud83d\udcca</span><span>' + state.stats.wins + 'V ' + state.stats.draws + 'E ' + state.stats.losses + 'D</span></div>' +
-      '</div>' +
-      '<button id="btn-view-season-summary" class="btn-primary" style="margin-top:16px;width:100%">\ud83d\udcca VER RESUMEN DE TEMPORADA</button>' +
-    '</div>'
-    document.getElementById('btn-view-season-summary')?.addEventListener('click', function() { renderTab('progression') })
-    return
-  }
-
   /* Always build match card — use first fixture as fallback */
   var matchFixture = fixture
   if (!matchFixture && state.fixtures && state.fixtures.length > 0) {
@@ -4382,9 +4365,204 @@ function renderMovements() {
   })
 }
 
+function iniciarNuevaTemporada() {
+  var data = state.lastSeasonProgressionData
+  if (!data) return
+  var retirados = data.result.retirados || []
+  var msg = data.msg || ''
+  var skipStandings = data.skipStandings
+  try {
+    state.players.forEach(function(p) { p.age = (p.age || 22) + 1; p.value = calcValue(p.skill, p.age, p.position) })
+    state.leagueTeams.forEach(function(t) { t.players.forEach(function(p) { p.age = (p.age || 22) + 1; p.value = calcValue(p.skill, p.age, p.position) }) })
+    retirados.forEach(function(p) { var idx = state.players.indexOf(p); if (idx >= 0) state.players.splice(idx, 1) })
+    var league = getLeagueFromId(state.leagueId)
+    if (!league) { console.error('[SEASON] League not found for', state.leagueId, '- retrying load'); loadCountryData(state.countryId).then(function() { league = getLeagueFromId(state.leagueId) }) }
+    var allTeams = league ? league.teams : []
+    var filteredTeams = allTeams.filter(function(t) { return t.id !== state.teamId })
+    if (filteredTeams.length + 1 > allTeams.length) {
+      filteredTeams.sort(function(a, b) { return (a.rating || 0) - (b.rating || 0) })
+      filteredTeams.splice(0, filteredTeams.length + 1 - allTeams.length)
+    }
+    state.leagueTeams = filteredTeams.map(function(t) {
+      var existing = state.leagueTeams.find(function(x) { return x.teamId === t.id })
+      return {
+        teamId: t.id, name: t.name, palmares: t.palmares || null,
+        players: existing ? existing.players.map(function(p) { return Object.assign({}, p, { energy: 100, injury: null, goals: 0, matches: 0 }) })
+          : (getRealSquad(t.id) || []).map(function(p) { return Object.assign({}, p, { value: calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 }) }),
+        staff: t.staff || existing && existing.staff || [],
+      }
+    })
+    state.fixtures = generateFixtures([state.teamId].concat(state.leagueTeams.map(function(t) { return t.teamId })))
+    state.totalMatchdays = state.fixtures.length > 0 ? Math.max.apply(null, state.fixtures.map(function(f) { return f.matchday })) : 38
+    state.currentMatchday = 1
+    state.allLeagueData = {}
+    initAllLeagueData()
+    state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
+    state.playoffs = null
+    state.lastSeasonMovements = null
+    state.lastSeasonProgressionData = null
+    state.seasonNumber++
+    try {
+      if (state.countryId === 'spain') { state.cup = generarCopa(); state.supercopa = generarSupercopa() }
+      else if (state.countryId === 'portugal') { state.cup = null; state.supercopa = null; state.tacaDaLiga = generarTacaDaLiga() }
+      else if (state.countryId === 'poland') { state.cup = null; state.supercopa = null }
+      else { state.cup = null; state.supercopa = null; state.tacaDaLiga = null }
+    } catch (cupErr) { console.error('[SEASON] Error generating cups:', cupErr); state.cup = null; state.supercopa = null; state.tacaDaLiga = null }
+    state.players.forEach(function(p) { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
+    document.getElementById('league-results-wrap').classList.add('hidden')
+    renderTab('home')
+    saveGame()
+    if (!skipStandings) {
+      addNotification('general', msg, 'Nueva temporada en ' + divName(state.leagueId))
+      setTimeout(function() { alert(msg) }, 100)
+    }
+  } catch (err) {
+    console.error('[SEASON] Critical error in iniciarNuevaTemporada:', err)
+    document.getElementById('league-results-wrap').classList.add('hidden')
+    state.currentMatchday = 1
+    renderTab('home')
+    saveGame()
+  }
+}
+
 function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, logros) {
   state.lastSeasonProgressionData = { result: result, msg: msg, skipStandings: skipStandings, nuevosTrofeos: nuevosTrofeos || [], logros: logros || [] }
-  renderTab('home')
+  var modal = document.getElementById('season-progression-modal')
+  var content = document.getElementById('spm-content')
+  var subtitle = document.getElementById('spm-subtitle')
+  if (!modal || !content) { renderTab('home'); return }
+  subtitle.textContent = 'T' + (state.seasonNumber || 1) + ' \u2014 Resumen del curso'
+  var changes = result.changes || []
+  var retirados = result.retirados || []
+  var activeTab = state._progTab || 'progresion'
+  var movementsData = state.lastSeasonMovements
+  var html = '<div style="display:flex;gap:8px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px">'
+  html += '<button class="sub-tab' + (activeTab === 'progresion' ? ' active' : '') + '" data-spm-tab="progresion">Progresi\u00f3n</button>'
+  if (movementsData) html += '<button class="sub-tab' + (activeTab === 'movimientos' ? ' active' : '') + '" data-spm-tab="movimientos">Movimientos</button>'
+  html += '</div>'
+  if (activeTab === 'progresion') {
+    html += '<p class="progression-msg">' + msg.replace(/\n/g, '<br>') + '</p>'
+    var nts = nuevosTrofeos || []
+    if (nts.length > 0) {
+      html += '<div style="margin-top:12px"><h3 style="font-size:14px;font-weight:700;margin:0 0 6px;color:var(--text)">\ud83c\udfc6 Trofeos</h3>'
+      nts.forEach(function(t) { html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + t.competition + ' <span style="color:var(--text-muted)">(Temp. ' + t.season + ')</span></p>' })
+      html += '</div>'
+    }
+    var lgs = logros || []
+    if (lgs.length > 0) {
+      html += '<div style="margin-top:12px"><h4 style="font-size:13px;font-weight:700;margin:0 0 4px;color:var(--text)">\ud83d\udcca Logros</h4>'
+      lgs.forEach(function(l) { html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + l + '</p>' })
+      html += '</div>'
+    }
+    if (changes.length > 0) {
+      html += '<h3 style="font-size:14px;font-weight:700;margin:16px 0 6px;color:var(--text)">Cambios de Valoraci\u00f3n</h3><div>'
+      changes.sort(function(a, b) { return Math.abs(b.change) - Math.abs(a.change) })
+      changes.forEach(function(c) {
+        var arrow = c.change > 0 ? '\u25b2' : '\u25bc'
+        var cls = c.change > 0 ? 'color:#22c55e' : 'color:#ef4444'
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px"><span style="font-weight:600;color:var(--text);flex:1">' + c.name + '</span><span style="' + cls + ';font-weight:700">' + arrow + (c.change > 0 ? '+' : '') + c.change + '</span><span style="color:var(--text-muted)">' + c.oldSkill + '\u2192' + c.newSkill + '</span></div>'
+      })
+      html += '</div>'
+    }
+    if (retirados.length > 0) {
+      html += '<div style="margin-top:12px"><h4 style="font-size:13px;font-weight:700;margin:0 0 4px;color:var(--text)">\ud83d\ude91 Retiradas</h4>'
+      retirados.forEach(function(p) { html += '<p style="padding:2px 0;font-size:13px;color:var(--text)">' + p.name + ' (' + p.age + ' a\u00f1os) se retira tras ' + (p.matches || 0) + ' partidos esta temporada</p>' })
+      html += '</div>'
+    }
+  } else {
+    html += buildMovementsHtml(movementsData)
+  }
+  content.innerHTML = html
+  content.querySelectorAll('[data-spm-tab]').forEach(function(btn) {
+    btn.addEventListener('click', function() { state._progTab = this.dataset.spmTab; showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, logros) })
+  })
+  modal.style.display = ''
+  modal.classList.remove('hidden')
+  document.getElementById('spm-btn-start').onclick = function() { modal.style.display = 'none'; modal.classList.remove('open'); modal.classList.add('hidden'); iniciarNuevaTemporada() }
+}
+
+function buildMovementsHtml(movementsData) {
+  if (!movementsData || !movementsData.divisions || !movementsData.divisions.length) return ''
+  var html = '<p style="font-size:12px;color:var(--text-muted);margin:0 0 16px">Ascensos y descensos en todas las categor\u00edas</p>'
+  for (var di = 0; di < movementsData.divisions.length; di++) {
+    var div = movementsData.divisions[di]
+    if (div.promoted.length === 0 && div.playoff.length === 0 && div.relegated.length === 0 && !div.crossPlayoff && !div.relegationPlayoff && !div.promotionPlayoff) continue
+    var hasMovements = div.promoted.length > 0 || div.relegated.length > 0 || !!div.crossPlayoff || !!div.relegationPlayoff || !!div.promotionPlayoff
+    if (!hasMovements && div.playoff.length === 0) continue
+    html += '<div style="background:var(--bg-surface);border-radius:10px;padding:12px;margin-bottom:12px"><h3 style="font-size:14px;font-weight:700;margin:0 0 10px;color:var(--text)">' + div.name + '</h3>'
+    if (div.promoted.length > 0) {
+      html += '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:#22c55e;text-transform:uppercase;margin-bottom:4px">\u2b06 Ascienden</div>'
+      for (var pi = 0; pi < div.promoted.length; pi++) {
+        var t = div.promoted[pi]
+        var viaLabel = t.via === 'playoff' ? ' (promoci\u00f3n)' : ''
+        html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(t.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + t.name + viaLabel + '</span></div>'
+      }
+      html += '</div>'
+    }
+    if (div.playoff.length > 0) {
+      html += '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;margin-bottom:4px">\ud83c\udfc6 Promoci\u00f3n</div>'
+      for (var qi = 0; qi < div.playoff.length; qi++) {
+        var q = div.playoff[qi]
+        html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(q.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + q.name + ' (' + q.pos + '\u00ba)</span></div>'
+      }
+      html += '</div>'
+    }
+    if (div.relegated.length > 0) {
+      html += '<div><div style="font-size:11px;font-weight:600;color:#ef4444;text-transform:uppercase;margin-bottom:4px">\u2b07 Descienden</div>'
+      for (var ri = 0; ri < div.relegated.length; ri++) {
+        var r = div.relegated[ri]
+        html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(r.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + r.name + '</span></div>'
+      }
+      html += '</div>'
+    }
+    if (div.crossPlayoff) {
+      var cp = div.crossPlayoff
+      var isHigher = cp.verdict === 'saved' || cp.verdict === 'relegated'
+      html += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><div style="font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;margin-bottom:4px">' + (isHigher ? '\u2694 Playoff permanencia' : '\u2694 Playoff ascenso') + '</div>'
+      html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(cp.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + getTeamName(cp.teamId) + ' ' + cp.scoreTeam + ' - ' + cp.scoreOpponent + ' <img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(cp.opponentId) + '" onerror="this.style.display=\'none\'"> ' + cp.opponentName + '</span></div>'
+      if (isHigher) {
+        html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;padding-left:24px">' + (cp.verdict === 'saved' ? '\u2705 Se salva y permanece en ' + div.name : '\u274c Desciende a ' + cp.opponentLeagueName) + '</div>'
+        html += '<div style="font-size:12px;color:var(--text-muted);padding-left:24px">' + (cp.verdict !== 'saved' ? '\u2705 ' + cp.opponentName + ' asciende a ' + div.name : '\u274c ' + cp.opponentName + ' sigue en ' + cp.opponentLeagueName) + '</div>'
+      } else {
+        html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;padding-left:24px">' + (cp.verdict === 'promoted' ? '\u2705 Asciende a ' + cp.opponentLeagueName : '\u274c Sigue en ' + div.name) + '</div>'
+      }
+      html += '</div>'
+    }
+    if (div.relegationPlayoff && div.relegationPlayoff.length > 0) {
+      html += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><div style="font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;margin-bottom:4px">\u2694 Promoci\u00f3n permanencia</div>'
+      for (var rpi = 0; rpi < div.relegationPlayoff.length; rpi++) {
+        var rp = div.relegationPlayoff[rpi]
+        if (rp.opponentId) {
+          html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(rp.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + rp.name + ' (' + rp.pos + '\u00ba) ' + rp.teamScore + ' - ' + rp.opponentScore + ' <img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(rp.opponentId) + '" onerror="this.style.display=\'none\'"> ' + rp.opponentName + '</span></div>'
+          html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;padding-left:24px">' + (rp.verdict === 'saved' ? '\u2705 Se salva y permanece en ' + div.name : '\u274c Desciende a ' + (rp.opponentLeague || 'divisi\u00f3n inferior')) + '</div>'
+          html += '<div style="font-size:12px;color:var(--text-muted);padding-left:24px">' + (rp.verdict === 'saved' ? '\u274c ' + rp.opponentName + ' no asciende' : '\u2705 ' + rp.opponentName + ' asciende a ' + div.name) + '</div>'
+        } else {
+          html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(rp.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + rp.name + ' (' + rp.pos + '\u00ba)</span></div>'
+        }
+      }
+      html += '</div>'
+    }
+    if (div.promotionPlayoff) {
+      var pp = div.promotionPlayoff
+      html += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><div style="font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;margin-bottom:4px">\u2694 Promoci\u00f3n ascenso</div>'
+      html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(pp.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + pp.teamName
+      if (pp.intergroup) {
+        var ig = pp.intergroup
+        html += ' ' + ig.teamScore + ' - ' + ig.opponentScore + ' <img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(ig.opponentId) + '" onerror="this.style.display=\'none\'"> ' + ig.opponentName + '</span></div>'
+        html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;padding-left:24px">' + (ig.won ? '\u2705 Gana la semifinal intergrupos' : '\u274c Pierde la semifinal intergrupos - sigue en ' + div.name) + '</div>'
+        if (pp.crossFinal) {
+          var cf = pp.crossFinal
+          html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text);padding-left:24px"><span>Final vs ' + cf.opponentName + ': ' + pp.teamName + ' ' + cf.teamScore + ' - ' + cf.opponentScore + ' ' + cf.opponentName + '</span></div>'
+          html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;padding-left:24px">' + (cf.verdict === 'promoted' ? '\u2705 Asciende a ' + cf.opponentLeague : '\u274c Sigue en ' + div.name) + '</div>'
+        }
+      } else {
+        html += '</span></div>'
+      }
+      html += '</div>'
+    }
+    html += '</div>'
+  }
+  return html
 }
 
 function renderProgression() {
@@ -4566,83 +4744,7 @@ function renderProgression() {
   })
 
   document.getElementById('btn-next-season').addEventListener('click', function() {
-    try {
-    state.players.forEach(function(p) { p.age = (p.age || 22) + 1; p.value = calcValue(p.skill, p.age, p.position) })
-    /* Age AI team players too */
-    state.leagueTeams.forEach(function(t) { t.players.forEach(function(p) { p.age = (p.age || 22) + 1; p.value = calcValue(p.skill, p.age, p.position) }) })
-
-    retirados.forEach(function(p) {
-      var idx = state.players.indexOf(p)
-      if (idx >= 0) state.players.splice(idx, 1)
-    })
-
-    var league = getLeagueFromId(state.leagueId)
-    if (!league) { console.error('[SEASON] League not found for', state.leagueId, '- retrying load'); loadCountryData(state.countryId).then(function() { league = getLeagueFromId(state.leagueId) }) }
-    var allTeams = league ? league.teams : []
-    /* Balance: if user enters a league where they don't exist in DB, trim lowest-rated to keep correct count */
-    var filteredTeams = allTeams.filter(function(t) { return t.id !== state.teamId })
-    if (filteredTeams.length + 1 > allTeams.length) {
-      filteredTeams.sort(function(a, b) { return (a.rating || 0) - (b.rating || 0) })
-      filteredTeams.splice(0, filteredTeams.length + 1 - allTeams.length)
-    }
-    state.leagueTeams = filteredTeams.map(function(t) {
-      var existing = state.leagueTeams.find(function(x) { return x.teamId === t.id })
-      return {
-        teamId: t.id, name: t.name, palmares: t.palmares || null,
-        players: existing ? existing.players.map(function(p) { return Object.assign({}, p, { energy: 100, injury: null, goals: 0, matches: 0 }) })
-          : (getRealSquad(t.id) || []).map(function(p) { return Object.assign({}, p, { value: calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 }) }),
-        staff: t.staff || existing && existing.staff || [],
-      }
-    })
-    state.fixtures = generateFixtures([state.teamId].concat(state.leagueTeams.map(function(t) { return t.teamId })))
-    state.totalMatchdays = state.fixtures.length > 0 ? Math.max.apply(null, state.fixtures.map(function(f) { return f.matchday })) : 38
-    state.currentMatchday = 1
-    state.allLeagueData = {}
-    initAllLeagueData()
-    state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
-    state.playoffs = null
-    state.lastSeasonMovements = null
-    state.lastSeasonProgressionData = null
-    state.seasonNumber++
-    /* Regenerate cups for new season — country-specific */
-    try {
-      if (state.countryId === 'spain') {
-        state.cup = generarCopa()
-        state.supercopa = generarSupercopa()
-      } else if (state.countryId === 'portugal') {
-        state.cup = null
-        state.supercopa = null
-        state.tacaDaLiga = generarTacaDaLiga()
-      } else if (state.countryId === 'poland') {
-        state.cup = null
-        state.supercopa = null
-      } else {
-        state.cup = null
-        state.supercopa = null
-        state.tacaDaLiga = null
-      }
-    } catch (cupErr) {
-      console.error('[SEASON] Error generating cups:', cupErr)
-      state.cup = null
-      state.supercopa = null
-      state.tacaDaLiga = null
-    }
-    state.players.forEach(function(p) { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
-    document.getElementById('league-results-wrap').classList.add('hidden')
-    renderTab('home')
-    saveGame()
-
-    if (!skipStandings) {
-      addNotification('general', msg, 'Nueva temporada en ' + divName(state.leagueId))
-      setTimeout(function() { alert(msg) }, 100)
-    }
-    } catch (err) {
-      console.error('[SEASON] Critical error in btn-next-season:', err)
-      document.getElementById('league-results-wrap').classList.add('hidden')
-      state.currentMatchday = 1
-      renderTab('home')
-      saveGame()
-    }
+    iniciarNuevaTemporada()
   })
 }
 
@@ -4663,7 +4765,7 @@ function divName(leagueId) {
   return 'la categoría'
 }
 
-function procesarFinTemporada(skipAging, skipStandings) {
+function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
   state.lastFinalStandings = updateLeagueStandings()
   if (!skipAging) var agingResult = envejecerYProgresar()
   let cambioDivision = false
@@ -5036,65 +5138,14 @@ function procesarFinTemporada(skipAging, skipStandings) {
     return
   }
 
-  /* Post-playflow — immediate reset (used for procesarFinTemporada(true, true) after playoffs) */
+  /* Post-playoff path — compute aging, show progression modal */
   try {
-  const league = getLeagueFromId(state.leagueId)
-  const allTeams = league ? league.teams : []
-  var filteredTeamsPost = allTeams.filter(t => t.id !== state.teamId)
-  if (filteredTeamsPost.length + 1 > allTeams.length) {
-    filteredTeamsPost.sort(function(a, b) { return (a.rating || 0) - (b.rating || 0) })
-    filteredTeamsPost.splice(0, filteredTeamsPost.length + 1 - allTeams.length)
-  }
-  state.leagueTeams = filteredTeamsPost.map(t => {
-    const existing = state.leagueTeams.find(x => x.teamId === t.id)
-    return {
-      teamId: t.id, name: t.name, palmares: t.palmares || null,
-      players: existing ? existing.players.map(p => ({ ...p, energy: 100, injury: null, goals: 0, matches: 0 }))
-        : (getRealSquad(t.id) || []).map(p => ({ ...p, value: calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 })),
-      staff: t.staff || existing?.staff || [],
-    }
-  })
-  state.fixtures = generateFixtures([state.teamId, ...state.leagueTeams.map(t => t.teamId)])
-  state.totalMatchdays = state.fixtures.length > 0 ? Math.max(...state.fixtures.map(f => f.matchday)) : 38
-  state.currentMatchday = 1
-  state.allLeagueData = {}
-  initAllLeagueData()
-  state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
-  state.playoffs = null
-  state.seasonNumber++
-  /* Regenerate cups for new season — country-specific */
-  try {
-    if (state.countryId === 'spain') {
-      state.cup = generarCopa()
-      state.supercopa = generarSupercopa()
-    } else if (state.countryId === 'portugal') {
-      state.cup = null
-      state.supercopa = null
-      state.tacaDaLiga = generarTacaDaLiga()
-    } else if (state.countryId === 'poland') {
-      state.cup = null
-      state.supercopa = null
-    } else {
-      state.cup = null
-      state.supercopa = null
-      state.tacaDaLiga = null
-    }
-  } catch (cupErr) {
-    console.error('[SEASON-POST] Error generating cups:', cupErr)
-    state.cup = null
-    state.supercopa = null
-    state.tacaDaLiga = null
-  }
-  state.players.forEach(p => { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
-  document.getElementById('league-results-wrap').classList.add('hidden')
-  renderLeague()
-  saveGame()
+    var postAging = envejecerYProgresar()
+    state.lastSeasonMovements = computeSeasonMovements(state.countryId)
+    showSeasonProgressionModal(postAging, extraMsg || '', skipStandings, [], [])
   } catch (err) {
-    console.error('[SEASON-POST] Critical error in post-playflow:', err)
-    state.currentMatchday = 1
-    document.getElementById('league-results-wrap').classList.add('hidden')
-    renderTab('home')
-    saveGame()
+    console.error('[SEASON-POST] Error in post-playoff modal:', err)
+    showSeasonProgressionModal({ changes: [], retirados: [] }, extraMsg || '', skipStandings, [], [])
   }
 }
 
@@ -5227,7 +5278,7 @@ function avanzarRondaPlayoff() {
       const msg = '❌ Eliminado en semifinales.\n\nNo lograste el ascenso. Una temporada más en Cuarta Polaca.'
       addNotification('match', '❌ Eliminado', 'No lograste superar la semifinal del Playoff de Ascenso')
       state.playoffs = null
-      setTimeout(() => { alert(msg); procesarFinTemporada(true, true) }, 200)
+      setTimeout(() => { procesarFinTemporada(true, true, msg) }, 200)
     }
     return
   } else if (pf.esAscensoLP4 && pf.round === 'F') {
@@ -5237,13 +5288,11 @@ function avanzarRondaPlayoff() {
     if (esGanador) {
       state.leagueId = 'lpl3'
       setTimeout(() => {
-        alert('🎉 ¡ASCENSO a Tercera Polaca!\n\nGanaste el playoff de ascenso desde Cuarta Polaca.')
-        procesarFinTemporada(true, true)
+        procesarFinTemporada(true, true, '🎉 ¡ASCENSO a Tercera Polaca!\n\nGanaste el playoff de ascenso desde Cuarta Polaca.')
       }, 300)
     } else {
       setTimeout(() => {
-        alert('❌ Perdiste la final.\n\nNo lograste el ascenso. Una temporada más en Cuarta Polaca.')
-        procesarFinTemporada(true, true)
+        procesarFinTemporada(true, true, '❌ Perdiste la final.\n\nNo lograste el ascenso. Una temporada más en Cuarta Polaca.')
       }, 300)
     }
     return
@@ -5277,53 +5326,45 @@ function avanzarRondaPlayoff() {
         state.leagueId = desdeCategoriasPrevias ? 'l2s' : 'l1s'
         var targetName = desdeCategoriasPrevias ? 'Segunda División' : 'LaLiga'
         setTimeout(() => {
-          alert(`${msg}\n\n${esCampeon ? '¡Ascenso a ' + targetName + ' y título!' : 'Ascenso a ' + targetName + ' conseguido'}`)
-          procesarFinTemporada(true, true)
+          procesarFinTemporada(true, true, `${msg}\n\n${esCampeon ? '¡Ascenso a ' + targetName + ' y título!' : 'Ascenso a ' + targetName + ' conseguido'}`)
         }, 300)
       } else {
         setTimeout(() => {
-          const divName = state.leagueId && state.leagueId.startsWith('l3sg') ? 'Primera RFEF' : 'Segunda División'
-          alert(`${msg}\n\nNo lograste el ascenso. Una temporada más en ${divName}.`)
-          procesarFinTemporada(true, true)
+          const divName2 = state.leagueId && state.leagueId.startsWith('l3sg') ? 'Primera RFEF' : 'Segunda División'
+          procesarFinTemporada(true, true, `${msg}\n\nNo lograste el ascenso. Una temporada más en ${divName2}.`)
         }, 300)
       }
     } else if (esPlayoffTerceraRFEF) {
       if (esCampeon) {
         state.leagueId = 'l2s'
         setTimeout(() => {
-          alert(`${msg}\n\n${esCampeon ? '¡Ascenso a Segunda División y título!' : 'Ascenso a Segunda División conseguido'}`)
-          procesarFinTemporada(true, true)
+          procesarFinTemporada(true, true, `${msg}\n\n${esCampeon ? '¡Ascenso a Segunda División y título!' : 'Ascenso a Segunda División conseguido'}`)
         }, 300)
       } else {
         setTimeout(() => {
-          alert(`${msg}\n\nNo lograste el ascenso. Una temporada más en Primera RFEF.`)
-          procesarFinTemporada(true, true)
+          procesarFinTemporada(true, true, `${msg}\n\nNo lograste el ascenso. Una temporada más en Primera RFEF.`)
         }, 300)
       }
     } else if (esPolaca3) {
       if (promovio) {
         state.leagueId = 'lpl2'
         setTimeout(() => {
-          alert(`${msg}\n\n${esCampeon ? '¡Ascenso a Segunda Polaca y título!' : 'Ascenso a Segunda Polaca conseguido'}`)
-          procesarFinTemporada(true, true)
+          procesarFinTemporada(true, true, `${msg}\n\n${esCampeon ? '¡Ascenso a Segunda Polaca y título!' : 'Ascenso a Segunda Polaca conseguido'}`)
         }, 300)
       } else {
         setTimeout(() => {
-          alert(`${msg}\n\nNo lograste el ascenso. Una temporada más en Tercera Polaca.`)
-          procesarFinTemporada(true, true)
+          procesarFinTemporada(true, true, `${msg}\n\nNo lograste el ascenso. Una temporada más en Tercera Polaca.`)
         }, 300)
       }
     } else if (esPolaca2) {
       if (promovio) {
         state.leagueId = 'lpl'
         setTimeout(() => {
-          alert(`${msg}\n\n${esCampeon ? '¡Ascenso a Liga Polaca y título!' : 'Ascenso a Liga Polaca conseguido'}`)
-          procesarFinTemporada(true, true)
+          procesarFinTemporada(true, true, `${msg}\n\n${esCampeon ? '¡Ascenso a Liga Polaca y título!' : 'Ascenso a Liga Polaca conseguido'}`)
         }, 300)
       } else {
         setTimeout(() => {
-          alert(`${msg}\n\nNo lograste el ascenso. Una temporada más en Segunda Polaca.`)
-          procesarFinTemporada(true, true)
+          procesarFinTemporada(true, true, `${msg}\n\nNo lograste el ascenso. Una temporada más en Segunda Polaca.`)
         }, 300)
       }
     } else if (esTercera) {
@@ -5332,13 +5373,11 @@ function avanzarRondaPlayoff() {
         const gruposB = ['l2b1','l2b2','l2b3','l2b4','l2b5','l2b6']
         state.leagueId = pickRandom(gruposB)
         setTimeout(() => {
-          alert(`${msg}\n\n${esCampeon ? '¡Ascenso y título!' : 'Ascenso conseguido'}`)
-          procesarFinTemporada(true, true)
+          procesarFinTemporada(true, true, `${msg}\n\n${esCampeon ? '¡Ascenso y título!' : 'Ascenso conseguido'}`)
         }, 300)
       } else {
         setTimeout(() => {
-          alert(`${msg}\n\nNo lograste el ascenso. Una temporada más en 3ª División.`)
-          procesarFinTemporada(true, true)
+          procesarFinTemporada(true, true, `${msg}\n\nNo lograste el ascenso. Una temporada más en 3ª División.`)
         }, 300)
       }
     } else if (pf.esDescensoLP3) {
@@ -5349,15 +5388,13 @@ function avanzarRondaPlayoff() {
       addNotification('match', msgD, salvado ? 'Te quedas en Tercera Polaca' : 'Bajas a Cuarta Polaca')
       if (salvado) {
         setTimeout(() => {
-          alert('✅ ¡PERMANENCIA!\n\nGanaste el playoff de descenso. Una temporada más en Tercera Polaca.')
-          procesarFinTemporada(true, true)
+          procesarFinTemporada(true, true, '✅ ¡PERMANENCIA!\n\nGanaste el playoff de descenso. Una temporada más en Tercera Polaca.')
         }, 300)
       } else {
         const grupos4 = ['lpl4g1','lpl4g2','lpl4g3','lpl4g4']
         state.leagueId = pickRandom(grupos4)
         setTimeout(() => {
-          alert('❌ DESCENSO a Cuarta Polaca.\n\nPerdiste el playoff de descenso.')
-          procesarFinTemporada(true, true)
+          procesarFinTemporada(true, true, '❌ DESCENSO a Cuarta Polaca.\n\nPerdiste el playoff de descenso.')
         }, 300)
       }
     } else if (pf.esPlayoffPortugal) {
@@ -5368,27 +5405,23 @@ function avanzarRondaPlayoff() {
         if (ganadorUser) {
           state.leagueId = 'l1p'
           setTimeout(() => {
-            alert('🎉 ¡ASCENSO a Primeira Liga!\n\nGanaste el playoff de ascenso desde Segunda Liga Portugal.')
-            procesarFinTemporada(true, true)
+            procesarFinTemporada(true, true, '🎉 ¡ASCENSO a Primeira Liga!\n\nGanaste el playoff de ascenso desde Segunda Liga Portugal.')
           }, 300)
         } else {
           setTimeout(() => {
-            alert('❌ No lograste el ascenso.\n\nUna temporada más en Segunda Liga Portugal.')
-            procesarFinTemporada(true, true)
+            procesarFinTemporada(true, true, '❌ No lograste el ascenso.\n\nUna temporada más en Segunda Liga Portugal.')
           }, 300)
         }
       } else {
         /* User was l1p P16, playing to stay */
         if (ganadorUser) {
           setTimeout(() => {
-            alert('✅ ¡PERMANENCIA!\n\nGanaste el playoff de descenso. Una temporada más en Primeira Liga.')
-            procesarFinTemporada(true, true)
+            procesarFinTemporada(true, true, '✅ ¡PERMANENCIA!\n\nGanaste el playoff de descenso. Una temporada más en Primeira Liga.')
           }, 300)
         } else {
           state.leagueId = 'l2p'
           setTimeout(() => {
-            alert('❌ DESCENSO a Segunda Liga Portugal.\n\nPerdiste el playoff de descenso.')
-            procesarFinTemporada(true, true)
+            procesarFinTemporada(true, true, '❌ DESCENSO a Segunda Liga Portugal.\n\nPerdiste el playoff de descenso.')
           }, 300)
         }
       }
@@ -5398,7 +5431,7 @@ function avanzarRondaPlayoff() {
         var league = getLeagueFromId(state.leagueId)
         state.trophies.push({ competition: 'Campeón de ' + (league ? league.name : state.leagueId), season: state.seasonNumber })
       }
-      setTimeout(() => { alert(msg); procesarFinTemporada() }, 100)
+      setTimeout(() => { procesarFinTemporada() }, 100)
     }
     return
   }
@@ -5549,8 +5582,7 @@ function iniciarPlayoffAscensoLP4() {
 
   if (segundos.length < 4) {
     /* Fallback — not enough data, skip playoff */
-    alert('No hay suficientes datos para el playoff de ascenso.')
-    procesarFinTemporada(true, true)
+    procesarFinTemporada(true, true, 'No hay suficientes datos para el playoff de ascenso.')
     return
   }
 
@@ -5575,8 +5607,7 @@ function iniciarPlayoffAscensoPortugal() {
   const l1pTeams = getLeagueTeams('l1p')
   const l1pData = state.allLeagueData['l1p']
   if (!l1pData || !l1pData.fixtures || l1pTeams.length < 16) {
-    alert('No hay suficientes datos para el playoff de ascenso a Primeira Liga.')
-    procesarFinTemporada(true, true)
+    procesarFinTemporada(true, true, 'No hay suficientes datos para el playoff de ascenso a Primeira Liga.')
     return
   }
   const l1pStandings = computeStandings(l1pData.fixtures, l1pTeams.map(t => t.id))
@@ -5600,8 +5631,7 @@ function iniciarPlayoffDescensoPortugal() {
   const l2pTeams = getLeagueTeams('l2p')
   const l2pData = state.allLeagueData['l2p']
   if (!l2pData || !l2pData.fixtures || l2pTeams.length < 3) {
-    alert('No hay suficientes datos para el playoff de descenso en Primeira Liga.')
-    procesarFinTemporada(true, true)
+    procesarFinTemporada(true, true, 'No hay suficientes datos para el playoff de descenso en Primeira Liga.')
     return
   }
   const l2pStandings = computeStandings(l2pData.fixtures, l2pTeams.map(t => t.id))
@@ -7169,7 +7199,6 @@ function renderTab(tab) {
     case 'home': renderHome(); break
     case 'market': renderMarket(); break
     case 'finances': renderFinances(); break
-    case 'progression': renderProgression(); break
   }
 }
 
@@ -7711,7 +7740,6 @@ function startGame() {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
   document.querySelector('[data-tab="home"]').classList.add('active')
   renderTab('home')
-  if (state.lastSeasonMovements) showMovementsTab(true)
   updateInboxBadge()
   actualizarIndicadorTemporada()
   checkTransferWindow()
