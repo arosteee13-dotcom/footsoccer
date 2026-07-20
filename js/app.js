@@ -4135,6 +4135,19 @@ function mostrarOfertaTransferencia(player, team, offer) {
     var checkSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
     var crossSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
     var refreshSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>'
+    var posKey = player.position
+    var posAbbr = POS_ABBR[posKey] || posKey
+    var posFull = posKey.charAt(0).toUpperCase() + posKey.slice(1).replace(/_/g, ' ')
+    var posColor = POSITIONS[posKey]?.color || '#888'
+    var skillBadgeCss = getPowerBadgeStyle(player.skill || 0)
+    var secondaryBadgesHtml = ''
+    if (player.otherPositions && player.otherPositions.length > 0) {
+      secondaryBadgesHtml = player.otherPositions.map(function(o) {
+        var abbr = POS_ABBR[o.pos] || o.pos
+        var color = POSITIONS[o.pos]?.color || '#888'
+        return '<span style="background:' + color + ';color:#fff;padding:0 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.6">' + abbr + '</span>'
+      }).join('')
+    }
     overlay.innerHTML = `
       <div style="background:var(--bg-surface);border-radius:14px;padding:28px;max-width:420px;width:90%;box-shadow:0 4px 24px rgba(0,0,0,0.15);color:var(--text);font-family:inherit;border:1px solid var(--text-muted)">
         <div style="text-align:center;margin-bottom:16px">
@@ -4149,6 +4162,15 @@ function mostrarOfertaTransferencia(player, team, offer) {
           <div style="text-align:center;flex:1">
             <img src="${playerAvatarUrl}" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:2px solid var(--text-muted);display:block;margin:0 auto 6px" onerror="this.src='${NOPHOTO}'">
             <div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.2">${player.name}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;justify-content:center;align-items:center">
+              <span style="background:${posColor};color:#fff;padding:0 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.6">${posAbbr}</span>
+              ${secondaryBadgesHtml}
+              <span>·</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;display:flex;gap:6px;justify-content:center;align-items:center">
+              <span style="${skillBadgeCss};padding:0 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.6">${player.skill}</span>
+              <span>${player.age} a\u00f1os</span>
+            </div>
           </div>
         </div>
         <div style="background:var(--bg);border-radius:10px;padding:16px;margin-bottom:16px">
@@ -5870,8 +5892,8 @@ function simularPartidoRapido(fixture, rivalId) {
       rivalPower = db ? db.rating : 70
     }
 
-    const homeFactor = isHome ? 1.05 : 1.0
-    const awayFactor = isHome ? 0.97 : 1.0
+    const homeFactor = isHome ? 1.05 : 0.97
+    const awayFactor = isHome ? 0.97 : 1.05
     const userFinal = userPower * (0.95 + Math.random() * 0.1) * homeFactor
     const rivalFinal = rivalPower * (0.95 + Math.random() * 0.1) * awayFactor
     const probUser = 1 / (1 + Math.pow(10, (rivalFinal - userFinal) / 15))
@@ -6185,8 +6207,8 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga) {
       rivalPower = db ? db.rating : 70
     }
 
-    var homeFactor = isHome ? 1.05 : 1.0
-    var awayFactor = isHome ? 0.97 : 1.0
+    var homeFactor = isHome ? 1.05 : 0.97
+    var awayFactor = isHome ? 0.97 : 1.05
     var userFinal = userPower * (0.8 + Math.random() * 0.4) * homeFactor
     var rivalFinal = rivalPower * (0.8 + Math.random() * 0.4) * awayFactor
     var totalG = 2 + Math.floor(Math.random() * 5)
@@ -6451,17 +6473,17 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
   for (const r of allResults) { if (r.isUser) { userMatch = r; break } }
   const hl = userMatch ? (
     '<div class="mr-highlight-team">' +
-      '<img class="mr-highlight-logo" src="' + (userMatch.homeId === state.teamId ? state.teamLogo : getTeamLogo(userMatch.homeId)) + '" alt="">' +
-      '<span class="mr-highlight-name">' + userMatch.homeName + '</span>' +
+      '<img class="mr-highlight-logo" src="' + state.teamLogo + '" alt="">' +
+      '<span class="mr-highlight-name">' + state.team + '</span>' +
     '</div>' +
     '<div class="mr-highlight-score">' +
-      '<span class="mr-highlight-score-val">' + userMatch.homeScore + '</span>' +
+      '<span class="mr-highlight-score-val">' + (userMatch.homeId === state.teamId ? userMatch.homeScore : userMatch.awayScore) + '</span>' +
       '<span class="mr-highlight-score-div">-</span>' +
-      '<span class="mr-highlight-score-val">' + userMatch.awayScore + '</span>' +
+      '<span class="mr-highlight-score-val">' + (userMatch.homeId === state.teamId ? userMatch.awayScore : userMatch.homeScore) + '</span>' +
     '</div>' +
     '<div class="mr-highlight-team">' +
-      '<img class="mr-highlight-logo" src="' + (userMatch.awayId === state.teamId ? state.teamLogo : getTeamLogo(userMatch.awayId)) + '" alt="">' +
-      '<span class="mr-highlight-name">' + userMatch.awayName + '</span>' +
+      '<img class="mr-highlight-logo" src="' + (userMatch.homeId === state.teamId ? getTeamLogo(userMatch.awayId) : getTeamLogo(userMatch.homeId)) + '" alt="">' +
+      '<span class="mr-highlight-name">' + (userMatch.homeId === state.teamId ? userMatch.awayName : userMatch.homeName) + '</span>' +
     '</div>'
   ) : ''
   document.getElementById('mr-highlight').innerHTML = hl
@@ -6469,15 +6491,8 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
   /* Scorers */
   let scorersHtml = '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:8px">'
   if (userMatch) {
-    var leftScorers = []
-    var rightScorers = []
-    if (userMatch.homeId === state.teamId) {
-      leftScorers = userGoalscorers.map(function(g) { return '\u26bd ' + g.scorerName + (g.assistName ? ' (' + g.assistName + ')' : '') })
-      rightScorers = rivalGoalscorers.map(function(n) { return '\u26bd ' + n })
-    } else {
-      leftScorers = rivalGoalscorers.map(function(n) { return '\u26bd ' + n })
-      rightScorers = userGoalscorers.map(function(g) { return '\u26bd ' + g.scorerName + (g.assistName ? ' (' + g.assistName + ')' : '') })
-    }
+    var leftScorers = userGoalscorers.map(function(g) { return '\u26bd ' + g.scorerName + (g.assistName ? ' (' + g.assistName + ')' : '') })
+    var rightScorers = rivalGoalscorers.map(function(n) { return '\u26bd ' + n })
     scorersHtml += '<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + leftScorers.join('<br>') + '</div>'
     scorersHtml += '<div style="flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + rightScorers.join('<br>') + '</div>'
   }
@@ -6603,7 +6618,7 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
     }
 
     /* Append in correct order */
-    lineupsHtml += isHome ? (userHtml + rivalHtml) : (rivalHtml + userHtml)
+    lineupsHtml += userHtml + rivalHtml
   }
   document.getElementById('mr-lineups').innerHTML = lineupsHtml
 
