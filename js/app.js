@@ -4271,7 +4271,10 @@ function renderMovements() {
     return
   }
   let html = '<div class="movements-wrap" style="padding:12px 14px">'
-  html += '<h2 style="font-size:16px;font-weight:700;margin:0 0 4px;color:var(--text)">Movimientos Temporada ' + data.seasonNumber + 'ª</h2>'
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+  html += '<h2 style="font-size:16px;font-weight:700;margin:0;color:var(--text)">Movimientos Temporada ' + data.seasonNumber + 'ª</h2>'
+  html += '<button id="btn-back-from-movements" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;font-weight:600;padding:4px 8px">\u2190 Volver</button>'
+  html += '</div>'
   html += '<p style="font-size:12px;color:var(--text-muted);margin:0 0 16px">Ascensos y descensos en todas las categorías</p>'
   for (const div of data.divisions) {
     if (div.promoted.length === 0 && div.playoff.length === 0 && div.relegated.length === 0 && !div.crossPlayoff && !div.relegationPlayoff && !div.promotionPlayoff) continue
@@ -4358,6 +4361,15 @@ function renderMovements() {
   }
   html += '</div>'
   container.innerHTML = html
+  document.getElementById('btn-back-from-movements')?.addEventListener('click', function () {
+    var overlay = document.getElementById('progression-modal')
+    if (overlay) overlay.classList.remove('hidden')
+    var movementsNav = document.querySelector('[data-tab="movements"]')
+    if (movementsNav) movementsNav.style.display = 'none'
+    document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.remove('active') })
+    document.querySelector('[data-tab="home"]').classList.add('active')
+    renderTab('home')
+  })
 }
 
 function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, logros) {
