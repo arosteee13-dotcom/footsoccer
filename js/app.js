@@ -770,18 +770,23 @@ function getSupercopaTeams() {
   if (state.seasonNumber === 1) {
     return ['e16', 'e7', 'e2', 'e1'] /* Real Madrid, Barcelona, Atl\u00e9tico, Athletic */
   }
+  var l1sIds = (getLeagueTeams('l1s') || []).map(function(t) { return t.teamId })
   /* 4 slots: Liga 1\u00ba, Liga 2\u00ba, Copa Campe\u00f3n, Copa Subcampe\u00f3n */
-  var slots = [state.leagueChampion, state.leagueRunnerUp, state.cupChampion, state.cupRunnerUp].filter(Boolean)
-  /* Eliminar duplicados (equipo repetido en Liga y Copa \u2192 la plaza pasa al siguiente en Liga) */
+  var slots = [state.leagueChampion, state.leagueRunnerUp, state.cupChampion, state.cupRunnerUp]
+    .filter(Boolean)
+    .filter(function(id) { return l1sIds.indexOf(id) >= 0 })
+  /* Eliminar duplicados */
   var unique = []
   slots.forEach(function(id) {
     if (unique.indexOf(id) < 0) unique.push(id)
   })
-  /* Si faltan equipos, completar con la clasificaci\u00f3n de Liga */
+  /* Si faltan equipos, completar con la clasificaci\u00f3n de La Liga */
   if (unique.length < 4) {
-    var standings = state.lastFinalStandings || updateLeagueStandings()
-    for (var si = 0; si < standings.length && unique.length < 4; si++) {
-      if (unique.indexOf(standings[si].teamId) < 0) unique.push(standings[si].teamId)
+    var l1sData = window.DB[state.countryId]?.country?.leagues?.l1s
+    var l1sFixtures = l1sData ? (l1sData.fixtures || []) : []
+    var l1sStandings = computeStandings(l1sFixtures, l1sIds)
+    for (var si = 0; si < l1sStandings.length && unique.length < 4; si++) {
+      if (unique.indexOf(l1sStandings[si].teamId) < 0) unique.push(l1sStandings[si].teamId)
     }
   }
   return unique.slice(0, 4)
@@ -9028,60 +9033,27 @@ function showTeamInfo(teamId) {
         content += '<div id="trofeo-tooltip" style="display:none;margin:4px 14px 8px;padding:10px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:12px;line-height:1.4"></div>'
       }
 
-      /* League history chart */
-      var chartSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
-      content += '<div class="tactics-subsection-label" style="margin-top:12px">' + chartSvg + ' Historial en liga</div>'
+      /* League history */
+      content += '<div class="tactics-subsection-label" style="margin-top:12px">\ud83d\udcca Historial en liga</div>'
       var seasons = th.seasons || []
       if (seasons.length === 0) {
         content += '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin datos de temporadas anteriores</div>'
       } else {
-        var chartH = 170
-        var padL = 32, padR = 12, padT = 12, padB = 28
-        var drawW = 300 - padL - padR
-        var drawH = chartH - padT - padB
-        var maxPos = 20
-        var minPos = 1
-        var positions = seasons.map(function(s) { return s.position })
-        var maxSeasonPos = Math.max(maxPos, Math.max.apply(null, positions))
-        var yRange = maxSeasonPos - minPos || 1
-        var xStep = drawW / Math.max(seasons.length - 1, 1)
-
         content += '<div style="padding:4px 14px 14px">'
-        content += '<svg width="100%" height="' + chartH + '" viewBox="0 0 300 ' + chartH + '" preserveAspectRatio="xMidYMid meet" style="display:block;max-width:400px;margin:0 auto">'
-
-        /* Y axis labels (every 5 positions) */
-        for (var yp = 1; yp <= maxSeasonPos; yp += 5) {
-          var yY = padT + drawH - ((yp - minPos) / yRange) * drawH
-          content += '<text x="' + (padL - 4) + '" y="' + (yY + 3) + '" text-anchor="end" font-size="8" fill="var(--text-muted)">' + yp + '</text>'
-          if (yp < maxSeasonPos) content += '<line x1="' + padL + '" y1="' + yY + '" x2="' + (300 - padR) + '" y2="' + yY + '" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>'
-        }
-
-        /* Line connecting points */
-        var linePath = ''
-        seasons.forEach(function(s, si) {
-          var x = padL + si * xStep
-          var y = padT + drawH - ((s.position - minPos) / yRange) * drawH
-          linePath += (si === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1)
+        var reversedSeasons = seasons.slice().reverse()
+        reversedSeasons.forEach(function(s) {
+          var posDisplay = s.position + '\u00ba'
+          var posColor = s.position === 1 ? '#10B981' : s.position <= 4 ? '#3B82F6' : s.position <= 6 ? '#F59E0B' : '#EF4444'
+          var logoUrl = logosMap[s.division] || null
+          if (!logoUrl) {
+            for (var _c3 in window.DB) { var _d3 = window.DB[_c3]; if (_d3) { var _l3 = (_d3.country.leagues || []).find(function(x) { return x.name === s.division }); if (_l3) { logoUrl = _l3.logo; break } } }
+          }
+          content += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">' +
+            (logoUrl ? '<img src="' + logoUrl + '" style="width:20px;height:20px;object-fit:contain;flex-shrink:0">' : '<div style="width:20px;height:20px;border-radius:50%;background:var(--text-muted);flex-shrink:0"></div>') +
+            '<span style="font-size:12px;color:var(--text-muted);flex-shrink:0">' + s.season + '</span>' +
+            '<span style="margin-left:auto;font-size:13px;font-weight:700;color:' + posColor + '">' + posDisplay + '</span>' +
+            '</div>'
         })
-        content += '<path d="' + linePath + '" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linejoin="round"/>'
-
-        /* Points */
-        seasons.forEach(function(s, si) {
-          var x = padL + si * xStep
-          var y = padT + drawH - ((s.position - minPos) / yRange) * drawH
-          var tooltipData = s.season + '|' + (s.division || '—') + '|' + s.position
-          content += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4" fill="var(--accent)" stroke="var(--bg-surface)" stroke-width="1.5" class="chart-point" data-tip="' + tooltipData + '" style="cursor:pointer"/>'
-        })
-
-        /* X axis labels (show every 1 season) */
-        seasons.forEach(function(s, si) {
-          var x = padL + si * xStep
-          content += '<text x="' + x.toFixed(1) + '" y="' + (chartH - 5) + '" text-anchor="middle" font-size="7" fill="var(--text-muted)">' + s.season.slice(-5) + '</text>'
-        })
-
-        content += '</svg>'
-        /* Chart tooltip */
-        content += '<div id="chart-tooltip" style="display:none;margin-top:8px;padding:8px 12px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;text-align:center;line-height:1.4"></div>'
         content += '</div>'
       }
     }
@@ -9117,21 +9089,6 @@ function showTeamInfo(teamId) {
             tip.innerHTML = trophySvg + ' Temporadas: ' + years
             tip.style.display = 'block'
             tip._activeCard = card
-          }
-        }
-      })
-      document.querySelectorAll('#team-view-content .chart-point').forEach(function(pt) {
-        pt.onclick = function() {
-          var tip = document.getElementById('chart-tooltip')
-          if (!tip) return
-          var data = this.getAttribute('data-tip').split('|')
-          if (tip.style.display === 'block' && tip._activePoint === this) {
-            tip.style.display = 'none'
-            tip._activePoint = null
-          } else {
-            tip.innerHTML = 'Temporada ' + data[0] + ' - ' + data[1] + ' - ' + data[2] + '\u00ba Puesto'
-            tip.style.display = 'block'
-            tip._activePoint = this
           }
         }
       })
