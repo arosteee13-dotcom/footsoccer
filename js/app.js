@@ -731,6 +731,7 @@ const state = {
   leagueChampion: null,
   leagueRunnerUp: null,
   lastFinalStandings: null,
+  lastL1sStandings: null,
   myPalmares: null,
 }
 
@@ -791,13 +792,11 @@ function getSupercopaTeams() {
   slots.forEach(function(id) {
     if (unique.indexOf(id) < 0) unique.push(id)
   })
-  /* Si faltan equipos, completar con la clasificaci\u00f3n de La Liga */
+  /* Si faltan equipos, completar con la clasificaci\u00f3n de La Liga de la temporada anterior */
   if (unique.length < 4) {
-    var l1sData = window.DB[state.countryId]?.country?.leagues?.l1s
-    var l1sFixtures = l1sData ? (l1sData.fixtures || []) : []
-    var l1sStandings = computeStandings(l1sFixtures, l1sIds)
+    var l1sStandings = state.lastL1sStandings || []
     for (var si = 0; si < l1sStandings.length && unique.length < 4; si++) {
-      if (unique.indexOf(l1sStandings[si].teamId) < 0) unique.push(l1sStandings[si].teamId)
+      if (l1sStandings[si] && l1sStandings[si].teamId && unique.indexOf(l1sStandings[si].teamId) < 0) unique.push(l1sStandings[si].teamId)
     }
   }
   return unique.slice(0, 4)
@@ -1329,6 +1328,7 @@ window.SaveSystem = {
         trophyHistory: state.trophyHistory,
         allTeamsHistory: state.allTeamsHistory,
         lastSeasonMovements: state.lastSeasonMovements,
+        lastL1sStandings: state.lastL1sStandings,
         absoluteFinal: state.absoluteFinal,
       }
       if (idx >= 0) saves[idx] = data; else saves.unshift(data)
@@ -1905,6 +1905,86 @@ function simularJornadaEnTodasLasLigas(matchday) {
       data.currentMatchday = matchday
     } catch (e) { console.warn('[SIM] Error simulating', lid, 'matchday', matchday, e) }
   }
+  simularCpuCopa(matchday)
+}
+
+function simularCpuCopa(matchday) {
+  /* === Copa del Rey === */
+  if (state.cup && state.cup.roundIdx >= 0) {
+    var sched = state.cup.schedule[state.cup.roundIdx]
+    if (sched && sched.week === matchday) {
+      var userInRound = state.cup.allFixtures.some(function(f) {
+        return !f.played && (f.home === state.teamId || f.away === state.teamId) && f.week === sched.week
+      })
+      if (!userInRound) {
+        var cpuFixtures = state.cup.allFixtures.filter(function(f) {
+          return !f.played && f.week === sched.week && f.home !== state.teamId && f.away !== state.teamId
+        })
+        if (cpuFixtures.length > 0) {
+          cpuFixtures.forEach(function(f) {
+            var r = simularPartidoPorRating(f.home, f.away)
+            f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+          })
+          var allPlayed = state.cup.allFixtures.filter(function(f) {
+            return f.week === sched.week
+          }).every(function(f) { return f.played })
+          if (allPlayed) avanzarRondaCopa()
+        }
+      }
+    }
+  }
+
+  /* === Supercopa === */
+  if (state.supercopa) {
+    if (state.supercopa.week && state.supercopa.week === matchday && !state.supercopa.final) {
+      var userInSc = state.supercopa.fixtures.some(function(f) {
+        return !f.played && (f.home === state.teamId || f.away === state.teamId)
+      })
+      if (!userInSc) {
+        var cpuSc = state.supercopa.fixtures.filter(function(f) { return !f.played })
+        if (cpuSc.length > 0) {
+          cpuSc.forEach(function(f) {
+            var r = simularPartidoPorRating(f.home, f.away)
+            f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+          })
+          avanzarSupercopa()
+        }
+      }
+    }
+    if (state.supercopa.final && !state.supercopa.final.played && state.supercopa.final.week === matchday) {
+      var f = state.supercopa.final
+      if (f.home !== state.teamId && f.away !== state.teamId) {
+        var r = simularPartidoPorRating(f.home, f.away)
+        f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+        state.supercopa.winner = r.homeScore > r.awayScore ? f.home : f.away
+      }
+    }
+  }
+
+  /* === Taca da Liga === */
+  if (state.tacaDaLiga && state.tacaDaLiga.roundIdx >= 0) {
+    var sched = state.tacaDaLiga.schedule[state.tacaDaLiga.roundIdx]
+    if (sched && sched.week === matchday) {
+      var userInTaca = state.tacaDaLiga.allFixtures.some(function(f) {
+        return !f.played && (f.home === state.teamId || f.away === state.teamId) && f.week === sched.week
+      })
+      if (!userInTaca) {
+        var cpuTaca = state.tacaDaLiga.allFixtures.filter(function(f) {
+          return !f.played && f.week === sched.week && f.home !== state.teamId && f.away !== state.teamId
+        })
+        if (cpuTaca.length > 0) {
+          cpuTaca.forEach(function(f) {
+            var r = simularPartidoPorRating(f.home, f.away)
+            f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
+          })
+          var allPlayed = state.tacaDaLiga.allFixtures.filter(function(f) {
+            return f.week === sched.week
+          }).every(function(f) { return f.played })
+          if (allPlayed) avanzarRondaTacaDaLiga()
+        }
+      }
+    }
+  }
 }
 
 function initAllLeagueData() {
@@ -2251,7 +2331,6 @@ function renderClub() {
   } else if (state.clubSubTab === 'inbox') {
     document.getElementById('club-inbox-content').classList.remove('hidden')
     hideInboxDetail()
-    renderInbox()
   } else if (state.clubSubTab === 'calendar') {
     document.getElementById('club-calendar-content').classList.remove('hidden')
     renderCalendar()
@@ -4139,7 +4218,12 @@ function procesarIAOfertasAlUsuario() {
       var offer = Math.round(p.value * (0.8 + Math.random() * 0.5))
       if (offer < minPrice) offer = minPrice
       if (offer > budget * 0.4) continue
-      mostrarOfertaTransferencia(p, team, offer)
+      addNotification('transfer', 'Oferta por ' + p.name, team.name + ' ofrece ' + formatMoney(offer), {
+        playerId: p.id, teamId: team.teamId, amount: offer, teamName: team.name,
+        playerName: p.name, playerValue: p.value, playerPosition: p.position,
+        playerSkill: p.skill, playerAge: p.age, playerAvatar: p.avatar || '',
+        teamLogo: team.logo || ''
+      })
       offersMade++
     }
   }
@@ -4147,7 +4231,7 @@ function procesarIAOfertasAlUsuario() {
 
 function generarOfertasParaJugador(player) {
   if (!state.transferWindowOpen || !player) return
-  var cola = []
+  var ofertas = []
   var posibles = state.leagueTeams.filter(function(t) {
     return t.players.length < MAX_SQUAD && getTeamBudget(t) > Math.round(player.value * 0.5)
   })
@@ -4161,17 +4245,19 @@ function generarOfertasParaJugador(player) {
     var basePrice = player.transferPrice || Math.round(player.value * 0.7)
     var offer = Math.max(basePrice, Math.round(player.value * (0.7 + Math.random() * 0.6)))
     if (offer > getTeamBudget(team) * 0.4) continue
-    cola.push({ team: team, offer: offer })
+    ofertas.push({ team: team, offer: offer })
   }
-  /* Show offers one by one with sequential delays */
-  function mostrarSiguiente(idx) {
-    if (idx >= cola.length) return
+  if (ofertas.length === 0) return
+  ofertas.forEach(function(o, idx) {
     setTimeout(function() {
-      mostrarOfertaTransferencia(player, cola[idx].team, cola[idx].offer)
-      mostrarSiguiente(idx + 1)
-    }, 1500)
-  }
-  if (cola.length > 0) mostrarSiguiente(0)
+      addNotification('transfer', 'Oferta por ' + player.name, o.team.name + ' ofrece ' + formatMoney(o.offer), {
+        playerId: player.id, teamId: o.team.teamId, amount: o.offer, teamName: o.team.name,
+        playerName: player.name, playerValue: player.value, playerPosition: player.position,
+        playerSkill: player.skill, playerAge: player.age, playerAvatar: player.avatar || '',
+        teamLogo: o.team.logo || ''
+      })
+    }, idx * 600)
+  })
 }
 
 /* ============ LOAN SYSTEM ============ */
@@ -4248,15 +4334,17 @@ function mostrarOfertaTransferencia(player, team, offer) {
     var crossSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
     var refreshSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>'
     var posKey = player.position
-    var posAbbr = POS_ABBR[posKey] || posKey
-    var posFull = posKey.charAt(0).toUpperCase() + posKey.slice(1).replace(/_/g, ' ')
-    var posColor = POSITIONS[posKey]?.color || '#888'
+    var posInternal = SIGLA_TO_POS[posKey] || posKey
+    var posAbbr = POS_ABBR[posInternal] || posKey
+    var posFull = (POSITIONS[posInternal]?.label) || posKey.charAt(0).toUpperCase() + posKey.slice(1).replace(/_/g, ' ')
+    var posColor = POSITIONS[posInternal]?.color || '#888'
     var skillBadgeCss = getPowerBadgeStyle(player.skill || 0)
     var secondaryBadgesHtml = ''
     if (player.otherPositions && player.otherPositions.length > 0) {
       secondaryBadgesHtml = player.otherPositions.map(function(o) {
-        var abbr = POS_ABBR[o.pos] || o.pos
-        var color = POSITIONS[o.pos]?.color || '#888'
+        var oInternal = SIGLA_TO_POS[o.pos] || o.pos
+        var abbr = POS_ABBR[oInternal] || o.pos
+        var color = POSITIONS[oInternal]?.color || '#888'
         return '<span style="background:' + color + ';color:#fff;padding:0 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.6">' + abbr + '</span>'
       }).join('')
     }
@@ -4355,8 +4443,7 @@ function mostrarOfertaTransferencia(player, team, offer) {
 }
 
 window.aceptarOferta = function(playerId, teamId, offer) {
-  const modal = document.getElementById('transfer-offer-modal')
-  if (modal) modal.remove()
+  try { var mod = document.getElementById('transfer-offer-modal'); if (mod) mod.remove() } catch(e) {}
   const player = state.players.find(p => p.id === playerId)
   if (!player) return
   const team = state.leagueTeams.find(t => t.teamId === teamId)
@@ -4366,7 +4453,8 @@ window.aceptarOferta = function(playerId, teamId, offer) {
     return
   }
   state.finances.balance += offer
-  state.finances.history.push({ reason: `Traspaso: ${player.name}|${player.avatar || ''}|${team.name}|${player.position || ''}|${player.age || 0}|${player.value || 0}|${player.skill || 0}`, amount: offer })
+  var _posSell = POS_ABBR[player.position] || player.position || '?'
+  state.finances.history.push({ reason: `Traspaso: ${player.name} (${_posSell}) · ${formatMoney(offer)} · ${team.name}`, amount: offer })
   const newP = { ...player, id: `${teamId}-tr-${Date.now()}`, transferListed: false, transferPrice: 0, loanListed: false, energy: randInt(70, 100), goals: 0, matches: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [] }
   team.players.push(newP)
   const idx = state.players.indexOf(player)
@@ -4378,8 +4466,7 @@ window.aceptarOferta = function(playerId, teamId, offer) {
 }
 
 window.rechazarOferta = function(playerId) {
-  const modal = document.getElementById('transfer-offer-modal')
-  if (modal) modal.remove()
+  try { var mod = document.getElementById('transfer-offer-modal'); if (mod) mod.remove() } catch(e) {}
   const player = state.players.find(p => p.id === playerId)
   if (player) addNotification('transfer', `❌ Oferta rechazada: ${player.name}`, `Has rechazado la oferta por ${player.name}`)
 }
@@ -5513,6 +5600,13 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
     state.lastSeasonMovements = computeSeasonMovements(state.countryId)
     recordAllTeamsSeasonHistory()
     recordSeasonTrophyWinners()
+    if (state.countryId === 'spain') {
+      var l1sLeague = window.DB['spain']?.country?.leagues?.find(function(l) { return l.id === 'l1s' })
+      if (l1sLeague && state.allLeagueData && state.allLeagueData['l1s']) {
+        var l1sIds = l1sLeague.teams.map(function(t) { return t.id })
+        state.lastL1sStandings = computeStandings(state.allLeagueData['l1s'].fixtures, l1sIds)
+      }
+    }
   }
 
   if (esPlayoffSegundaSpain) {
@@ -5551,11 +5645,10 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
       if (!hasTrophy(state.trophies, trofeo2.competition, state.seasonNumber)) state.trophies.push(trofeo2)
       nuevosTrofeos.push(trofeo2)
       state.leagueChampion = state.teamId
-      var _sn3 = state.seasonNumber || 1
-      var _a3 = String(2026 + _sn3 - 1).slice(-2)
-      var _b3 = String(2026 + _sn3).slice(-2)
-      var lSeason = _a3 + '/' + _b3
-      showTrofeoModal('¡Campeón de ' + (_league2 ? _league2.name : state.leagueId) + '!', 'Temporada ' + lSeason, _league2 ? _league2.logo || null : null, function() {
+      var lSeason = getSeasonLabel()
+      var leagueLogoUrl = _league2 ? _league2.logo || null : null
+      addNotification('trophy', '\ud83c\udfc6 \u00a1Campe\u00f3n de ' + (_league2 ? _league2.name : state.leagueId) + '!', 'Temporada ' + lSeason, { logo: leagueLogoUrl })
+      showTrofeoModal('¡Campeón de ' + (_league2 ? _league2.name : state.leagueId) + '!', 'Temporada ' + lSeason, leagueLogoUrl, function() {
         showSeasonProgressionModal(agingResult || { changes: [], retirados: [] }, msg, skipStandings, nuevosTrofeos, logros)
       })
     } else {
@@ -5570,6 +5663,13 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
     state.lastSeasonMovements = computeSeasonMovements(state.countryId)
     recordAllTeamsSeasonHistory()
     recordSeasonTrophyWinners()
+    if (state.countryId === 'spain') {
+      var l1sLeague2 = window.DB['spain']?.country?.leagues?.find(function(l) { return l.id === 'l1s' })
+      if (l1sLeague2 && state.allLeagueData && state.allLeagueData['l1s']) {
+        var l1sIds2 = l1sLeague2.teams.map(function(t) { return t.id })
+        state.lastL1sStandings = computeStandings(state.allLeagueData['l1s'].fixtures, l1sIds2)
+      }
+    }
     showSeasonProgressionModal(postAging, extraMsg || '', skipStandings, [], [])
   } catch (err) {
     console.error('[SEASON-POST] Error in post-playoff modal:', err)
@@ -5859,6 +5959,7 @@ function avanzarRondaPlayoff() {
         var league = getLeagueFromId(state.leagueId)
         var playoffTrofeo = { competition: 'Campeón de ' + (league ? league.name : state.leagueId), season: state.seasonNumber }
         if (!hasTrophy(state.trophies, playoffTrofeo.competition, state.seasonNumber)) state.trophies.push(playoffTrofeo)
+        addNotification('trophy', '\ud83c\udfc6 \u00a1Campe\u00f3n de ' + (league ? league.name : state.leagueId) + '!', 'Temporada ' + getSeasonLabel(), { logo: league ? league.logo : null })
       }
       setTimeout(() => { procesarFinTemporada() }, 100)
     }
@@ -6420,6 +6521,12 @@ function simularPartidoRapido(fixture, rivalId) {
           var compName = parent ? parent.name : 'Primera Federaci\u00f3n'
           var absTrofeo = { competition: 'Campe\u00f3n Absoluto de ' + compName, season: state.seasonNumber }
           if (!hasTrophy(state.trophies, absTrofeo.competition, state.seasonNumber)) state.trophies.push(absTrofeo)
+          var absLogo = null
+          if (parent && parent.groups && parent.groups.length > 0) {
+            var firstGroup = getLeagueFromId(parent.groups[0])
+            if (firstGroup) absLogo = firstGroup.logo
+          }
+          addNotification('trophy', '\ud83c\udfc6 \u00a1Campe\u00f3n Absoluto de ' + compName + '!', 'Temporada ' + getSeasonLabel(), { logo: absLogo })
         }
         state.absoluteFinal = null
         procesarFinTemporada()
@@ -6634,6 +6741,7 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga) {
           state.trophyHistory.supercopaWins.push({ season: scSeason, competition: getSupercopaCompName(state.countryId) })
           var scTrofeo = { competition: getSupercopaCompName(state.countryId), season: state.seasonNumber }
           if (!hasTrophy(state.trophies, scTrofeo.competition, state.seasonNumber)) state.trophies.push(scTrofeo)
+          addNotification('trophy', '\ud83c\udfc6 \u00a1Campe\u00f3n de la ' + getSupercopaCompName(state.countryId) + '!', 'Temporada ' + scSeason, { logo: getSupercopaLogo(state.countryId) })
           showTrofeoModal('¡Campeón de la ' + getSupercopaCompName(state.countryId) + '!', 'Temporada ' + scSeason, getSupercopaLogo(state.countryId))
         }
         if (state.cup && state.cup.allFixtures && state.cup.roundIdx === -1 && state.cupChampion === state.teamId) {
@@ -6642,6 +6750,7 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga) {
           state.trophyHistory.cupWins.push({ season: cupSeason, competition: getCupCompName(state.countryId) })
           var cupTrofeo = { competition: getCupCompName(state.countryId), season: state.seasonNumber }
           if (!hasTrophy(state.trophies, cupTrofeo.competition, state.seasonNumber)) state.trophies.push(cupTrofeo)
+          addNotification('trophy', '\ud83c\udfc6 \u00a1Campe\u00f3n de la ' + getCupCompName(state.countryId) + '!', 'Temporada ' + cupSeason, { logo: getCupLogo(state.countryId) })
           showTrofeoModal('¡Campeón de la ' + getCupCompName(state.countryId) + '!', 'Temporada ' + cupSeason, getCupLogo(state.countryId))
         }
         if (isTacaDaLiga && state.tacaDaLigaChampion === state.teamId) {
@@ -6650,6 +6759,7 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga) {
           state.trophyHistory.tacaDaLigaWins.push({ season: tacaSeason, competition: getTacaDaLigaCompName() })
           var tacaTrofeo = { competition: getTacaDaLigaCompName(), season: state.seasonNumber }
           if (!hasTrophy(state.trophies, tacaTrofeo.competition, state.seasonNumber)) state.trophies.push(tacaTrofeo)
+          addNotification('trophy', '\ud83c\udfc6 \u00a1Campe\u00f3n de la ' + getTacaDaLigaCompName() + '!', 'Temporada ' + tacaSeason, { logo: getTacaDaLigaLogo() })
           showTrofeoModal('¡Campeón de la ' + getTacaDaLigaCompName() + '!', 'Temporada ' + tacaSeason, getTacaDaLigaLogo())
         }
       }
@@ -7432,7 +7542,8 @@ function buyPlayer(player, team, agreedPrice) {
   const finalValue = Math.round(basePrice * discount)
   if (state.finances.balance < finalValue) { alert('Fondos insuficientes. Necesitas ' + formatMoney(finalValue)); return }
   state.finances.balance -= finalValue
-  state.finances.history.push({ reason: `Compra: ${player.name}|${player.avatar || ''}|${team.name}|${player.position || ''}|${player.age || 0}|${player.value || 0}|${player.skill || 0}${discount < 1 ? ' (-' + Math.round((1 - discount) * 100) + '% dto)' : ''}`, amount: -finalValue })
+  var _posBuy = POS_ABBR[player.position] || player.position || '?'
+  state.finances.history.push({ reason: `Fichaje: ${player.name} (${_posBuy}) · ${formatMoney(finalValue)} · ${team.name}`, amount: -finalValue })
   /* Remove from source team */
   const ti = team.players.findIndex(p => p.id === player.id)
   if (ti >= 0) team.players.splice(ti, 1)
@@ -8258,6 +8369,7 @@ function loadGame(id) {
   state.trophyHistory = data.trophyHistory || null
   state.allTeamsHistory = data.allTeamsHistory || {}
   state.lastSeasonMovements = data.lastSeasonMovements || null
+  state.lastL1sStandings = data.lastL1sStandings || null
   state.absoluteFinal = data.absoluteFinal || null
   /* Migrate stale allTeamsHistory competition/division names from before canonicalization */
   if (state.allTeamsHistory) {
@@ -9881,9 +9993,9 @@ function showFormationModal() {
 }
 
 /* ============ INBOX ============ */
-function addNotification(type, title, body) {
+function addNotification(type, title, body, extraData) {
   if (!state.inbox) state.inbox = []
-  state.inbox.unshift({
+  var notif = {
     id: Date.now() + Math.random(),
     type: type || 'general',
     title: title || '',
@@ -9891,7 +10003,12 @@ function addNotification(type, title, body) {
     matchday: state.currentMatchday || 0,
     read: false,
     createdAt: new Date().toISOString(),
-  })
+  }
+  if (extraData) {
+    if (extraData.playerId) notif.offer = extraData
+    else if (extraData.logo) notif.logo = extraData.logo
+  }
+  state.inbox.unshift(notif)
   updateInboxBadge()
 }
 
@@ -9922,6 +10039,7 @@ function renderInbox() {
     match: { label: 'Resultado', icon: '\u26BD' },
     injury: { label: 'Servicio M\u00e9dico', icon: '\uD83D\uDC79' },
     transfer: { label: 'Mercado', icon: '\uD83D\uDCB0' },
+    trophy: { label: 'Logro', icon: '\ud83c\udfc6' },
     general: { label: 'Notificaci\u00f3n', icon: '\uD83D\uDCCC' },
   }
   if (!state.inbox || state.inbox.length === 0) {
@@ -9972,6 +10090,7 @@ function showInboxDetail(n) {
     match: { label: 'Resultado', icon: '\u26BD' },
     injury: { label: 'Servicio M\u00e9dico', icon: '\uD83D\uDC79' },
     transfer: { label: 'Mercado', icon: '\uD83D\uDCB0' },
+    trophy: { label: 'Logro', icon: '\ud83c\udfc6' },
     general: { label: 'Notificaci\u00f3n', icon: '\uD83D\uDCCC' },
   }
   const t = senderLabels[n.type] || senderLabels.general
@@ -9979,18 +10098,129 @@ function showInboxDetail(n) {
   const dateStr = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
   const timeStr = String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0')
   const estado = n.read ? '\u2705 Le\u00eddo' : '\uD83D\uDCEB No le\u00eddo'
+
+  var bodyHtml = ''
+  if (n.type === 'trophy' && n.logo) {
+    bodyHtml =
+      '<div style="text-align:center;padding:12px 0">' +
+        '<img src="' + n.logo + '" alt="" style="max-width:80px;max-height:80px;object-fit:contain;display:block;margin:0 auto 12px" onerror="this.style.display=\'none\'">' +
+        '<div style="font-size:32px;margin-bottom:8px">\ud83c\udfc6</div>' +
+      '</div>'
+  } else if (n.offer && n.type === 'transfer') {
+    var of = n.offer
+    var posKey = of.playerPosition
+    var posInternal = SIGLA_TO_POS[posKey] || posKey
+    var posAbbr = POS_ABBR[posInternal] || posKey
+    var posColor = POSITIONS[posInternal]?.color || '#888'
+    var offerMoney = formatMoney(of.amount)
+    var valueMoney = formatMoney(of.playerValue)
+    var teamLogoSrc = of.teamLogo || NOPHOTO
+    var playerAvatarSrc = of.playerAvatar || NOPHOTO
+    var offerActive = true
+    bodyHtml =
+      '<div style="margin-bottom:12px;padding:8px 12px;background:#F59E0B;color:#fff;border-radius:8px;font-size:12px;font-weight:600;text-align:center">\u23f3 Oferta pendiente \u2014 caduca al cerrar el mercado</div>' +
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
+        '<div style="text-align:center;flex:1"><img src="' + teamLogoSrc + '" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:2px solid var(--text-muted);display:block;margin:0 auto 4px" onerror="this.src=\'' + NOPHOTO + '\'"><div style="font-size:12px;font-weight:600;color:var(--text)">' + of.teamName + '</div></div>' +
+        '<div style="font-size:22px;color:var(--text-muted)">\u2192</div>' +
+        '<div style="text-align:center;flex:1"><img src="' + playerAvatarSrc + '" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:2px solid var(--text-muted);display:block;margin:0 auto 4px" onerror="this.src=\'' + NOPHOTO + '\'"><div style="font-size:12px;font-weight:600;color:var(--text)">' + of.playerName + '</div>' +
+        '<div style="margin-top:4px;display:flex;gap:4px;justify-content:center;align-items:center"><span style="background:' + posColor + ';color:#fff;padding:0 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.6">' + posAbbr + '</span><span style="color:var(--text-muted);font-size:11px">' + of.playerSkill + ' \u00b7 ' + of.playerAge + ' a\u00f1os</span></div></div>' +
+      '</div>' +
+      '<div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:12px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0"><span style="font-size:13px;color:var(--text-secondary)">\ud83d\udcb0 Oferta</span><span style="font-size:16px;font-weight:700;color:#2E7D32">' + offerMoney + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-top:1px solid var(--text-muted)"><span style="font-size:13px;color:var(--text-secondary)">\ud83d\udcca Valor de mercado</span><span style="font-size:13px;color:var(--text)">' + valueMoney + '</span></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:6px">' +
+        '<div id="ib-accept-' + n.id + '" style="flex:1;padding:12px;background:#2E7D32;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer">\u2714 Aceptar</div>' +
+        '<div id="ib-reject-' + n.id + '" style="flex:1;padding:12px;background:#c62828;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer">\u2716 Rechazar</div>' +
+      '</div>' +
+      '<div id="ib-counter-' + n.id + '" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:var(--accent);border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Contraofertar</div>'
+  } else {
+    bodyHtml = '<div class="inbox-detail-text">' + (n.body || 'Sin contenido adicional') + '</div>'
+  }
+
   document.getElementById('inbox-detail-body').innerHTML = '' +
     '<div class="inbox-detail-type"><div class="inbox-detail-type-icon ' + n.type + '">' + t.icon + '</div><span class="inbox-detail-type-label">' + t.label + '</span></div>' +
     '<div class="inbox-detail-title">' + n.title + '</div>' +
     '<div class="inbox-detail-meta">Jornada ' + n.matchday + ' \u00b7 ' + dateStr + ' \u00b7 ' + timeStr + ' \u00b7 ' + estado + '</div>' +
-    '<div class="inbox-detail-text">' + (n.body || 'Sin contenido adicional') + '</div>'
+    bodyHtml
+
+  if (n.offer && n.type === 'transfer') {
+    setTimeout(function() {
+      var acceptBtn = document.getElementById('ib-accept-' + n.id)
+      var rejectBtn = document.getElementById('ib-reject-' + n.id)
+      var counterBtn = document.getElementById('ib-counter-' + n.id)
+      if (acceptBtn) acceptBtn.onclick = function() {
+        window.aceptarOferta(n.offer.playerId, n.offer.teamId, n.offer.amount)
+        n.offer = null
+        hideInboxDetail()
+        renderInbox()
+      }
+      if (rejectBtn) rejectBtn.onclick = function() {
+        window.rechazarOferta(n.offer.playerId)
+        n.offer = null
+        hideInboxDetail()
+        renderInbox()
+      }
+      if (counterBtn) counterBtn.onclick = function() {
+        var of = n.offer
+        counterBtn.style.display = 'none'
+        var container = counterBtn.parentNode
+        var inputId = 'ci-' + n.id
+        var sendId = 'ci-send-' + n.id
+        var cancelId = 'ci-cancel-' + n.id
+        var inputDiv = document.createElement('div')
+        inputDiv.id = 'ci-area-' + n.id
+        inputDiv.innerHTML = '' +
+          '<div style="margin-top:6px;background:var(--bg);border-radius:8px;padding:10px">' +
+            '<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Tu contraoferta (\u20ac):</div>' +
+            '<input id="' + inputId + '" type="text" inputmode="numeric" value="' + of.playerValue.toLocaleString('es-ES') + '" style="width:100%;padding:8px;background:var(--bg-surface);border:1px solid var(--text-muted);border-radius:6px;color:var(--text);font-size:16px;font-weight:700;outline:none;box-sizing:border-box;text-align:center">' +
+            '<div style="display:flex;gap:6px;margin-top:6px">' +
+              '<div id="' + sendId + '" style="flex:1;padding:10px;background:#2E7D32;border-radius:6px;text-align:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer">Enviar</div>' +
+              '<div id="' + cancelId + '" style="flex:1;padding:10px;background:#6B7280;border-radius:6px;text-align:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer">Cancelar</div>' +
+            '</div>' +
+          '</div>'
+        container.appendChild(inputDiv)
+        document.getElementById(inputId).addEventListener('input', function() {
+          var n2 = this.value.replace(/[^\d]/g, '')
+          this.value = n2 ? parseInt(n2, 10).toLocaleString('es-ES') : ''
+        })
+        document.getElementById(sendId).onclick = function() {
+          var raw = document.getElementById(inputId).value.replace(/\./g, '')
+          var price = parseInt(raw)
+          if (!price || price < 1) { alert('Introduce un precio v\u00e1lido'); return }
+          var team = state.leagueTeams.find(function(t) { return t.teamId === of.teamId })
+          if (!team) { alert('Equipo no encontrado'); return }
+          var budget = getTeamBudget(team)
+          if (price > budget * 0.4) { alert(team.name + ' no puede pagar ' + formatMoney(price)); return }
+          addNotification('transfer', '\ud83d\udcca Contraoferta enviada', formatMoney(price) + ' pedido a ' + of.teamName + ' por ' + of.playerName)
+          var prob = 0
+          if (price >= of.playerValue * 1.15) prob = 80
+          else if (price >= of.playerValue) prob = 55
+          else if (price >= of.playerValue * 0.8) prob = 30
+          else prob = 10
+          if (Math.random() * 100 < prob) {
+            addNotification('transfer', '\u2705 \u00a1Contraoferta aceptada!', of.teamName + ' acepta pagar ' + formatMoney(price) + ' por ' + of.playerName)
+            window.aceptarOferta(of.playerId, of.teamId, price)
+          } else {
+            addNotification('transfer', '\u274c Contraoferta rechazada', of.teamName + ' rechaza la contraoferta por ' + of.playerName)
+          }
+          n.offer = null
+          hideInboxDetail()
+          renderInbox()
+        }
+        document.getElementById(cancelId).onclick = function() {
+          counterBtn.style.display = ''
+          inputDiv.remove()
+        }
+      }
+    }, 0)
+  }
 }
 
 function hideInboxDetail() {
-  const list = document.getElementById('inbox-list')
   const detail = document.getElementById('inbox-detail')
-  if (list) list.style.display = ''
   if (detail) detail.style.display = 'none'
+  renderInbox()
 }
 
 /* ============ SIDE MENU EVENTS ============ */
@@ -10167,8 +10397,7 @@ function hideLoading() {
 /* ============ OFFER EVALUATION ============ */
 function evaluarOferta(player, offeredPrice) {
   const value = player.value
-  const need = randInt(80, 120)
-  if (offeredPrice >= Math.round(value * need / 100 * 1.15)) {
+  if (offeredPrice >= Math.round(value * 1.2)) {
     return { type: 'accepted', price: offeredPrice, msg: '\u00a1El club acepta la oferta!' }
   }
   if (offeredPrice >= Math.round(value * 0.75)) {
@@ -10443,7 +10672,8 @@ function openPlayerDetail(player, teamObj) {
             state.players.push(newP)
             state.boughtPlayerIds.push(player.id)
             state.finances.balance -= result.price
-            state.finances.history.push({ reason: 'Compra: ' + player.name + '|' + (player.avatar || '') + '|' + (team ? team.name : '') + '|' + (player.position || '') + '|' + (player.age || 0) + '|' + (player.value || 0) + '|' + (player.skill || 0), amount: -result.price })
+            var _posBuy2 = POS_ABBR[player.position] || player.position || '?'
+            state.finances.history.push({ reason: 'Fichaje: ' + player.name + ' (' + _posBuy2 + ') \u00b7 ' + formatMoney(result.price) + ' \u00b7 ' + (team ? team.name : ''), amount: -result.price })
             addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality)
             document.getElementById('player-detail-modal').classList.remove('open')
             renderMarketContent()
@@ -10472,7 +10702,8 @@ function openPlayerDetail(player, teamObj) {
               state.players.push(newP)
               state.boughtPlayerIds.push(player.id)
               state.finances.balance -= result.price
-            state.finances.history.push({ reason: 'Compra: ' + player.name + '|' + (player.avatar || '') + '|' + (team ? team.name : '') + '|' + (player.position || '') + '|' + (player.age || 0) + '|' + (player.value || 0) + '|' + (player.skill || 0), amount: -result.price })
+            var _posBuy3 = POS_ABBR[player.position] || player.position || '?'
+            state.finances.history.push({ reason: 'Fichaje: ' + player.name + ' (' + _posBuy3 + ') \u00b7 ' + formatMoney(result.price) + ' \u00b7 ' + (team ? team.name : ''), amount: -result.price })
               addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality)
               document.getElementById('player-detail-modal').classList.remove('open')
               renderMarketContent()
