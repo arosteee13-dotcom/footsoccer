@@ -1562,6 +1562,13 @@ html, body {
   height: 22px;
 }
 
+.stat-icon {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  stroke: var(--accent);
+}
+
 .nav-label {
   font-size: 9px;
   font-weight: 600;
