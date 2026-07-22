@@ -2918,6 +2918,52 @@ html, body {
   cursor: default;
 }
 
+#stat-card-goals, #stat-card-assists {
+  text-align: center;
+}
+
+#stat-card-goals > div:nth-of-type(2),
+#stat-card-assists > div:nth-of-type(2) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+#stat-card-goals > div:nth-of-type(2) > img:nth-of-type(2),
+#stat-card-assists > div:nth-of-type(2) > img:nth-of-type(2) {
+  display: block;
+  margin: 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+#stat-card-goals > div:nth-of-type(3),
+#stat-card-assists > div:nth-of-type(3) {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+  gap: 6px;
+}
+
+#stat-card-goals > div:nth-of-type(3) > span:nth-of-type(1),
+#stat-card-assists > div:nth-of-type(3) > span:nth-of-type(1) {
+  font-size: 28px;
+  line-height: 28px;
+  display: inline-block;
+  vertical-align: middle;
+  width: 28px;
+  height: 28px;
+  text-align: center;
+}
+
+#stat-card-goals > div:nth-of-type(3) > span:nth-of-type(2),
+#stat-card-assists > div:nth-of-type(3) > span:nth-of-type(2) {
+  text-align: center;
+  font-weight: 600;
+}
+
 .comp-stat-label {
   font-size: 12px;
   font-weight: 700;
