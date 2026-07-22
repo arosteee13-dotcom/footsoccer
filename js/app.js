@@ -970,7 +970,7 @@ function avanzarRondaCopa() {
   var userInRound = fixtures.some(function(f) { return f.home === state.teamId || f.away === state.teamId })
   if (!userInRound) {
     fixtures.forEach(function(f) {
-      var r = autoSimulateOtherMatch(f.home, f.away)
+      var r = autoSimulateOtherMatch(f.home, f.away, 'cup')
       f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
     })
     /* Keep advancing until user is in a round or tournament ends */
@@ -1090,7 +1090,7 @@ function avanzarRondaTacaDaLiga() {
   var userInRound = fixtures.some(function(f) { return f.home === state.teamId || f.away === state.teamId })
   if (!userInRound) {
     fixtures.forEach(function(f) {
-      var r = autoSimulateOtherMatch(f.home, f.away)
+      var r = autoSimulateOtherMatch(f.home, f.away, 'taca_da_liga')
       f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
     })
     avanzarRondaTacaDaLiga()
@@ -1101,7 +1101,7 @@ function autoSimularTacaDaLigaRestante() {
   if (!state.tacaDaLiga) return
   state.tacaDaLiga.allFixtures.forEach(function(f) {
     if (f.played) return
-    var r = autoSimulateOtherMatch(f.home, f.away)
+    var r = autoSimulateOtherMatch(f.home, f.away, 'taca_da_liga')
     f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
   })
   var lastSched = state.tacaDaLiga.schedule[state.tacaDaLiga.schedule.length - 1]
@@ -1559,7 +1559,8 @@ function getTeamObj(id) {
   return null
 }
 
-function autoSimulateOtherMatch(homeId, awayId) {
+function autoSimulateOtherMatch(homeId, awayId, comp) {
+  comp = comp || 'league'
   const home = getTeamObj(homeId)
   const away = getTeamObj(awayId)
   if (!home || !away) return { homeScore: 0, awayScore: 0 }
@@ -1620,15 +1621,15 @@ function autoSimulateOtherMatch(homeId, awayId) {
       var rating = Math.min(10, Math.max(1, 6.2 + winBonus + goalBonus + yellowPen + redPen + cleanBonus + csBonus + randomFactor))
       if (!p.matchHistory) p.matchHistory = []
       var matchAssists = (p.assists || 0) - (p._preAssists || 0)
-      p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, assists: matchAssists, yellow: matchYC > 0, red: matchRC > 0, comp: 'league' })
+      p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, assists: matchAssists, yellow: matchYC > 0, red: matchRC > 0, comp: comp })
       if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
       /* Apply fatigue */
       p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - (GAME_PLANS[gamePlan]?.drain || 10))
     })
   })
   /* Clean up temp properties */
-  home.players.forEach(function(p) { delete p._preGoals; delete p._preYC; delete p._preRC })
-  away.players.forEach(function(p) { delete p._preGoals; delete p._preYC; delete p._preRC })
+  home.players.forEach(function(p) { delete p._preGoals; delete p._preAssists; delete p._preYC; delete p._preRC })
+  away.players.forEach(function(p) { delete p._preGoals; delete p._preAssists; delete p._preYC; delete p._preRC })
   return { homeScore, awayScore }
 }
 
@@ -1801,7 +1802,8 @@ function updateLeagueStandings() {
   return Object.values(standings).sort((a, b) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga))
 }
 
-function simularPartidoPorRating(homeId, awayId) {
+function simularPartidoPorRating(homeId, awayId, comp) {
+  comp = comp || 'league'
   const homeR = getTeamRating(homeId)
   const awayR = getTeamRating(awayId)
   if (!homeR || !awayR) return { homeScore: 0, awayScore: 0 }
@@ -1820,12 +1822,12 @@ function simularPartidoPorRating(homeId, awayId) {
   if (!home) home = getTeamObj(homeId)
   if (!away) away = getTeamObj(awayId)
   if (home && home.players) {
-    home.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
+    home.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preAssists = p.assists || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
     assignAIStats(home.players, homeScore, null, null)
     syncTeamStatsForTeam(home.players, homeId)
   }
   if (away && away.players) {
-    away.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
+    away.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preAssists = p.assists || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
     assignAIStats(away.players, awayScore, null, null)
     syncTeamStatsForTeam(away.players, awayId)
   }
@@ -1863,13 +1865,13 @@ function simularPartidoPorRating(homeId, awayId) {
       var rating = Math.min(10, Math.max(1, 6.2 + winBonus + goalBonus + yellowPen + redPen + cleanBonus + csBonus + randomFactor))
       if (!p.matchHistory) p.matchHistory = []
       var matchAssistsSimp = (p.assists || 0) - (p._preAssists || 0)
-      p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, assists: matchAssistsSimp, yellow: matchYC > 0, red: matchRC > 0, comp: 'league' })
+      p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, assists: matchAssistsSimp, yellow: matchYC > 0, red: matchRC > 0, comp: comp })
       if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
       p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - 10)
     })
   })
-  if (home && home.players) home.players.forEach(function(p) { delete p._preGoals; delete p._preYC; delete p._preRC })
-  if (away && away.players) away.players.forEach(function(p) { delete p._preGoals; delete p._preYC; delete p._preRC })
+  if (home && home.players) home.players.forEach(function(p) { delete p._preGoals; delete p._preAssists; delete p._preYC; delete p._preRC })
+  if (away && away.players) away.players.forEach(function(p) { delete p._preGoals; delete p._preAssists; delete p._preYC; delete p._preRC })
   return { homeScore, awayScore }
 }
 
@@ -1924,7 +1926,7 @@ function simularCpuCopa(matchday) {
         })
         if (cpuFixtures.length > 0) {
           cpuFixtures.forEach(function(f) {
-            var r = simularPartidoPorRating(f.home, f.away)
+            var r = simularPartidoPorRating(f.home, f.away, 'cup')
             f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
           })
           var allPlayed = state.cup.allFixtures.filter(function(f) {
@@ -1946,7 +1948,7 @@ function simularCpuCopa(matchday) {
         var cpuSc = state.supercopa.fixtures.filter(function(f) { return !f.played })
         if (cpuSc.length > 0) {
           cpuSc.forEach(function(f) {
-            var r = simularPartidoPorRating(f.home, f.away)
+            var r = simularPartidoPorRating(f.home, f.away, 'supercopa')
             f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
           })
           avanzarSupercopa()
@@ -1956,7 +1958,7 @@ function simularCpuCopa(matchday) {
     if (state.supercopa.final && !state.supercopa.final.played && state.supercopa.final.week === matchday) {
       var f = state.supercopa.final
       if (f.home !== state.teamId && f.away !== state.teamId) {
-        var r = simularPartidoPorRating(f.home, f.away)
+        var r = simularPartidoPorRating(f.home, f.away, 'supercopa')
         f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
         state.supercopa.winner = r.homeScore > r.awayScore ? f.home : f.away
       }
@@ -1976,7 +1978,7 @@ function simularCpuCopa(matchday) {
         })
         if (cpuTaca.length > 0) {
           cpuTaca.forEach(function(f) {
-            var r = simularPartidoPorRating(f.home, f.away)
+            var r = simularPartidoPorRating(f.home, f.away, 'taca_da_liga')
             f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
           })
           var allPlayed = state.tacaDaLiga.allFixtures.filter(function(f) {
@@ -2987,7 +2989,8 @@ function renderLeague(viewedLeagueId) {
           resultsWrap.classList.add('hidden')
           var entry = displayLogos.find(function(c) { return c.id === lid })
           var name = entry ? entry.name : lid
-          tableWrap.innerHTML = '<div style="text-align:center;padding:40px 20px"><img src="' + (entry ? entry.logo : '') + '" style="width:64px;height:64px;object-fit:contain;margin-bottom:12px;opacity:0.5"><div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px">' + name + '</div><div style="font-size:14px;color:var(--text-muted)">Próximamente disponible</div></div>'
+          var _cupComp = lid === 'copa_del_rey' ? 'cup' : 'supercopa'
+          tableWrap.innerHTML = '<div style="text-align:center;padding:20px 20px 8px"><img src="' + (entry ? entry.logo : '') + '" style="width:56px;height:56px;object-fit:contain;margin-bottom:8px"><div style="font-size:18px;font-weight:600;color:var(--text)">' + name + '</div></div>' + buildCompStatsCardsHtml(_cupComp, null)
         }
       }
     } else if (lid === 'champions' || lid === 'europa_league' || lid === 'conference_league' || lid === 'supercopa_europa' || lid === 'mundial_clubes') {
@@ -2997,7 +3000,7 @@ function renderLeague(viewedLeagueId) {
         resultsWrap.classList.add('hidden')
         var entry = CONTINENTAL_LOGOS.find(function(c) { return c.id === lid })
         var name = entry ? entry.name : lid
-        tableWrap.innerHTML = '<div style="text-align:center;padding:40px 20px"><img src="' + (entry ? entry.logo : '') + '" style="width:64px;height:64px;object-fit:contain;margin-bottom:12px;opacity:0.5"><div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px">' + name + '</div><div style="font-size:14px;color:var(--text-muted)">Próximamente disponible</div></div>'
+        tableWrap.innerHTML = '<div style="text-align:center;padding:20px 20px 8px"><img src="' + (entry ? entry.logo : '') + '" style="width:56px;height:56px;object-fit:contain;margin-bottom:8px"><div style="font-size:18px;font-weight:600;color:var(--text)">' + name + '</div></div>' + buildCompStatsCardsHtml(lid, null)
       }
     } else if (isGroupedLeague(lid)) {
       el.onclick = function() {
@@ -3032,39 +3035,16 @@ function renderLeague(viewedLeagueId) {
           teamId: t.id, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, pts: 0,
           name: t.name, logo: t.logo
         }))
-  /* --- Top scorers & assisters --- */
-  var _comp = 'league'
-  var compStats = getCompStats(_comp)
-  function _cardPlayerHtml(s, isGoals) {
-    var _pk = SIGLA_TO_POS[s.position] || s.position
-    var _pc = POSITIONS[_pk]?.color || '#888'
-    var _pa = POS_ABBR[_pk] || s.position
-    var _flag = (s.nationality || '').split(' ')[0] || ''
-    var _avatarSrc = s.avatar || NOPHOTO
-    var _teamLogoSrc = s.teamLogo || NOPHOTO
-    var _total = isGoals ? s.goals : s.assists
-    var _icon = isGoals ? '\u26bd' : '\ud83d\udc5f'
-    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><img src="' + _teamLogoSrc + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:1px solid var(--text-muted)" onerror="this.src=\'' + NOPHOTO + '\'"><div style="flex:1"></div><img src="' + _avatarSrc + '" style="width:38px;height:38px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:1px solid var(--text-muted)" onerror="this.src=\'' + NOPHOTO + '\'"><span style="font-size:17px;font-weight:700;color:var(--accent)">' + _icon + _total + '</span></div><div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px">' + _flag + '</span><span style="font-size:13px;font-weight:600;color:var(--text);flex:1">' + s.name + '</span></div>'
-  }
-  var statsHtml = '<div class="comp-stats-row">'
-  if (compStats.goals.length > 0) {
-    statsHtml += '<div class="comp-stat-card" id="stat-card-goals"><div class="comp-stat-label">\u26bd M\u00e1ximo goleador</div>' + _cardPlayerHtml(compStats.goals[0], true) + '<div style="margin-top:4px;text-align:right"><span style="color:var(--accent);cursor:pointer;font-size:12px;font-weight:600" onclick="showTopStatsModal(\'goals\')">Ver top 10 \u2192</span></div></div>'
-  } else {
-    statsHtml += '<div class="comp-stat-card"><div class="comp-stat-label">\u26bd M\u00e1ximo goleador</div><div class="comp-stat-main" style="color:var(--text-muted);font-weight:400;text-align:center;padding:16px 0">\u2014 Sin datos \u2014</div></div>'
-  }
-  if (compStats.assists.length > 0) {
-    statsHtml += '<div class="comp-stat-card" id="stat-card-assists"><div class="comp-stat-label">\ud83d\udc5f M\u00e1ximo asistente</div>' + _cardPlayerHtml(compStats.assists[0], false) + '<div style="margin-top:4px;text-align:right"><span style="color:var(--accent);cursor:pointer;font-size:12px;font-weight:600" onclick="showTopStatsModal(\'assists\')">Ver top 10 \u2192</span></div></div>'
-  } else {
-    statsHtml += '<div class="comp-stat-card"><div class="comp-stat-label">\ud83d\udc5f M\u00e1ximo asistente</div><div class="comp-stat-main" style="color:var(--text-muted);font-weight:400;text-align:center;padding:16px 0">\u2014 Sin datos \u2014</div></div>'
-  }
-  statsHtml += '</div>'
+  /* --- Top scorers & assisters (of the league being viewed) --- */
+  var statsHtml = buildCompStatsCardsHtml('league', displayLid)
 
   /* --- Modal for top 10 --- */
   if (typeof window.showTopStatsModal !== 'function') {
     window.showTopStatsModal = function(type) {
       var existing = document.getElementById('top-stats-modal')
       if (existing) existing.remove()
-      var stats = getCompStats('league')
+      var _ac = window._activeStatsComp || { competition: 'league', leagueId: null }
+      var stats = getCompStats(_ac.competition, 10, _ac.leagueId)
       var list = type === 'goals' ? stats.goals : stats.assists
       var title = type === 'goals' ? '\u26bd M\u00e1ximos goleadores' : '\ud83d\udc5f M\u00e1ximos asistentes'
       var unit = type === 'goals' ? 'goles' : 'asistencias'
@@ -4936,9 +4916,12 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
   if (startBtn) startBtn.onclick = function() { modal.style.display = 'none'; modal.classList.remove('open'); modal.classList.add('hidden'); iniciarNuevaTemporada() }
 }
 
-function getCompStats(competition, limit) {
+function getCompStats(competition, limit, leagueId) {
   var stats = {}
+  var counted = {}
   function addStats(player, teamName, teamLogo) {
+    if (!player || counted[player.id]) return
+    counted[player.id] = true
     var k = player.id
     if (!stats[k]) stats[k] = { name: player.name, team: teamName, teamLogo: teamLogo || '', position: player.position, avatar: player.avatar || '', nationality: player.nationality || '', goals: 0, assists: 0 }
     if (!player.matchHistory) return
@@ -4950,13 +4933,64 @@ function getCompStats(competition, limit) {
       }
     })
   }
-  state.players.forEach(function(p) { addStats(p, state.team, state.teamLogo) })
-  state.leagueTeams.forEach(function(t) {
-    (t.players || []).forEach(function(p) { addStats(p, t.name, t.logo || '') })
-  })
+  /* When a specific leagueId is requested, only include players of that league.
+     Otherwise scan everything (user team + all leagues in all countries). */
+  var scanUserLeague = !leagueId || leagueId === state.leagueId
+  if (scanUserLeague) {
+    state.players.forEach(function(p) { addStats(p, state.team, state.teamLogo) })
+    state.leagueTeams.forEach(function(t) {
+      (t.players || []).forEach(function(p) { addStats(p, t.name, t.logo || '') })
+    })
+  }
+  /* Persistent CPU squads for every league of every country live in allLeagueData. */
+  for (var ci in window.DB) {
+    var cd = window.DB[ci]
+    if (!cd || !cd.country || !cd.country.leagues) continue
+    for (var li = 0; li < cd.country.leagues.length; li++) {
+      var lg = cd.country.leagues[li]
+      if (leagueId && lg.id !== leagueId) continue
+      var data = state.allLeagueData && state.allLeagueData[lg.id]
+      if (!data || !data.teams) continue
+      data.teams.forEach(function(t) {
+        (t.players || []).forEach(function(p) { addStats(p, t.name, t.logo || '') })
+      })
+    }
+  }
   var goals = Object.values(stats).filter(function(s) { return s.goals > 0 }).sort(function(a, b) { return b.goals - a.goals || (b.assists - a.assists) }).slice(0, limit || 10)
   var assists = Object.values(stats).filter(function(s) { return s.assists > 0 }).sort(function(a, b) { return b.assists - a.assists || (b.goals - a.goals) }).slice(0, limit || 10)
   return { goals: goals, assists: assists }
+}
+
+function _compStatCardPlayerHtml(s, isGoals) {
+  var _pk = SIGLA_TO_POS[s.position] || s.position
+  var _pc = POSITIONS[_pk]?.color || '#888'
+  var _pa = POS_ABBR[_pk] || s.position
+  var _flag = (s.nationality || '').split(' ')[0] || ''
+  var _avatarSrc = s.avatar || NOPHOTO
+  var _teamLogoSrc = s.teamLogo || NOPHOTO
+  var _total = isGoals ? s.goals : s.assists
+  var _icon = isGoals ? '\u26bd' : '\ud83d\udc5f'
+  return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><img src="' + _teamLogoSrc + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:1px solid var(--text-muted)" onerror="this.src=\'' + NOPHOTO + '\'"><div style="flex:1"></div><img src="' + _avatarSrc + '" style="width:38px;height:38px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:1px solid var(--text-muted)" onerror="this.src=\'' + NOPHOTO + '\'"><span style="font-size:17px;font-weight:700;color:var(--accent)">' + _icon + _total + '</span></div><div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px">' + _flag + '</span><span style="font-size:13px;font-weight:600;color:var(--text);flex:1">' + s.name + '</span></div>'
+}
+
+/* Builds the "máximo goleador / asistente" cards for a competition or league.
+   Stores the active competition so the top-10 modal reads the same data. */
+function buildCompStatsCardsHtml(competition, leagueId) {
+  window._activeStatsComp = { competition: competition, leagueId: leagueId || null }
+  var compStats = getCompStats(competition, 10, leagueId)
+  var statsHtml = '<div class="comp-stats-row">'
+  if (compStats.goals.length > 0) {
+    statsHtml += '<div class="comp-stat-card" id="stat-card-goals"><div class="comp-stat-label">\u26bd M\u00e1ximo goleador</div>' + _compStatCardPlayerHtml(compStats.goals[0], true) + '<div style="margin-top:4px;text-align:right"><span style="color:var(--accent);cursor:pointer;font-size:12px;font-weight:600" onclick="showTopStatsModal(\'goals\')">Ver top 10 \u2192</span></div></div>'
+  } else {
+    statsHtml += '<div class="comp-stat-card"><div class="comp-stat-label">\u26bd M\u00e1ximo goleador</div><div class="comp-stat-main" style="color:var(--text-muted);font-weight:400;text-align:center;padding:16px 0">\u2014 Sin datos \u2014</div></div>'
+  }
+  if (compStats.assists.length > 0) {
+    statsHtml += '<div class="comp-stat-card" id="stat-card-assists"><div class="comp-stat-label">\ud83d\udc5f M\u00e1ximo asistente</div>' + _compStatCardPlayerHtml(compStats.assists[0], false) + '<div style="margin-top:4px;text-align:right"><span style="color:var(--accent);cursor:pointer;font-size:12px;font-weight:600" onclick="showTopStatsModal(\'assists\')">Ver top 10 \u2192</span></div></div>'
+  } else {
+    statsHtml += '<div class="comp-stat-card"><div class="comp-stat-label">\ud83d\udc5f M\u00e1ximo asistente</div><div class="comp-stat-main" style="color:var(--text-muted);font-weight:400;text-align:center;padding:16px 0">\u2014 Sin datos \u2014</div></div>'
+  }
+  statsHtml += '</div>'
+  return statsHtml
 }
 
 function getSeasonWinners() {
@@ -6775,8 +6809,9 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga) {
     /* Auto-simulate other cup fixtures this round */
     var allRoundFixtures = []
     if (state.cup) allRoundFixtures = state.cup.allFixtures.filter(function(f) { return f.week === fixture.week && !f.played && f.home !== state.teamId && f.away !== state.teamId })
+    var _compOther = isTacaDaLiga ? 'taca_da_liga' : isSupercopa ? 'supercopa' : 'cup'
     allRoundFixtures.forEach(function(f) {
-      var r = autoSimulateOtherMatch(f.home, f.away)
+      var r = autoSimulateOtherMatch(f.home, f.away, _compOther)
       f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
     })
 
@@ -6862,7 +6897,7 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga) {
         var cs = 0
         if (them === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) cs = 0.5
         var rr = Math.min(10, Math.max(1, 6.2 + wb + yp + rp + gb + ab + cl + rf + cs))
-        var _compCup = isTacaDaLiga ? 'taca' : isSupercopa ? 'supercopa' : 'cup'
+        var _compCup = isTacaDaLiga ? 'taca_da_liga' : isSupercopa ? 'supercopa' : 'cup'
         p.matchHistory.push({ matchday: state.currentMatchday, rival: rn, minutes: p.minutosEnPista || 0, rating: Math.min(10, Math.max(1, rr)), goals: p._goalsInMatch || 0, assists: p._assistThisMatch || 0, yellow: !!p._yellowThisMatch, red: !!p._redThisMatch, comp: _compCup })
         if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
         if (!p.teamStats) p.teamStats = {}
@@ -6900,7 +6935,7 @@ function autoSimularCopaRestante() {
   if (!state.cup) return
   state.cup.allFixtures.forEach(function(f) {
     if (f.played) return
-    var r = autoSimulateOtherMatch(f.home, f.away)
+    var r = autoSimulateOtherMatch(f.home, f.away, 'cup')
     f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
   })
   var lastSched = state.cup.schedule[state.cup.schedule.length - 1]
@@ -7932,6 +7967,10 @@ function renderCopaView(viewType, selectedRoundIdx) {
   var cup = state.cup
   var supercopa = state.supercopa
   var html = '<div class="copa-wrap">'
+
+  /* Top scorers & assisters for this cup competition */
+  var _copaComp = viewType === 'supercopa' ? 'supercopa' : viewType === 'tacaDaLiga' ? 'taca_da_liga' : 'cup'
+  html += buildCompStatsCardsHtml(_copaComp, null)
 
   /* Supercopa section */
   if (viewType !== 'copa' && viewType !== 'tacaDaLiga' && supercopa && supercopa.fixtures.length > 0) {
