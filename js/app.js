@@ -1579,8 +1579,8 @@ function autoSimulateOtherMatch(homeId, awayId) {
     }
   }
   /* Track pre-match stats for AI rating computation */
-  home.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
-  away.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
+  home.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preAssists = p.assists || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
+  away.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preAssists = p.assists || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
   /* Assign stats to AI players with position experience tracking */
   assignAIStats(home.players, homeScore, home.formation, home.gamePlan)
   syncTeamStatsForTeam(home.players, homeId)
@@ -1619,7 +1619,8 @@ function autoSimulateOtherMatch(homeId, awayId) {
       var randomFactor = (Math.random() - 0.5) * 0.6
       var rating = Math.min(10, Math.max(1, 6.2 + winBonus + goalBonus + yellowPen + redPen + cleanBonus + csBonus + randomFactor))
       if (!p.matchHistory) p.matchHistory = []
-      p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, yellow: matchYC > 0, red: matchRC > 0 })
+      var matchAssists = (p.assists || 0) - (p._preAssists || 0)
+      p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, assists: matchAssists, yellow: matchYC > 0, red: matchRC > 0, comp: 'league' })
       if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
       /* Apply fatigue */
       p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - (GAME_PLANS[gamePlan]?.drain || 10))
@@ -1861,7 +1862,8 @@ function simularPartidoPorRating(homeId, awayId) {
       var randomFactor = (Math.random() - 0.5) * 0.6
       var rating = Math.min(10, Math.max(1, 6.2 + winBonus + goalBonus + yellowPen + redPen + cleanBonus + csBonus + randomFactor))
       if (!p.matchHistory) p.matchHistory = []
-      p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, yellow: matchYC > 0, red: matchRC > 0 })
+      var matchAssistsSimp = (p.assists || 0) - (p._preAssists || 0)
+      p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, assists: matchAssistsSimp, yellow: matchYC > 0, red: matchRC > 0, comp: 'league' })
       if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
       p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - 10)
     })
@@ -3030,7 +3032,60 @@ function renderLeague(viewedLeagueId) {
           teamId: t.id, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, pts: 0,
           name: t.name, logo: t.logo
         }))
-  var tableHtml = groupSelectorHtml + '<table class="league-table"><tr><th>#</th><th>Equipo</th><th>Pts</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th></tr>'
+  /* --- Top scorers & assisters --- */
+  var _comp = 'league'
+  var compStats = getCompStats(_comp)
+  function _cardPlayerHtml(s, isGoals) {
+    var _pk = SIGLA_TO_POS[s.position] || s.position
+    var _pc = POSITIONS[_pk]?.color || '#888'
+    var _pa = POS_ABBR[_pk] || s.position
+    var _flag = (s.nationality || '').split(' ')[0] || ''
+    var _avatarSrc = s.avatar || NOPHOTO
+    var _teamLogoSrc = s.teamLogo || NOPHOTO
+    var _total = isGoals ? s.goals : s.assists
+    var _icon = isGoals ? '\u26bd' : '\ud83d\udc5f'
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><img src="' + _teamLogoSrc + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:1px solid var(--text-muted)" onerror="this.src=\'' + NOPHOTO + '\'"><div style="flex:1"></div><img src="' + _avatarSrc + '" style="width:38px;height:38px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:1px solid var(--text-muted)" onerror="this.src=\'' + NOPHOTO + '\'"><span style="font-size:17px;font-weight:700;color:var(--accent)">' + _icon + _total + '</span></div><div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px">' + _flag + '</span><span style="font-size:13px;font-weight:600;color:var(--text);flex:1">' + s.name + '</span></div>'
+  }
+  var statsHtml = '<div class="comp-stats-row">'
+  if (compStats.goals.length > 0) {
+    statsHtml += '<div class="comp-stat-card" id="stat-card-goals"><div class="comp-stat-label">\u26bd M\u00e1ximo goleador</div>' + _cardPlayerHtml(compStats.goals[0], true) + '<div style="margin-top:4px;text-align:right"><span style="color:var(--accent);cursor:pointer;font-size:12px;font-weight:600" onclick="showTopStatsModal(\'goals\')">Ver top 10 \u2192</span></div></div>'
+  } else {
+    statsHtml += '<div class="comp-stat-card"><div class="comp-stat-label">\u26bd M\u00e1ximo goleador</div><div class="comp-stat-main" style="color:var(--text-muted);font-weight:400;text-align:center;padding:16px 0">\u2014 Sin datos \u2014</div></div>'
+  }
+  if (compStats.assists.length > 0) {
+    statsHtml += '<div class="comp-stat-card" id="stat-card-assists"><div class="comp-stat-label">\ud83d\udc5f M\u00e1ximo asistente</div>' + _cardPlayerHtml(compStats.assists[0], false) + '<div style="margin-top:4px;text-align:right"><span style="color:var(--accent);cursor:pointer;font-size:12px;font-weight:600" onclick="showTopStatsModal(\'assists\')">Ver top 10 \u2192</span></div></div>'
+  } else {
+    statsHtml += '<div class="comp-stat-card"><div class="comp-stat-label">\ud83d\udc5f M\u00e1ximo asistente</div><div class="comp-stat-main" style="color:var(--text-muted);font-weight:400;text-align:center;padding:16px 0">\u2014 Sin datos \u2014</div></div>'
+  }
+  statsHtml += '</div>'
+
+  /* --- Modal for top 10 --- */
+  if (typeof window.showTopStatsModal !== 'function') {
+    window.showTopStatsModal = function(type) {
+      var existing = document.getElementById('top-stats-modal')
+      if (existing) existing.remove()
+      var stats = getCompStats('league')
+      var list = type === 'goals' ? stats.goals : stats.assists
+      var title = type === 'goals' ? '\u26bd M\u00e1ximos goleadores' : '\ud83d\udc5f M\u00e1ximos asistentes'
+      var unit = type === 'goals' ? 'goles' : 'asistencias'
+      var overlay = document.createElement('div')
+      overlay.id = 'top-stats-modal'
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999'
+      var rowsHtml = ''
+      list.forEach(function(s, idx) {
+        var _flag = (s.nationality || '').split(' ')[0] || ''
+        var _avatarSrc = s.avatar || NOPHOTO
+        var _teamLogoSrc = s.teamLogo || NOPHOTO
+        var total = type === 'goals' ? s.goals : s.assists
+        var _icon = type === 'goals' ? '\u26bd' : '\ud83d\udc5f'
+        rowsHtml += '<div style="display:flex;align-items:center;gap:4px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="width:18px;text-align:center;font-weight:700;font-size:10px;color:var(--text-muted)">' + (idx + 1) + '\u00ba</span><img src="' + _avatarSrc + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:1px solid var(--text-muted)" onerror="this.src=\'' + NOPHOTO + '\'"><span style="font-size:10px;margin:0 2px">' + _flag + '</span><span style="font-size:11px;font-weight:600;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + s.name + '</span><div style="text-align:right;flex-shrink:0"><div style="display:flex;align-items:center;gap:3px;justify-content:flex-end"><img src="' + _teamLogoSrc + '" style="width:14px;height:14px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'"><span style="font-size:12px;font-weight:700;color:var(--accent)">' + _icon + total + '</span></div><div style="font-size:9px;color:var(--text-muted)">' + s.team + '</div></div></div>'
+      })
+      overlay.innerHTML = '<div style="background:var(--bg-surface);border-radius:14px;padding:24px;max-width:420px;width:90%;box-shadow:0 4px 24px rgba(0,0,0,0.15);color:var(--text)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-size:16px;font-weight:700">' + title + '</span><div onclick="document.getElementById(\'top-stats-modal\').remove()" style="background:var(--bg);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text-muted)">\u2716 Cerrar</div></div>' + rowsHtml + '</div>'
+      document.body.appendChild(overlay)
+    }
+  }
+
+  var tableHtml = groupSelectorHtml + statsHtml + '<table class="league-table"><tr><th>#</th><th>Equipo</th><th>Pts</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th></tr>'
   standings.forEach((s, i) => {
     const isUser = isOwnLeague && s.teamId === state.teamId
     const totalTeams = standings.length
@@ -3569,8 +3624,10 @@ function finishMatch(isHome, fixture, rival) {
       minutes: p.minutosEnPista || 0,
       rating: Math.min(10, Math.max(1, rating)),
       goals: p._goalsInMatch || 0,
+      assists: p._assistThisMatch || 0,
       yellow: !!p._yellowThisMatch,
       red: !!p._redThisMatch,
+      comp: 'league',
     })
     p.matches = (p.matches || 0) + 1
     p.goals = (p.goals || 0) + (p._goalsInMatch || 0)
@@ -4877,6 +4934,29 @@ function showSeasonProgressionModal(result, msg, skipStandings, nuevosTrofeos, l
   modal.classList.add('open')
   var startBtn = document.getElementById('spm-btn-start')
   if (startBtn) startBtn.onclick = function() { modal.style.display = 'none'; modal.classList.remove('open'); modal.classList.add('hidden'); iniciarNuevaTemporada() }
+}
+
+function getCompStats(competition, limit) {
+  var stats = {}
+  function addStats(player, teamName, teamLogo) {
+    var k = player.id
+    if (!stats[k]) stats[k] = { name: player.name, team: teamName, teamLogo: teamLogo || '', position: player.position, avatar: player.avatar || '', nationality: player.nationality || '', goals: 0, assists: 0 }
+    if (!player.matchHistory) return
+    player.matchHistory.forEach(function(m) {
+      var _c = m.comp || 'league'
+      if (_c === competition) {
+        stats[k].goals += m.goals || 0
+        stats[k].assists += m.assists || 0
+      }
+    })
+  }
+  state.players.forEach(function(p) { addStats(p, state.team, state.teamLogo) })
+  state.leagueTeams.forEach(function(t) {
+    (t.players || []).forEach(function(p) { addStats(p, t.name, t.logo || '') })
+  })
+  var goals = Object.values(stats).filter(function(s) { return s.goals > 0 }).sort(function(a, b) { return b.goals - a.goals || (b.assists - a.assists) }).slice(0, limit || 10)
+  var assists = Object.values(stats).filter(function(s) { return s.assists > 0 }).sort(function(a, b) { return b.assists - a.assists || (b.goals - a.goals) }).slice(0, limit || 10)
+  return { goals: goals, assists: assists }
 }
 
 function getSeasonWinners() {
@@ -6459,8 +6539,10 @@ function simularPartidoRapido(fixture, rivalId) {
           minutes: p.minutosEnPista || 0,
           rating: Math.min(10, Math.max(1, _rr)),
           goals: p._goalsInMatch || 0,
+          assists: p._assistThisMatch || 0,
           yellow: !!p._yellowThisMatch,
           red: !!p._redThisMatch,
+          comp: 'league',
         })
         if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
         if (!p.teamStats) p.teamStats = {}
@@ -6780,7 +6862,8 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga) {
         var cs = 0
         if (them === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) cs = 0.5
         var rr = Math.min(10, Math.max(1, 6.2 + wb + yp + rp + gb + ab + cl + rf + cs))
-        p.matchHistory.push({ matchday: state.currentMatchday, rival: rn, minutes: p.minutosEnPista || 0, rating: Math.min(10, Math.max(1, rr)), goals: p._goalsInMatch || 0, yellow: !!p._yellowThisMatch, red: !!p._redThisMatch })
+        var _compCup = isTacaDaLiga ? 'taca' : isSupercopa ? 'supercopa' : 'cup'
+        p.matchHistory.push({ matchday: state.currentMatchday, rival: rn, minutes: p.minutosEnPista || 0, rating: Math.min(10, Math.max(1, rr)), goals: p._goalsInMatch || 0, assists: p._assistThisMatch || 0, yellow: !!p._yellowThisMatch, red: !!p._redThisMatch, comp: _compCup })
         if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
         if (!p.teamStats) p.teamStats = {}
         if (!p.teamStats[state.teamId]) p.teamStats[state.teamId] = { matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0 }

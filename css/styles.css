@@ -2901,6 +2901,48 @@ html, body {
 }
 .league-logos::-webkit-scrollbar { display: none; }
 
+.comp-stats-row {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.comp-stat-card {
+  flex: 1;
+  padding: 10px;
+  background: var(--bg);
+  border-radius: 10px;
+  cursor: default;
+}
+
+.comp-stat-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.comp-stat-main {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.comp-stat-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .league-table {
   width: 100%;
   border-collapse: collapse;
