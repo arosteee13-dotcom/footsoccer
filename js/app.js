@@ -230,6 +230,63 @@ function getFilialId(teamId) { return FILIAL_MAP[teamId] || null }
 function getParentTeamId(filialId) { return Object.keys(FILIAL_MAP).find(k => FILIAL_MAP[k] === filialId) || null }
 function findBTeamOf(parentId) { return Object.keys(B_TEAM_MAP).find(k => B_TEAM_MAP[k] === parentId) || null }
 
+/* A filial (B team) cannot be promoted if its parent club already plays in the
+   target division. In that case the promotion spot must go to another team. */
+function isBTeamPromotionBlocked(teamId, promotesTo) {
+  if (!promotesTo) return false
+  var parent = getBTeamParent(teamId)
+  if (!parent) return false
+  var targets = Array.isArray(promotesTo) ? promotesTo : [promotesTo]
+  for (var i = 0; i < targets.length; i++) {
+    if (getLeagueTeams(targets[i]).some(function(t) { return t.id === parent })) return true
+  }
+  return false
+}
+
+/* Ensures the user's team appears in exactly one league (state.leagueId) within
+   its country, preventing it from being duplicated in the division it left.
+   When the user moves division, its old division's slot is handed to the team
+   the user displaces, so both divisions keep their size. */
+function reconcileUserTeamLeague() {
+  if (!state.countryId || !state.leagueId || !state.teamId) return
+  var country = window.DB[state.countryId]
+  if (!country || !country.country || !country.country.leagues) return
+  var leagues = country.country.leagues
+  var target = leagues.find(function(l) { return l.id === state.leagueId })
+  if (!target) return
+
+  var userTeamObj = null
+  var oldLeague = null
+  for (var i = 0; i < leagues.length; i++) {
+    var found = leagues[i].teams.find(function(t) { return t.id === state.teamId })
+    if (found) {
+      if (!userTeamObj) userTeamObj = found
+      if (leagues[i].id !== state.leagueId && !oldLeague) oldLeague = leagues[i]
+    }
+  }
+  if (!userTeamObj) return
+
+  var alreadyInTarget = target.teams.some(function(t) { return t.id === state.teamId })
+
+  for (var j = 0; j < leagues.length; j++) {
+    if (leagues[j].id === state.leagueId) continue
+    leagues[j].teams = leagues[j].teams.filter(function(t) { return t.id !== state.teamId })
+  }
+
+  if (!alreadyInTarget) {
+    target.teams.push(userTeamObj)
+    if (oldLeague && oldLeague.id !== target.id) {
+      var cpu = target.teams.filter(function(t) { return t.id !== state.teamId })
+      if (cpu.length > 0) {
+        cpu.sort(function(a, b) { return (getTeamRating(a.id) || a.rating || 0) - (getTeamRating(b.id) || b.rating || 0) })
+        var displaced = cpu[0]
+        target.teams = target.teams.filter(function(t) { return t.id !== displaced.id })
+        if (!oldLeague.teams.some(function(t) { return t.id === displaced.id })) oldLeague.teams.push(displaced)
+      }
+    }
+  }
+}
+
 function isPlayerFromMyFilial(player) {
   var fid = getFilialId(state.teamId)
   if (!fid) return false
@@ -3758,9 +3815,16 @@ function computeSeasonMovements(countryId) {
 
     const div = { id: league.id, name: league.name, promoted: [], relegated: [], playoff: [] }
 
-    /* Direct promotion */
-    for (let i = 0; i < rules.directPromotion; i++) {
-      if (standings[i]) div.promoted.push({ teamId: standings[i].teamId, name: getTeamName(standings[i].teamId), via: 'direct' })
+    /* Direct promotion — a filial whose parent is already in the target
+       division cannot go up, so its spot passes to the next eligible team. */
+    let directDone = 0
+    let cursor = 0
+    while (directDone < rules.directPromotion && cursor < standings.length) {
+      const tid = standings[cursor].teamId
+      cursor++
+      if (isBTeamPromotionBlocked(tid, rules.promotesTo)) continue
+      div.promoted.push({ teamId: tid, name: getTeamName(tid), via: 'direct' })
+      directDone++
     }
 
     /* Playoff spots */
@@ -3770,9 +3834,12 @@ function computeSeasonMovements(countryId) {
       if (standings[i]) div.playoff.push({ teamId: standings[i].teamId, name: getTeamName(standings[i].teamId), pos: i + 1 })
     }
 
-    /* Determine playoff winner (higher seed) */
+    /* Determine playoff winner (higher seed), skipping blocked filiales */
     if (rules.playoffPromotions > 0 && div.playoff.length >= 2) {
-      const winner = standings[pStart]
+      let winner = null
+      for (let w = pStart; w < pEnd && !winner; w++) {
+        if (standings[w] && !isBTeamPromotionBlocked(standings[w].teamId, rules.promotesTo)) winner = standings[w]
+      }
       if (winner) div.promoted.push({ teamId: winner.teamId, name: getTeamName(winner.teamId), via: 'playoff' })
     }
 
@@ -4768,6 +4835,7 @@ function iniciarNuevaTemporada() {
   var skipStandings = data.skipStandings
   try {
     try { if (state.lastSeasonMovements) applySeasonMovements(state.lastSeasonMovements, state.countryId) } catch (e) { console.error('[SEASON] Error applying movements:', e) }
+    try { reconcileUserTeamLeague() } catch (e) { console.warn('[SEASON] reconcileUserTeamLeague error:', e) }
     state.players.forEach(function(p) { p.age = (p.age || 22) + 1; p.value = calcValue(p.skill, p.age, p.position) })
     state.leagueTeams.forEach(function(t) { t.players.forEach(function(p) { p.age = (p.age || 22) + 1; p.value = calcValue(p.skill, p.age, p.position) }) })
     retirados.forEach(function(p) { var idx = state.players.indexOf(p); if (idx >= 0) state.players.splice(idx, 1) })
