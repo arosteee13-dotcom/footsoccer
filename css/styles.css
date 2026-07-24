@@ -4998,6 +4998,9 @@ td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
 .tp-th-pj { width: 28px; text-align: center; font-size: 11px; }
 .tp-th-g { width: 28px; text-align: center; font-size: 11px; }
 .tp-th-a { width: 28px; text-align: center; font-size: 11px; }
+.tp-cell-g { width: 28px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text); }
+.tp-cell-a { width: 28px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text); }
+.tp-cell-pj { width: 28px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text); }
 
 /* Player list */
 .tp-list {

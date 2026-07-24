@@ -541,7 +541,7 @@ function rebuildGlobalPlayerPool() {
         const teamObj = getTeamObj(t.id)
         if (!teamObj || !teamObj.players) continue
         for (const p of teamObj.players) {
-          if (p.onLoan && p.loanFrom) continue
+          if (p.onLoan && (p.loanFrom || p.loanTo)) continue
           if (state.boughtPlayerIds && state.boughtPlayerIds.indexOf(p.id) >= 0) continue
           state.globalPlayers.push({
             ...p, teamName: teamObj.name, teamId: teamObj.teamId,
@@ -2049,8 +2049,8 @@ function autoSimulateOtherMatch(homeId, awayId, comp) {
     var teamScore = idx === 0 ? homeScore : awayScore
     var rivalScore = idx === 0 ? awayScore : homeScore
     var rivalName = idx === 0 ? getTeamName(awayId) : getTeamName(homeId)
-    var gkPool = team.players.filter(function(p) { return p.position === 'POR' && !p.injury && !p._suspended })
-    var fieldPlayers = team.players.filter(function(p) { return p.position !== 'POR' && !p.injury && !p._suspended })
+    var gkPool = team.players.filter(function(p) { return (p.position === 'POR' || p.position === 'portero') && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
+    var fieldPlayers = team.players.filter(function(p) { return p.position !== 'POR' && p.position !== 'portero' && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
     gkPool.sort(function(a, b) {
       var aEff = (a.skill || 0) * Math.min(1, (a.energy != null ? a.energy : 80) / 100)
       var bEff = (b.skill || 0) * Math.min(1, (b.energy != null ? b.energy : 80) / 100)
@@ -2294,8 +2294,8 @@ function simularPartidoPorRating(homeId, awayId, comp) {
     var teamScore = idx === 0 ? homeScore : awayScore
     var rivalScore = idx === 0 ? awayScore : homeScore
     var rivalName = idx === 0 ? getTeamName(awayId) : getTeamName(homeId)
-    var gkPool = team.players.filter(function(p) { return p.position === 'POR' && !p.injury && !p._suspended })
-    var fieldPlayers = team.players.filter(function(p) { return p.position !== 'POR' && !p.injury && !p._suspended })
+    var gkPool = team.players.filter(function(p) { return (p.position === 'POR' || p.position === 'portero') && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
+    var fieldPlayers = team.players.filter(function(p) { return p.position !== 'POR' && p.position !== 'portero' && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
     gkPool.sort(function(a, b) {
       var aEff = (a.skill || 0) * Math.min(1, (a.energy != null ? a.energy : 80) / 100)
       var bEff = (b.skill || 0) * Math.min(1, (b.energy != null ? b.energy : 80) / 100)
@@ -2539,7 +2539,7 @@ function renderSquadInfo(players) {
         <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
         <div class="tp-cell-info">
           <span class="tp-cell-name">${p.name}</span>
-          <span class="tp-cell-value">${p.nationality || ''} ${p._suspended ? '<span class="player-badge badge-lt" style="font-size:8px;background:#EF4444">SUS</span>' : ''} ${p.transferListed ? '<span class="player-badge badge-lt" style="font-size:8px">TR</span>' : ''}${p.loanListed ? '<span class="player-badge badge-lc" style="font-size:8px">CED</span>' : ''}</span>
+          <span class="tp-cell-value">${p.nationality || ''} ${p._suspended ? '<span class="player-badge badge-lt" style="font-size:8px;background:#EF4444">SUS</span>' : ''} ${p.onLoan ? '<span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CES</span>' : ''} ${p.transferListed ? '<span class="player-badge badge-lt" style="font-size:8px">TR</span>' : ''}${p.loanListed ? '<span class="player-badge badge-lc" style="font-size:8px">CED</span>' : ''}</span>
         </div>
       </div>
       <span class="tp-cell-age">${p.age || '-'}</span>
@@ -4628,6 +4628,7 @@ function procesarVentanaTransferencias() {
     procesarIAListarJugadores(team)
   }
   procesarCesionesCPU()
+  procesarIAOfertasCesionAlUsuario()
 }
 
 function getTeamBudget(team) {
@@ -4749,6 +4750,35 @@ function procesarIAOfertasAlUsuario() {
   }
 }
 
+function procesarIAOfertasCesionAlUsuario() {
+  if (!state.transferWindowOpen) return
+  const loanCandidates = state.players.filter(p => p.loanListed && !p.onLoan)
+  if (loanCandidates.length === 0) return
+  for (const team of state.leagueTeams) {
+    if (team.teamId === state.teamId) continue
+    if (team.players.length >= MAX_SQUAD) continue
+    var offersMade = 0
+    for (const p of loanCandidates) {
+      if (offersMade >= 2) break
+      if (Math.random() > 0.3) continue
+      var sn = state.seasonNumber || 1
+      var loanDur = Math.random() < 0.3 ? 0.5 : Math.random() < 0.6 ? 1 : 2
+      var loanUntil = '30/06/' + (2026 + sn + Math.ceil(loanDur))
+      var duracionLabel = loanDur === 0.5 ? 'media temporada' : loanDur === 1 ? '1 temporada' : '2 temporadas'
+      var playerClone = { ...p, id: team.teamId + '-loan-' + Date.now(), onLoan: true, loanFrom: state.teamId, loanUntil: loanUntil, loanListed: false, energy: randInt(70, 100) }
+      var idx = state.players.indexOf(p)
+      if (idx >= 0) state.players.splice(idx, 1)
+      team.players.push(playerClone)
+      if (state.finances) {
+        var _posLoan = POS_ABBR[p.position] || p.position || '?'
+        state.finances.history.push({ reason: 'Cesión: ' + p.name + ' (' + _posLoan + ') · ' + duracionLabel + ' · ' + team.name, amount: 0 })
+      }
+      addNotification('transfer', '\uD83D\uDCC4 Cesion solicitada: ' + p.name, team.name + ' toma cedido a ' + p.name + ' por ' + duracionLabel)
+      offersMade++
+    }
+  }
+}
+
 function generarOfertasParaJugador(player) {
   if (!state.transferWindowOpen || !player) return
   var ofertas = []
@@ -4795,7 +4825,10 @@ function procesarCesionesCPU() {
       if (!sourcePlayer) continue
       const ti = sourceTeam.players.indexOf(sourcePlayer)
       if (ti >= 0) sourceTeam.players.splice(ti, 1)
-      const loaned = { ...sourcePlayer, id: `${team.teamId}-loan-${Date.now()}`, onLoan: true, loanFrom: sourceTeam.teamId, loanUntil: '30/06/' + (2026 + state.seasonNumber), loanListed: false, transferListed: false, energy: randInt(70, 100) }
+      var sn = state.seasonNumber || 1
+      var loanDur = Math.random() < 0.3 ? 0.5 : Math.random() < 0.6 ? 1 : 2
+      var loanUntil = '30/06/' + (2026 + sn + Math.ceil(loanDur))
+      var loaned = { ...sourcePlayer, id: `${team.teamId}-loan-${Date.now()}`, onLoan: true, loanFrom: sourceTeam.teamId, loanUntil: loanUntil, loanListed: false, transferListed: false, energy: randInt(70, 100) }
       team.players.push(loaned)
       addNotification('transfer', `🔄 Cesión: ${sourcePlayer.name}`, `${sourcePlayer.name} cedido al ${team.name} desde ${sourceTeam.name}`)
       rebuildGlobalPlayerPool()
@@ -4803,24 +4836,76 @@ function procesarCesionesCPU() {
   }
 }
 
+function procesarSolicitudCesion(player, team, seasons, resEl) {
+  if (state.players.length >= MAX_SQUAD) { alert('Plantilla completa'); return }
+  if (state.boughtPlayerIds.indexOf(player.id) >= 0) { alert('Este jugador ya no est\u00e1 disponible'); document.getElementById('player-detail-modal').classList.remove('open'); return }
+  const result = evaluarCesion(player)
+  if (result.type === 'accepted') {
+    var sn = state.seasonNumber || 1
+    var loanUntil = '30/06/' + (2026 + sn + Math.ceil(seasons))
+    if (seasons === 0.5) {
+      var md = state.currentMatchday || 1
+      loanUntil = md < 19 ? '15/01/' + (2026 + sn) : '30/06/' + (2026 + sn)
+    }
+    var gi = state.globalPlayers.findIndex(function(p) { return p.id === player.id })
+    if (gi >= 0) state.globalPlayers.splice(gi, 1)
+    var sourceTeam = getTeamObj(player.teamId)
+    if (!sourceTeam || !sourceTeam.players) {
+      sourceTeam = state.leagueTeams.find(function(t) { return t.teamId === player.teamId || t.id === player.teamId })
+    }
+    if (sourceTeam && sourceTeam.players) {
+      var ti = sourceTeam.players.findIndex(function(p) { return p.id === player.id || (p.name === player.name && p.skill === player.skill) })
+      if (ti >= 0) {
+        sourceTeam.players[ti].onLoan = true
+        sourceTeam.players[ti].loanTo = state.teamId
+        sourceTeam.players[ti].loanUntil = loanUntil
+      }
+    }
+    var newPlayer = { ...player, id: 'loan-' + Date.now(), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, onLoan: true, loanFrom: player.teamId, loanUntil: loanUntil }
+    state.players.push(newPlayer)
+    state.boughtPlayerIds.push(player.id)
+    rebuildGlobalPlayerPool()
+    var duracionLabel = seasons === 0.5 ? 'media temporada' : seasons === 1 ? '1 temporada' : '2 temporadas'
+    addNotification('transfer', '\uD83D\uDCC4 Cesion: ' + player.name, 'Cedido por ' + duracionLabel + ' desde ' + (team ? team.name : '') + ' hasta ' + loanUntil)
+    document.getElementById('player-detail-modal').classList.remove('open')
+    renderSquad(state.players)
+  } else {
+    resEl.innerHTML = '<div style="text-align:center;padding:8px;background:rgba(239,68,68,0.1);border-radius:8px;font-size:13px;font-weight:600;color:#EF4444">' + result.msg + '</div>'
+  }
+}
+
 function procesarRetornoCesiones() {
+  var sn = state.seasonNumber || 1
+  var currentSeasonEnd = '30/06/' + (2026 + sn)
+  var nextSeasonEnd = '30/06/' + (2026 + sn + 1)
   for (const team of state.leagueTeams) {
     const loans = team.players.filter(p => p.onLoan && p.loanFrom)
     for (const p of loans) {
-      const originTeam = state.leagueTeams.find(t => t.teamId === p.loanFrom)
-      if (originTeam) {
-        const idx = team.players.indexOf(p)
-        if (idx >= 0) team.players.splice(idx, 1)
-        const returned = { ...p, id: `${p.loanFrom}-ret-${Date.now()}`, onLoan: false, loanFrom: null, loanUntil: null, energy: randInt(70, 100) }
-        originTeam.players.push(returned)
-      }
+      if (p.loanUntil !== currentSeasonEnd && p.loanUntil !== nextSeasonEnd) continue
+      var shouldReturn = p.loanUntil === currentSeasonEnd || (p.loanUntil === nextSeasonEnd && sn % 1 === 0)
+      if (!shouldReturn) continue
+      p.onLoan = false
+      p.loanFrom = null
+      p.loanUntil = null
+      p.loanTo = null
     }
   }
   const userLoans = state.players.filter(p => p.onLoan && p.loanFrom)
   for (const p of userLoans) {
-    p.onLoan = false
-    p.loanFrom = null
-    p.loanUntil = null
+    if (p.loanUntil === currentSeasonEnd || (p.loanUntil && p.loanUntil <= currentSeasonEnd)) {
+      const originTeam = state.leagueTeams.find(t => t.teamId === p.loanFrom)
+      if (originTeam) {
+        var op = originTeam.players.find(function(pl) { return pl.onLoan && pl.loanTo === state.teamId && pl.name === p.name })
+        if (op) {
+          op.onLoan = false
+          op.loanFrom = null
+          op.loanUntil = null
+          op.loanTo = null
+        }
+      }
+      const idx = state.players.indexOf(p)
+      if (idx >= 0) state.players.splice(idx, 1)
+    }
   }
   rebuildGlobalPlayerPool()
 }
@@ -8118,13 +8203,14 @@ function renderMarketContent() {
     container.innerHTML = filtered.map(p => {
       const posKey = SIGLA_TO_POS[p.position] || p.position
       const pos = POSITIONS[posKey]
-      const canBuy = state.players.length < MAX_SQUAD && state.finances.balance >= p.value && state.transferWindowOpen
       const teamLabel = (p.countryFlag || '') + ' ' + (p.teamName || '')
       const valShort = formatShort(p.value)
       const posColor = pos.color
-      const btnText = state.transferWindowOpen
-        ? (state.players.length >= MAX_SQUAD ? 'PLANTILLA LLENA' : (state.finances.balance < p.value ? 'SIN FONDOS' : 'COMPRAR'))
-        : 'MERCADO CERRADO'
+      const btnHtml = state.transferWindowOpen
+        ? (state.players.length >= MAX_SQUAD || state.finances.balance < p.value
+          ? '<button class="market-card-btn disabled">' + (state.players.length >= MAX_SQUAD ? 'PLANTILLA LLENA' : 'SIN FONDOS') + '</button>'
+          : '<button class="market-card-btn buy">COMPRAR</button>')
+        : '<button class="market-card-btn disabled" style="font-size:18px;line-height:1">🔒</button>'
       return `
         <div class="tp-row market-card" data-player-id="${p.id}" data-team-id="${p.teamId}">
           <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[posKey] || p.position}</span>
@@ -8138,7 +8224,7 @@ function renderMarketContent() {
           <span class="tp-cell-age">${p.age || '-'}</span>
           <span class="tp-cell-market">${valShort}</span>
           <span class="tp-cell-power" style="${getPowerBadgeStyle(p.skill)}">${p.skill}</span>
-          <button class="market-card-btn ${canBuy ? 'buy' : 'disabled'}">${btnText}</button>
+          ${btnHtml}
         </div>
       `
     }).join('')
@@ -10128,6 +10214,7 @@ function showTeamInfo(teamId) {
   }
   var roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
   var teamViewTab = 'general'
+  var squadTab = 'info'
   var orderedPlayers = [...team.players].sort(function(a, b) {
     var posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
     var posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
@@ -10178,16 +10265,37 @@ function showTeamInfo(teamId) {
         }
       }
     } else if (teamViewTab === 'squad') {
-      var squadTab = 'info'
       content += '<div class="tactics-subsection-label">PLANTILLA (' + team.players.length + ')</div>'
-      content += '<div class="sub-tabs" style="display:flex;gap:4px;padding:4px 14px"><button class="sub-tab team-subtab active" data-tab="info">Info</button><button class="sub-tab team-subtab" data-tab="performance">Rendimiento</button></div>'
+      content += '<div class="sub-tabs" style="display:flex;gap:4px;padding:4px 14px"><button class="sub-tab team-subtab ' + (squadTab === 'info' ? 'active' : '') + '" data-tab="info">Info</button><button class="sub-tab team-subtab ' + (squadTab === 'performance' ? 'active' : '') + '" data-tab="performance">Rendimiento</button></div>'
+      if (squadTab === 'info') {
       content += '<div class="tp-table-header" style="padding:6px 14px"><span class="tp-th-pos">Pos</span><span class="tp-th-name">Nombre</span><span class="tp-th-age">Edad</span><span class="tp-th-value">Valor</span><span class="tp-th-power">Pod</span></div><div class="tp-list">'
       content += orderedPlayers.map(function(p) {
         var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
         var valShort = formatShort(p.value || 0)
-        return '<div class="tp-row" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
+        var badgeHtml = ''
+        if (p.onLoan && p.loanTo) {
+          var loanTeamName = getTeamName(p.loanTo)
+          var loanTeamLogo = getTeamLogo(p.loanTo)
+          badgeHtml = '<div style="display:flex;align-items:center;gap:4px;margin-top:2px"><span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CED</span><img src="' + loanTeamLogo + '" style="width:12px;height:12px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'"><span style="font-size:10px;color:#F59E0B">' + loanTeamName + '</span></div>'
+        }
+        return '<div class="tp-row" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + badgeHtml + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
       }).join('')
       content += '</div>'
+      } else {
+        content += '<div class="tactics-subsection-label">RENDIMIENTO (' + team.players.length + ')</div>'
+        content += '<div class="tp-table-header" style="padding:6px 14px"><span class="tp-th-name">Nombre</span><span class="tp-th-pos">Pos</span><span style="width:28px;text-align:center">PJ</span><span style="width:38px;text-align:center">\u26BD</span><span style="width:38px;text-align:center">\uD83D\uDC5F</span><span style="width:30px;text-align:center">\uD83D\uDFE8</span><span style="width:28px;text-align:center">\uD83D\uDFE5</span></div><div class="tp-list">'
+        content += orderedPlayers.map(function(p) {
+          var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
+          var badgeHtml = ''
+          if (p.onLoan && p.loanTo) {
+            var loanTeamName = getTeamName(p.loanTo)
+            var loanTeamLogo = getTeamLogo(p.loanTo)
+            badgeHtml = '<div style="display:flex;align-items:center;gap:4px;margin-top:2px"><span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CED</span><img src="' + loanTeamLogo + '" style="width:12px;height:12px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'"><span style="font-size:10px;color:#F59E0B">' + loanTeamName + '</span></div>'
+          }
+          return '<div class="tp-row" data-player-id="' + p.id + '"><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + badgeHtml + '</span></div></div><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.matches || 0) + '</span><span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.goals || 0) + '</span><span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.assists || 0) + '</span><span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">' + (p.yellowCards || 0) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">' + (p.redCards || 0) + '</span></div>'
+        }).join('')
+        content += '</div>'
+      }
     } else if (teamViewTab === 'transfers') {
       var transferVal = team.players.reduce(function(s, p) { return s + ((p.transferListed ? (p.transferPrice || Math.round(p.value * 0.7)) : 0)) }, 0)
       content += '<div class="tactics-subsection-label">Fichajes</div>' +
@@ -10200,23 +10308,26 @@ function showTeamInfo(teamId) {
       if (teamId === state.teamId && state.finances) {
         ;(state.finances.history || []).forEach(function(h) {
           if (!h.reason) return
-          var sMatch = h.reason.match(/^Traspaso:\s*(.+?)\|(.+?)\|(.+?)\|(.+?)\|(\d+)\|(\d+)\|(\d+)$/)
+          var sMatch = h.reason.match(/^Traspaso:\s*(.+?)\s*\((.+?)\)\s*·\s*(.+?)\s*·\s*(.+)$/)
           if (sMatch) {
-            salidasMovs.push({ player: sMatch[1], avatar: sMatch[2], toTeam: sMatch[3], position: sMatch[4], age: parseInt(sMatch[5]), value: parseInt(sMatch[6]), skill: parseInt(sMatch[7]), amount: h.amount })
+            salidasMovs.push({ player: sMatch[1].trim(), info: sMatch[2].trim(), amount: sMatch[3].trim(), toTeam: sMatch[4].trim(), tipo: 'traspaso' })
             return
           }
-          var fMatch = h.reason.match(/^Compra:\s*(.+?)\|(.+?)\|(.+?)\|(.+?)\|(\d+)\|(\d+)\|(\d+)(?:\s*\(|$)/)
+          var loanOutMatch = h.reason.match(/^Cesión:\s*(.+?)\s*\((.+?)\)\s*·\s*(.+?)\s*·\s*(.+)$/)
+          if (loanOutMatch) {
+            salidasMovs.push({ player: loanOutMatch[1].trim(), info: loanOutMatch[2].trim(), duracion: loanOutMatch[3].trim(), toTeam: loanOutMatch[4].trim(), tipo: 'cesion' })
+            return
+          }
+          var fMatch = h.reason.match(/^Fichaje:\s*(.+?)\s*\((.+?)\)\s*·\s*(.+?)\s*·\s*(.+)$/)
           if (fMatch) {
-            fichajesMovs.push({ player: fMatch[1], avatar: fMatch[2], fromTeam: fMatch[3], position: fMatch[4], age: parseInt(fMatch[5]), value: parseInt(fMatch[6]), skill: parseInt(fMatch[7]), amount: Math.abs(h.amount) })
+            fichajesMovs.push({ player: fMatch[1].trim(), info: fMatch[2].trim(), amount: fMatch[3].trim(), fromTeam: fMatch[4].trim() })
           }
         })
       }
       content += '<div style="font-size:14px;font-weight:700;color:#10B981;padding:8px 14px 4px;margin-top:8px">Fichajes</div>'
       if (fichajesMovs.length > 0) {
         fichajesMovs.forEach(function(f) {
-          var av = f.avatar || NOPHOTO
-          var posLabel = POS_ABBR[f.position] || f.position || ''
-          content += '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-radius:8px;margin:4px 14px"><img src="' + av + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--bg-card)" onerror="this.src=\'' + NOPHOTO + '\'"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">' + f.player + '</div><div style="font-size:11px;color:var(--text-muted)">' + posLabel + ' · ' + f.age + ' años · ' + f.skill + '</div><div style="font-size:11px;color:var(--text-muted)">Procedente de: ' + f.fromTeam + ' · ' + formatShort(f.amount) + '\u20AC</div></div></div>'
+          content += '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-radius:8px;margin:4px 14px"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">' + f.player + '</div><div style="font-size:11px;color:var(--text-muted)">' + f.info + ' · ' + f.amount + ' · ' + f.fromTeam + '</div></div></div>'
         })
       } else {
         content += '<div style="padding:5px 14px;font-size:12px;color:var(--text-muted)">Sin fichajes esta temporada</div>'
@@ -10224,9 +10335,11 @@ function showTeamInfo(teamId) {
       content += '<div style="font-size:14px;font-weight:700;color:#EF4444;padding:8px 14px 4px;margin-top:12px">Salidas</div>'
       if (salidasMovs.length > 0) {
         salidasMovs.forEach(function(s) {
-          var av = s.avatar || NOPHOTO
-          var posLabel = POS_ABBR[s.position] || s.position || ''
-          content += '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-radius:8px;margin:4px 14px"><img src="' + av + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--bg-card)" onerror="this.src=\'' + NOPHOTO + '\'"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">' + s.player + '</div><div style="font-size:11px;color:var(--text-muted)">' + posLabel + ' · ' + s.age + ' años · ' + s.skill + '</div><div style="font-size:11px;color:var(--text-muted)">→ ' + s.toTeam + ' · ' + formatShort(s.amount) + '\u20AC</div></div></div>'
+          if (s.tipo === 'cesion') {
+            content += '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-radius:8px;margin:4px 14px"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">' + s.player + '</div><div style="font-size:11px;color:var(--text-muted)">' + s.info + '</div><div style="font-size:11px;color:var(--accent)">\u2192 ' + s.toTeam + ' · Cesión (' + s.duracion + ')</div></div></div>'
+          } else {
+            content += '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-radius:8px;margin:4px 14px"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">' + s.player + '</div><div style="font-size:11px;color:var(--text-muted)">' + s.info + '</div><div style="font-size:11px;color:var(--text-muted)">\u2192 ' + s.toTeam + ' · ' + s.amount + '</div></div></div>'
+          }
         })
       } else {
         content += '<div style="padding:5px 14px;font-size:12px;color:var(--text-muted)">Sin salidas esta temporada</div>'
@@ -10345,7 +10458,7 @@ function showTeamInfo(teamId) {
       document.querySelectorAll('#team-view-content .team-subtab').forEach(function(btn) {
         btn.onclick = function(e) {
           e.stopPropagation()
-          teamViewTab = 'squad'
+          squadTab = btn.dataset.tab
           renderTeamView()
         }
       })
@@ -11203,7 +11316,13 @@ function evaluarOferta(player, offeredPrice) {
 }
 
 function evaluarCesion(player) {
-  if (Math.random() < 0.4) return { type: 'accepted', msg: 'El club acepta la cesi\u00f3n' }
+  var prob = 0.3
+  if (player.skill < 30) prob = 0.6
+  else if (player.skill < 50) prob = 0.45
+  else if (player.skill > 75) prob = 0.15
+  if (player.age > 30) prob += 0.1
+  if (player.age < 20) prob += 0.1
+  if (Math.random() < prob) return { type: 'accepted', msg: 'El club acepta la cesi\u00f3n' }
   return { type: 'rejected', msg: 'El club rechaza la cesi\u00f3n' }
 }
 
@@ -11309,6 +11428,49 @@ function openPlayerDetail(player, teamObj) {
   }
   pitch.innerHTML = pitchHtml
 
+  /* Position switch (only for owned players with mastered secondary positions) */
+  var switchContainer = document.getElementById('pd-pos-switch')
+  if (switchContainer) {
+    switchContainer.innerHTML = ''
+    if (player.teamId === state.teamId && !player.onLoan && otherPositions.length > 0) {
+      var masteredPositions = otherPositions.filter(function(op) { return (op.pct || 0) >= 100 })
+      if (masteredPositions.length > 0) {
+        var switchHtml = '<div class="pd-adapt-title" style="margin-top:8px;cursor:pointer" id="pd-switch-toggle">🔄 Cambiar posición principal</div><div id="pd-switch-options" style="display:none">'
+        masteredPositions.forEach(function(op) {
+          var altKey = SIGLA_TO_POS[op.pos] || op.pos
+          var altLabel = POSITIONS[altKey] ? POSITIONS[altKey].label : op.pos
+          var altColor = (POSITIONS[altKey] || {}).color || '#2663EB'
+          switchHtml += '<div class="pd-pos-row" data-switch-pos="' + op.pos + '" style="color:' + altColor + ';cursor:pointer;font-weight:600">' +
+            '<span>' + altLabel + ' (' + (POS_ABBR[altKey] || op.pos) + ')</span><span>✅ 100%</span></div>'
+        })
+        switchHtml += '</div>'
+        switchContainer.innerHTML = switchHtml
+        var toggle = document.getElementById('pd-switch-toggle')
+        var options = document.getElementById('pd-switch-options')
+        if (toggle) {
+          toggle.onclick = function() {
+            options.style.display = options.style.display === 'none' ? 'block' : 'none'
+          }
+        }
+        switchContainer.querySelectorAll('[data-switch-pos]').forEach(function(el) {
+          el.onclick = function() {
+            var newPos = el.dataset.switchPos
+            var oldPos = player.position
+            var oldMainPct = player.mainPct || 100
+            var opEntry = player.otherPositions.find(function(op) { return op.pos === newPos })
+            if (!opEntry) return
+            player.position = newPos
+            player.mainPct = opEntry.pct
+            player.otherPositions = player.otherPositions.filter(function(op) { return op.pos !== newPos })
+            player.otherPositions.push({ pos: oldPos, pct: oldMainPct })
+            document.getElementById('player-detail-modal').classList.remove('open')
+            renderSquad(state.players)
+          }
+        })
+      }
+    }
+  }
+
   /* === RENDIMIENTO TAB === */
   const rendStats = document.getElementById('pd-rend-stats')
   const pos = POSITIONS[posKey]
@@ -11362,30 +11524,34 @@ function openPlayerDetail(player, teamObj) {
   const isFilialPlayer = isPlayerFromMyFilial(player)
   const isParentPlayer = isPlayerFromMyParent(player)
   if (isOwn) {
-    if (player.transferListed) {
-      actions.innerHTML += `
-        <div class="market-input-group">
-          <span class="market-input-label">Precio de venta actual</span>
-          <div style="text-align:center;font-weight:700;font-size:16px;color:var(--text)">${formatMoney(player.transferPrice)}</div>
-        </div>
-        <button class="btn-secondary" id="pd-retirar-lt">RETIRAR DE TRANSFERIBLES</button>`
+    if (!player.onLoan) {
+      if (player.transferListed) {
+        actions.innerHTML += `
+          <div class="market-input-group">
+            <span class="market-input-label">Precio de venta actual</span>
+            <div style="text-align:center;font-weight:700;font-size:16px;color:var(--text)">${formatMoney(player.transferPrice)}</div>
+          </div>
+          <button class="btn-secondary" id="pd-retirar-lt">RETIRAR DE TRANSFERIBLES</button>`
+      } else {
+        actions.innerHTML += `
+          <div class="market-input-group" style="margin-bottom:10px">
+            <label class="market-input-label">Precio para lista de transferibles</label>
+            <input class="market-price-input" id="pd-lt-price" type="text" inputmode="numeric" value="${player.value.toLocaleString('es-ES')}" min="1">
+          </div>
+          <button class="btn-primary" id="pd-listar-lt" style="background:#EF4444">LISTA TRANSFERIBLES</button>`
+      }
+      if (player.loanListed) {
+        actions.innerHTML += `<button class="btn-secondary" id="pd-retirar-lc" style="margin-top:4px">RETIRAR CEDIBLES</button>`
+      } else {
+        actions.innerHTML += `<button class="btn-primary" id="pd-listar-lc" style="background:var(--accent);margin-top:4px">LISTA CEDIBLES</button>`
+      }
+      /* Filial button */
+      var filialId = getFilialId(state.teamId)
+      if (filialId) {
+        actions.innerHTML += `<button class="btn-secondary" id="pd-bajar-filial" style="background:#555;color:#fff;margin-top:8px">⬇ BAJAR AL FILIAL</button>`
+      }
     } else {
-      actions.innerHTML += `
-        <div class="market-input-group" style="margin-bottom:10px">
-          <label class="market-input-label">Precio para lista de transferibles</label>
-          <input class="market-price-input" id="pd-lt-price" type="text" inputmode="numeric" value="${player.value.toLocaleString('es-ES')}" min="1">
-        </div>
-        <button class="btn-primary" id="pd-listar-lt" style="background:#EF4444">LISTA TRANSFERIBLES</button>`
-    }
-    if (player.loanListed) {
-      actions.innerHTML += `<button class="btn-secondary" id="pd-retirar-lc" style="margin-top:4px">RETIRAR CEDIBLES</button>`
-    } else {
-      actions.innerHTML += `<button class="btn-primary" id="pd-listar-lc" style="background:var(--accent);margin-top:4px">LISTA CEDIBLES</button>`
-    }
-    /* Filial button */
-    var filialId = getFilialId(state.teamId)
-    if (filialId) {
-      actions.innerHTML += `<button class="btn-secondary" id="pd-bajar-filial" style="background:#555;color:#fff;margin-top:8px">⬇ BAJAR AL FILIAL</button>`
+      actions.innerHTML += `<div style="text-align:center;padding:8px;background:rgba(245,158,11,0.1);border-radius:8px;font-size:12px;color:#F59E0B">Jugador cedido — no disponible para traspasos</div>`
     }
     /* Bind events */
     formatPriceInput(document.getElementById('pd-lt-price'))
@@ -11512,18 +11678,17 @@ function openPlayerDetail(player, teamObj) {
         })
         document.getElementById('pd-pedir-cedido')?.addEventListener('click', () => {
           if (!state.transferWindowOpen) { alert('\ud83d\udd12 El mercado de fichajes est\u00e1 cerrado'); return }
-          const result = evaluarCesion(player)
-          if (result.type === 'accepted') {
-            if (state.players.length >= MAX_SQUAD) { alert('Plantilla completa'); return }
-            const newPlayer = { ...player, id: `loan-${Date.now()}`, energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: true, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, age: randInt(20, 35), foot: pickRandom(['DER', 'IZQ']) }
-            state.players.push(newPlayer)
-            addNotification('transfer', `\uD83D\uDCC4 Cesion: ${player.name}`, `Acordada con ${team.name || ''}`)
-            document.getElementById('player-detail-modal').classList.remove('open')
-            renderSquad(state.players)
-          } else {
-            const resEl = document.getElementById('pd-oferta-resultado')
-            resEl.innerHTML = `<div style="text-align:center;padding:8px;background:rgba(239,68,68,0.1);border-radius:8px;font-size:13px;font-weight:600;color:#EF4444">${result.msg}</div>`
-          }
+          const resEl = document.getElementById('pd-oferta-resultado')
+          resEl.innerHTML = '<div style="text-align:center;padding:8px;background:rgba(59,130,246,0.08);border-radius:8px;margin-bottom:6px">' +
+            '<div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px">Duraci\u00f3n de la cesi\u00f3n</div>' +
+            '<div style="display:flex;gap:6px;justify-content:center">' +
+            '<button class="btn-primary" id="pd-cesion-med" style="padding:8px 14px;font-size:12px">\u00bd Temporada</button>' +
+            '<button class="btn-primary" id="pd-cesion-1t" style="padding:8px 14px;font-size:12px">1 Temporada</button>' +
+            '<button class="btn-primary" id="pd-cesion-2t" style="padding:8px 14px;font-size:12px">2 Temporadas</button>' +
+            '</div></div>'
+          document.getElementById('pd-cesion-med')?.addEventListener('click', () => procesarSolicitudCesion(player, team, 0.5, resEl))
+          document.getElementById('pd-cesion-1t')?.addEventListener('click', () => procesarSolicitudCesion(player, team, 1, resEl))
+          document.getElementById('pd-cesion-2t')?.addEventListener('click', () => procesarSolicitudCesion(player, team, 2, resEl))
         })
       } else if (screen === 'accepted') {
         document.getElementById('pd-comprar-tras-oferta')?.addEventListener('click', () => {
