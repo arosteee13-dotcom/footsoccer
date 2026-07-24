@@ -883,6 +883,15 @@ var TACA_DA_LIGA_SCHEDULE = [
   { week: 19, label: 'Final' },
 ]
 
+var FRANCE_CUP_SCHEDULE = [
+  { week: 4, label: '1/32' },
+  { week: 9, label: '1/16' },
+  { week: 15, label: 'Octavos' },
+  { week: 20, label: 'SUPERCOPA', isSupercopa: true },
+  { week: 23, label: 'Cuartos' },
+  { week: 35, label: 'Final' },
+]
+
 var PORTUGAL_MODESTO_NAMES = [
   "Varzim SC", "SC Salgueiros", "CF Os Belenenses", "Pevidém SC", "AD Sanjoanense",
   "CD Trofense", "Anadia FC", "AD Fafe", "SC Covilhã", "CD Cinfães",
@@ -1068,6 +1077,38 @@ function getSupercopaTeams() {
     
     return [participant1, participant2].filter(Boolean)
   }
+
+  if (activeCountry === 'france') {
+    if (state.seasonNumber === 1) {
+      return ['lens', 'psg']
+    }
+    var participant1 = state.leagueChampion
+    var participant2 = state.cupChampion
+    var cupRunnerUp = state.cupRunnerUp
+    var leagueRunnerUp = state.leagueRunnerUp
+
+    if (!participant1 && state.lastL1frStandings && state.lastL1frStandings.length > 0) {
+      participant1 = state.lastL1frStandings[0].teamId || state.lastL1frStandings[0].id
+    }
+    if (!participant2) participant2 = cupRunnerUp
+    if (!participant1) participant1 = 'psg'
+    if (!participant2) participant2 = 'om'
+
+    /* Double: if same team won Ligue 1 and Coupe de France, cup spot goes to Ligue 1 runner-up */
+    if (participant1 === participant2) {
+      var opponent = cupRunnerUp
+      if (!opponent || opponent === participant1) {
+        opponent = leagueRunnerUp || participant2
+      }
+      if (opponent === participant1) {
+        opponent = null
+      }
+      participant2 = opponent
+    }
+
+    return [participant1, participant2].filter(Boolean)
+  }
+
   return []
 }
 
@@ -1255,6 +1296,7 @@ function generarRondaCopa(roundIdx, previousWinners, cupState) {
 }
 
 function getCupSchedule() {
+  if (state.countryId === 'france') return FRANCE_CUP_SCHEDULE
   if (state.countryId === 'portugal') return TACA_PORTUGAL_SCHEDULE
   if (state.countryId === 'poland') return POLAND_CUP_SCHEDULE
   return COPA_SCHEDULE
@@ -3404,7 +3446,7 @@ function renderLeague(viewedLeagueId) {
       el.onclick = function() {
         if (lid === 'taca_da_liga') {
           renderCopaView('tacaDaLiga')
-        } else if (activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland') {
+        } else if (activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france') {
           renderCopaView(lid === 'copa_del_rey' ? 'copa' : 'supercopa')
         } else {
           var tableWrap = document.getElementById('league-table-wrap')
@@ -3493,7 +3535,14 @@ function renderLeague(viewedLeagueId) {
     const isUser = isOwnLeague && s.teamId === state.teamId
     const totalTeams = standings.length
     var barClass = ''
-    if (displayLid === 'l1s') {
+    if (displayLid === 'l1fr') {
+      if (i === 0) barClass = 'bar-champion'
+      else if (i < 4) barClass = 'bar-ucl'
+      else if (i === 4) barClass = 'bar-uel'
+      else if (i === 5) barClass = 'bar-conference'
+      else if (i >= totalTeams - 3 && i < totalTeams - 2) barClass = 'bar-relegation-playoff'
+      else if (i >= totalTeams - 2) barClass = 'bar-descenso'
+    } else if (displayLid === 'l1s') {
       if (i === 0) barClass = 'bar-champion'
       else if (i < 4) barClass = 'bar-ucl'
       else if (i === 4) barClass = 'bar-uel'
@@ -3570,7 +3619,17 @@ function renderLeague(viewedLeagueId) {
 
   /* Legend */
   var legendItems = []
-  if (displayLid === 'l1s') {
+  if (displayLid === 'l1fr') {
+    legendItems = [
+      { cls: 'bar-champion', label: 'Campe\u00f3n' },
+      { cls: 'bar-ucl', label: 'Champions League' },
+      { cls: 'bar-uel', label: 'Europa League' },
+      { cls: 'bar-conference', label: 'Conference League Previa' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-relegation-playoff', label: 'Playoff Descenso' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else if (displayLid === 'l1s') {
     legendItems = [
       { cls: 'bar-champion', label: 'Campeón' },
       { cls: 'bar-ucl', label: 'Champions League' },
@@ -4133,6 +4192,7 @@ function getLeagueRules(leagueId) {
     'l3sg2': { directPromotion: 1, playoffSpots: 4, playoffPromotions: 1, relegation: 4, promotesTo: 'l2s' },
     'l1p': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 2, crossPlayoff: { pos: 16, opponent: 'l2p', opponentPos: 3 }, relegatesTo: 'l2p' },
     'l2p': { directPromotion: 2, playoffSpots: 0, playoffPromotions: 0, relegation: 0, promotesTo: 'l1p' },
+    'l1fr': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 0 },
     'lpl': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 3, relegatesTo: 'lpl2' },
     'lpl2': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 3, promotesTo: 'lpl', relegatesTo: 'lpl3' },
     'lpl3': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 6, relegationPlayoff: [15, 16], promotesTo: 'lpl2', relegatesTo: ['lpl4g1','lpl4g2','lpl4g3','lpl4g4'] },
@@ -5224,7 +5284,7 @@ function iniciarNuevaTemporada() {
     state.seasonNumber++
     state.presupuestoInicial = Math.round(getDivisionBaseBudget(state.leagueId) * getCountryBudgetMult(state.countryId))
     try {
-      if (state.countryId === 'spain' || state.countryId === 'portugal' || state.countryId === 'poland') {
+      if (state.countryId === 'spain' || state.countryId === 'portugal' || state.countryId === 'poland' || state.countryId === 'france') {
         state.cup = generarCopa()
         state.supercopa = generarSupercopa()
         if (state.countryId === 'portugal') state.tacaDaLiga = generarTacaDaLiga()
@@ -5846,6 +5906,7 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
     esPrimeraPortugal = state.leagueId === 'l1p'
     esSegundaPortugal = state.leagueId === 'l2p'
     esSegundaSpain = state.leagueId === 'l2s'
+    esPrimeraFrance = state.leagueId === 'l1fr'
 
     const esTerceraCatalana = state.leagueId === 'l3g1' || state.leagueId === 'l3g2'
     const totalTeams = standings.length
@@ -6051,6 +6112,13 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
       if (state._filialRelegue) msg += '\n⚠️ Tu filial desciende automáticamente a 1ª Federación.'
     }
     else if (esPrimeraSpain) msg += '\nPermanencia en Primera División'
+    else if (esPrimeraFrance && pos === 1) msg += '\n🏆 ¡CAMPEÓN DE LA LIGUE 1!'
+    else if (esPrimeraFrance && pos <= 4) msg += '\n✅ Clasificado a Champions League'
+    else if (esPrimeraFrance && pos === 5) msg += '\n✅ Clasificado a Europa League'
+    else if (esPrimeraFrance && pos === 6) msg += '\n✅ Clasificado a Conference League'
+    else if (esPrimeraFrance && pos >= 17) msg += '\n⚠️ DESCENSO a Ligue 2'
+    else if (esPrimeraFrance && pos === 16) msg += '\n⚠️ Playoff de descenso'
+    else if (esPrimeraFrance) msg += '\nPermanencia en Ligue 1'
     else if (esTerceraRFEF && cambioDivision && pos === 1) msg += '\n🎉 ¡ASCENSO a Segunda División!'
     else if (esTerceraRFEF && cambioDivision) msg += '\n⚠️ DESCENSO a 2ª División B'
     else if (esTerceraRFEF && esPlayoffTerceraRFEF) msg += '\n🏆 Accedes a la Fase de Ascenso a Segunda División'
@@ -7137,26 +7205,35 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga) {
     var us = Math.min(10, Math.max(0, rawU))
     var them = Math.min(10, Math.max(0, rawR))
 
-    /* Pr\u00f3rroga si empate en Copa */
+    /* Pr\u00f3rroga si empate en Copa (excepto en Francia que va directo a penaltis) */
     if (us === them) {
-      var extraU = userPower / 11 * (0.6 + Math.random() * 0.3) * homeFactor
-      var extraR = rivalPower * (0.6 + Math.random() * 0.3) * awayFactor
-      var extraG = 1 + Math.floor(Math.random() * 3)
-      var probEx = extraU / (extraU + extraR + 0.001)
-      var exU = Math.round(extraG * probEx)
-      var exR = extraG - exU
-      if (exU > exR) { us += exU; them += exR }
-      else if (exR > exU) { us += exR; them += exU }
-      else {
-        /* Penaltis: 5 rondas + muerte s\u00fabita */
+      if (state.countryId === 'france') {
+        /* Coupe de France: sin pr\u00f3rroga, directo a penaltis */
         var uPen = 0, rPen = 0
         for (var pen = 0; pen < 5; pen++) { if (Math.random() < 0.75) uPen++; if (Math.random() < 0.72) rPen++ }
         var sp = 5
         while (uPen === rPen && sp < 20) { if (Math.random() < 0.75) uPen++; if (Math.random() < 0.70) rPen++; sp++ }
         if (uPen > rPen) us++; else them++
+      } else {
+        var extraU = userPower / 11 * (0.6 + Math.random() * 0.3) * homeFactor
+        var extraR = rivalPower * (0.6 + Math.random() * 0.3) * awayFactor
+        var extraG = 1 + Math.floor(Math.random() * 3)
+        var probEx = extraU / (extraU + extraR + 0.001)
+        var exU = Math.round(extraG * probEx)
+        var exR = extraG - exU
+        if (exU > exR) { us += exU; them += exR }
+        else if (exR > exU) { us += exR; them += exU }
+        else {
+          /* Penaltis: 5 rondas + muerte s\u00fabita */
+          var uPen = 0, rPen = 0
+          for (var pen = 0; pen < 5; pen++) { if (Math.random() < 0.75) uPen++; if (Math.random() < 0.72) rPen++ }
+          var sp = 5
+          while (uPen === rPen && sp < 20) { if (Math.random() < 0.75) uPen++; if (Math.random() < 0.70) rPen++; sp++ }
+          if (uPen > rPen) us++; else them++
+        }
+        /* Desgaste extra por pr\u00f3rroga */
+        state.players.forEach(function(p) { if (p.minutosEnPista > 0) p.energy = Math.max(3, p.energy - 10) })
       }
-      /* Desgaste extra por pr\u00f3rroga */
-      state.players.forEach(function(p) { if (p.minutosEnPista > 0) p.energy = Math.max(3, p.energy - 10) })
     }
 
     fixture.homeScore = isHome ? us : them
@@ -8463,9 +8540,9 @@ function getFranceCupForView() {
   var pairedResult = pairTeamsWithoutFiliales(r0Teams)
   var fixtures = []
   for (var fi = 0; fi < pairedResult.pairs.length; fi++) {
-    fixtures.push({ round: 'R0', label: '1/32', week: 3, home: pairedResult.pairs[fi][0], away: pairedResult.pairs[fi][1], homeScore: null, awayScore: null, played: false })
+    fixtures.push({ round: 'R0', label: '1/32', week: 4, home: pairedResult.pairs[fi][0], away: pairedResult.pairs[fi][1], homeScore: null, awayScore: null, played: false })
   }
-  return { schedule: COPA_SCHEDULE, roundIdx: 0, allFixtures: fixtures, eliminated: [] }
+  return { schedule: FRANCE_CUP_SCHEDULE, roundIdx: 0, allFixtures: fixtures, eliminated: [] }
 }
 
 function getFranceSupercopaForView() {
@@ -8585,7 +8662,8 @@ function renderCopaView(viewType, selectedRoundIdx) {
       ? [cup.schedule[selectedRoundIdx]]
       : cup.schedule
     /* Match count per round index */
-    var matchCounts = state.countryId === 'poland' ? [32, 16, 8, 4, 2, 1, 1] : [41, 20, 10, 5, 3, 2, 1]
+    /* Match count per round index */
+    var matchCounts = state.countryId === 'poland' ? [32, 16, 8, 4, 2, 1, 1] : state.countryId === 'france' ? [9, 5, 3, 2, 1] : [41, 20, 10, 5, 3, 2, 1]
     console.log('copaSchedule:', copaSchedule)
     copaSchedule.forEach(function(s, ri) {
       if (s.isSupercopa) return
@@ -8765,7 +8843,7 @@ function getCupCompName(countryId) {
 function getCupLogo(countryId) {
   if (countryId === 'portugal') return 'https://cdn.resfu.com/media/img/league_logos/taca_portugal.png?size=120x&lossy=1'
   if (countryId === 'poland') return 'https://cdn.resfu.com/media/img/league_logos/copa-polonia-27.png?size=120x&lossy=1'
-  if (countryId === 'france') return 'https://cdn.resfu.com/media/img/league_logos/copa-polonia-27.png?size=120x&lossy=1'
+  if (countryId === 'france') return 'https://cdn.resfu.com/media/img/league_logos/copa_de_francia.png?size=120x&lossy=1'
   return 'https://cdn.resfu.com/media/img/league_logos/copa-del-rey.png?size=40x&lossy=1'
 }
 
@@ -8779,7 +8857,7 @@ function getSupercopaCompName(countryId) {
 function getSupercopaLogo(countryId) {
   if (countryId === 'portugal') return 'https://cdn.resfu.com/media/img/league_logos/supertaca-portugal.png?size=120x&lossy=1'
   if (countryId === 'poland') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_polonia.png?size=120x&lossy=1'
-  if (countryId === 'france') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_polonia.png?size=120x&lossy=1'
+  if (countryId === 'france') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_francia.png?size=120x&lossy=1'
   return 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=120x&lossy=1'
 }
 
@@ -10727,26 +10805,34 @@ function updateInboxBadge() {
   const unread = state.inbox ? state.inbox.filter(n => !n.read).length : 0
   badge.textContent = unread
   badge.style.display = unread > 0 ? 'flex' : 'none'
+  const dropBadge = document.getElementById('dropdown-inbox-badge')
+  if (dropBadge) {
+    dropBadge.textContent = unread
+    dropBadge.style.display = unread > 0 ? 'inline-flex' : 'none'
+  }
 }
 
 function renderInbox() {
   const container = document.getElementById('club-inbox-content')
   if (!container) return
   const senderLabels = {
-    match: { label: 'Resultado', icon: '\u26BD' },
-    injury: { label: 'Servicio M\u00e9dico', icon: '\uD83D\uDC79' },
-    transfer: { label: 'Mercado', icon: '\uD83D\uDCB0' },
-    trophy: { label: 'Logro', icon: '\ud83c\udfc6' },
-    general: { label: 'Notificaci\u00f3n', icon: '\uD83D\uDCCC' },
+    match: { label: 'Resultado', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg>' },
+    injury: { label: 'Servicio M\u00e9dico', icon: '<svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg>' },
+    transfer: { label: 'Mercado', icon: '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 6v12M6 12h12"/></svg>' },
+    trophy: { label: 'Logro', icon: '<svg viewBox="0 0 24 24"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/><path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/><path d="M6 21h12"/><path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"/><path d="M6 9a6 6 0 0 1 12 0v1a6 6 0 0 1-12 0z"/></svg>' },
+    general: { label: 'Notificaci\u00f3n', icon: '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' },
   }
   if (!state.inbox || state.inbox.length === 0) {
-    container.innerHTML = '<div class="inbox-empty">\uD83D\uDCED No hay notificaciones</div>'
+    container.innerHTML = '<div class="inbox-empty"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg><p>No hay notificaciones</p></div>'
     return
   }
   var unreadCount = state.inbox.filter(function(n) { return !n.read }).length
-  var headerHtml = '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border)">' +
-    '<span style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px">Notificaciones</span>' +
-    (unreadCount > 0 ? '<span style="background:#EF4444;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">' + unreadCount + ' no le\u00eddas</span>' : '') +
+  var headerHtml = '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)">' +
+    '<span style="font-size:13px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Notificaciones</span>' +
+    '<div style="display:flex;align-items:center;gap:8px">' +
+    (unreadCount > 0 ? '<span id="mark-all-read-btn" style="font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;padding:4px 10px;border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;gap:4px;transition:background 0.15s" onmouseover="this.style.background=\'rgba(0,0,0,0.03)\'" onmouseout="this.style.background=\'transparent\'"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6L9 17l-5-5"/></svg> Marcar todo le\u00eddo</span>' : '') +
+    (unreadCount > 0 ? '<span style="background:#EF4444;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px">' + unreadCount + '</span>' : '') +
+    '</div>' +
   '</div>'
   let html = headerHtml + '<div class="inbox-list" id="inbox-list">'
   html += state.inbox.map(n => {
@@ -10762,7 +10848,7 @@ function renderInbox() {
         (n.body ? '<div class="inbox-preview">' + n.body + '</div>' : '') +
       '</div></div>'
   }).join('')
-  html += '</div><div class="inbox-detail" id="inbox-detail" style="display:none"><div class="inbox-detail-header"><button class="inbox-detail-back" id="inbox-detail-back">\u2190 Volver</button></div><div class="inbox-detail-body" id="inbox-detail-body"></div></div>'
+  html += '</div><div class="inbox-detail" id="inbox-detail" style="display:none"><div class="inbox-detail-header"><button class="inbox-detail-back" id="inbox-detail-back"><svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Volver</button></div><div class="inbox-detail-body" id="inbox-detail-body"></div></div>'
   container.innerHTML = html
   container.querySelectorAll('.inbox-item').forEach(function(el) {
     el.onclick = function() {
@@ -10775,6 +10861,15 @@ function renderInbox() {
     }
   })
   document.getElementById('inbox-detail-back') && (document.getElementById('inbox-detail-back').onclick = hideInboxDetail)
+  var markAllBtn = document.getElementById('mark-all-read-btn')
+  if (markAllBtn) {
+    markAllBtn.onclick = function() {
+      if (!state.inbox) return
+      state.inbox.forEach(function(n) { n.read = true })
+      updateInboxBadge()
+      renderInbox()
+    }
+  }
 }
 
 function showInboxDetail(n) {
@@ -10784,24 +10879,26 @@ function showInboxDetail(n) {
   list.style.display = 'none'
   detail.style.display = 'flex'
   const senderLabels = {
-    match: { label: 'Resultado', icon: '\u26BD' },
-    injury: { label: 'Servicio M\u00e9dico', icon: '\uD83D\uDC79' },
-    transfer: { label: 'Mercado', icon: '\uD83D\uDCB0' },
-    trophy: { label: 'Logro', icon: '\ud83c\udfc6' },
-    general: { label: 'Notificaci\u00f3n', icon: '\uD83D\uDCCC' },
+    match: { label: 'Resultado', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg>' },
+    injury: { label: 'Servicio M\u00e9dico', icon: '<svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg>' },
+    transfer: { label: 'Mercado', icon: '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 6v12M6 12h12"/></svg>' },
+    trophy: { label: 'Logro', icon: '<svg viewBox="0 0 24 24"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/><path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/><path d="M6 21h12"/><path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"/><path d="M6 9a6 6 0 0 1 12 0v1a6 6 0 0 1-12 0z"/></svg>' },
+    general: { label: 'Notificaci\u00f3n', icon: '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' },
   }
   const t = senderLabels[n.type] || senderLabels.general
   const date = new Date(n.createdAt)
   const dateStr = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
   const timeStr = String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0')
-  const estado = n.read ? '\u2705 Le\u00eddo' : '\uD83D\uDCEB No le\u00eddo'
+  const readStatus = n.read
+    ? '<span class="inbox-detail-meta-read read"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Le\u00eddo</span>'
+    : '<span class="inbox-detail-meta-read unread"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> No le\u00eddo</span>'
 
   var bodyHtml = ''
   if (n.type === 'trophy' && n.logo) {
     bodyHtml =
-      '<div style="text-align:center;padding:12px 0">' +
-        '<img src="' + n.logo + '" alt="" style="max-width:80px;max-height:80px;object-fit:contain;display:block;margin:0 auto 12px" onerror="this.style.display=\'none\'">' +
-        '<div style="font-size:32px;margin-bottom:8px">\ud83c\udfc6</div>' +
+      '<div style="text-align:center;padding:16px 0">' +
+        '<img src="' + n.logo + '" alt="" style="max-width:80px;max-height:80px;object-fit:contain;display:block;margin:0 auto 16px;border-radius:12px;background:var(--bg-card);padding:8px" onerror="this.style.display=\'none\'">' +
+        '<svg viewBox="0 0 24 24" style="width:40px;height:40px;color:#F59E0B;margin-bottom:8px"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/><path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/><path d="M6 21h12"/><path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"/><path d="M6 9a6 6 0 0 1 12 0v1a6 6 0 0 1-12 0z"/></svg>' +
       '</div>'
   } else if (n.offer && n.type === 'transfer') {
     var of = n.offer
@@ -10815,22 +10912,22 @@ function showInboxDetail(n) {
     var playerAvatarSrc = of.playerAvatar || NOPHOTO
     var offerActive = true
     bodyHtml =
-      '<div style="margin-bottom:12px;padding:8px 12px;background:#F59E0B;color:#fff;border-radius:8px;font-size:12px;font-weight:600;text-align:center">\u23f3 Oferta pendiente \u2014 caduca al cerrar el mercado</div>' +
-      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
-        '<div style="text-align:center;flex:1"><img src="' + teamLogoSrc + '" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:2px solid var(--text-muted);display:block;margin:0 auto 4px" onerror="this.src=\'' + NOPHOTO + '\'"><div style="font-size:12px;font-weight:600;color:var(--text)">' + of.teamName + '</div></div>' +
-        '<div style="font-size:22px;color:var(--text-muted)">\u2192</div>' +
-        '<div style="text-align:center;flex:1"><img src="' + playerAvatarSrc + '" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:2px solid var(--text-muted);display:block;margin:0 auto 4px" onerror="this.src=\'' + NOPHOTO + '\'"><div style="font-size:12px;font-weight:600;color:var(--text)">' + of.playerName + '</div>' +
-        '<div style="margin-top:4px;display:flex;gap:4px;justify-content:center;align-items:center"><span style="background:' + posColor + ';color:#fff;padding:0 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.6">' + posAbbr + '</span><span style="color:var(--text-muted);font-size:11px">' + of.playerSkill + ' \u00b7 ' + of.playerAge + ' a\u00f1os</span></div></div>' +
+      '<div style="margin-bottom:14px;padding:10px 14px;background:#F59E0B;color:#fff;border-radius:10px;font-size:13px;font-weight:600;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Oferta pendiente \u2014 caduca al cerrar el mercado</div>' +
+      '<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">' +
+        '<div style="text-align:center;flex:1"><img src="' + teamLogoSrc + '" alt="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:2px solid var(--border);display:block;margin:0 auto 6px" onerror="this.src=\'' + NOPHOTO + '\'"><div style="font-size:13px;font-weight:600;color:var(--text)">' + of.teamName + '</div></div>' +
+        '<svg viewBox="0 0 24 24" style="width:20px;height:20px;color:var(--text-muted);stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>' +
+        '<div style="text-align:center;flex:1"><img src="' + playerAvatarSrc + '" alt="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:2px solid var(--border);display:block;margin:0 auto 6px" onerror="this.src=\'' + NOPHOTO + '\'"><div style="font-size:13px;font-weight:600;color:var(--text)">' + of.playerName + '</div>' +
+        '<div style="margin-top:6px;display:flex;gap:6px;justify-content:center;align-items:center"><span style="background:' + posColor + ';color:#fff;padding:1px 7px;border-radius:4px;font-weight:700;font-size:11px;line-height:1.7">' + posAbbr + '</span><span style="color:var(--text-muted);font-size:12px">' + of.playerSkill + ' \u00b7 ' + of.playerAge + ' a\u00f1os</span></div></div>' +
       '</div>' +
-      '<div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:12px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0"><span style="font-size:13px;color:var(--text-secondary)">\ud83d\udcb0 Oferta</span><span style="font-size:16px;font-weight:700;color:#2E7D32">' + offerMoney + '</span></div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-top:1px solid var(--text-muted)"><span style="font-size:13px;color:var(--text-secondary)">\ud83d\udcca Valor de mercado</span><span style="font-size:13px;color:var(--text)">' + valueMoney + '</span></div>' +
+      '<div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:14px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0"><span style="font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 6v12M6 12h12"/></svg> Oferta</span><span style="font-size:18px;font-weight:700;color:#2E7D32">' + offerMoney + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border)"><span style="font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Valor de mercado</span><span style="font-size:14px;color:var(--text)">' + valueMoney + '</span></div>' +
       '</div>' +
-      '<div style="display:flex;gap:8px;margin-bottom:6px">' +
-        '<div id="ib-accept-' + n.id + '" style="flex:1;padding:12px;background:#2E7D32;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer">\u2714 Aceptar</div>' +
-        '<div id="ib-reject-' + n.id + '" style="flex:1;padding:12px;background:#c62828;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer">\u2716 Rechazar</div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:8px">' +
+        '<div id="ib-accept-' + n.id + '" style="flex:1;padding:13px;background:#2E7D32;border-radius:10px;text-align:center;font-size:14px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6L9 17l-5-5"/></svg> Aceptar</div>' +
+        '<div id="ib-reject-' + n.id + '" style="flex:1;padding:13px;background:#DC2626;border-radius:10px;text-align:center;font-size:14px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg> Rechazar</div>' +
       '</div>' +
-      '<div id="ib-counter-' + n.id + '" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;background:var(--accent);border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Contraofertar</div>'
+      '<div id="ib-counter-' + n.id + '" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:var(--accent);border-radius:10px;text-align:center;font-size:14px;font-weight:700;color:#fff;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Contraofertar</div>'
   } else {
     bodyHtml = '<div class="inbox-detail-text">' + (n.body || 'Sin contenido adicional') + '</div>'
   }
@@ -10838,7 +10935,7 @@ function showInboxDetail(n) {
   document.getElementById('inbox-detail-body').innerHTML = '' +
     '<div class="inbox-detail-type"><div class="inbox-detail-type-icon ' + n.type + '">' + t.icon + '</div><span class="inbox-detail-type-label">' + t.label + '</span></div>' +
     '<div class="inbox-detail-title">' + n.title + '</div>' +
-    '<div class="inbox-detail-meta">Jornada ' + n.matchday + ' \u00b7 ' + dateStr + ' \u00b7 ' + timeStr + ' \u00b7 ' + estado + '</div>' +
+    '<div class="inbox-detail-meta"><span>Jornada ' + n.matchday + '</span><span class="inbox-detail-meta-sep"></span><span>' + dateStr + '</span><span class="inbox-detail-meta-sep"></span><span>' + timeStr + '</span><span class="inbox-detail-meta-sep"></span>' + readStatus + '</div>' +
     bodyHtml
 
   if (n.offer && n.type === 'transfer') {
@@ -10868,12 +10965,12 @@ function showInboxDetail(n) {
         var inputDiv = document.createElement('div')
         inputDiv.id = 'ci-area-' + n.id
         inputDiv.innerHTML = '' +
-          '<div style="margin-top:6px;background:var(--bg);border-radius:8px;padding:10px">' +
-            '<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Tu contraoferta (\u20ac):</div>' +
-            '<input id="' + inputId + '" type="text" inputmode="numeric" value="' + of.playerValue.toLocaleString('es-ES') + '" style="width:100%;padding:8px;background:var(--bg-surface);border:1px solid var(--text-muted);border-radius:6px;color:var(--text);font-size:16px;font-weight:700;outline:none;box-sizing:border-box;text-align:center">' +
-            '<div style="display:flex;gap:6px;margin-top:6px">' +
-              '<div id="' + sendId + '" style="flex:1;padding:10px;background:#2E7D32;border-radius:6px;text-align:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer">Enviar</div>' +
-              '<div id="' + cancelId + '" style="flex:1;padding:10px;background:#6B7280;border-radius:6px;text-align:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer">Cancelar</div>' +
+          '<div style="margin-top:8px;background:var(--bg);border-radius:10px;padding:12px">' +
+            '<div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Tu contraoferta (\u20ac):</div>' +
+            '<input id="' + inputId + '" type="text" inputmode="numeric" value="' + of.playerValue.toLocaleString('es-ES') + '" style="width:100%;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:18px;font-weight:700;outline:none;box-sizing:border-box;text-align:center">' +
+            '<div style="display:flex;gap:8px;margin-top:8px">' +
+              '<div id="' + sendId + '" style="flex:1;padding:11px;background:#2E7D32;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg> Enviar</div>' +
+              '<div id="' + cancelId + '" style="flex:1;padding:11px;background:#6B7280;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer">Cancelar</div>' +
             '</div>' +
           '</div>'
         container.appendChild(inputDiv)
