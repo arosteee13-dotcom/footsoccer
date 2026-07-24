@@ -448,10 +448,13 @@ function randInt(min, max) {
 }
 
 function calcValue(skill, age, position) {
-  var base = Math.round(Math.pow(1.2, skill - 30) * 3000)
-  var pm = { 'delantero': 1.0, 'extremo_izq': 1.0, 'extremo_der': 1.0,
-    'medio_ofensivo': 0.9, 'medio_centro': 0.85, 'medio_defensivo': 0.85,
-    'defensa_central': 0.75, 'lateral_der': 0.78, 'lateral_izq': 0.78, 'portero': 0.7 }
+  var base = Math.round(Math.pow(1.14, skill - 18) * 10000)
+  var pm = { 'portero': 0.7,
+    'defensa_central': 0.75, 'lateral_der': 0.78, 'lateral_izq': 0.78,
+    'carrilero_der': 0.8, 'carrilero_izq': 0.8,
+    'medio_def': 0.85, 'mediocentro': 0.88, 'medio_der': 0.85, 'medio_izq': 0.85,
+    'medio_ofensivo': 0.9,
+    'extremo_der': 1.0, 'extremo_izq': 1.0, 'delantero': 1.0 }
   var am = age <= 18 ? 0.5 : age <= 21 ? 0.75 : age <= 28 ? 1.0 : age <= 32 ? 0.85 : age <= 35 ? 0.65 : 0.4
   return Math.round(base * (pm[position] || 0.8) * am)
 }
@@ -8271,7 +8274,7 @@ function buyPlayer(player, team, agreedPrice) {
   /* Remove from global pool */
   const gi = state.globalPlayers.findIndex(p => p.id === player.id)
   if (gi >= 0) state.globalPlayers.splice(gi, 1)
-  const newPlayer = { ...player, id: 'user-' + Date.now(), value: calcValue(player.skill, player.age, player.position), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null, teamStats: {} }
+  const newPlayer = { ...player, id: 'user-' + Date.now(), value: player.value || calcValue(player.skill, player.age, player.position), teamId: state.teamId, energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null, teamStats: {} }
   state.players.push(newPlayer)
   addNotification('transfer', `Fichaje completado: ${player.name}`, `${formatMoney(player.value)} · ${player.nationality}`)
   renderMarketContent()
@@ -11304,6 +11307,11 @@ function hideLoading() {
 /* ============ OFFER EVALUATION ============ */
 function evaluarOferta(player, offeredPrice) {
   const value = player.value
+  /* Player skill vs team rating check */
+  var teamRating = getTeamRating(state.teamId)
+  if (player.skill > teamRating + 12) {
+    return { type: 'rejected', minPrice: value, msg: 'El jugador no est\u00e1 interesado en unirse a tu club (nivel insuficiente)' }
+  }
   if (offeredPrice >= Math.round(value * 1.2)) {
     return { type: 'accepted', price: offeredPrice, msg: '\u00a1El club acepta la oferta!' }
   }
@@ -11316,6 +11324,15 @@ function evaluarOferta(player, offeredPrice) {
 }
 
 function evaluarCesion(player) {
+  /* Teams won't loan out their best players in each position */
+  var sourceTeam = getTeamObj(player.teamId)
+  if (sourceTeam && sourceTeam.players) {
+    var samePos = sourceTeam.players.filter(function(p) { return p.position === player.position && !p.onLoan })
+    var bestSkill = samePos.reduce(function(max, p) { return Math.max(max, p.skill || 0) }, 0)
+    if (player.skill >= bestSkill && samePos.length <= 2) {
+      return { type: 'rejected', msg: 'El club no cede a su mejor jugador en esa posici\u00f3n' }
+    }
+  }
   var prob = 0.3
   if (player.skill < 30) prob = 0.6
   else if (player.skill < 50) prob = 0.45
@@ -11628,7 +11645,7 @@ function openPlayerDetail(player, teamObj) {
               var ti = team.players.findIndex(function(p) { return p.id === player.id })
               if (ti >= 0) team.players.splice(ti, 1)
             }
-            var newP = { ...player, id: 'user-' + Date.now(), value: calcValue(player.skill, player.age, player.position), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
+            var newP = { ...player, id: 'user-' + Date.now(), value: player.value || calcValue(player.skill, player.age, player.position), teamId: state.teamId, energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
             state.players.push(newP)
             state.boughtPlayerIds.push(player.id)
             state.finances.balance -= result.price
@@ -11658,7 +11675,7 @@ function openPlayerDetail(player, teamObj) {
                 if (ti >= 0) team.players.splice(ti, 1)
               }
               /* Add to user's team */
-              var newP = { ...player, id: 'user-' + Date.now(), value: calcValue(player.skill, player.age, player.position), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
+              var newP = { ...player, id: 'user-' + Date.now(), value: player.value || calcValue(player.skill, player.age, player.position), teamId: state.teamId, energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
               state.players.push(newP)
               state.boughtPlayerIds.push(player.id)
               state.finances.balance -= result.price
