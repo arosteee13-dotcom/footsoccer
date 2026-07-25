@@ -5166,6 +5166,7 @@ function registrarTraspasoEnHistorial(data) {
     equipoOrigen: data.fromTeam,
     origenId: data.fromTeamId || '',
     origenLogo: data.fromLogo || '',
+    origenLigaId: data.fromLeagueId || '',
     equipoDestino: data.toTeam,
     destinoId: data.toTeamId || '',
     destinoLogo: data.toLogo || '',
@@ -5593,6 +5594,14 @@ function procesarIAOfertasCesionAlUsuario() {
         var _posLoan = POS_ABBR[p.position] || p.position || '?'
         state.finances.history.push({ reason: 'Cesión: ' + p.name + ' (' + _posLoan + ') · ' + duracionLabel + ' · ' + team.name, amount: 0 })
       }
+      registrarTraspasoEnHistorial({
+        playerName: p.name, playerSkill: p.skill,
+        playerPosition: p.position, playerAge: p.age,
+        playerAvatar: p.avatar || '',
+        fromTeam: state.team + ' (Tú)', fromTeamId: state.teamId, fromLogo: state.teamLogo || '',
+        toTeam: team.name, toTeamId: team.teamId, toLogo: team.logo || '',
+        price: 'Cesión', isLoan: true, isUserRelated: true
+      })
       addNotification('transfer', '\uD83D\uDCC4 Cesion solicitada: ' + p.name, team.name + ' toma cedido a ' + p.name + ' por ' + duracionLabel)
       offersMade++
     }
@@ -5684,6 +5693,14 @@ function procesarSolicitudCesion(player, team, seasons, resEl) {
     var newPlayer = { ...player, id: 'loan-' + Date.now(), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, onLoan: true, loanFrom: player.teamId, loanUntil: loanUntil }
     state.players.push(newPlayer)
     state.boughtPlayerIds.push(player.id)
+    registrarTraspasoEnHistorial({
+      playerName: player.name, playerSkill: player.skill,
+      playerPosition: player.position, playerAge: player.age,
+      playerAvatar: player.avatar || '',
+      fromTeam: (team ? team.name : ''), fromTeamId: player.teamId,
+      toTeam: state.team + ' (Tú)', toTeamId: state.teamId, toLogo: state.teamLogo || '',
+      price: 'Cesión', isLoan: true, isUserRelated: true
+    })
     rebuildGlobalPlayerPool()
     var duracionLabel = seasons === 0.5 ? 'media temporada' : seasons === 1 ? '1 temporada' : '2 temporadas'
     addNotification('transfer', '\uD83D\uDCC4 Cesion: ' + player.name, 'Cedido por ' + duracionLabel + ' desde ' + (team ? team.name : '') + ' hasta ' + loanUntil)
@@ -9026,16 +9043,16 @@ function renderMarket() {
   const header = document.getElementById('market-header')
   if (header) {
     const status = state.transferWindowOpen
-      ? '<span style="color:#4CAF50">🔓 Mercado abierto</span>'
-      : '<span style="color:#f44336">🔒 Mercado cerrado</span>'
+      ? '<span style="color:#4CAF50">🔓 Abierto</span>'
+      : '<span style="color:#f44336">🔒 Cerrado</span>'
     header.innerHTML = `Mercado de fichajes · ${status}`
   }
   /* Render sub-tabs */
   var tabBar = document.getElementById('market-tabs')
   if (tabBar) {
     tabBar.innerHTML =
-      '<button class="market-tab-btn' + (state.marketSubTab === 'active' ? ' active' : '') + '" data-tab="active">📋 Mercado Activo</button>' +
-      '<button class="market-tab-btn' + (state.marketSubTab === 'history' ? ' active' : '') + '" data-tab="history">📜 Historial de Traspasos</button>'
+      '<button class="market-tab-btn' + (state.marketSubTab === 'active' ? ' active' : '') + '" data-tab="active">Mercado Activo</button>' +
+      '<button class="market-tab-btn' + (state.marketSubTab === 'history' ? ' active' : '') + '" data-tab="history">Historial de Traspasos</button>'
     tabBar.querySelectorAll('.market-tab-btn').forEach(function(btn) {
       btn.onclick = function() {
         state.marketSubTab = btn.dataset.tab
@@ -9088,9 +9105,8 @@ function renderHistorialTraspasos() {
   var arrowSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
 
   var html = '<div style="display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--border)">'
-  html += '<button class="market-tab-btn h-filter active" data-hf="all">\uD83C\uDF0D Todos</button>'
-  html += '<button class="market-tab-btn h-filter" data-hf="mine">\uD83D\uDC64 Mis fichajes</button>'
-  html += '<button class="market-tab-btn h-filter" data-hf="league">\uD83C\uDFC6 Mi Liga</button>'
+  html += '<button class="market-tab-btn h-filter active" data-hf="all">Todos</button>'
+  html += '<button class="market-tab-btn h-filter" data-hf="league">Mi Liga</button>'
   html += '</div>'
   html += '<div class="historial-list" style="padding:6px 10px">'
 
@@ -9102,8 +9118,15 @@ function renderHistorialTraspasos() {
   var activeBtn = container.querySelector('.h-filter.active')
   if (activeBtn) activeHf = activeBtn.dataset.hf
   var filtered = list
-  if (activeHf === 'mine') filtered = list.filter(function(e) { return e.esUsuario })
-  if (activeHf === 'league') filtered = list.filter(function(e) { return e.ligaId === state.leagueId })
+  if (activeHf === 'league') {
+    var leagueTeamNames = state.leagueTeams.map(function(t) { return t.name })
+    var userTeamName = state.team
+    filtered = list.filter(function(e) {
+      var orig = (e.equipoOrigen || '').replace(' (Tú)', '')
+      var dest = (e.equipoDestino || '').replace(' (Tú)', '')
+      return leagueTeamNames.indexOf(orig) >= 0 || leagueTeamNames.indexOf(dest) >= 0 || orig === userTeamName || dest === userTeamName
+    })
+  }
   if (filtered.length === 0) {
     html += '<div class="empty-state" style="padding:30px;text-align:center;color:var(--text-muted)">No hay traspasos con este filtro</div></div>'
     container.innerHTML = html; return
@@ -12821,6 +12844,10 @@ function openPlayerDetail(player, teamObj) {
     })
   } else if (isParentPlayer) {
     actions.innerHTML = '<div style="text-align:center;padding:10px;background:rgba(0,0,0,0.04);border-radius:8px;font-size:13px;color:var(--text-muted)">Jugador del primer equipo — No disponible</div>'
+  } else if (player.onLoan && player.loanFrom) {
+    actions.innerHTML = '<div style="text-align:center;padding:10px;background:rgba(255,193,7,0.1);border-radius:8px;font-size:13px;color:#F59E0B;margin-bottom:10px">\ud83d\udcc4 Jugador cedido a este equipo — No est\u00e1 disponible para fichaje ni cesi\u00f3n hasta que regrese a ' + escHtml(player.loanFrom ? getTeamName(player.loanFrom) || 'su club de origen' : 'su club de origen') + '</div>'
+  } else if (player.onLoan) {
+    actions.innerHTML = '<div style="text-align:center;padding:10px;background:rgba(255,193,7,0.1);border-radius:8px;font-size:13px;color:#F59E0B;margin-bottom:10px">\ud83d\udcc4 Jugador cedido — No disponible para fichaje ni cesi\u00f3n hasta que regrese a su club de origen</div>'
   } else {
     /* CPU player — negotiation system */
     let acceptedPrice = 0
