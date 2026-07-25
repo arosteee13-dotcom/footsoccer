@@ -368,11 +368,13 @@
     </div>
 
     <div id="nat-picker-modal" class="modal-overlay hidden">
-      <div class="modal-content" style="max-width:320px">
-        <h3 style="margin:0 0 12px;font-size:14px;color:var(--muted)">Nacionalidad del mister</h3>
-        <input class="nat-search" id="nat-search" type="text" placeholder="Buscar pa\u00eds..." autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px;margin-bottom:8px;box-sizing:border-box">
-        <div class="modal-scroll" id="nat-picker-list" style="display:flex;flex-direction:column;gap:3px"></div>
-        <button class="btn-secondary modal-close" id="nat-picker-close">CANCELAR</button>
+      <div class="modal-content" style="max-width:360px">
+        <h3 style="margin:0 0 10px;font-size:15px;color:var(--text);text-align:center">Nacionalidad del mister</h3>
+        <input class="nat-search" id="nat-search" type="text" placeholder="Buscar pa\u00eds..." autocomplete="off">
+        <div class="modal-scroll">
+          <div id="nat-picker-list" style="display:flex;flex-direction:column;gap:2px"></div>
+        </div>
+        <button class="btn-secondary modal-close" id="nat-picker-close" style="margin:6px 16px 12px;width:calc(100% - 32px);flex-shrink:0">CANCELAR</button>
       </div>
     </div>
 

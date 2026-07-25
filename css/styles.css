@@ -4465,29 +4465,51 @@ td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
   flex-shrink: 0;
   cursor: pointer;
 }
-.nat-search:focus {
-  outline: none;
-  border-color: var(--accent) !important;
-}
 #nat-picker-modal .modal-content {
-  max-height: 420px;
+  max-height: 440px;
 }
 #nat-picker-modal .modal-scroll {
-  padding: 8px 12px 12px;
+  padding: 0 16px;
   overflow-y: auto;
   flex: 1;
   display: block;
 }
 #nat-picker-modal .modal-scroll h3 {
-  margin-bottom: 8px;
+  margin: 0;
+  font-size: 15px;
+  color: var(--text);
+  text-align: center;
+}
+.nat-search {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.nat-search:focus {
+  outline: none;
+  border-color: var(--accent) !important;
 }
 #nat-picker-list {
-  min-height: 260px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 #nat-picker-list .btn-secondary {
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 10px 14px;
+  font-size: 14px;
   text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
 }
 .ng-nat-selector {
   display: flex;
