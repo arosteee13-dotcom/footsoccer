@@ -3548,7 +3548,7 @@ function renderTactics(tactic) {
 }function autoAssignSquad() {
   const roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
   const assigned = []
-  const allPlayers = state.players.filter(p => !p.injury)
+  const allPlayers = state.players
 
   /* Once inicial: posici\u00f3n exacta primero, luego mejor ajuste */
   state.tacticsSlots = roles.map(function(role) {
@@ -3644,7 +3644,7 @@ function handleSlotClick(el, tactic) {
 
   if (isFilled && currentPid) {
     var p = state.players.find(function(x) { return x.id === currentPid })
-    if (p && p.injury) return
+    if (p && p._suspended) return
   }
 
   if (!state.selectedPlayerId) {
@@ -7929,12 +7929,16 @@ function simularPartidoRapido(fixture, rivalId) {
   if (!fixture || !rivalId) { console.warn('[SIM] simularPartidoRapido cancelado - fixture o rivalId inv\u00e1lido', { fixture: !!fixture, rivalId: rivalId }); return }
   const slots = state.tacticsSlots || []
   var startingIds = slots.filter(Boolean)
+  var blockedNames = []
   startingIds = startingIds.filter(function(pid) {
     var p = state.players.find(function(x) { return x.id === pid })
-    return !p || !p._suspended
+    if (!p) return false
+    if (p._suspended) { blockedNames.push(p.name + ' (suspendido)'); return false }
+    if (p.injury) { blockedNames.push(p.name + ' (lesionado)'); return false }
+    return true
   })
   if (startingIds.length < 11) {
-    alert('\u26a0\ufe0f Hay jugadores suspendidos. Revisa tu alineaci\u00f3n antes de simular.')
+    alert('\u26a0\ufe0f Jugadores no disponibles: ' + blockedNames.join(', ') + '. Revisa tu alineaci\u00f3n antes de simular.')
     return
   }
   const maxBench = getEffectiveMaxBench()
