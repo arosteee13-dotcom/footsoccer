@@ -3330,6 +3330,10 @@ td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
   background: #8B5CF6;
   color: #fff;
 }
+.market-card-btn.view {
+  background: var(--accent, #3B82F6);
+  color: #fff;
+}
 
 .market-card-btn.disabled {
   background: var(--border);

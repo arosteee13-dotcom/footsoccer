@@ -36,12 +36,14 @@ const POS_ABBR = { portero: 'POR', cierre: 'DFC', ala: 'MC', pivot: 'DC', latera
 
 const SIGLA_TO_POS = Object.fromEntries(Object.entries(POS_ABBR).map(([k, v]) => [v, k]))
 
-function getGoalWeight(position) {
+function getGoalWeight(position, playerSkill) {
   var fwds = ['delantero', 'extremo_der', 'extremo_izq']
   var mids = ['mediocentro', 'medio_def', 'medio_ofensivo', 'medio_der', 'medio_izq']
-  if (fwds.includes(position)) return 10
-  if (mids.includes(position)) return 5
-  return 2
+  var base = 2
+  if (fwds.includes(position)) base = 10
+  else if (mids.includes(position)) base = 5
+  var skillFactor = (playerSkill || 50) / 50
+  return Math.round(base * skillFactor)
 }
 
 function getCardProb(position, gamePlan) {
@@ -2554,7 +2556,7 @@ function assignAIStats(players, goals, formation, gamePlan) {
 
   var scored = 0
   while (scored < goals) {
-    var scorer = pickWeightedRandom(fieldPlayers, function(p) { return getGoalWeight(p.position) })
+    var scorer = pickWeightedRandom(fieldPlayers, function(p) { return getGoalWeight(p.position, p.skill) })
     scorer.goals = (scorer.goals || 0) + 1
     scored++
     if (Math.random() < 0.55) {
@@ -4491,12 +4493,11 @@ function abrirTacticasModal() {
 }
 
 function finishMatch(isHome, fixture, rival) {
-  const userScore = isHome ? matchData.homeScore : matchData.awayScore
-  const rivalScore = isHome ? matchData.awayScore : matchData.homeScore
-
-  /* Update fixture */
-  fixture.homeScore = isHome ? matchData.homeScore : matchData.awayScore
-  fixture.awayScore = isHome ? matchData.awayScore : matchData.homeScore
+  var userScore = fixture.homeScore
+  var rivalScore = fixture.awayScore
+  if (userScore == null) userScore = 0
+  if (rivalScore == null) rivalScore = 0
+  if (!isHome) { var tmp = userScore; userScore = rivalScore; rivalScore = tmp }
   fixture.played = true
 
   /* Playoff match handling */
@@ -4909,12 +4910,54 @@ function procesarEconomiaSemanal() {
     state.finances.balance -= gastos
     state.finances.history.push({ reason: 'Gastos operativos semanales', amount: -gastos })
   }
+  procesarLesiones()
   procesarVentasCPU()
   checkTransferWindow()
   if (state.transferWindowOpen) {
     procesarVentanaTransferencias()
     procesarIAOfertasAlUsuario()
     gestionarFilialesCPU()
+  }
+}
+
+function procesarLesiones() {
+  /* Weekly injury chance for user's players (training/match fatigue) */
+  if (!state.players) return
+  var injuryProb = 0.04  /* 4% chance per player per week */
+  for (var i = 0; i < state.players.length; i++) {
+    var p = state.players[i]
+    if (p.injury) continue
+    if (Math.random() < injuryProb) {
+      var weeks = 1 + Math.floor(Math.random() * 3)
+      if (Math.random() < 0.2) weeks += 1 + Math.floor(Math.random() * 4)
+      p.injury = { remaining: weeks }
+      addNotification('injury', '\u26A0 Lesi\u00f3n: ' + p.name, p.name + ' lesionado por ' + weeks + ' jornada' + (weeks > 1 ? 's' : ''), { logo: NOPHOTO })
+    }
+  }
+  /* Weekly injury chance for CPU players */
+  for (var t = 0; t < state.leagueTeams.length; t++) {
+    var team = state.leagueTeams[t]
+    if (!team.players) continue
+    for (var j = 0; j < team.players.length; j++) {
+      var cp = team.players[j]
+      if (cp.injury) continue
+      if (Math.random() < injuryProb * 0.8) {
+        cp.injury = { remaining: 1 + Math.floor(Math.random() * 3) }
+      }
+    }
+  }
+  /* Count down existing injuries */
+  var allPools = [state.players]
+  state.leagueTeams.forEach(function(t) { if (t.players) allPools.push(t.players) })
+  for (var pi = 0; pi < allPools.length; pi++) {
+    var pool = allPools[pi]
+    for (var pj = 0; pj < pool.length; pj++) {
+      var pl = pool[pj]
+      if (pl.injury && pl.injury.remaining) {
+        pl.injury.remaining--
+        if (pl.injury.remaining <= 0) pl.injury = null
+      }
+    }
   }
 }
 
@@ -5350,8 +5393,10 @@ function simularMercadoIA() {
               price: price, isLoan: false,
               isUserRelated: buyer.teamId === state.teamId || seller.teamId === state.teamId
             })
-            addNotification('transfer', '\uD83D\uDCB0 Fichaje: ' + candidate.name,
-              candidate.name + ' (' + formatMoney(price) + ') -> ' + buyer.name)
+            if (buyer.teamId === state.teamId || seller.teamId === state.teamId) {
+              addNotification('transfer', '\uD83D\uDCB0 Fichaje: ' + candidate.name,
+                candidate.name + ' (' + formatMoney(price) + ') -> ' + buyer.name)
+            }
             usedIds[candidate.id] = true
             result.transfers.push({ type: 'transfer', player: candidate.name, from: seller.name, to: buyer.name, price: price })
             rebuildGlobalPlayerPool()
@@ -5409,8 +5454,10 @@ function simularMercadoIA() {
             price: 'Cedido', isLoan: true,
             isUserRelated: buyer.teamId === state.teamId || loanSeller.teamId === state.teamId
           })
-          addNotification('transfer', '\uD83D\uDD04 Cesión: ' + loanPick.name,
-            loanPick.name + ' cedido al ' + buyer.name + ' desde ' + loanSeller.name)
+          if (buyer.teamId === state.teamId || loanSeller.teamId === state.teamId) {
+            addNotification('transfer', '\uD83D\uDD04 Cesión: ' + loanPick.name,
+              loanPick.name + ' cedido al ' + buyer.name + ' desde ' + loanSeller.name)
+          }
           usedIds[loanPick.id] = true
           result.transfers.push({ type: 'loan', player: loanPick.name, from: loanSeller.name, to: buyer.name })
           rebuildGlobalPlayerPool()
@@ -5659,7 +5706,9 @@ function procesarCesionesCPU() {
       var loanUntil = '30/06/' + (2026 + sn + Math.ceil(loanDur))
       var loaned = { ...sourcePlayer, id: `${team.teamId}-loan-${Date.now()}`, onLoan: true, loanFrom: sourceTeam.teamId, loanUntil: loanUntil, loanListed: false, transferListed: false, energy: randInt(70, 100) }
       team.players.push(loaned)
-      addNotification('transfer', `🔄 Cesión: ${sourcePlayer.name}`, `${sourcePlayer.name} cedido al ${team.name} desde ${sourceTeam.name}`)
+      if (team.teamId === state.teamId || sourceTeam.teamId === state.teamId) {
+        addNotification('transfer', `🔄 Cesión: ${sourcePlayer.name}`, `${sourcePlayer.name} cedido al ${team.name} desde ${sourceTeam.name}`)
+      }
       rebuildGlobalPlayerPool()
     }
   }
@@ -5703,7 +5752,16 @@ function procesarSolicitudCesion(player, team, seasons, resEl) {
     })
     rebuildGlobalPlayerPool()
     var duracionLabel = seasons === 0.5 ? 'media temporada' : seasons === 1 ? '1 temporada' : '2 temporadas'
-    addNotification('transfer', '\uD83D\uDCC4 Cesion: ' + player.name, 'Cedido por ' + duracionLabel + ' desde ' + (team ? team.name : '') + ' hasta ' + loanUntil)
+    showTransferConfirmModal({
+      type: 'Cesión',
+      price: 0,
+      player: newPlayer,
+      fromTeam: team ? team.name : '',
+      fromLogo: '',
+      toTeam: state.team,
+      toLogo: state.teamLogo || '',
+      isLoan: true
+    })
     document.getElementById('player-detail-modal').classList.remove('open')
     renderSquad(state.players)
   } else {
@@ -5884,6 +5942,79 @@ function mostrarOfertaTransferencia(player, team, offer) {
   document.body.appendChild(overlay)
 }
 
+function showTransferConfirmModal(data) {
+  var modal = document.getElementById('transfer-confirm-modal')
+  if (!modal) return
+  var type = data.type || 'Fichaje'
+  var isBuy = type === 'Fichaje' || type === 'Cesión'
+  var priceColor = type === 'Cesión' ? 'var(--text-muted)' : 'var(--success,#10B981)'
+  var priceLabel = type === 'Cesión' ? 'Cesión' : formatMoney(data.price)
+  var player = data.player
+  if (!player) return
+
+  document.getElementById('tcm-type').textContent = type
+  var priceEl = document.getElementById('tcm-price')
+  priceEl.textContent = priceLabel
+  priceEl.style.color = priceColor
+
+  var avatar = document.getElementById('tcm-avatar')
+  avatar.src = player.avatar || NOPHOTO
+  avatar.onerror = function() { this.src = NOPHOTO }
+
+  var posKey = SIGLA_TO_POS[player.position] || player.position
+  var posName = POSITIONS[posKey] ? POSITIONS[posKey].label : player.position
+  document.getElementById('tcm-name').textContent = player.name
+  document.getElementById('tcm-detail').textContent = posName + ' · ' + (POS_ABBR[posKey] || player.position) + ' · ' + player.skill + ' MED · ' + (player.age || '-') + ' años'
+
+  /* Positions */
+  var posHtml = ''
+  var mainAbbr = POS_ABBR[posKey] || player.position
+  var mainColor = (POSITIONS[posKey] && POSITIONS[posKey].color) || '#6B7280'
+  posHtml += '<span style="background:' + mainColor + ';color:#fff;padding:1px 6px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.8">' + mainAbbr + ' ' + (player.mainPct != null ? player.mainPct + '%' : '99%') + '</span>'
+  if (player.otherPositions && player.otherPositions.length > 0) {
+    player.otherPositions.forEach(function(o) {
+      var oKey = SIGLA_TO_POS[o.pos] || o.pos
+      var oAbbr = POS_ABBR[oKey] || o.pos
+      var oColor = (POSITIONS[oKey] && POSITIONS[oKey].color) || '#888'
+      posHtml += '<span style="background:' + oColor + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.8">' + oAbbr + ' ' + o.pct + '%</span>'
+    })
+  }
+  document.getElementById('tcm-positions').innerHTML = posHtml
+
+  /* Stats from previous team */
+  var statsHtml = ''
+  if (data.teamStats) {
+    statsHtml += '<span style="color:var(--text-muted)">PJ: ' + (data.teamStats.matches || 0) + '</span>'
+    statsHtml += '<span style="color:var(--text-muted)">Goles: ' + (data.teamStats.goals || 0) + '</span>'
+    statsHtml += '<span style="color:var(--text-muted)">Asistencias: ' + (data.teamStats.assists || 0) + '</span>'
+  } else if (player.teamStats) {
+    var tId = data.fromTeamId || data.player.fromTeamId || (player.teamId)
+    var ts = tId && player.teamStats ? player.teamStats[tId] : null
+    if (ts) {
+      statsHtml += '<span style="color:var(--text-muted)">PJ: ' + (ts.matches || 0) + '</span>'
+      statsHtml += '<span style="color:var(--text-muted)">Goles: ' + (ts.goals || 0) + '</span>'
+      statsHtml += '<span style="color:var(--text-muted)">Asistencias: ' + (ts.assists || 0) + '</span>'
+    }
+  }
+  if (player.nationality) statsHtml += '<span style="color:var(--text-muted)">' + player.nationality + '</span>'
+  if (!statsHtml) statsHtml = '<span style="color:var(--text-muted)">Sin estadísticas disponibles</span>'
+  document.getElementById('tcm-stats').innerHTML = statsHtml
+
+  /* Clubs */
+  var clubsHtml = ''
+  var fLogo = data.fromLogo || ''
+  var tLogo = data.toLogo || ''
+  var arrowSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
+  clubsHtml += fLogo ? '<img src="' + fLogo + '" style="width:22px;height:22px;border-radius:50%;object-fit:contain" onerror="this.style.display=\'none\'">' : '<span style="color:var(--text-muted)">' + escHtml(data.fromTeam || '') + '</span>'
+  clubsHtml += '<span style="color:var(--text-muted)">' + arrowSvg + '</span>'
+  clubsHtml += tLogo ? '<img src="' + tLogo + '" style="width:22px;height:22px;border-radius:50%;object-fit:contain" onerror="this.style.display=\'none\'">' : '<span style="color:var(--text-muted)">' + escHtml(data.toTeam || '') + '</span>'
+  document.getElementById('tcm-clubs').innerHTML = clubsHtml
+
+  modal.style.display = 'flex'
+  document.getElementById('tcm-btn-ok').onclick = function() { modal.style.display = 'none' }
+  modal.querySelector('.modal-overlay')?.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none' })
+}
+
 window.aceptarOferta = function(playerId, teamId, offer) {
   try { var mod = document.getElementById('transfer-offer-modal'); if (mod) mod.remove() } catch(e) {}
   const player = state.players.find(p => p.id === playerId)
@@ -5909,7 +6040,16 @@ window.aceptarOferta = function(playerId, teamId, offer) {
     toTeam: team.name, toTeamId: team.teamId, toLogo: team.logo || '',
     price: offer, isLoan: false, isUserRelated: true
   })
-  addNotification('transfer', `💵 Traspasado: ${player.name}`, `${formatMoney(offer)} · Nuevo destino: ${team.name}`)
+  showTransferConfirmModal({
+    type: 'Traspaso',
+    price: offer,
+    player: player,
+    fromTeam: state.team,
+    fromLogo: state.teamLogo || '',
+    toTeam: team.name,
+    toLogo: team.logo || '',
+    isLoan: false
+  })
   rebuildGlobalPlayerPool()
   renderClub()
   renderMarketContent()
@@ -6204,6 +6344,8 @@ function iniciarNuevaTemporada() {
     state.fixtures = generateFixtures([state.teamId].concat(state.leagueTeams.map(function(t) { return t.teamId })))
     state.totalMatchdays = state.fixtures.length > 0 ? Math.max.apply(null, state.fixtures.map(function(f) { return f.matchday })) : 38
     state.currentMatchday = 1
+    state.transferWindowOpen = true
+    state.mercadoSimuladoSemana = 0
     state.allLeagueData = {}
     initAllLeagueData()
     state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
@@ -6854,6 +6996,7 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
       var filialId = findBTeamOf(state.teamId)
       var filialInL2s = filialId && getLeagueTeams('l2s').some(function(t) { return t.id === filialId })
       if (filialInL2s) state._filialRelegue = filialId
+      state.leagueId = 'l2s'
       cambioDivision = true
     } else if (esPrimeraFrance && pos >= 17) {
       if (getLeagueTeams('l2fr')) {
@@ -7828,7 +7971,7 @@ function simularPartidoRapido(fixture, rivalId) {
     const userFinal = userPower * (0.95 + Math.random() * 0.1) * homeFactor
     const rivalFinal = rivalPower * (0.95 + Math.random() * 0.1) * awayFactor
     const probUser = 1 / (1 + Math.pow(10, (rivalFinal - userFinal) / 15))
-    const attempts = Math.floor(Math.random() * 6)
+    const attempts = 3 + Math.floor(Math.random() * 5)
     let rawUser = 0, rawRival = 0
     for (let a = 0; a < attempts; a++) {
       if (Math.random() < probUser) { rawUser++ } else { rawRival++ }
@@ -7869,7 +8012,7 @@ function simularPartidoRapido(fixture, rivalId) {
     for (let g = 0; g < us; g++) {
       const valid = state.players.filter(p => startingIds.includes(p.id) && p.position !== 'POR' && !p.injury)
       if (valid.length === 0) break
-      const scorer = pickWeightedRandom(valid, function(p) { return getGoalWeight(p.position) })
+      const scorer = pickWeightedRandom(valid, function(p) { return getGoalWeight(p.position, p.skill) })
       scorer.goals = (scorer.goals || 0) + 1
       scorer._goalsInMatch = (scorer._goalsInMatch || 0) + 1
       let assistName = null
@@ -7900,6 +8043,17 @@ function simularPartidoRapido(fixture, rivalId) {
       asignarTarjetasJugador(p, cardGamePlan)
     })
     procesarSuspensiones()
+
+    /* Match injuries for user's players */
+    var injProb = 0.06
+    state.players.filter(p => startingIds.includes(p.id) && !p.injury).forEach(function(p) {
+      if (Math.random() < injProb) {
+        var weeks = 1 + Math.floor(Math.random() * 3)
+        if (Math.random() < 0.15) weeks += 1 + Math.floor(Math.random() * 6)
+        p.injury = { remaining: weeks }
+        addNotification('injury', '\u26A0 Lesi\u00f3n: ' + p.name, p.name + ' se lesiona durante el partido (' + weeks + ' jornada' + (weeks > 1 ? 's' : '') + ')', { logo: NOPHOTO })
+      }
+    })
 
     /* Fatigue for user's players */
     state.players.forEach(p => {
@@ -8236,7 +8390,7 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga, isEflCu
     for (var g = 0; g < (isHome ? us : them); g++) {
       var valid = state.players.filter(function(pl) { return startingIds.indexOf(pl.id) >= 0 && pl.position !== 'POR' && !pl.injury })
       if (valid.length === 0) break
-      var scorer = pickWeightedRandom(valid, function(pl) { return getGoalWeight(pl.position) })
+      var scorer = pickWeightedRandom(valid, function(pl) { return getGoalWeight(pl.position, pl.skill) })
       scorer.goals = (scorer.goals || 0) + 1
       scorer._goalsInMatch = (scorer._goalsInMatch || 0) + 1
       var assistName = null
@@ -8934,7 +9088,7 @@ function autoSimularPartidoUsuario(fixture) {
   for (let g = 0; g < us; g++) {
     const valid = state.players.filter(p => ids.includes(p.id) && p.position !== 'POR' && !p.injury)
     if (valid.length === 0) break
-    const scorer = pickWeightedRandom(valid, function(p) { return getGoalWeight(p.position) })
+    const scorer = pickWeightedRandom(valid, function(p) { return getGoalWeight(p.position, p.skill) })
     scorer.goals = (scorer.goals || 0) + 1
     scorer._goalsInMatch = (scorer._goalsInMatch || 0) + 1
     if (Math.random() < 0.35) {
@@ -9262,9 +9416,7 @@ function renderMarketContent() {
       const valShort = formatShort(p.value)
       const posColor = pos.color
       const btnHtml = state.transferWindowOpen
-        ? (state.players.length >= MAX_SQUAD || state.finances.balance < p.value
-          ? '<button class="market-card-btn disabled">' + (state.players.length >= MAX_SQUAD ? 'PLANTILLA LLENA' : 'SIN FONDOS') + '</button>'
-          : '<button class="market-card-btn buy">COMPRAR</button>')
+        ? '<button class="market-card-btn view">VER</button>'
         : '<button class="market-card-btn disabled" style="font-size:18px;line-height:1">🔒</button>'
       return `
         <div class="tp-row market-card" data-player-id="${p.id}" data-team-id="${p.teamId}">
@@ -9293,18 +9445,6 @@ function renderMarketContent() {
         const team = getTeamObj(gp.teamId)
         openPlayerDetail(gp, team)
       }
-      card.querySelector('.market-card-btn.buy')?.addEventListener('click', (e) => {
-        e.stopPropagation()
-        const pid = card.dataset.playerId
-        const gp = state.globalPlayers.find(p => p.id === pid)
-        if (!gp) return
-        const team = getTeamObj(gp.teamId)
-        if (!team) return
-        const teamPlayer = team.players.find(p => p.id === pid)
-        if (!teamPlayer) return
-        if (!state.transferWindowOpen || state.players.length >= MAX_SQUAD || state.finances.balance < teamPlayer.value) return
-        buyPlayer(teamPlayer, team, teamPlayer.value)
-      })
     })
   }
 
@@ -9336,7 +9476,18 @@ function buyPlayer(player, team, agreedPrice) {
     toTeam: state.team + ' (Tú)', toTeamId: state.teamId, toLogo: state.teamLogo || '',
     price: finalValue, isLoan: false, isUserRelated: true
   })
-  addNotification('transfer', `Fichaje completado: ${player.name}`, `${formatMoney(player.value)} · ${player.nationality}`)
+  showTransferConfirmModal({
+    type: 'Fichaje',
+    price: finalValue,
+    player: newPlayer,
+    fromTeam: team.name,
+    fromTeamId: team.teamId,
+    fromLogo: team.logo || '',
+    toTeam: state.team,
+    toLogo: state.teamLogo || '',
+    isLoan: false,
+    teamStats: player.teamStats ? player.teamStats[team.teamId] : null
+  })
   renderMarketContent()
 }
 
@@ -12136,6 +12287,7 @@ function addNotification(type, title, body, extraData) {
   if (extraData) {
     if (extraData.playerId) notif.offer = extraData
     else if (extraData.logo) notif.logo = extraData.logo
+    if (extraData.playerData) notif.playerData = extraData.playerData
   }
   state.inbox.unshift(notif)
   updateInboxBadge()
@@ -12282,6 +12434,38 @@ function showInboxDetail(n) {
         '<div id="ib-reject-' + n.id + '" style="flex:1;padding:13px;background:#DC2626;border-radius:10px;text-align:center;font-size:14px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg> Rechazar</div>' +
       '</div>' +
       '<div id="ib-counter-' + n.id + '" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:var(--accent);border-radius:10px;text-align:center;font-size:14px;font-weight:700;color:#fff;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Contraofertar</div>'
+  } else if (n.playerData) {
+    var pd = n.playerData
+    var pk = SIGLA_TO_POS[pd.position] || pd.position
+    var pa = POS_ABBR[pk] || pd.position
+    var pc = (POSITIONS[pk] && POSITIONS[pk].color) || '#6B7280'
+    var av = pd.avatar || NOPHOTO
+    var posHtml = '<span style="background:' + pc + ';color:#fff;padding:1px 6px;border-radius:3px;font-weight:700;font-size:10px">' + pa + ' ' + (pd.mainPct != null ? pd.mainPct + '%' : '99%') + '</span>'
+    if (pd.otherPositions && pd.otherPositions.length > 0) {
+      pd.otherPositions.forEach(function(o) {
+        var ok = SIGLA_TO_POS[o.pos] || o.pos
+        var oa = POS_ABBR[ok] || o.pos
+        var oc = (POSITIONS[ok] && POSITIONS[ok].color) || '#888'
+        posHtml += '<span style="background:' + oc + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:10px">' + oa + ' ' + o.pct + '%</span>'
+      })
+    }
+    bodyHtml =
+      '<div style="display:flex;align-items:center;gap:12px;padding:12px 0">' +
+        '<img src="' + av + '" style="width:56px;height:56px;border-radius:50%;object-fit:cover;background:var(--bg-card);flex-shrink:0" onerror="this.src=\'' + NOPHOTO + '\'">' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-weight:700;font-size:14px;color:var(--text)">' + escHtml(pd.name) + '</div>' +
+          '<div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">' + posHtml + '</div>' +
+          '<div style="margin-top:4px;display:flex;gap:8px;align-items:center;font-size:12px;color:var(--text-muted)">' +
+            '<span class="tp-cell-power" style="' + getPowerBadgeStyle(pd.skill) + ';font-size:10px;padding:0 4px;border-radius:3px;font-weight:700">' + pd.skill + '</span>' +
+            '<span>' + (pd.age || '-') + ' años</span>' +
+            '<span>' + (pd.nationality || '').split(' ')[0] + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div style="text-align:right;flex-shrink:0">' +
+          '<div style="font-size:16px;font-weight:800;color:var(--success,#10B981)">' + formatMoney(pd.price || 0) + '</div>' +
+          '<div style="font-size:10px;color:var(--text-muted)">Fichaje</div>' +
+        '</div>' +
+      '</div>'
   } else {
     bodyHtml = '<div class="inbox-detail-text">' + (n.body || 'Sin contenido adicional') + '</div>'
   }
@@ -12890,7 +13074,13 @@ function openPlayerDetail(player, teamObj) {
             state.finances.balance -= result.price
             var _posBuy2 = POS_ABBR[player.position] || player.position || '?'
             state.finances.history.push({ reason: 'Fichaje: ' + player.name + ' (' + _posBuy2 + ') \u00b7 ' + formatMoney(result.price) + ' \u00b7 ' + (team ? team.name : ''), amount: -result.price })
-            addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality)
+            addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality, { playerData: { name: player.name, skill: player.skill, position: player.position, age: player.age, avatar: player.avatar, nationality: player.nationality, price: result.price, otherPositions: player.otherPositions, mainPct: player.mainPct } })
+            showTransferConfirmModal({
+              type: 'Fichaje', price: result.price, player: newP,
+              fromTeam: team ? team.name : '', fromTeamId: player.teamId, fromLogo: team ? team.logo || '' : '',
+              toTeam: state.team, toLogo: state.teamLogo || '',
+              teamStats: player.teamStats ? player.teamStats[player.teamId] : null
+            })
             document.getElementById('player-detail-modal').classList.remove('open')
             renderMarketContent()
             return
@@ -12920,7 +13110,13 @@ function openPlayerDetail(player, teamObj) {
               state.finances.balance -= result.price
             var _posBuy3 = POS_ABBR[player.position] || player.position || '?'
             state.finances.history.push({ reason: 'Fichaje: ' + player.name + ' (' + _posBuy3 + ') \u00b7 ' + formatMoney(result.price) + ' \u00b7 ' + (team ? team.name : ''), amount: -result.price })
-              addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality)
+              addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality, { playerData: { name: player.name, skill: player.skill, position: player.position, age: player.age, avatar: player.avatar, nationality: player.nationality, price: result.price, otherPositions: player.otherPositions, mainPct: player.mainPct } })
+              showTransferConfirmModal({
+                type: 'Fichaje', price: result.price, player: newP,
+                fromTeam: team ? team.name : '', fromTeamId: player.teamId, fromLogo: team ? team.logo || '' : '',
+                toTeam: state.team, toLogo: state.teamLogo || '',
+                teamStats: player.teamStats ? player.teamStats[player.teamId] : null
+              })
               document.getElementById('player-detail-modal').classList.remove('open')
               renderMarketContent()
             })
