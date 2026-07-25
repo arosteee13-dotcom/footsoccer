@@ -898,11 +898,12 @@ var FRANCE_CUP_SCHEDULE = [
 ]
 
 var ITALY_CUP_SCHEDULE = [
-  { week: 5, label: '1/16' },
-  { week: 12, label: 'Octavos' },
-  { week: 20, label: 'Cuartos' },
-  { week: 28, label: 'Semifinal' },
-  { week: 35, label: 'Final' },
+  { week: 4, label: '1/32' },
+  { week: 8, label: '1/16' },
+  { week: 13, label: 'Octavos' },
+  { week: 19, label: 'Cuartos' },
+  { week: 26, label: 'Semifinal' },
+  { week: 33, label: 'Final' },
 ]
 
 var PORTUGAL_MODESTO_NAMES = [
@@ -1215,7 +1216,9 @@ function getCopaTeamsForRound(roundIdx) {
       return (l1 || []).concat(l2 || []).concat(l3 || []).concat(l4 || [])
     }
     if (state.countryId === 'italy') {
-      return getLeagueTeams('sa') || []
+      var sa = getLeagueTeams('sa')
+      var sb = getLeagueTeams('sb')
+      return (sa || []).concat(sb || [])
     }
     /* R0: Todas las divisiones - Primera + Segunda + Primera Fed */
     var allTeams = []
@@ -3719,7 +3722,12 @@ function renderLeague(viewedLeagueId) {
       else if (i < 3) barClass = 'bar-uel'
       else if (i < 4) barClass = 'bar-conference'
       else if (i >= totalTeams - 3) barClass = 'bar-descenso'
-    } else if (displayLid === 'l2s') {
+  } else if (displayLid === 'sb') {
+    if (i < 2) barClass = 'bar-promotion'
+    else if (i < 8) barClass = 'bar-promotion-playoff'
+    else if (i >= totalTeams - 5 && i < totalTeams - 3) barClass = 'bar-relegation-playoff'
+    else if (i >= totalTeams - 3) barClass = 'bar-descenso'
+  } else if (displayLid === 'l2s') {
       if (i < 2) barClass = 'bar-promotion'
       else if (i < 6) barClass = 'bar-promotion-playoff'
       else if (i >= totalTeams - 4) barClass = 'bar-descenso'
@@ -3871,6 +3879,14 @@ function renderLeague(viewedLeagueId) {
       { cls: 'bar-descenso', label: 'Descenso' },
     ]
   } else if (displayLid === 'l2p') {
+    legendItems = [
+      { cls: 'bar-promotion', label: 'Ascenso directo' },
+      { cls: 'bar-promotion-playoff', label: 'Playoff Ascenso' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-relegation-playoff', label: 'Playoff Descenso' },
+      { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else if (displayLid === 'sb') {
     legendItems = [
       { cls: 'bar-promotion', label: 'Ascenso directo' },
       { cls: 'bar-promotion-playoff', label: 'Playoff Ascenso' },
@@ -4370,6 +4386,7 @@ function getLeagueRules(leagueId) {
     'l1fr': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 2, crossPlayoff: { pos: 16, opponent: 'l2fr', opponentPos: 3 }, relegatesTo: 'l2fr' },
     'l2fr': { directPromotion: 2, playoffSpots: 0, playoffPromotions: 0, relegation: 0, promotesTo: 'l1fr' },
     'sa': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 3, relegatesTo: 'sb' },
+    'sb': { directPromotion: 2, playoffSpots: 6, playoffPromotions: 1, relegation: 5, relegationPlayoff: [16, 17], promotesTo: 'sa' },
     'lpl': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 3, relegatesTo: 'lpl2' },
     'lpl2': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 3, promotesTo: 'lpl', relegatesTo: 'lpl3' },
     'lpl3': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 6, relegationPlayoff: [15, 16], promotesTo: 'lpl2', relegatesTo: ['lpl4g1','lpl4g2','lpl4g3','lpl4g4'] },
@@ -6055,7 +6072,12 @@ function renderProgression() {
               var rpVerdict = rp.verdict === 'saved' ? '\u2705 Se salva y permanece en ' + div.name : '\u274c Desciende a ' + (rp.opponentLeague || 'divisi\u00f3n inferior')
               html += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;padding-left:24px">' + rpVerdict + '</div>'
               html += '<div style="font-size:12px;color:var(--text-muted);padding-left:24px">' + (rp.verdict === 'saved' ? '\u274c ' + rp.opponentName + ' no asciende' : '\u2705 ' + rp.opponentName + ' asciende a ' + div.name) + '</div>'
-            } else {
+    } else if (displayLid === 'sb') {
+      if (i < 2) barClass = 'bar-promotion'
+      else if (i < 8) barClass = 'bar-promotion-playoff'
+      else if (i >= totalTeams - 5 && i < totalTeams - 3) barClass = 'bar-relegation-playoff'
+      else if (i >= totalTeams - 3) barClass = 'bar-descenso'
+    } else {
               html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:13px;color:var(--text)"><img style="width:18px;height:18px;border-radius:50%;object-fit:contain" src="' + getTeamLogo(rp.teamId) + '" onerror="this.style.display=\'none\'"> <span>' + rp.name + ' (' + rp.pos + '\u00ba)</span></div>'
             }
           }
@@ -8869,7 +8891,9 @@ function getFranceSupercopaForView() {
 }
 
 function getItalyCupForView() {
-  var allTeams = getLeagueTeams('sa') || []
+  var saTeams = getLeagueTeams('sa') || []
+  var sbTeams = getLeagueTeams('sb') || []
+  var allTeams = saTeams.concat(sbTeams)
   if (allTeams.length < 2) return null
   var shuffled = allTeams.slice().sort(function() { return Math.random() - 0.5 })
   var fixtures = []
@@ -9018,7 +9042,7 @@ function renderCopaView(viewType, selectedRoundIdx) {
       : cup.schedule
     /* Match count per round index */
     /* Match count per round index */
-    var matchCounts = activeCountry === 'poland' ? [32, 16, 8, 4, 2, 1, 1] : activeCountry === 'france' ? [18, 9, 5, 3, 2, 1] : activeCountry === 'italy' ? [10, 5, 2, 2, 1] : [41, 20, 10, 5, 3, 2, 1]
+    var matchCounts = activeCountry === 'poland' ? [32, 16, 8, 4, 2, 1, 1] : activeCountry === 'france' ? [18, 9, 5, 3, 2, 1] : activeCountry === 'italy' ? [20, 10, 5, 2, 2, 1] : [41, 20, 10, 5, 3, 2, 1]
     console.log('copaSchedule:', copaSchedule)
     copaSchedule.forEach(function(s, ri) {
       if (s.isSupercopa) return
@@ -9171,6 +9195,7 @@ function getDivisionBaseBudget(leagueId) {
   if (leagueId === 'lpl2') return 1200000
   if (leagueId === 'lpl3') return 600000
   if (leagueId === 'sa') return 15000000
+  if (leagueId === 'sb') return 4000000
   if (leagueId.startsWith('lpl4g')) return 300000
   if (leagueId.startsWith('l3sg')) return 500000
   if (leagueId.startsWith('l2b')) return 1500000
