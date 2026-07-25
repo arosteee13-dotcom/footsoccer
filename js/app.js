@@ -3343,7 +3343,7 @@ function renderTactics(tactic) {
     if (!pos) { pos = POS_ABBR[posKey] ? { label: POS_ABBR[posKey], color: '#6B7280' } : { label: '?', color: '#6B7280' } }
     var posColor = posColorOverride || pos.color
     var posAbbr = roleAbbrOverride || (POS_ABBR[posKey] || player.position)
-    var cls = player.injury ? ' unavailable' : ''
+    var cls = ''
     var avatarStyle = 'background-image:url(' + (player.avatar || NOPHOTO) + ');background-size:cover;background-position:center;background-color:var(--bg-card)'
     var eneColor = player.energy >= 60 ? '#22C55E' : player.energy >= 30 ? '#F59E0B' : '#EF4444'
     var displaySkill = effectiveSkill || player.skill
@@ -3351,9 +3351,9 @@ function renderTactics(tactic) {
     return '<div class="tp-player-card' + cls + '" data-' + dataset + '="' + dataVal + '" style="--pos-color:' + posColor + '">' +
       '<div class="tp-card-top"><span style="display:flex;align-items:center;gap:2px">' + (isOutOfPosition ? '<span style="font-size:9px">\u26a0\ufe0f</span>' : '') + '<span class="tp-stat-skill" style="' + getPowerBadgeStyle(displaySkill) + '">' + displaySkill + '</span></span><span class="tp-card-pos" style="color:' + posColor + '">' + posAbbr + '</span></div>' +
       '<div class="tp-card-avatar" style="position:relative;' + avatarStyle + '">' + (player._suspended ? '<span class="tp-card-susp-overlay"><span class="tp-susp-card">' + player._suspended + '</span></span>' : '') + '</div>' +
-      '<span class="tp-card-name">' + (player.injury ? '\ud83d\udeb9 ' : '') + player.name.split(' ').slice(-1)[0] + '</span>' +
+      '<span class="tp-card-name">' + (player.injury ? '\ud83e\ude79 ' : '') + player.name.split(' ').slice(-1)[0] + '</span>' +
       '<div class="tp-energy-bar"><div class="tp-energy-fill" style="width:' + player.energy + '%;background:' + eneColor + '"></div></div>' +
-      (player.injury ? '<div class="tp-injury-badge">\ud83d\udfe1 ' + player.injury.remaining + 'j</div>' : '') +
+      (player.injury ? '<div class="tp-injury-badge">\ud83e\ude79 ' + player.injury.remaining + 'j</div>' : '') +
     '</div>'
   }
 
@@ -3488,7 +3488,7 @@ function renderTactics(tactic) {
           isLongPress = true
           var pid = getPlayerIdFromSlot(card)
           var player = state.players.find(function(p) { return p.id === pid })
-          if (player && !player.injury) openPlayerDetail(player)
+          if (player) openPlayerDetail(player)
         }, 500)
       })
       card.addEventListener('mouseup', function() { clearTimeout(pressTimer) })
@@ -3499,7 +3499,7 @@ function renderTactics(tactic) {
           isLongPress = true
           var pid = getPlayerIdFromSlot(card)
           var player = state.players.find(function(p) { return p.id === pid })
-          if (player && !player.injury) openPlayerDetail(player)
+          if (player) openPlayerDetail(player)
         }, 500)
       })
       card.addEventListener('touchend', function() { clearTimeout(pressTimer) })
