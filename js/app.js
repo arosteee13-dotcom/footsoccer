@@ -1710,10 +1710,10 @@ function getTacaDaLigaTeams() {
 }
 
 function getTacaDaLigaCompName() { return 'Copa de la Liga Portugal' }
-function getTacaDaLigaLogo() { return 'https://cdn.resfu.com/media/img/league_logos/taca_da_liga.png?size=120x&lossy=1' }
+function getTacaDaLigaLogo() { return 'https://cdn.resfu.com/img_data/competiciones/copa/601.png?size=120x&lossy=1' }
 
 function getEflCupCompName() { return 'EFL Cup' }
-function getEflCupLogo() { return 'https://cdn.resfu.com/media/img/league_logos/efl-cup.png?size=120x&lossy=1' }
+function getEflCupLogo() { return 'https://cdn.resfu.com/img_data/competiciones/copa/523.png?size=120x&lossy=1' }
 
 function getTacaDaLigaLabel(roundIdx) {
   var labels = ['Cuartos', 'Semifinal', 'Final']
@@ -2399,7 +2399,7 @@ function getTeamObj(id) {
       const team = l.teams.find(x => x.id === id)
       if (team) {
         if (getRealSquad(team.id)) {
-          return { name: team.name, players: getRealSquad(team.id).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }).map(function(p) { return { ...p } }), teamId: team.id, staff: team.staff, formation: team.formation, gamePlan: team.gamePlan, logo: team.logo, palmares: team.palmares }
+          return { name: team.name, players: getRealSquad(team.id).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }).map(function(p) { var pp = { ...p }; if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp }), teamId: team.id, staff: team.staff, formation: team.formation, gamePlan: team.gamePlan, logo: team.logo, palmares: team.palmares }
         }
         const rating = team.rating || getBaseDato(id)?.rating || 70
         return { name: team.name, players: generateCpuSquad(id, state.countryId, rating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, staff: team.staff || generateStaff(team.name, state.countryId), formation: team.formation, gamePlan: team.gamePlan, logo: team.logo, palmares: team.palmares }
@@ -2935,7 +2935,9 @@ function renderSquad(players) {
 function renderSquadInfo(players) {
   const container = document.getElementById('club-squad-content')
   if (!container) return
-  const ordered = [...players].sort((a, b) => {
+  const active = players.filter(p => !(p.onLoan && p.loanTo))
+  const loanedOut = players.filter(p => p.onLoan && p.loanTo)
+  const ordered = [...active].sort((a, b) => {
     const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
     const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
     return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
@@ -2952,7 +2954,7 @@ function renderSquadInfo(players) {
     })
   }
   container.innerHTML += html
-  html = `<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (${players.length})</div>
+  html = `<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (${active.length})</div>
     <div class="tp-table-header" style="padding:6px 14px">
       <span class="tp-th-pos">Pos</span>
       <span class="tp-th-name">Nombre</span>
@@ -2970,7 +2972,7 @@ function renderSquadInfo(players) {
         <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
         <div class="tp-cell-info">
           <span class="tp-cell-name">${p.name}</span>
-          <span class="tp-cell-value">${p.nationality || ''} ${p._suspended ? '<span class="player-badge badge-lt" style="font-size:8px;background:#EF4444">SUS</span>' : ''} ${p.onLoan ? '<span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CES</span>' : ''} ${p.transferListed ? '<span class="player-badge badge-lt" style="font-size:8px">TR</span>' : ''}${p.loanListed ? '<span class="player-badge badge-lc" style="font-size:8px">CED</span>' : ''}</span>
+          <span class="tp-cell-value">${p.nationality || ''} ${p._suspended ? '<span class="player-badge badge-lt" style="font-size:8px;background:#EF4444">SUS</span>' : ''} ${p.onLoan && p.loanFrom ? '<span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CED</span>' : ''} ${p.transferListed ? '<span class="player-badge badge-lt" style="font-size:8px">TR</span>' : ''}${p.loanListed ? '<span class="player-badge badge-lc" style="font-size:8px">CED</span>' : ''}${p.onLoan && p.loanFromName ? ' <span style="font-size:10px;color:var(--text-muted)">(' + p.loanFromName + ')</span>' : ''}</span>
         </div>
       </div>
       <span class="tp-cell-age">${p.age || '-'}</span>
@@ -2979,6 +2981,37 @@ function renderSquadInfo(players) {
     </div>`
   }).join('')
   html += '</div>'
+  if (loanedOut.length > 0) {
+    html += `<div class="tactics-subsection-label" style="margin-top:12px">CEDIDOS A OTROS CLUBES (${loanedOut.length})</div>
+      <div class="tp-table-header" style="padding:6px 14px">
+        <span class="tp-th-pos">Pos</span>
+        <span class="tp-th-name">Nombre</span>
+        <span class="tp-th-age">Edad</span>
+        <span class="tp-th-value">Valor</span>
+        <span class="tp-th-power">Pod</span>
+      </div>
+      <div class="tp-list">`
+    loanedOut.forEach(p => {
+      const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')
+      const valShort = formatShort(p.value || calcValue(p.skill, p.age, p.position))
+      const destTeam = p.loanToName || p.loanTo || 'Otro club'
+      const destLogo = getTeamLogo(p.loanTo) || p.loanToLogo
+      html += `<div class="tp-row" data-player-id="${p.id}" style="opacity:0.6">
+        <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
+        <div class="tp-cell">
+          <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
+          <div class="tp-cell-info">
+            <span class="tp-cell-name">${p.name}</span>
+            <span class="tp-cell-value">${destLogo ? '<img src="' + destLogo + '" style="width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-right:3px" onerror="this.style.display=\'none\'">' : ''}→ ${destTeam}</span>
+          </div>
+        </div>
+        <span class="tp-cell-age">${p.age || '-'}</span>
+        <span class="tp-cell-market">${valShort}</span>
+        <span class="tp-cell-power" style="${getPowerBadgeStyle(p.skill)}">${p.skill}</span>
+      </div>`
+    })
+    html += '</div>'
+  }
   container.innerHTML += html
   container.querySelectorAll('.tp-row').forEach(row => {
     row.onclick = () => {
@@ -2994,12 +3027,14 @@ function renderSquadInfo(players) {
 function renderPerformance(players) {
   const container = document.getElementById('club-squad-content')
   if (!container) return
-  const ordered = [...players].sort((a, b) => {
+  const active = players.filter(p => !(p.onLoan && p.loanTo))
+  const loanedOut = players.filter(p => p.onLoan && p.loanTo)
+  const ordered = [...active].sort((a, b) => {
     const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
     const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
     return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
   })
-  let html = `<div class="tactics-subsection-label">RENDIMIENTO (${players.length})</div>
+  let html = `<div class="tactics-subsection-label">RENDIMIENTO (${active.length})</div>
     <div class="tp-table-header" style="padding:6px 14px">
       <span class="tp-th-name">Nombre</span>
       <span class="tp-th-pos">Pos</span>
@@ -3016,7 +3051,7 @@ function renderPerformance(players) {
       <div class="tp-cell">
         <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
         <div class="tp-cell-info">
-          <span class="tp-cell-name">${p.name}</span>
+          <span class="tp-cell-name">${p.name} ${p.onLoan && p.loanFrom ? '<span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CED</span>' : ''}</span>${p.onLoan && p.loanFromName ? ' <span style="font-size:10px;color:var(--text-muted)">(' + p.loanFromName + ')</span>' : ''}
           <span class="tp-cell-value">${p.nationality || ''}</span>
         </div>
       </div>
@@ -3029,6 +3064,40 @@ function renderPerformance(players) {
     </div>`
   }).join('')
   html += '</div>'
+  if (loanedOut.length > 0) {
+    html += `<div class="tactics-subsection-label" style="margin-top:12px">CEDIDOS A OTROS CLUBES (${loanedOut.length})</div>
+      <div class="tp-table-header" style="padding:6px 14px">
+        <span class="tp-th-name">Nombre</span>
+        <span class="tp-th-pos">Pos</span>
+        <span style="width:28px;text-align:center">PJ</span>
+        <span style="width:38px;text-align:center">⚽</span>
+        <span style="width:38px;text-align:center">👟</span>
+        <span style="width:30px;text-align:center">🟨</span>
+        <span style="width:28px;text-align:center">🟥</span>
+      </div>
+      <div class="tp-list">`
+    loanedOut.forEach(p => {
+      const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')
+      const destTeam = p.loanToName || p.loanTo || 'Otro club'
+      const destLogo = getTeamLogo(p.loanTo) || p.loanToLogo
+      html += `<div class="tp-row" data-player-id="${p.id}" style="opacity:0.6">
+        <div class="tp-cell">
+          <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
+          <div class="tp-cell-info">
+            <span class="tp-cell-name">${p.name}</span>
+            <span class="tp-cell-value">${destLogo ? '<img src="' + destLogo + '" style="width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-right:3px" onerror="this.style.display=\'none\'">' : ''}→ ${destTeam}</span>
+          </div>
+        </div>
+        <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
+        <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.matches || 0}</span>
+        <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.goals || 0}</span>
+        <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.assists || 0}</span>
+        <span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">${p.yellowCards || 0}</span>
+        <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">${p.redCards || 0}</span>
+      </div>`
+    })
+    html += '</div>'
+  }
   container.innerHTML += html
   container.querySelectorAll('.tp-row').forEach(row => {
     row.onclick = () => {
@@ -4017,6 +4086,12 @@ function renderLeague(viewedLeagueId) {
     else if (i < 6) barClass = 'bar-conference'
     else if (i >= totalTeams - 3 && i < totalTeams - 2) barClass = 'bar-relegation-playoff'
     else if (i >= totalTeams - 2) barClass = 'bar-descenso'
+  } else if (displayLid === 'bl2') {
+    if (i === 0) barClass = 'bar-champion'
+    else if (i < 2) barClass = 'bar-promotion'
+    else if (i === 2) barClass = 'bar-promotion-playoff'
+    else if (i >= totalTeams - 2) barClass = 'bar-descenso'
+    else if (i >= totalTeams - 3) barClass = 'bar-relegation-playoff'
   } else if (displayLid === 'l2s') {
       if (i < 2) barClass = 'bar-promotion'
       else if (i < 6) barClass = 'bar-promotion-playoff'
@@ -4686,7 +4761,8 @@ function getLeagueRules(leagueId) {
     'l2fr': { directPromotion: 2, playoffSpots: 0, playoffPromotions: 0, relegation: 0, promotesTo: 'l1fr' },
     'sa': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 3, relegatesTo: 'sb' },
     'sb': { directPromotion: 2, playoffSpots: 6, playoffPromotions: 1, relegation: 5, relegationPlayoff: [16, 17], promotesTo: 'sa' },
-    'bl': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 3, relegationPlayoff: [16], relegatesTo: 'bl2' },
+    'bl2': { directPromotion: 2, playoffSpots: 1, playoffPromotions: 1, relegation: 2, relegationPlayoff: [16], relegatesTo: 'bl3', promotesTo: 'bl' },
+    'bl': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 2, relegationPlayoff: [16], relegatesTo: 'bl2' },
     'lpl': { directPromotion: 0, playoffSpots: 0, playoffPromotions: 0, relegation: 3, relegatesTo: 'lpl2' },
     'lpl2': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 3, promotesTo: 'lpl', relegatesTo: 'lpl3' },
     'lpl3': { directPromotion: 2, playoffSpots: 4, playoffPromotions: 1, relegation: 6, relegationPlayoff: [15, 16], promotesTo: 'lpl2', relegatesTo: ['lpl4g1','lpl4g2','lpl4g3','lpl4g4'] },
@@ -5781,9 +5857,33 @@ function procesarRetornoCesiones() {
       if (!shouldReturn) continue
       p.onLoan = false
       p.loanFrom = null
+      p.loanFromName = null
+      p.loanFromLogo = null
       p.loanUntil = null
       p.loanTo = null
     }
+    /* Remove cloned loan players whose loan ended */
+    var toRemove = []
+    for (var ti = 0; ti < team.players.length; ti++) {
+      var pl = team.players[ti]
+      if (pl.id && pl.id.indexOf('-loan-') >= 0 && !pl.onLoan) {
+        toRemove.push(ti)
+      }
+    }
+    for (var ri = toRemove.length - 1; ri >= 0; ri--) {
+      team.players.splice(toRemove[ri], 1)
+    }
+  }
+  /* Also remove cloned loan players from user's team */
+  var userToRemove = []
+  for (var ui = 0; ui < state.players.length; ui++) {
+    var upl = state.players[ui]
+    if (upl.id && upl.id.indexOf('-loan-') >= 0 && !upl.onLoan) {
+      userToRemove.push(ui)
+    }
+  }
+  for (var uri = userToRemove.length - 1; uri >= 0; uri--) {
+    state.players.splice(userToRemove[uri], 1)
   }
   const userLoans = state.players.filter(p => p.onLoan && p.loanFrom)
   for (const p of userLoans) {
@@ -5800,6 +5900,16 @@ function procesarRetornoCesiones() {
       }
       const idx = state.players.indexOf(p)
       if (idx >= 0) state.players.splice(idx, 1)
+    }
+  }
+  const userLoanedOut = state.players.filter(p => p.onLoan && p.loanTo)
+  for (const p of userLoanedOut) {
+    if (!p.loanUntil || p.loanUntil <= currentSeasonEnd) {
+      p.onLoan = false
+      p.loanTo = null
+      p.loanToName = null
+      p.loanToLogo = null
+      p.loanUntil = null
     }
   }
   rebuildGlobalPlayerPool()
@@ -6337,10 +6447,25 @@ function iniciarNuevaTemporada() {
       return {
         teamId: t.id, name: t.name, logo: t.logo || null, palmares: t.palmares || null,
         players: existing ? existing.players.map(function(p) { return Object.assign({}, p, { energy: 100, injury: null, goals: 0, matches: 0 }) })
-          : (getRealSquad(t.id) || []).map(function(p) { return Object.assign({}, p, { value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 }) }),
+          : (getRealSquad(t.id) || []).map(function(p) { var pp = Object.assign({}, p, { value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 }); if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp }),
         staff: t.staff || existing && existing.staff || [],
       }
     })
+    var allTeamsL = state.leagueTeams.concat([{ teamId: state.teamId, players: state.players }])
+    for (var si = 0; si < allTeamsL.length; si++) {
+      var srcTeamL = allTeamsL[si]
+      for (var pi = 0; pi < srcTeamL.players.length; pi++) {
+        var pL = srcTeamL.players[pi]
+        if (pL.onLoan && pL.loanTo) {
+          var destTeamL = state.leagueTeams.find(function(t) { return t.teamId === pL.loanTo })
+          if (!destTeamL && pL.loanTo === state.teamId) destTeamL = { players: state.players }
+          if (destTeamL) {
+            var cloneL = Object.assign({}, pL, { id: pL.id + '-loan-' + Date.now(), onLoan: true, loanFrom: srcTeamL.teamId })
+            destTeamL.players.push(cloneL)
+          }
+        }
+      }
+    }
     state.fixtures = generateFixtures([state.teamId].concat(state.leagueTeams.map(function(t) { return t.teamId })))
     state.totalMatchdays = state.fixtures.length > 0 ? Math.max.apply(null, state.fixtures.map(function(f) { return f.matchday })) : 38
     state.currentMatchday = 1
@@ -6956,6 +7081,7 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
   let esPrimera = false, esSegunda = false, esSegundaB = false, esTercera = false, esHonor = false, esPrimeraCat = false, esSegonaCat = false, esTerceraCat = false
   let esPolaca1 = false, esPolaca2 = false, esPolaca3 = false, esPolaca4 = false
   let esPrimeraPortugal = false, esSegundaPortugal = false
+  let esBundesliga = false, esBundesliga2 = false
   let esPlayoffTercera = false, esPlayoffPolaca2 = false, esPlayoffPolaca3 = false, esPlayoffDescensoLP3 = false, esPlayoffAscensoLP4 = false
   let esPlayoffSegundaSpain = false
   let esPlayoffTerceraRFEF = false
@@ -6988,6 +7114,8 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
     esSegundaFrance = state.leagueId === 'l2fr'
     esSerieAItaly = state.leagueId === 'sa'
     esSerieBItaly = state.leagueId === 'sb'
+    esBundesliga = state.leagueId === 'bl'
+    esBundesliga2 = state.leagueId === 'bl2'
 
     const esTerceraCatalana = state.leagueId === 'l3g1' || state.leagueId === 'l3g2'
     const totalTeams = standings.length
@@ -6997,6 +7125,14 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
       var filialInL2s = filialId && getLeagueTeams('l2s').some(function(t) { return t.id === filialId })
       if (filialInL2s) state._filialRelegue = filialId
       state.leagueId = 'l2s'
+      cambioDivision = true
+    } else if (esBundesliga && pos >= 17) {
+      if (getLeagueTeams('bl2')) {
+        state.leagueId = 'bl2'
+        cambioDivision = true
+      }
+    } else if (esBundesliga2 && pos <= 2) {
+      state.leagueId = 'bl'
       cambioDivision = true
     } else if (esPrimeraFrance && pos >= 17) {
       if (getLeagueTeams('l2fr')) {
@@ -7230,6 +7366,12 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
     else if (esSerieAItaly) msg += '\nPermanencia en Serie A'
     else if (esSerieBItaly && cambioDivision && pos <= 2) msg += '\n🎉 ¡ASCENSO a Serie A!'
     else if (esSerieBItaly) msg += '\nPermanencia en Serie B'
+    else if (esBundesliga && pos >= 17) msg += '\n⚠️ DESCENSO a 2. Bundesliga'
+    else if (esBundesliga && pos === 16) msg += '\n⚠️ Playoff de descenso a 2. Bundesliga'
+    else if (esBundesliga) msg += '\nPermanencia en Bundesliga'
+    else if (esBundesliga2 && cambioDivision && pos <= 2) msg += '\n🎉 ¡ASCENSO a Bundesliga!'
+    else if (esBundesliga2 && pos === 3) msg += '\n🏆 Playoff de Ascenso a Bundesliga'
+    else if (esBundesliga2) msg += '\nPermanencia en 2. Bundesliga'
     else if (esTerceraRFEF && cambioDivision && pos === 1) msg += '\n🎉 ¡ASCENSO a Segunda División!'
     else if (esTerceraRFEF && cambioDivision) msg += '\n⚠️ DESCENSO a 2ª División B'
     else if (esTerceraRFEF && esPlayoffTerceraRFEF) msg += '\n🏆 Accedes a la Fase de Ascenso a Segunda División'
@@ -10257,6 +10399,7 @@ function getDivisionBaseBudget(leagueId) {
   if (leagueId === 'sa') return 15000000
   if (leagueId === 'sb') return 4000000
   if (leagueId === 'bl') return 18000000
+  if (leagueId === 'bl2') return 5000000
   if (leagueId === 'epl') return 25000000
   if (leagueId.startsWith('lpl4g')) return 300000
   if (leagueId.startsWith('l3sg')) return 500000
@@ -10290,13 +10433,13 @@ function getCupCompName(countryId) {
 }
 
 function getCupLogo(countryId) {
-  if (countryId === 'portugal') return 'https://cdn.resfu.com/media/img/league_logos/taca_portugal.png?size=120x&lossy=1'
+  if (countryId === 'portugal') return 'https://cdn.resfu.com/img_data/competiciones/copa/326.png?size=120x&lossy=1'
   if (countryId === 'poland') return 'https://cdn.resfu.com/media/img/league_logos/copa-polonia-27.png?size=120x&lossy=1'
   if (countryId === 'france') return 'https://cdn.resfu.com/media/img/league_logos/copa_de_francia.png?size=120x&lossy=1'
   if (countryId === 'italy') return 'https://cdn.resfu.com/media/img/league_logos/coppa-italia.png?size=120x&lossy=1'
   if (countryId === 'germany') return 'https://cdn.resfu.com/media/img/league_logos/dfb_pokal.png?size=120x&lossy=1'
-  if (countryId === 'england') return 'https://cdn.resfu.com/media/img/league_logos/fa_cup.png?size=120x&lossy=1'
-  return 'https://cdn.resfu.com/media/img/league_logos/copa-del-rey.png?size=40x&lossy=1'
+  if (countryId === 'england') return 'https://cdn.resfu.com/img_data/competiciones/copa/139.png?size=120x&lossy=1'
+  return 'https://cdn.resfu.com/img_data/competiciones/copa/129.png?size=120x&lossy=1'
 }
 
 function getSupercopaCompName(countryId) {
@@ -10310,12 +10453,12 @@ function getSupercopaCompName(countryId) {
 }
 
 function getSupercopaLogo(countryId) {
-  if (countryId === 'portugal') return 'https://cdn.resfu.com/media/img/league_logos/supertaca-portugal.png?size=120x&lossy=1'
+  if (countryId === 'portugal') return 'https://cdn.resfu.com/img_data/competiciones/copa/300.png?size=120x&lossy=1'
   if (countryId === 'poland') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_polonia.png?size=120x&lossy=1'
   if (countryId === 'france') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_francia.png?size=120x&lossy=1'
   if (countryId === 'italy') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_italia.png?size=120x&lossy=1'
   if (countryId === 'germany') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_alemania.png?size=120x&lossy=1'
-  if (countryId === 'england') return 'https://cdn.resfu.com/media/img/league_logos/community_shield.png?size=120x&lossy=1'
+  if (countryId === 'england') return 'https://cdn.resfu.com/img_data/competiciones/copa/322.png?size=120x&lossy=1'
   return 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=120x&lossy=1'
 }
 
@@ -10391,6 +10534,10 @@ function newGame(coach) {
     teamStats: {},
   }))
   state.players.forEach(p => { p.energy = 100 })
+  state.players.forEach(p => {
+    if (p.loanedFrom) { p.onLoan = true; p.loanFrom = p.loanedFrom; p.loanFromName = p.loanedFromName; p.loanFromLogo = p.loanedFromLogo }
+    if (p.loanedTo) { p.onLoan = true; p.loanTo = p.loanedTo; p.loanToName = p.loanedToName; p.loanToLogo = p.loanedToLogo }
+  })
 
   /* Initialize filial squad if the team has one */
   const myFilialId = getFilialId(state.teamId)
@@ -10412,13 +10559,28 @@ function newGame(coach) {
     const base = getRealSquad(t.id)
     const cap = t.rating || 99
     const squad = base
-      ? base.map(p => ({ ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null }))
+      ? base.map(p => { var pp = { ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null }; if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp })
       : generateCpuSquad(t.id, state.countryId, t.rating)
     const defaultStaff = t.staff || generateStaff(t.name, state.countryId)
     state.leagueTeams.push({ teamId: t.id, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: squad, staff: defaultStaff, rating: t.rating || 50, palmares: t.palmares })
     allTeamIds.push(t.id)
   }
   console.log('[INIT] leagueTeams:', state.leagueTeams.map(t => t.name + ': ' + t.players.length + ' players').join(', '))
+
+  /* Clone loaned-out players to destination teams */
+  var allTeams = state.leagueTeams.concat([{ teamId: state.teamId, name: state.team, logo: state.teamLogo || '', players: state.players }])
+  for (const srcTeam of allTeams) {
+    for (const p of srcTeam.players) {
+      if (p.onLoan && p.loanTo) {
+        var destTeam = state.leagueTeams.find(t => t.teamId === p.loanTo)
+        if (!destTeam && p.loanTo === state.teamId) { destTeam = { players: state.players } }
+        if (destTeam) {
+          var clone = { ...p, id: p.id + '-loan-' + Date.now(), onLoan: true, loanFrom: srcTeam.teamId, loanFromName: srcTeam.name, loanFromLogo: srcTeam.logo, loanUntil: null }
+          destTeam.players.push(clone)
+        }
+      }
+    }
+  }
 
   /* Generate fixtures */
   state.fixtures = generateFixtures(allTeamIds)
@@ -11011,7 +11173,7 @@ function showTeamPreview(teamId) {
     const db = getBaseDato(teamId)
     const rating = db ? db.rating : 70
     const rawSquad = getRealSquad(teamId) || generateCpuSquad(teamId, foundCountryId, rating)
-    const realSquad = rawSquad.map(p => ({ ...p, value: p.value || calcValue(p.skill, p.age, p.position) }))
+    const realSquad = rawSquad.map(p => { var pp = { ...p, value: p.value || calcValue(p.skill, p.age, p.position) }; if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp })
     const staff = team.staff || []
     const logo = team.logo || ''
 
@@ -11032,6 +11194,8 @@ function showTeamPreview(teamId) {
       var posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
       return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
     })
+    var activePlayers = orderedPlayers.filter(function(p) { return !(p.onLoan && p.loanTo) })
+    var loanedOutPlayers = orderedPlayers.filter(function(p) { return p.onLoan && p.loanTo })
     var tptab = 'general'
 
     var headerHtml = '<div class="view-header">' +
@@ -11084,20 +11248,33 @@ function showTeamPreview(teamId) {
       } else if (tptab === 'squad') {
         document.getElementById('tp-list').style.display = ''
         document.getElementById('tp-table-header').style.display = ''
-        var listHtml = orderedPlayers.map(function(p) {
+        var listHtml = activePlayers.map(function(p) {
           var valShort = formatShort(p.value || 0)
-          return '<div class="tp-row"><span class="tp-cell-pos-badge" style="background:' + ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280') + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
+          var cedTag = p.onLoan && p.loanFrom ? ' <span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CED</span>' : ''
+          var fromTag = p.onLoan && p.loanFromName ? ' <span style="font-size:10px;color:var(--text-muted)">(' + p.loanFromName + ')</span>' : ''
+          return '<div class="tp-row"><span class="tp-cell-pos-badge" style="background:' + ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280') + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + cedTag + fromTag + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
         }).join('')
+        if (loanedOutPlayers.length > 0) {
+          listHtml += '<div class="tactics-subsection-label" style="margin-top:12px">CEDIDOS A OTROS CLUBES (' + loanedOutPlayers.length + ')</div>'
+          loanedOutPlayers.forEach(function(p) {
+            var valShort = formatShort(p.value || 0)
+            var destTeam = p.loanToName || p.loanTo || 'Otro club'
+            var destLogo = getTeamLogo(p.loanTo) || p.loanToLogo
+            listHtml += '<div class="tp-row" style="opacity:0.6"><span class="tp-cell-pos-badge" style="background:' + ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280') + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (destLogo ? '<img src="' + destLogo + '" style="width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-right:3px" onerror="this.style.display=\'none\'">' : '') + '\u2192 ' + destTeam + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
+          })
+        }
         document.getElementById('tp-list').innerHTML = listHtml
-        document.querySelectorAll('#tp-list .tp-row').forEach(function(row, idx) { row.onclick = function() { openPlayerDetail(orderedPlayers[idx]) } })
-        content = '<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (' + realSquad.length + ')</div>'
+        var clickPlayers = activePlayers.concat(loanedOutPlayers)
+        document.querySelectorAll('#tp-list .tp-row').forEach(function(row, idx) { row.onclick = function() { openPlayerDetail(clickPlayers[idx]) } })
+        var activeCount = activePlayers.length
+        content = '<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (' + activeCount + ')' + (loanedOutPlayers.length > 0 ? ' <span style="color:var(--text-muted);font-size:11px;font-weight:400">\u00b7 ' + loanedOutPlayers.length + ' cedidos</span>' : '') + '</div>'
       } else if (tptab === 'history') {
         document.getElementById('tp-list').style.display = 'none'
         document.getElementById('tp-table-header').style.display = 'none'
         var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
         content += '<div class="tactics-subsection-label">' + trophySvg + ' Palmar\u00e9s</div>'
         var palmares = team.palmares || []
-        var logosMap = { 'Copa del Rey': 'https://cdn.resfu.com/media/img/league_logos/copa-del-rey.png?size=40x&lossy=1', 'Supercopa de Espa\u00f1a': 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=40x&lossy=1', 'Champions League': 'https://cdn.resfu.com/media/img/league_logos/champions.png?size=120x&lossy=1', 'Europa League': 'https://cdn.resfu.com/media/img/league_logos/europa-league.png?size=120x&lossy=1', 'Supercopa Europa': 'https://cdn.resfu.com/media/img/league_logos/supercopa_europa.png?size=120x&lossy=1', 'Mundial de Clubes': 'https://cdn.resfu.com/media/img/league_logos/mundial-clubes.png?size=120x&lossy=1', 'Primera Federaci\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/primera-federacion.png?size=120x&lossy=1', 'Segunda Divisi\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/segunda-division-hypermotion.png?size=120x&lossy=1', 'Primera Divisi\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/primera-division.png?size=120x&lossy=1', 'Segunda Federaci\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/segunda_rfef.png?size=120x&lossy=1', 'Liga Portugal Betclic': 'https://cdn.resfu.com/media/img/league_logos/liga-portugal.png?size=120x&lossy=1', 'Ta\u00e7a de Portugal': 'https://cdn.resfu.com/media/img/league_logos/taca_portugal.png?size=120x&lossy=1', 'Copa de la Liga Portugal': 'https://cdn.resfu.com/media/img/league_logos/taca_da_liga.png?size=120x&lossy=1', 'Supercopa Portugal': 'https://cdn.resfu.com/media/img/league_logos/supertaca-portugal.png?size=120x&lossy=1', 'Segunda Liga': 'https://cdn.resfu.com/media/img/league_logos/segunda-liga-por.png?size=120x&lossy=1', 'Liga 3': 'https://cdn.resfu.com/media/img/league_logos/liga-3.png?size=120x&lossy=1', 'Liga Polaca': 'https://cdn.resfu.com/media/img/league_logos/liga_polonia.png?size=120x&lossy=1', 'Copa Polonia': 'https://cdn.resfu.com/media/img/league_logos/copa-polonia-27.png?size=120x&lossy=1', 'Supercopa Polonia': 'https://cdn.resfu.com/media/img/league_logos/supercopa_polonia.png?size=120x&lossy=1', 'Segunda Polonia': 'https://cdn.resfu.com/media/img/league_logos/segunda-polonia.png?size=120x&lossy=1', 'Tercera Polonia': 'https://cdn.resfu.com/media/img/league_logos/tercera-polonia.png?size=120x&lossy=1', 'Cuarta Polonia': 'https://cdn.resfu.com/media/img/league_logos/cuarta-polonia.png?size=120x&lossy=1', 'Ligue 1': 'https://cdn.resfu.com/media/img/league_logos/ligue-1.png?size=40x&lossy=1', 'Ligue 2': 'https://cdn.resfu.com/media/img/league_logos/ligue-2.png?size=40x&lossy=1', 'Ligue 3': 'https://cdn.resfu.com/media/img/league_logos/ligue-3-v2.png?size=40x&lossy=1', 'Copa de Francia': 'https://cdn.resfu.com/media/img/league_logos/copa_de_francia.png?size=40x&lossy=1', 'Supercopa Francia': 'https://cdn.resfu.com/media/img/league_logos/supercopa_francia.png?size=40x&lossy=1', 'Serie A': 'https://cdn.resfu.com/media/img/league_logos/serie-a-2025.png?size=120x&lossy=1', 'Coppa Italia': 'https://cdn.resfu.com/media/img/league_logos/coppa-italia.png?size=120x&lossy=1', 'Supercopa Italia': 'https://cdn.resfu.com/media/img/league_logos/supercopa_italia.png?size=120x&lossy=1', 'Bundesliga': 'https://cdn.resfu.com/media/img/league_logos/bundesliga.png?size=120x&lossy=1', '2. Bundesliga': 'https://cdn.resfu.com/media/img/league_logos/serieB_italia.png?size=120x&lossy=1', '3. Liga': 'https://cdn.resfu.com/media/img/league_logos/tercera-alemania.png?size=120x&lossy=1', 'DFB-Pokal': 'https://cdn.resfu.com/media/img/league_logos/dfb_pokal.png?size=120x&lossy=1', 'Supercopa Franz Beckenbauer': 'https://cdn.resfu.com/media/img/league_logos/supercopa_alemania.png?size=120x&lossy=1' }
+        var logosMap = { 'Copa del Rey': 'https://cdn.resfu.com/img_data/competiciones/copa/129.png?size=120x&lossy=1', 'Supercopa de Espa\u00f1a': 'https://cdn.resfu.com/img_data/competiciones/copa/132.png?size=120x&lossy=1', 'Champions League': 'https://cdn.resfu.com/img_data/competiciones/copa/107.png?size=120x&lossy=1', 'Europa League': 'https://cdn.resfu.com/img_data/competiciones/copa/117.png?size=120x&lossy=1', 'Supercopa Europa': 'https://cdn.resfu.com/img_data/competiciones/copa/133.png?size=120x&lossy=1', 'Copa Intercontinental': 'https://cdn.resfu.com/img_data/competiciones/copa/1747.png?size=120x&lossy=1', 'Mundial de Clubes': 'https://cdn.resfu.com/img_data/competiciones/copa/137.png?size=120x&lossy=1', 'Primera Federaci\u00f3n': 'https://cdn.resfu.com/img_data/competiciones/copa/2468.png?size=120x&lossy=1', 'Segunda Divisi\u00f3n': 'https://cdn.resfu.com/img_data/competiciones/copa/2.png?size=120x&lossy=1', 'Primera Divisi\u00f3n': 'https://cdn.resfu.com/img_data/competiciones/copa/1.png?size=120x&lossy=1', 'Segunda Federaci\u00f3n': 'https://cdn.resfu.com/img_data/competiciones/copa/2469.png?size=120x&lossy=1', 'Liga Portugal Betclic': 'https://cdn.resfu.com/img_data/competiciones/copa/19.png?size=120x&lossy=1', 'Ta\u00e7a de Portugal': 'https://cdn.resfu.com/img_data/competiciones/copa/326.png?size=120x&lossy=1', 'Copa de la Liga Portugal': 'https://cdn.resfu.com/img_data/competiciones/copa/601.png?size=120x&lossy=1', 'Supercopa Portugal': 'https://cdn.resfu.com/img_data/competiciones/copa/300.png?size=120x&lossy=1', 'Segunda Liga': 'https://cdn.resfu.com/img_data/competiciones/copa/96.png?size=120x&lossy=1', 'Liga 3': 'https://cdn.resfu.com/media/img/league_logos/liga-3.png?size=120x&lossy=1', 'Liga Polaca': 'https://cdn.resfu.com/img_data/competiciones/copa/128.png?size=120x&lossy=1', 'Copa Polonia': 'https://cdn.resfu.com/img_data/competiciones/copa/641.png?size=120x&lossy=1', 'Supercopa Polonia': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1', 'Segunda Polonia': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1', 'Tercera Polonia': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1', 'Cuarta Polonia': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1', 'Ligue 1': 'https://cdn.resfu.com/img_data/competiciones/copa/16.png?size=120x&lossy=1', 'Ligue 2': 'https://tmssl.akamaized.net//images/erfolge/verybigquad/981.png?lm=1734352209', 'Ligue 3': 'https://tmssl.akamaized.net//images/erfolge/medium/1282.png?lm=1780400420', 'Copa de Francia': 'https://cdn.resfu.com/img_data/competiciones/copa/325.png?size=120x&lossy=1', 'Supercopa Francia': 'https://cdn.resfu.com/img_data/competiciones/copa/297.png?size=120x&lossy=1', 'Serie A': 'https://cdn.resfu.com/img_data/competiciones/copa/7.png?size=120x&lossy=1', 'Coppa Italia': 'https://cdn.resfu.com/img_data/competiciones/copa/296.png?size=120x&lossy=1', 'Copa Italia': 'https://cdn.resfu.com/img_data/competiciones/copa/296.png?size=120x&lossy=1', 'Supercopa Italia': 'https://cdn.resfu.com/img_data/competiciones/copa/179.png?size=120x&lossy=1', 'Serie B': 'https://cdn.resfu.com/img_data/competiciones/copa/89.png?size=120x&lossy=1', 'Serie C': 'https://cdn.resfu.com/img_data/competiciones/copa/90.png?size=120x&lossy=1', 'Bundesliga': 'https://cdn.resfu.com/img_data/competiciones/copa/8.png?size=120x&lossy=1', '2. Bundesliga': 'https://cdn.resfu.com/img_data/competiciones/copa/93.png?size=120x&lossy=1', '3. Liga': 'https://tmssl.akamaized.net//images/erfolge/verybigquad/424.png?lm=1461847499', 'Regionalliga': 'https://cdn.resfu.com/img_data/competiciones/copa/178.png?size=120x&lossy=1', 'Oberliga': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1', 'DFB-Pokal': 'https://cdn.resfu.com/img_data/competiciones/copa/140.png?size=120x&lossy=1', 'Supercopa Franz Beckenbauer': 'https://cdn.resfu.com/img_data/competiciones/copa/180.png?size=120x&lossy=1', 'Premier League': 'https://cdn.resfu.com/img_data/competiciones/copa/10.png?size=120x&lossy=1', 'Community Shield': 'https://cdn.resfu.com/img_data/competiciones/copa/322.png?size=120x&lossy=1', 'EFL Cup': 'https://cdn.resfu.com/img_data/competiciones/copa/523.png?size=120x&lossy=1', 'FA Cup': 'https://cdn.resfu.com/img_data/competiciones/copa/139.png?size=120x&lossy=1', 'Championship': 'https://cdn.resfu.com/img_data/competiciones/copa/25.png?size=120x&lossy=1', 'League One': 'https://cdn.resfu.com/img_data/competiciones/copa/87.png?size=120x&lossy=1', 'League Two': 'https://cdn.resfu.com/img_data/competiciones/copa/88.png?size=120x&lossy=1', 'National League South': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1', 'National League North': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' }
         if (palmares.length === 0) { content += '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin trofeos</div>' } else {
           content += '<div style="display:flex;gap:12px;padding:4px 14px 12px;overflow-x:auto;scrollbar-width:none">'
           palmares.forEach(function(p, pi) {
@@ -11756,41 +11933,43 @@ function showTeamInfo(teamId) {
       var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
       content += '<div class="tactics-subsection-label">' + trophySvg + ' Palmar\u00e9s</div>'
       var logosMap = {
-        'Copa del Rey': 'https://cdn.resfu.com/media/img/league_logos/copa-del-rey.png?size=40x&lossy=1',
-        'Supercopa': 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=40x&lossy=1',
-        'Supercopa de Espa\u00f1a': 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=40x&lossy=1',
-        'Champions League': 'https://cdn.resfu.com/media/img/league_logos/champions.png?size=120x&lossy=1',
-        'Europa League': 'https://cdn.resfu.com/media/img/league_logos/europa-league.png?size=120x&lossy=1',
-        'Supercopa Europa': 'https://cdn.resfu.com/media/img/league_logos/supercopa_europa.png?size=120x&lossy=1',
-        'Mundial de Clubes': 'https://cdn.resfu.com/media/img/league_logos/mundial-clubes.png?size=120x&lossy=1',
-        'Primera Federaci\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/primera-federacion.png?size=120x&lossy=1',
-        'Segunda Divisi\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/segunda-division-hypermotion.png?size=120x&lossy=1',
-        'Primera Divisi\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/primera-division.png?size=120x&lossy=1',
-        'Segunda Federaci\u00f3n': 'https://cdn.resfu.com/media/img/league_logos/segunda_rfef.png?size=120x&lossy=1',
-        'Liga Portugal Betclic': 'https://cdn.resfu.com/media/img/league_logos/liga-portugal.png?size=120x&lossy=1',
-        'Ta\u00e7a de Portugal': 'https://cdn.resfu.com/media/img/league_logos/taca_portugal.png?size=120x&lossy=1',
-        'Copa de la Liga Portugal': 'https://cdn.resfu.com/media/img/league_logos/taca_da_liga.png?size=120x&lossy=1',
-        'Supercopa Portugal': 'https://cdn.resfu.com/media/img/league_logos/supertaca-portugal.png?size=120x&lossy=1',
-        'Segunda Liga': 'https://cdn.resfu.com/media/img/league_logos/segunda-liga-por.png?size=120x&lossy=1',
+        'Copa del Rey': 'https://cdn.resfu.com/img_data/competiciones/copa/129.png?size=120x&lossy=1',
+        'Supercopa': 'https://cdn.resfu.com/img_data/competiciones/copa/132.png?size=120x&lossy=1',
+        'Supercopa de Espa\u00f1a': 'https://cdn.resfu.com/img_data/competiciones/copa/132.png?size=120x&lossy=1',
+        'Champions League': 'https://cdn.resfu.com/img_data/competiciones/copa/107.png?size=120x&lossy=1',
+        'Europa League': 'https://cdn.resfu.com/img_data/competiciones/copa/117.png?size=120x&lossy=1',
+'Supercopa Europa': 'https://cdn.resfu.com/img_data/competiciones/copa/133.png?size=120x&lossy=1', 'Copa Intercontinental': 'https://cdn.resfu.com/img_data/competiciones/copa/1747.png?size=120x&lossy=1',
+        'Mundial de Clubes': 'https://cdn.resfu.com/img_data/competiciones/copa/137.png?size=120x&lossy=1',
+        'Primera Federaci\u00f3n': 'https://cdn.resfu.com/img_data/competiciones/copa/2468.png?size=120x&lossy=1',
+        'Segunda Divisi\u00f3n': 'https://cdn.resfu.com/img_data/competiciones/copa/2.png?size=120x&lossy=1',
+        'Primera Divisi\u00f3n': 'https://cdn.resfu.com/img_data/competiciones/copa/1.png?size=120x&lossy=1',
+        'Segunda Federaci\u00f3n': 'https://cdn.resfu.com/img_data/competiciones/copa/2469.png?size=120x&lossy=1',
+        'Liga Portugal Betclic': 'https://cdn.resfu.com/img_data/competiciones/copa/19.png?size=120x&lossy=1',
+        'Ta\u00e7a de Portugal': 'https://cdn.resfu.com/img_data/competiciones/copa/326.png?size=120x&lossy=1',
+        'Copa de la Liga Portugal': 'https://cdn.resfu.com/img_data/competiciones/copa/601.png?size=120x&lossy=1',
+        'Supercopa Portugal': 'https://cdn.resfu.com/img_data/competiciones/copa/300.png?size=120x&lossy=1',
+        'Segunda Liga': 'https://cdn.resfu.com/img_data/competiciones/copa/96.png?size=120x&lossy=1',
         'Liga 3': 'https://cdn.resfu.com/media/img/league_logos/liga-3.png?size=120x&lossy=1',
-        'Liga Polaca': 'https://cdn.resfu.com/media/img/league_logos/liga_polonia.png?size=120x&lossy=1',
-        'Copa Polonia': 'https://cdn.resfu.com/media/img/league_logos/copa-polonia-27.png?size=120x&lossy=1',
-        'Supercopa Polonia': 'https://cdn.resfu.com/media/img/league_logos/supercopa_polonia.png?size=120x&lossy=1',
-        'Segunda Polonia': 'https://cdn.resfu.com/media/img/league_logos/segunda-polonia.png?size=120x&lossy=1',
-        'Tercera Polonia': 'https://cdn.resfu.com/media/img/league_logos/tercera-polonia.png?size=120x&lossy=1',
-        'Cuarta Polonia': 'https://cdn.resfu.com/media/img/league_logos/cuarta-polonia.png?size=120x&lossy=1',
-        'Serie A': 'https://cdn.resfu.com/media/img/league_logos/serie-a-2025.png?size=120x&lossy=1',
-        'Coppa Italia': 'https://cdn.resfu.com/media/img/league_logos/coppa-italia.png?size=120x&lossy=1',
-        'Supercopa Italia': 'https://cdn.resfu.com/media/img/league_logos/supercopa_italia.png?size=120x&lossy=1',
-        'Bundesliga': 'https://cdn.resfu.com/media/img/league_logos/bundesliga.png?size=120x&lossy=1',
-        '2. Bundesliga': 'https://cdn.resfu.com/media/img/league_logos/serieB_italia.png?size=120x&lossy=1',
-        '3. Liga': 'https://cdn.resfu.com/media/img/league_logos/tercera-alemania.png?size=120x&lossy=1',
-        'DFB-Pokal': 'https://cdn.resfu.com/media/img/league_logos/dfb_pokal.png?size=120x&lossy=1',
-        'Supercopa Franz Beckenbauer': 'https://cdn.resfu.com/media/img/league_logos/supercopa_alemania.png?size=120x&lossy=1',
-        'Premier League': 'https://cdn.resfu.com/media/img/league_logos/premier.png?size=120x&lossy=1',
-        'FA Cup': 'https://cdn.resfu.com/media/img/league_logos/fa_cup.png?size=120x&lossy=1',
-        'EFL Cup': 'https://cdn.resfu.com/media/img/league_logos/efl-cup.png?size=120x&lossy=1',
-        'Community Shield': 'https://cdn.resfu.com/media/img/league_logos/community_shield.png?size=120x&lossy=1',
+        'Liga Polaca': 'https://cdn.resfu.com/img_data/competiciones/copa/128.png?size=120x&lossy=1',
+        'Copa Polonia': 'https://cdn.resfu.com/img_data/competiciones/copa/641.png?size=120x&lossy=1',
+        'Supercopa Polonia': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
+        'Segunda Polonia': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
+        'Tercera Polonia': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
+        'Cuarta Polonia': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
+        'Serie A': 'https://cdn.resfu.com/img_data/competiciones/copa/7.png?size=120x&lossy=1',
+        'Coppa Italia': 'https://cdn.resfu.com/img_data/competiciones/copa/296.png?size=120x&lossy=1', 'Copa Italia': 'https://cdn.resfu.com/img_data/competiciones/copa/296.png?size=120x&lossy=1',
+        'Supercopa Italia': 'https://cdn.resfu.com/img_data/competiciones/copa/179.png?size=120x&lossy=1', 'Serie B': 'https://cdn.resfu.com/img_data/competiciones/copa/89.png?size=120x&lossy=1', 'Serie C': 'https://cdn.resfu.com/img_data/competiciones/copa/90.png?size=120x&lossy=1',
+        'Bundesliga': 'https://cdn.resfu.com/img_data/competiciones/copa/8.png?size=120x&lossy=1',
+'2. Bundesliga': 'https://cdn.resfu.com/media/img/league_logos/2_liga.png?size=120x&lossy=1',
+        '3. Liga': 'https://tmssl.akamaized.net//images/erfolge/verybigquad/424.png?lm=1461847499',
+        'DFB-Pokal': 'https://cdn.resfu.com/img_data/competiciones/copa/140.png?size=120x&lossy=1',
+        'Supercopa Franz Beckenbauer': 'https://cdn.resfu.com/img_data/competiciones/copa/180.png?size=120x&lossy=1',
+        'Regionalliga': 'https://cdn.resfu.com/img_data/competiciones/copa/178.png?size=120x&lossy=1',
+        'Oberliga': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
+        'Premier League': 'https://cdn.resfu.com/img_data/competiciones/copa/10.png?size=120x&lossy=1',
+        'FA Cup': 'https://cdn.resfu.com/img_data/competiciones/copa/139.png?size=120x&lossy=1',
+        'EFL Cup': 'https://cdn.resfu.com/img_data/competiciones/copa/523.png?size=120x&lossy=1',
+        'Community Shield': 'https://cdn.resfu.com/img_data/competiciones/copa/322.png?size=120x&lossy=1', 'Championship': 'https://cdn.resfu.com/img_data/competiciones/copa/25.png?size=120x&lossy=1', 'League One': 'https://cdn.resfu.com/img_data/competiciones/copa/87.png?size=120x&lossy=1', 'League Two': 'https://cdn.resfu.com/img_data/competiciones/copa/88.png?size=120x&lossy=1', 'National League South': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1', 'National League North': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
       }
       /* Add logo to each trophy */
       trophiesList.forEach(function(t) {
@@ -12788,6 +12967,36 @@ function openPlayerDetail(player, teamObj) {
   var teamLogo = getTeamLogo(team.teamId) || (team.logo) || (player.teamId ? getTeamLogo(player.teamId) : '') || NOPHOTO
   document.getElementById('pd-team-logo').src = teamLogo
   document.getElementById('pd-team').textContent = team.name || '\u2014'
+  var loanRow = document.getElementById('pd-loan-row')
+  if (player.onLoan && player.loanTo) {
+    var destLogo = getTeamLogo(player.loanTo)
+    var destName = player.loanToName || player.loanTo || 'Otro club'
+    if (!loanRow) {
+      loanRow = document.createElement('div')
+      loanRow.className = 'pd-info-row'
+      loanRow.id = 'pd-loan-row'
+      loanRow.innerHTML = '<img class="pd-team-logo" id="pd-loan-logo" src="" alt=""><span id="pd-loan-team"></span>'
+      document.querySelector('.pd-mid .pd-info').appendChild(loanRow)
+    }
+    document.getElementById('pd-loan-logo').src = destLogo || player.loanToLogo || 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
+    document.getElementById('pd-loan-team').textContent = '\u2192 ' + destName
+    loanRow.style.display = ''
+  } else if (player.onLoan && player.loanFrom) {
+    var originLogo = getTeamLogo(player.loanFrom) || player.loanFromLogo
+    var originName = player.loanFromName || player.loanFrom || 'Otro club'
+    if (!loanRow) {
+      loanRow = document.createElement('div')
+      loanRow.className = 'pd-info-row'
+      loanRow.id = 'pd-loan-row'
+      loanRow.innerHTML = '<img class="pd-team-logo" id="pd-loan-logo" src="" alt=""><span id="pd-loan-team"></span>'
+      document.querySelector('.pd-mid .pd-info').appendChild(loanRow)
+    }
+    document.getElementById('pd-loan-logo').src = originLogo || 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
+    document.getElementById('pd-loan-team').textContent = '\u2190 ' + originName
+    loanRow.style.display = ''
+  } else if (loanRow) {
+    loanRow.style.display = 'none'
+  }
   const posLabel = POSITIONS[posKey] ? POSITIONS[posKey].label : player.position
   document.getElementById('pd-position').textContent = posLabel + ' (' + (POS_ABBR[posKey] || player.position) + ')'
   document.getElementById('pd-flag').textContent = (player.nationality || '').split(' ')[0] || ''
