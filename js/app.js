@@ -36,6 +36,10 @@ const POS_ABBR = { portero: 'POR', cierre: 'DFC', ala: 'MC', pivot: 'DC', latera
 
 const SIGLA_TO_POS = Object.fromEntries(Object.entries(POS_ABBR).map(([k, v]) => [v, k]))
 
+/* Normaliza claves de posición no estándar (artefactos de scraping/partidas viejas) */
+const POS_KEY_ALIAS = { mediocentro_der: 'medio_der', mediocentro_izq: 'medio_izq', mediocentro_def: 'medio_def' }
+function normalizePosKey(k) { return POS_KEY_ALIAS[k] || k }
+
 function getGoalWeight(position, playerSkill) {
   var fwds = ['delantero', 'extremo_der', 'extremo_izq']
   var mids = ['mediocentro', 'medio_def', 'medio_ofensivo', 'medio_der', 'medio_izq']
@@ -2409,26 +2413,231 @@ function getTeamObj(id) {
   return null
 }
 
+/* Selecciona los 11 titulares de un equipo CPU: mejor POR + top 10 campo por skill efectivo */
+function esPortero(p) { return !!(p && (p.position === 'POR' || p.position === 'portero')) }
+
+/* Recuperación automática de porteros entre jornadas: vuelven al 100% */
+function recuperarPorterosAl100() {
+  var pools = [state.players || []]
+  state.leagueTeams.forEach(function(t) { if (t && t.players) pools.push(t.players) })
+  for (var pi = 0; pi < pools.length; pi++) {
+    pools[pi].forEach(function(p) {
+      if (p && esPortero(p) && !p.injury) p.energy = 100
+    })
+  }
+}
+
+/* Desgaste de partido de un portero: 3-5% máx., independiente del plan de presión */
+function desgastePortero() { return 3 + Math.floor(Math.random() * 3) }
+
+/* Lesión en caliente (1%) + cambio automático del portero titular.
+   Prioriza un portero del banquillo; si no hay, un jugador de campo con penalización máxima. */
+function gestionarLesionPortero(startingIds) {
+  if (!state.players) return null
+  var gk = null
+  startingIds.forEach(function(pid) {
+    var p = state.players.find(function(x) { return x.id === pid })
+    if (p && esPortero(p) && !gk) gk = p
+  })
+  if (!gk || gk.injury || gk._suspended) return null
+  if (Math.random() >= 0.01) return null
+
+  var weeks = 1 + Math.floor(Math.random() * 3)
+  gk.injury = { remaining: weeks, type: 'match', description: 'Lesión durante el partido' }
+  addNotification('injury', '\u26A0 Lesi\u00f3n: ' + gk.name, gk.name + ' se lesiona durante el partido (' + weeks + ' jornada' + (weeks > 1 ? 's' : '') + ')', { logo: NOPHOTO })
+
+  /* Buscar portero suplente en el banquillo */
+  var bench = state.benchIds.map(function(id) { return state.players.find(function(x) { return x.id === id }) }).filter(Boolean)
+  var backup = bench.find(function(p) { return esPortero(p) && !p.injury && !p._suspended }) || null
+  var emergency = null
+  if (!backup) {
+    /* Sin portero suplente: jugador de campo a la portería con máxima penalización */
+    emergency = bench.find(function(p) { return !esPortero(p) && !p.injury && !p._suspended }) || null
+  }
+  var sub = backup || emergency
+  if (!sub) return { injured: gk, sub: null, emergency: null }
+
+  /* Minutos y flags: el lesionado jugó ~60', el suplente ~30' */
+  gk.minutosEnPista = 60
+  sub.minutosEnPista = Math.max(sub.minutosEnPista || 0, 30)
+  sub.matches = (sub.matches || 0) + 1
+  sub.enPista = true; sub.convocado = true; sub.titular = false
+  gk.enPista = true; gk.convocado = true; gk.titular = false
+
+  /* Desgaste: el portero lesionado solo pierde 3-5%; el suplente también */
+  var gd = desgastePortero()
+  gk.energy = Math.max(10, (gk.energy != null ? gk.energy : 80) - gd)
+  sub.energy = Math.max(10, (sub.energy != null ? sub.energy : 80) - desgastePortero())
+  if (emergency) sub._emergencyGK = true
+
+  if (backup) {
+    addNotification('match', '\ud83d\udd04 Cambio obligatorio', 'Lesionado ' + gk.name + ' \u2192 entra ' + backup.name + ' en la porter\u00eda')
+  } else if (emergency) {
+    addNotification('match', '\ud83d\udd04 Cambio de emergencia', 'Sin portero suplente: ' + emergency.name + ' (jugador de campo) pasa a la porter\u00eda')
+  }
+  return { injured: gk, sub: sub, emergency: emergency }
+}
+
+function seleccionarTitularesCPU(players) {
+  if (!players) return []
+  var avail = players.filter(function(p) { return p && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
+  var byEff = function(a, b) {
+    var aEff = (a.skill || 0) * staminaMod(a.energy)
+    var bEff = (b.skill || 0) * staminaMod(b.energy)
+    return bEff - aEff
+  }
+  var gkPool = avail.filter(function(p) { return esPortero(p) }).sort(byEff)
+  var field = avail.filter(function(p) { return !esPortero(p) }).sort(byEff)
+  return gkPool.slice(0, 1).concat(field.slice(0, 10))
+}
+
+/* Fatiga + recuperación entre jornadas para equipos CPU:
+   los titulares drenan por el plan táctico, y todos recuperan ~20-25/jornada.
+   Los porteros solo desgastan 3-5% (independiente del plan) y se recuperan al 100%. */
+function aplicarFatigaEquipo(team, gamePlan) {
+  if (!team || !team.players) return
+  gamePlan = gamePlan || team.gamePlan || 'pesado'
+  var drain = (GAME_PLANS[gamePlan] || {}).drain || 10
+  var starters = seleccionarTitularesCPU(team.players)
+  var ids = {}
+  starters.forEach(function(p) { ids[p.id] = true })
+  team.players.forEach(function(p) {
+    if (!p || p.injury) return
+    var e = p.energy != null ? p.energy : 80
+    var base
+    if (esPortero(p)) base = ids[p.id] ? e - desgastePortero() : 100
+    else base = ids[p.id] ? e - drain : e + 5
+    p.energy = Math.min(100, Math.max(10, base) + 20)
+  })
+}
+
+/* ============================================================
+   RED DE SEGURIDAD: el juego nunca debe quedarse colgado
+   si MatchEngine no está disponible o lanza un error.
+   ============================================================ */
+
+/* Envuelve la llamada al motor. Devuelve null si no hay motor o si falla. */
+function runMatchEngine(home, away, opts) {
+  if (typeof MatchEngine === 'undefined' || !MatchEngine || typeof MatchEngine.simularPartidoMotor !== 'function') {
+    console.error('[SIM] MatchEngine no disponible — usando fallback por rating')
+    return null
+  }
+  try {
+    return MatchEngine.simularPartidoMotor(home, away, opts)
+  } catch (e) {
+    console.error('[SIM] Error en MatchEngine:', e)
+    return null
+  }
+}
+
+/* Potencia efectiva media del XI titular del usuario (sin depender del motor) */
+function poderEfectivoUsuario() {
+  var roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
+  var ids = (state.tacticsSlots || []).filter(Boolean)
+  var total = 0, n = 0
+  ids.forEach(function(pid, i) {
+    var p = state.players.find(function(x) { return x.id === pid })
+    if (p && roles[i]) { total += calcularMediaEnPosicion(p, roles[i]); n++ }
+  })
+  return n ? total / n : 0
+}
+
+/* Potencia efectiva media del top-11 de un equipo CPU (sin depender del motor) */
+function poderEfectivoCPU(players) {
+  if (!players || !players.length) return 70
+  var top = players.filter(function(p) { return p && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
+    .sort(function(a, b) { return (b.skill || 0) - (a.skill || 0) }).slice(0, 11)
+  if (!top.length) return 70
+  var s = top.reduce(function(sum, p) { return sum + Math.round((p.skill || 0) * staminaMod(p.energy)) }, 0)
+  return s / top.length
+}
+
+/* Genera goleadores aleatorios para el fallback (misma forma que el motor) */
+function buildFallbackGoals(team, count, isUserTeam) {
+  var players = (team && team.players) || []
+  if (isUserTeam) players = state.players || []
+  var field = players.filter(function(p) { return p && !p.injury && p.position !== 'POR' && p.position !== 'portero' })
+  var out = []
+  for (var i = 0; i < count; i++) {
+    if (field.length === 0) break
+    var scorer = pickWeightedRandom(field, function(p) { return getGoalWeight(p.position, p.skill) })
+    var assist = null
+    var pool = field.filter(function(p) { return p.id !== scorer.id })
+    if (pool.length > 0 && Math.random() < 0.35) assist = pool[Math.floor(Math.random() * pool.length)]
+    out.push({ minute: 10 + Math.floor(Math.random() * 80), scorer: scorer, assist: assist })
+  }
+  return out
+}
+
+/* Fallback de marcador (0-3 goles, sin goleadas) con la MISMA forma que el motor */
+function simularResultadoFallback(home, away, isHomeUser) {
+  var userPower = poderEfectivoUsuario() || 60
+  var rivalTeam = isHomeUser ? away : home
+  var rivalPower = poderEfectivoCPU((rivalTeam && rivalTeam.players) || null)
+  var homePower = isHomeUser ? userPower : rivalPower
+  var awayPower = isHomeUser ? rivalPower : userPower
+  var homeBonus = 1.04, awayBonus = 1.0
+  var total = 1 + Math.floor(Math.random() * 3) /* 1-3 goles */
+  var denom = homePower * homeBonus + awayPower * awayBonus
+  var hs = Math.round(total * homePower * homeBonus / denom)
+  var as = total - hs
+  if (hs === 0 && as === 0 && total >= 1) { if (Math.random() < 0.5) hs = 1; else as = 1 }
+  return {
+    homeScore: hs,
+    awayScore: as,
+    possessionHome: Math.round(homePower * homeBonus / denom * 100),
+    xgHome: hs * 0.7,
+    xgAway: as * 0.7,
+    events: [],
+    goalsHome: buildFallbackGoals(home, hs, isHomeUser),
+    goalsAway: buildFallbackGoals(away, as, !isHomeUser),
+    upsetApplied: false
+  }
+}
+
+/* Fallback puro por rating (CPU vs CPU) */
+function simularPorRatingBasico(homeR, awayR) {
+  homeR = homeR || 70
+  awayR = awayR || 70
+  var total = 1 + Math.floor(Math.random() * 3)
+  var hs = homeR * (0.85 + Math.random() * 0.3)
+  var as = awayR * (0.85 + Math.random() * 0.3)
+  var h = Math.min(5, Math.round(total * hs / (hs + as)))
+  var a = total - h
+  if (h === 0 && a === 0 && total >= 1) { if (Math.random() < 0.5) h = 1; else a = 1 }
+  return { homeScore: h, awayScore: a }
+}
+
+/* Rival de respaldo si getTeamObj devuelve null (evita crash en el motor) */
+function rivalFallback(rivalId) {
+  var db = getBaseDato(rivalId)
+  return {
+    name: getTeamName(rivalId) || rivalId,
+    players: generateCpuSquad(rivalId, state.countryId, db ? db.rating : 70),
+    teamId: rivalId,
+    formation: getTeamFormation(rivalId),
+    gamePlan: 'pesado'
+  }
+}
+
 function autoSimulateOtherMatch(homeId, awayId, comp) {
   comp = comp || 'league'
   const home = getTeamObj(homeId)
   const away = getTeamObj(awayId)
   if (!home || !away) return { homeScore: 0, awayScore: 0 }
-  const homeTact = calcTacticMultiplier(home.formation, home.gamePlan)
-  const awayTact = calcTacticMultiplier(away.formation, away.gamePlan)
-  const homePower = getTop11Average(home.players) * getTop11EnergyFactor(home.players)
-  const awayPower = getTop11Average(away.players) * getTop11EnergyFactor(away.players)
-  const homeSkill = homePower * randInt(85, 115) / 100 * 1.05 * homeTact
-  const awaySkill = awayPower * randInt(85, 115) / 100 * awayTact
-  let homeScore = 0, awayScore = 0
-  for (let m = 0; m < 40; m++) {
-    if (Math.random() > 0.35) continue
-    const prob = (Math.random() < 0.5 ? homeSkill : awaySkill) / 100 * 0.3
-    if (Math.random() < prob) {
-      var scoreProb = 1 / (1 + Math.pow(10, (awaySkill - homeSkill) / 15))
-      if (Math.random() < scoreProb) homeScore++; else awayScore++
-    }
+  let res = runMatchEngine(home, away, {
+    effectiveSkillFn: calcularMediaEnPosicion,
+    scoringWeightFn: getGoalWeight,
+    gamePlans: GAME_PLANS,
+    comp: comp
+  })
+  if (!res) {
+    var hR = getTop11Average(home.players || []) || (getBaseDato(homeId) || {}).rating || 70
+    var aR = getTop11Average(away.players || []) || (getBaseDato(awayId) || {}).rating || 70
+    res = simularPorRatingBasico(hR, aR)
   }
+  const homeScore = res.homeScore
+  const awayScore = res.awayScore
   /* Track pre-match stats for AI rating computation */
   home.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preAssists = p.assists || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
   away.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preAssists = p.assists || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
@@ -2473,10 +2682,11 @@ function autoSimulateOtherMatch(homeId, awayId, comp) {
       var matchAssists = (p.assists || 0) - (p._preAssists || 0)
       p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, assists: matchAssists, yellow: matchYC > 0, red: matchRC > 0, comp: comp })
       if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
-      /* Apply fatigue */
-      p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - (GAME_PLANS[gamePlan]?.drain || 10))
     })
   })
+  /* Fatiga + recuperación para equipos CPU */
+  aplicarFatigaEquipo(home, home.gamePlan)
+  aplicarFatigaEquipo(away, away.gamePlan)
   /* Clean up temp properties */
   home.players.forEach(function(p) { delete p._preGoals; delete p._preAssists; delete p._preYC; delete p._preRC })
   away.players.forEach(function(p) { delete p._preGoals; delete p._preAssists; delete p._preYC; delete p._preRC })
@@ -2524,7 +2734,7 @@ function assignAIStats(players, goals, formation, gamePlan) {
         var naturalKey = SIGLA_TO_POS[p.position] || p.position
         var mult
         if (naturalKey === role) mult = 1.0
-        else if (p.otherPositions && p.otherPositions.some(function(o) { return o.pos === role })) mult = 0.85
+        else if (p.otherPositions && p.otherPositions.some(function(o) { return normalizePosKey(o.pos) === role })) mult = 0.85
         else mult = 0.6
         var score = p.skill * mult
         if (score > bestScore) { bestScore = score; best = p }
@@ -2661,16 +2871,7 @@ function updateLeagueStandings() {
 
 function simularPartidoPorRating(homeId, awayId, comp) {
   comp = comp || 'league'
-  const homeR = getTeamRating(homeId)
-  const awayR = getTeamRating(awayId)
-  if (!homeR || !awayR) return { homeScore: 0, awayScore: 0 }
-  const homeStrength = homeR * (0.8 + Math.random() * 0.4)
-  const awayStrength = awayR * (0.8 + Math.random() * 0.4)
-  const total = homeStrength + awayStrength
-  const goals = 2 + Math.round(Math.random() * 4)
-  const homeScore = Math.min(10, Math.round((homeStrength / total) * goals))
-  const awayScore = Math.min(10, Math.round((awayStrength / total) * goals))
-  /* Track individual player stats for CPU teams (use persistent teams from allLeagueData) */
+  /* Use persistent teams from allLeagueData when available, else team objects */
   var home = null, away = null
   for (const [lid, d] of Object.entries(state.allLeagueData || {})) {
     if (!home && d.teams) home = d.teams.find(function(t) { return t.teamId === homeId })
@@ -2678,6 +2879,20 @@ function simularPartidoPorRating(homeId, awayId, comp) {
   }
   if (!home) home = getTeamObj(homeId)
   if (!away) away = getTeamObj(awayId)
+  if (!home || !away || !home.players || !away.players) return { homeScore: 0, awayScore: 0 }
+  let res = runMatchEngine(home, away, {
+    effectiveSkillFn: calcularMediaEnPosicion,
+    scoringWeightFn: getGoalWeight,
+    gamePlans: GAME_PLANS,
+    comp: comp
+  })
+  if (!res) {
+    var hR = getTop11Average(home.players || []) || (getBaseDato(homeId) || {}).rating || 70
+    var aR = getTop11Average(away.players || []) || (getBaseDato(awayId) || {}).rating || 70
+    res = simularPorRatingBasico(hR, aR)
+  }
+  const homeScore = res.homeScore
+  const awayScore = res.awayScore
   if (home && home.players) {
     home.players.forEach(function(p) { p._preGoals = p.goals || 0; p._preAssists = p.assists || 0; p._preYC = p.yellowCards || 0; p._preRC = p.redCards || 0 })
     assignAIStats(home.players, homeScore, null, null)
@@ -2724,9 +2939,11 @@ function simularPartidoPorRating(homeId, awayId, comp) {
       var matchAssistsSimp = (p.assists || 0) - (p._preAssists || 0)
       p.matchHistory.push({ matchday: state.currentMatchday, rival: rivalName, minutes: 90, rating: rating, goals: matchGoals, assists: matchAssistsSimp, yellow: matchYC > 0, red: matchRC > 0, comp: comp })
       if (p.matchHistory.length > 30) p.matchHistory = p.matchHistory.slice(-30)
-      p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - 10)
     })
   })
+  /* Fatiga + recuperación para equipos CPU */
+  aplicarFatigaEquipo(home, home.gamePlan)
+  aplicarFatigaEquipo(away, away.gamePlan)
   if (home && home.players) home.players.forEach(function(p) { delete p._preGoals; delete p._preAssists; delete p._preYC; delete p._preRC })
   if (away && away.players) away.players.forEach(function(p) { delete p._preGoals; delete p._preAssists; delete p._preYC; delete p._preRC })
   /* Cup tiebreak: if drawn, apply extra time / penalties */
@@ -3782,11 +3999,18 @@ var POS_GROUP = {
   medio_def: 2, mediocentro: 2, medio_ofensivo: 2, medio_der: 2, medio_izq: 2,
   extremo_der: 3, extremo_izq: 3, delantero: 3,
 }
+
+/* Modificador suave de stamina (0.85–1.0): 100% de energía = 100% del rendimiento nominal */
+function staminaMod(energy) {
+  var e = energy == null ? 80 : energy
+  return Math.min(1, Math.max(0.85, 0.85 + 0.15 * e / 100))
+}
+
 function calcularMediaEnPosicion(jugador, posicionActual) {
-  if (!posicionActual) return jugador.energy < 50 ? Math.round(jugador.skill * 0.5) : jugador.skill
+  if (!posicionActual) return Math.round(jugador.skill * staminaMod(jugador.energy))
   var naturalKey = SIGLA_TO_POS[jugador.position] || jugador.position
   var currentKey = SIGLA_TO_POS[posicionActual] || posicionActual
-  var base = jugador.energy < 50 ? Math.round(jugador.skill * 0.5) : jugador.skill
+  var base = Math.round(jugador.skill * staminaMod(jugador.energy))
 
   if (naturalKey === currentKey) {
     /* Posición principal: mainPct sube gradualmente con cada partido */
@@ -3804,7 +4028,7 @@ function calcularMediaEnPosicion(jugador, posicionActual) {
   /* Conocimiento del jugador (otherPositions + experiencia) */
   var staticPct = 0
   if (jugador.otherPositions) {
-    var alt = jugador.otherPositions.find(function(o) { return (SIGLA_TO_POS[o.pos] || o.pos) === currentKey })
+    var alt = jugador.otherPositions.find(function(o) { return (SIGLA_TO_POS[normalizePosKey(o.pos)] || normalizePosKey(o.pos)) === currentKey })
     if (alt) staticPct = alt.pct
   }
   var expMatches = jugador.positionExperience ? (jugador.positionExperience[currentKey] || 0) : 0
@@ -3817,6 +4041,8 @@ function calcularMediaEnPosicion(jugador, posicionActual) {
   var dist = Math.abs(groupA - groupB)
   if (naturalKey === 'portero' || currentKey === 'portero') dist = 2
   var basePct = dist === 0 ? 96 : dist === 1 ? 90 : 75
+  /* M\u00e1xima penalizaci\u00f3n: un jugador de campo puesto en la porter\u00eda */
+  if (currentKey === 'portero' && naturalKey !== 'portero') basePct = 55
 
   /* Reducir penalizaci\u00f3n con el conocimiento */
   var pct = basePct + (100 - basePct) * knownPct / 100
@@ -4993,6 +5219,7 @@ function procesarEconomiaSemanal() {
     state.finances.history.push({ reason: 'Gastos operativos semanales', amount: -gastos })
   }
   procesarLesiones()
+  recuperarPorterosAl100()
   procesarVentasCPU()
   checkTransferWindow()
   if (state.transferWindowOpen) {
@@ -5005,15 +5232,29 @@ function procesarEconomiaSemanal() {
 function procesarLesiones() {
   /* Weekly injury chance for user's players (training/match fatigue) */
   if (!state.players) return
-  var injuryProb = 0.04  /* 4% chance per player per week */
+  var injuryProb = 0.04  /* 4% chance per field player per week */
+  var gkProb = 0.025     /* 2.5% per goalkeeper per week */
   for (var i = 0; i < state.players.length; i++) {
     var p = state.players[i]
     if (p.injury) continue
-    if (Math.random() < injuryProb) {
-      var weeks = 1 + Math.floor(Math.random() * 3)
-      if (Math.random() < 0.2) weeks += 1 + Math.floor(Math.random() * 4)
-      p.injury = { remaining: weeks }
-      addNotification('injury', '\u26A0 Lesi\u00f3n: ' + p.name, p.name + ' lesionado por ' + weeks + ' jornada' + (weeks > 1 ? 's' : ''), { logo: NOPHOTO })
+    if (esPortero(p)) {
+      /* Lesiones semanales específicas de porteros: leve / moderada / grave */
+      if (Math.random() < gkProb) {
+        var rg = Math.random()
+        var weeks, desc, type
+        if (rg < 0.70) { weeks = 1 + Math.floor(Math.random() * 2); desc = 'Sobrecarga'; type = 'leve' }
+        else if (rg < 0.95) { weeks = 3 + Math.floor(Math.random() * 3); desc = 'Esguince de dedo'; type = 'moderada' }
+        else { weeks = 10 + Math.floor(Math.random() * 7); desc = 'Lesi\u00f3n de ligamentos'; type = 'grave' }
+        p.injury = { remaining: weeks, type: type, description: desc }
+        addNotification('injury', '\u26A0 Lesi\u00f3n: ' + p.name, p.name + ' (' + desc + ') — ' + weeks + ' jornada' + (weeks > 1 ? 's' : ''), { logo: NOPHOTO })
+      }
+    } else {
+      if (Math.random() < injuryProb) {
+        var weeks = 1 + Math.floor(Math.random() * 3)
+        if (Math.random() < 0.2) weeks += 1 + Math.floor(Math.random() * 4)
+        p.injury = { remaining: weeks }
+        addNotification('injury', '\u26A0 Lesi\u00f3n: ' + p.name, p.name + ' lesionado por ' + weeks + ' jornada' + (weeks > 1 ? 's' : ''), { logo: NOPHOTO })
+      }
     }
   }
   /* Weekly injury chance for CPU players */
@@ -5028,7 +5269,7 @@ function procesarLesiones() {
       }
     }
   }
-  /* Count down existing injuries */
+  /* Count down existing injuries (único descuento semanal) */
   var allPools = [state.players]
   state.leagueTeams.forEach(function(t) { if (t.players) allPools.push(t.players) })
   for (var pi = 0; pi < allPools.length; pi++) {
@@ -5037,7 +5278,11 @@ function procesarLesiones() {
       var pl = pool[pj]
       if (pl.injury && pl.injury.remaining) {
         pl.injury.remaining--
-        if (pl.injury.remaining <= 0) pl.injury = null
+        if (pl.injury.remaining <= 0) {
+          pl.energy = (pl.injury.recoveryEnergy != null ? pl.injury.recoveryEnergy : 100)
+          pl.injury = null
+          if (pool === state.players) addNotification('general', '\ud83d\udcaa Recuperado: ' + pl.name, 'Vuelve tras superar su lesi\u00f3n')
+        }
       }
     }
   }
@@ -5962,8 +6207,9 @@ function mostrarOfertaTransferencia(player, team, offer) {
     var secondaryBadgesHtml = ''
     if (player.otherPositions && player.otherPositions.length > 0) {
       secondaryBadgesHtml = player.otherPositions.map(function(o) {
-        var oInternal = SIGLA_TO_POS[o.pos] || o.pos
-        var abbr = POS_ABBR[oInternal] || o.pos
+        var oPos = normalizePosKey(o.pos)
+        var oInternal = SIGLA_TO_POS[oPos] || oPos
+        var abbr = POS_ABBR[oInternal] || oPos
         var color = POSITIONS[oInternal]?.color || '#888'
         return '<span style="background:' + color + ';color:#fff;padding:0 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.6">' + abbr + '</span>'
       }).join('')
@@ -6093,8 +6339,9 @@ function showTransferConfirmModal(data) {
   posHtml += '<span style="background:' + mainColor + ';color:#fff;padding:1px 6px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.8">' + mainAbbr + ' ' + (player.mainPct != null ? player.mainPct + '%' : '99%') + '</span>'
   if (player.otherPositions && player.otherPositions.length > 0) {
     player.otherPositions.forEach(function(o) {
-      var oKey = SIGLA_TO_POS[o.pos] || o.pos
-      var oAbbr = POS_ABBR[oKey] || o.pos
+      var oPos = normalizePosKey(o.pos)
+      var oKey = SIGLA_TO_POS[oPos] || oPos
+      var oAbbr = POS_ABBR[oKey] || oPos
       var oColor = (POSITIONS[oKey] && POSITIONS[oKey].color) || '#888'
       posHtml += '<span style="background:' + oColor + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.8">' + oAbbr + ' ' + o.pct + '%</span>'
     })
@@ -8108,35 +8355,27 @@ function simularPartidoRapido(fixture, rivalId) {
     /* 1. Simulate user's match */
     const isHome = fixture.home === state.teamId
     const roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
-    let totalEff = 0
-    for (let i = 0; i < roles.length; i++) {
-      const pid = startingIds[i]
-      const p = state.players.find(x => x.id === pid)
-      if (p) totalEff += calcularMediaEnPosicion(p, roles[i])
-    }
-    const userPower = totalEff / 11
-
-    const rivalTeam = getTeamObj(rivalId)
-    let rivalPower = 0
-    if (rivalTeam && rivalTeam.players && rivalTeam.players.length > 0) {
-      rivalPower = Math.round(getTop11Average(rivalTeam.players) * getTop11EnergyFactor(rivalTeam.players))
-    } else {
-      const db = getBaseDato(rivalId)
-      rivalPower = db ? db.rating : 70
-    }
-
-    const homeFactor = isHome ? 1.05 : 0.97
-    const awayFactor = isHome ? 0.97 : 1.05
-    const userFinal = userPower * (0.95 + Math.random() * 0.1) * homeFactor
-    const rivalFinal = rivalPower * (0.95 + Math.random() * 0.1) * awayFactor
-    const probUser = 1 / (1 + Math.pow(10, (rivalFinal - userFinal) / 15))
-    const attempts = 3 + Math.floor(Math.random() * 5)
-    let rawUser = 0, rawRival = 0
-    for (let a = 0; a < attempts; a++) {
-      if (Math.random() < probUser) { rawUser++ } else { rawRival++ }
-    }
-    const us = Math.min(10, Math.max(0, rawUser))
-    const them = Math.min(10, Math.max(0, rawRival))
+    const xiUser = startingIds.map(function(pid, i) {
+      return { player: state.players.find(x => x.id === pid), role: roles[i] || roles[0] }
+    })
+    const rivalTeam = getTeamObj(rivalId) || rivalFallback(rivalId)
+    const userTeamObj = { name: state.team, players: state.players, teamId: state.teamId, formation: state.tactic.formation, gamePlan: state.tactic.gamePlan }
+    const engineHome = isHome ? userTeamObj : rivalTeam
+    const engineAway = isHome ? rivalTeam : userTeamObj
+    let simResult = runMatchEngine(engineHome, engineAway, {
+      effectiveSkillFn: calcularMediaEnPosicion,
+      scoringWeightFn: getGoalWeight,
+      gamePlans: GAME_PLANS,
+      formationRoles: SLOT_ROLES,
+      xiHome: isHome ? xiUser : undefined,
+      xiAway: isHome ? undefined : xiUser,
+      comp: 'league'
+    })
+    if (!simResult) simResult = simularResultadoFallback(engineHome, engineAway, isHome)
+    const us = isHome ? simResult.homeScore : simResult.awayScore
+    const them = isHome ? simResult.awayScore : simResult.homeScore
+    const userGoals = isHome ? simResult.goalsHome : simResult.goalsAway
+    const rivalGoals = isHome ? simResult.goalsAway : simResult.goalsHome
 
     if (isHome) { fixture.homeScore = us; fixture.awayScore = them }
     else { fixture.homeScore = them; fixture.awayScore = us }
@@ -8168,33 +8407,24 @@ function simularPartidoRapido(fixture, rivalId) {
       }
     })
     const userGoalscorers = []
-    for (let g = 0; g < us; g++) {
-      const valid = state.players.filter(p => startingIds.includes(p.id) && p.position !== 'POR' && !p.injury)
-      if (valid.length === 0) break
-      const scorer = pickWeightedRandom(valid, function(p) { return getGoalWeight(p.position, p.skill) })
-      scorer.goals = (scorer.goals || 0) + 1
-      scorer._goalsInMatch = (scorer._goalsInMatch || 0) + 1
-      let assistName = null
-      if (Math.random() < 0.35) {
-        const pool = state.players.filter(p => startingIds.includes(p.id) && p.id !== scorer.id && !p.injury)
-        if (pool.length > 0) {
-          const a = pool[Math.floor(Math.random() * pool.length)]
-          a.assists = (a.assists || 0) + 1
-          a._assistThisMatch = (a._assistThisMatch || 0) + 1
-          assistName = a.name
-        }
+    userGoals.forEach(function(g) {
+      if (!g.scorer) return
+      g.scorer.goals = (g.scorer.goals || 0) + 1
+      g.scorer._goalsInMatch = (g.scorer._goalsInMatch || 0) + 1
+      var assistName = null
+      if (g.assist) {
+        g.assist.assists = (g.assist.assists || 0) + 1
+        g.assist._assistThisMatch = (g.assist._assistThisMatch || 0) + 1
+        assistName = g.assist.name
       }
-      userGoalscorers.push({ scorerName: scorer.name, assistName })
-    }
+      userGoalscorers.push({ scorerName: g.scorer.name, assistName: assistName })
+    })
 
     /* Generate rival goalscorers */
     const rivalGoalscorers = []
-    const rivalFieldPlayers = (rivalTeam.players || []).filter(function(p) { return p.position !== 'POR' })
-    for (var rg = 0; rg < them; rg++) {
-      if (rivalFieldPlayers.length === 0) break
-      var rScorer = rivalFieldPlayers[Math.floor(Math.random() * rivalFieldPlayers.length)]
-      rivalGoalscorers.push(rScorer.name)
-    }
+    rivalGoals.forEach(function(g) {
+      if (g.scorer) rivalGoalscorers.push(g.scorer.name)
+    })
 
     /* Yellow and red cards for user's players */
     var cardGamePlan = state.tactic.gamePlan || 'extremo'
@@ -8203,9 +8433,9 @@ function simularPartidoRapido(fixture, rivalId) {
     })
     procesarSuspensiones()
 
-    /* Match injuries for user's players */
+    /* Match injuries for user's players (los porteros tienen su propia tirada al 1%) */
     var injProb = 0.06
-    state.players.filter(p => startingIds.includes(p.id) && !p.injury).forEach(function(p) {
+    state.players.filter(p => startingIds.includes(p.id) && !esPortero(p) && !p.injury).forEach(function(p) {
       if (Math.random() < injProb) {
         var weeks = 1 + Math.floor(Math.random() * 3)
         if (Math.random() < 0.15) weeks += 1 + Math.floor(Math.random() * 6)
@@ -8213,10 +8443,15 @@ function simularPartidoRapido(fixture, rivalId) {
         addNotification('injury', '\u26A0 Lesi\u00f3n: ' + p.name, p.name + ' se lesiona durante el partido (' + weeks + ' jornada' + (weeks > 1 ? 's' : '') + ')', { logo: NOPHOTO })
       }
     })
+    /* Lesión en caliente del portero (1%) + cambio automático */
+    gestionarLesionPortero(startingIds)
 
-    /* Fatigue for user's players */
+    /* Fatigue for user's players (los porteros solo desgastan 3-5%, ajenos al plan) */
     state.players.forEach(p => {
-      if (!p.injury && startingIds.includes(p.id)) p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - (GAME_PLANS[state.tactic.gamePlan]?.drain || 10))
+      if (!p.injury && startingIds.includes(p.id)) {
+        var drain = esPortero(p) ? desgastePortero() : (GAME_PLANS[state.tactic.gamePlan]?.drain || 10)
+        p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - drain)
+      }
       p.enPista = false; p.convocado = false; p.titular = false
     })
     /* Recovery for unused players (bench/reserves who didn't play) */
@@ -8225,6 +8460,10 @@ function simularPartidoRapido(fixture, rivalId) {
         p.energy = Math.min(100, p.energy + 25)
       }
     })
+    /* Fatiga + recuperación del rival (equipos CPU persistentes) */
+    if (rivalTeam && rivalTeam !== userTeamObj && rivalTeam.players) {
+      aplicarFatigaEquipo(rivalTeam, rivalTeam.gamePlan)
+    }
 
     /* Track position experience + mainPct */
     state.players.forEach(function(p) {
@@ -8298,21 +8537,6 @@ function simularPartidoRapido(fixture, rivalId) {
     for (const f of otherFixtures) {
       const r = autoSimulateOtherMatch(f.home, f.away)
       f.homeScore = r.homeScore; f.awayScore = r.awayScore; f.played = true
-      /* Apply fatigue and substitutions to AI teams */
-      for (const tid of [f.home, f.away]) {
-        const team = state.leagueTeams.find(t => t.teamId === tid)
-        if (team && team.players) {
-          team.players.forEach(p => { if (!p.injury) p.energy = Math.max(10, (p.energy || 80) - (GAME_PLANS[team.gamePlan]?.drain || 10)) })
-          const aiBench = team.players.filter(p => p.position !== 'POR').slice(11, 11 + getEffectiveMaxBench())
-          const subsMade = Math.min(5, aiBench.length, Math.floor(Math.random() * 3 + 1))
-          for (let s = 0; s < subsMade; s++) {
-            const tiredIdx = Math.floor(Math.random() * Math.min(11, team.players.length))
-            if (team.players[tiredIdx] && !team.players[tiredIdx].injury) {
-              team.players[tiredIdx].energy = Math.max(10, team.players[tiredIdx].energy + 10)
-            }
-          }
-        }
-      }
     }
 
     /* 3. Finance reward for user */
@@ -8396,7 +8620,7 @@ function simularPartidoRapido(fixture, rivalId) {
     hideLoading()
 
     /* Cleanup temp match vars after modal is rendered */
-    state.players.forEach(function(p) { delete p._yellowThisMatch; delete p._redThisMatch; delete p._goalsInMatch; delete p._assistThisMatch })
+    state.players.forEach(function(p) { delete p._yellowThisMatch; delete p._redThisMatch; delete p._goalsInMatch; delete p._assistThisMatch; delete p._emergencyGK })
 
     /* Playoff: auto-simulate other fixtures, advance round, override continue */
     if (state.playoffs && state.playoffs.fixtures && state.playoffs.fixtures.some(function(f) { return f === fixture })) {
@@ -8419,8 +8643,8 @@ function simularPartidoRapido(fixture, rivalId) {
     /* Absolute Final: record result, trophy, override continue to end season */
     if (state.absoluteFinal && state.absoluteFinal === fixture) {
       state.absoluteFinal.played = true
-      state.absoluteFinal.homeScore = homeScore
-      state.absoluteFinal.awayScore = awayScore
+      state.absoluteFinal.homeScore = simResult.homeScore
+      state.absoluteFinal.awayScore = simResult.awayScore
       document.getElementById('mr-btn-continue').onclick = function() {
         document.getElementById('match-result-modal').style.display = 'none'
         document.getElementById('match-result-modal').classList.remove('open')
@@ -8463,37 +8687,41 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga, isEflCu
   setTimeout(function() {
     var isHome = fixture.home === state.teamId
     var roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
-    var totalEff = 0
-    for (var ei = 0; ei < roles.length; ei++) {
-      var pid = startingIds[ei]
-      var p = state.players.find(function(x) { return x.id === pid })
-      if (p) totalEff += calcularMediaEnPosicion(p, roles[ei])
-    }
-    var userPower = totalEff / 11
-
-    var rivalTeam = getTeamObj(rivalId)
-    var rivalPower = 0
-    if (rivalTeam && rivalTeam.players && rivalTeam.players.length > 0) {
-      rivalPower = Math.round(getTop11Average(rivalTeam.players) * getTop11EnergyFactor(rivalTeam.players))
-    } else {
-      var db = getBaseDato(rivalId)
-      rivalPower = db ? db.rating : 70
-    }
-
-    var homeFactor = isHome ? 1.05 : 0.97
-    var awayFactor = isHome ? 0.97 : 1.05
-    var userFinal = userPower * (0.8 + Math.random() * 0.4) * homeFactor
-    var rivalFinal = rivalPower * (0.8 + Math.random() * 0.4) * awayFactor
-    var totalG = 2 + Math.floor(Math.random() * 5)
-    var probU = userFinal / (userFinal + rivalFinal)
-    var rawU = Math.round(totalG * probU)
-    var rawR = totalG - rawU
-    if (rawU === 0 && rawR === 0 && totalG >= 2) { if (Math.random() < 0.5) rawU++; else rawR++ }
-    var us = Math.min(10, Math.max(0, rawU))
-    var them = Math.min(10, Math.max(0, rawR))
+    var xiUser = startingIds.map(function(pid, i) {
+      return { player: state.players.find(function(x) { return x.id === pid }), role: roles[i] || roles[0] }
+    })
+    var rivalTeam = getTeamObj(rivalId) || rivalFallback(rivalId)
+    var userTeamObj = { name: state.team, players: state.players, teamId: state.teamId, formation: state.tactic.formation, gamePlan: state.tactic.gamePlan }
+    var engineHome = isHome ? userTeamObj : rivalTeam
+    var engineAway = isHome ? rivalTeam : userTeamObj
+    var simResult = runMatchEngine(engineHome, engineAway, {
+      effectiveSkillFn: calcularMediaEnPosicion,
+      scoringWeightFn: getGoalWeight,
+      gamePlans: GAME_PLANS,
+      formationRoles: SLOT_ROLES,
+      xiHome: isHome ? xiUser : undefined,
+      xiAway: isHome ? undefined : xiUser,
+      comp: isEflCup ? 'efl_cup' : isTacaDaLiga ? 'taca_da_liga' : isSupercopa ? 'supercopa' : 'cup'
+    })
+    if (!simResult) simResult = simularResultadoFallback(engineHome, engineAway, isHome)
+    var us = isHome ? simResult.homeScore : simResult.awayScore
+    var them = isHome ? simResult.awayScore : simResult.homeScore
+    var userGoals = isHome ? simResult.goalsHome : simResult.goalsAway
+    var rivalGoals = isHome ? simResult.goalsAway : simResult.goalsHome
 
     /* Pr\u00f3rroga / Penaltis si empate en Copa, seg\u00fan el sistema de la competici\u00f3n */
     var matchSys = getMatchSystem(isEflCup ? 'efl_cup' : isTacaDaLiga ? 'taca_da_liga' : isSupercopa ? 'supercopa' : 'cup', state.countryId)
+    var homeFactor = isHome ? 1.05 : 0.97
+    var awayFactor = isHome ? 0.97 : 1.05
+    var userPower = 0, rivalPower = 0
+    if (typeof MatchEngine !== 'undefined' && MatchEngine && typeof MatchEngine.calcularPoderNeto === 'function') {
+      try {
+        userPower = MatchEngine.calcularPoderNeto(userTeamObj, { effectiveSkillFn: calcularMediaEnPosicion, xi: xiUser, formationRoles: SLOT_ROLES, isHome: false }).mediaXI
+        rivalPower = MatchEngine.calcularPoderNeto(rivalTeam, { effectiveSkillFn: calcularMediaEnPosicion, formationRoles: SLOT_ROLES, isHome: false }).mediaXI
+      } catch (e) { console.error('[SIM] Error calculando netos de pr\u00f3rroga:', e) }
+    }
+    if (!userPower) userPower = poderEfectivoUsuario() || 60
+    if (!rivalPower) rivalPower = poderEfectivoCPU((rivalTeam && rivalTeam.players) || null)
     if (us === them) {
       if (matchSys === 'penalties') {
         /* Sin pr\u00f3rroga, directo a penaltis */
@@ -8504,7 +8732,7 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga, isEflCu
         if (uPen > rPen) us++; else them++
       } else {
         /* Pr\u00f3rroga + penaltis */
-        var extraU = userPower / 11 * (0.6 + Math.random() * 0.3) * homeFactor
+        var extraU = userPower * (0.6 + Math.random() * 0.3) * homeFactor
         var extraR = rivalPower * (0.6 + Math.random() * 0.3) * awayFactor
         var extraG = 1 + Math.floor(Math.random() * 3)
         var probEx = extraU / (extraU + extraR + 0.001)
@@ -8546,49 +8774,50 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga, isEflCu
     })
     /* Goalscorers */
     var userGoalscorers = []
-    for (var g = 0; g < (isHome ? us : them); g++) {
-      var valid = state.players.filter(function(pl) { return startingIds.indexOf(pl.id) >= 0 && pl.position !== 'POR' && !pl.injury })
-      if (valid.length === 0) break
-      var scorer = pickWeightedRandom(valid, function(pl) { return getGoalWeight(pl.position, pl.skill) })
-      scorer.goals = (scorer.goals || 0) + 1
-      scorer._goalsInMatch = (scorer._goalsInMatch || 0) + 1
+    userGoals.forEach(function(g) {
+      if (!g.scorer) return
+      g.scorer.goals = (g.scorer.goals || 0) + 1
+      g.scorer._goalsInMatch = (g.scorer._goalsInMatch || 0) + 1
       var assistName = null
-      if (Math.random() < 0.35) {
-        var pool = state.players.filter(function(pl) { return startingIds.indexOf(pl.id) >= 0 && pl.id !== scorer.id && !pl.injury })
-        if (pool.length > 0) {
-          var a = pool[Math.floor(Math.random() * pool.length)]
-          a.assists = (a.assists || 0) + 1
-          a._assistThisMatch = (a._assistThisMatch || 0) + 1
-          assistName = a.name
-        }
+      if (g.assist) {
+        g.assist.assists = (g.assist.assists || 0) + 1
+        g.assist._assistThisMatch = (g.assist._assistThisMatch || 0) + 1
+        assistName = g.assist.name
       }
-      userGoalscorers.push({ scorerName: scorer.name, assistName: assistName })
-    }
+      userGoalscorers.push({ scorerName: g.scorer.name, assistName: assistName })
+    })
     /* Rival goalscorers */
     var rivalGoalscorers = []
-    var rivalField = (rivalTeam.players || []).filter(function(pl) { return pl.position !== 'POR' })
-    for (var rg = 0; rg < (isHome ? them : us); rg++) {
-      if (rivalField.length === 0) break
-      rivalGoalscorers.push(rivalField[Math.floor(Math.random() * rivalField.length)].name)
-    }
+    rivalGoals.forEach(function(g) {
+      if (g.scorer) rivalGoalscorers.push(g.scorer.name)
+    })
     /* Cards */
     var cardGP = state.tactic.gamePlan || 'extremo'
     state.players.filter(function(pl) { return startingIds.indexOf(pl.id) >= 0 && pl.position !== 'POR' && !pl.injury }).forEach(function(pl) {
       asignarTarjetasJugador(pl, cardGP)
     })
     procesarSuspensiones()
-    /* Fatigue */
+    /* Lesión en caliente del portero (1%) + cambio automático */
+    gestionarLesionPortero(startingIds)
+    /* Fatigue (los porteros solo desgastan 3-5%, ajenos al plan) */
     state.players.forEach(function(p) {
-      if (!p.injury && startingIds.indexOf(p.id) >= 0) p.energy = Math.max(10, p.energy - (GAME_PLANS[state.tactic.gamePlan]?.drain || 10))
+      if (!p.injury && startingIds.indexOf(p.id) >= 0) {
+        var drainC = esPortero(p) ? desgastePortero() : (GAME_PLANS[state.tactic.gamePlan]?.drain || 10)
+        p.energy = Math.max(10, p.energy - drainC)
+      }
       p.enPista = false; p.convocado = false; p.titular = false
     })
     state.players.forEach(function(p) {
       if (!p.injury && p.minutosEnPista === 0 && p.energy < 100) p.energy = Math.min(100, p.energy + 25)
     })
-    /* Fatiga extra por partido intersemanal (Copa en mi\u00e9rcoles + Liga en finde) */
+    /* Fatiga extra por partido intersemanal (Copa en mi\u00e9rcoles + Liga en finde) — no afecta a los porteros */
     state.players.forEach(function(p) {
-      if (startingIds.indexOf(p.id) >= 0) p.energy = Math.max(5, (p.energy || 80) - 15)
+      if (startingIds.indexOf(p.id) >= 0 && !esPortero(p)) p.energy = Math.max(5, (p.energy || 80) - 15)
     })
+    /* Fatiga + recuperación del rival (equipos CPU persistentes) */
+    if (rivalTeam && rivalTeam !== userTeamObj && rivalTeam.players) {
+      aplicarFatigaEquipo(rivalTeam, rivalTeam.gamePlan)
+    }
 
     /* Financial reward + taquilla local */
     var cupRoundIdx = 0
@@ -8754,7 +8983,7 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga, isEflCu
       renderTab('home')
     }
 
-    state.players.forEach(function(p) { delete p._yellowThisMatch; delete p._redThisMatch; delete p._goalsInMatch; delete p._assistThisMatch })
+    state.players.forEach(function(p) { delete p._yellowThisMatch; delete p._redThisMatch; delete p._goalsInMatch; delete p._assistThisMatch; delete p._emergencyGK })
   }, 400)
 }
 
@@ -8878,7 +9107,7 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
         for (var ci = 0; ci < candidates.length; ci++) {
           var candidate = candidates[ci]
           var naturalKey = SIGLA_TO_POS[candidate.position] || candidate.position
-          var mult = naturalKey === role ? 1.0 : (candidate.otherPositions && candidate.otherPositions.some(function(o) { return o.pos === role })) ? 0.85 : 0.5
+          var mult = naturalKey === role ? 1.0 : (candidate.otherPositions && candidate.otherPositions.some(function(o) { return normalizePosKey(o.pos) === role })) ? 0.85 : 0.5
           var score = candidate.skill * mult
           if (score > bestScore) { bestScore = score; best = candidate; bestRole = role }
         }
@@ -9025,15 +9254,6 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
     simularJornadaEnTodasLasLigas(state.currentMatchday)
     procesarEconomiaSemanal()
     liberarSuspensiones()
-    for (const p of state.players) {
-      if (!p.injury) continue
-      p.injury.remaining--
-      if (p.injury.remaining <= 0) {
-        p.energy = p.injury.recoveryEnergy
-        p.injury = null
-        addNotification('general', '\ud83d\udcaa Recuperado: ' + p.name, 'Vuelve tras superar su lesi\u00f3n')
-      }
-    }
     const assistCount = state.staff.filter(function(s) { return s.role === 'assistantCoach' }).length
     if (assistCount > 0) {
       state.players.forEach(function(p) { p.energy = Math.min(100, p.energy + assistCount * 10) })
@@ -9120,16 +9340,6 @@ function showMatchdayResults(userScore, rivalScore, rivalName) {
       simularJornadaEnTodasLasLigas(state.currentMatchday)
       procesarEconomiaSemanal()
       liberarSuspensiones()
-      for (const p of state.players) {
-        if (!p.injury) continue
-        p.injury.remaining--
-        if (p.injury.remaining <= 0) {
-          const name = p.name
-          p.energy = p.injury.recoveryEnergy
-          p.injury = null
-          addNotification('general', `💪 Recuperado: ${name}`, `Vuelve tras superar su lesión`)
-        }
-      }
       /* Staff bonus: 2º Entrenador → +5 energía/jornada */
       const assistCount = state.staff.filter(s => s.role === 'assistantCoach').length
       if (assistCount > 0) {
@@ -9191,40 +9401,27 @@ function autoSimularPartidoUsuario(fixture) {
   }
 
   const roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
-  let totalEff = 0
   const ids = state.tacticsSlots.filter(Boolean)
-  for (let i = 0; i < Math.min(roles.length, ids.length); i++) {
-    const p = state.players.find(x => x.id === ids[i])
-    if (p) totalEff += calcularMediaEnPosicion(p, roles[i])
-  }
-  const userPower = totalEff / 11
-
-  /* Opponent power */
-  const rivalTeam = getTeamObj(rivalId)
-  let rivalPower = 0
-  if (rivalTeam && rivalTeam.players && rivalTeam.players.length > 0) {
-    rivalPower = Math.round(getTop11Average(rivalTeam.players) * getTop11EnergyFactor(rivalTeam.players))
-  } else {
-    const db = getBaseDato(rivalId)
-    rivalPower = db ? db.rating : 70
-  }
-
-  /* Apply randomness and home advantage */
-  const homeFactor = isHome ? 1.05 : 1.0
-  const awayFactor = isHome ? 0.97 : 1.0
-  const userFinal = userPower * (0.8 + Math.random() * 0.4) * homeFactor
-  const rivalFinal = rivalPower * (0.8 + Math.random() * 0.4) * awayFactor
-
-  /* Goal calculation */
-  const totalGoals = 2 + Math.floor(Math.random() * 5)
-  const probUser = userFinal / (userFinal + rivalFinal)
-  let rawUser = Math.round(totalGoals * probUser)
-  let rawRival = totalGoals - rawUser
-  if (rawUser === 0 && rawRival === 0 && totalGoals >= 2) {
-    if (Math.random() < 0.5) { rawUser++ } else { rawRival++ }
-  }
-  const us = Math.min(10, Math.max(0, rawUser))
-  const them = Math.min(10, Math.max(0, rawRival))
+  const xiUser = ids.map(function(pid, i) {
+    return { player: state.players.find(x => x.id === pid), role: roles[i] || roles[0] }
+  })
+  const rivalTeam = getTeamObj(rivalId) || rivalFallback(rivalId)
+  const userTeamObj = { name: state.team, players: state.players, teamId: state.teamId, formation: state.tactic.formation, gamePlan: state.tactic.gamePlan }
+  const engineHome = isHome ? userTeamObj : rivalTeam
+  const engineAway = isHome ? rivalTeam : userTeamObj
+  let simResult = runMatchEngine(engineHome, engineAway, {
+    effectiveSkillFn: calcularMediaEnPosicion,
+    scoringWeightFn: getGoalWeight,
+    gamePlans: GAME_PLANS,
+    formationRoles: SLOT_ROLES,
+    xiHome: isHome ? xiUser : undefined,
+    xiAway: isHome ? undefined : xiUser,
+    comp: 'league'
+  })
+  if (!simResult) simResult = simularResultadoFallback(engineHome, engineAway, isHome)
+  const us = isHome ? simResult.homeScore : simResult.awayScore
+  const them = isHome ? simResult.awayScore : simResult.homeScore
+  const userGoals = isHome ? simResult.goalsHome : simResult.goalsAway
 
   /* Update fixture */
   if (isHome) { fixture.homeScore = us; fixture.awayScore = them }
@@ -9244,21 +9441,15 @@ function autoSimularPartidoUsuario(fixture) {
       p.matches = (p.matches || 0) + 1
     }
   })
-  for (let g = 0; g < us; g++) {
-    const valid = state.players.filter(p => ids.includes(p.id) && p.position !== 'POR' && !p.injury)
-    if (valid.length === 0) break
-    const scorer = pickWeightedRandom(valid, function(p) { return getGoalWeight(p.position, p.skill) })
-    scorer.goals = (scorer.goals || 0) + 1
-    scorer._goalsInMatch = (scorer._goalsInMatch || 0) + 1
-    if (Math.random() < 0.35) {
-      const pool = state.players.filter(p => ids.includes(p.id) && p.id !== scorer.id && !p.injury)
-      if (pool.length > 0) {
-        const a = pool[Math.floor(Math.random() * pool.length)]
-        a.assists = (a.assists || 0) + 1
-        a._assistThisMatch = (a._assistThisMatch || 0) + 1
-      }
+  userGoals.forEach(function(g) {
+    if (!g.scorer) return
+    g.scorer.goals = (g.scorer.goals || 0) + 1
+    g.scorer._goalsInMatch = (g.scorer._goalsInMatch || 0) + 1
+    if (g.assist) {
+      g.assist.assists = (g.assist.assists || 0) + 1
+      g.assist._assistThisMatch = (g.assist._assistThisMatch || 0) + 1
     }
-  }
+  })
 
   /* Yellow and red cards */
   var cardGamePlan = state.tactic.gamePlan || 'extremo'
@@ -9286,9 +9477,15 @@ function autoSimularPartidoUsuario(fixture) {
     }
   })
 
-  /* Fatigue */
+  /* Lesión en caliente del portero (1%) + cambio automático */
+  gestionarLesionPortero(ids)
+
+  /* Fatigue (los porteros solo desgastan 3-5%, ajenos al plan) */
   state.players.forEach(p => {
-    if (!p.injury && ids.includes(p.id)) p.energy = Math.max(10, p.energy - (GAME_PLANS[state.tactic.gamePlan]?.drain || 10))
+    if (!p.injury && ids.includes(p.id)) {
+      var drainA = esPortero(p) ? desgastePortero() : (GAME_PLANS[state.tactic.gamePlan]?.drain || 10)
+      p.energy = Math.max(10, p.energy - drainA)
+    }
   })
   /* Recovery for unused players */
   state.players.forEach(p => {
@@ -9296,6 +9493,10 @@ function autoSimularPartidoUsuario(fixture) {
       p.energy = Math.min(100, p.energy + 25)
     }
   })
+  /* Fatiga + recuperación del rival (equipos CPU persistentes) */
+  if (rivalTeam && rivalTeam !== userTeamObj && rivalTeam.players) {
+    aplicarFatigaEquipo(rivalTeam, rivalTeam.gamePlan)
+  }
 
   /* Finance */
   const rew = getDivisionMatchReward(state.leagueId)
@@ -9320,6 +9521,7 @@ function autoSimularPartidoUsuario(fixture) {
       state.finances.history.push({ reason: 'Prima por victoria', amount: bono })
     }
   }
+  state.players.forEach(function(p) { delete p._emergencyGK })
 
   return { homeScore: fixture.homeScore, awayScore: fixture.awayScore, userGoals: isHome ? us : them, rivalGoals: isHome ? them : us }
 }
@@ -12695,8 +12897,9 @@ function showInboxDetail(n) {
     var posHtml = '<span style="background:' + pc + ';color:#fff;padding:1px 6px;border-radius:3px;font-weight:700;font-size:10px">' + pa + ' ' + (pd.mainPct != null ? pd.mainPct + '%' : '99%') + '</span>'
     if (pd.otherPositions && pd.otherPositions.length > 0) {
       pd.otherPositions.forEach(function(o) {
-        var ok = SIGLA_TO_POS[o.pos] || o.pos
-        var oa = POS_ABBR[ok] || o.pos
+        var oPos = normalizePosKey(o.pos)
+        var ok = SIGLA_TO_POS[oPos] || oPos
+        var oa = POS_ABBR[ok] || oPos
         var oc = (POSITIONS[ok] && POSITIONS[ok].color) || '#888'
         posHtml += '<span style="background:' + oc + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:10px">' + oa + ' ' + o.pct + '%</span>'
       })
@@ -13107,7 +13310,7 @@ function openPlayerDetail(player, teamObj) {
   if (otherPositions.length > 0) {
     adaptHtml += `<div class="pd-pos-label">Otras posiciones</div>`
     for (const alt of otherPositions) {
-      const altPos = alt.pos || alt
+      const altPos = normalizePosKey(alt.pos || alt)
       const altKey = SIGLA_TO_POS[altPos] || altPos
       const altPct = alt.pct !== undefined ? alt.pct : 1
       const exp = player.positionExperience ? (player.positionExperience[altKey] || 0) : 0
@@ -13133,7 +13336,7 @@ function openPlayerDetail(player, teamObj) {
   const mainCoords = PITCH_POS[player.position] || [50, 50]
   pitchHtml += `<span class="pd-pitch-badge main" style="background:${mainColor};top:${mainCoords[0]}%;left:${mainCoords[1]}%">${mainAbbr}</span>`
   for (const alt of otherPositions) {
-    const altPos = alt.pos || alt
+    const altPos = normalizePosKey(alt.pos || alt)
     const altKey = SIGLA_TO_POS[altPos] || altPos
     const altPct = alt.pct !== undefined ? alt.pct : 1
     const altExp = player.positionExperience ? (player.positionExperience[altKey] || 0) : 0
@@ -13155,11 +13358,12 @@ function openPlayerDetail(player, teamObj) {
       if (masteredPositions.length > 0) {
         var switchHtml = '<div class="pd-adapt-title" style="margin-top:8px;cursor:pointer" id="pd-switch-toggle">🔄 Cambiar posición principal</div><div id="pd-switch-options" style="display:none">'
         masteredPositions.forEach(function(op) {
-          var altKey = SIGLA_TO_POS[op.pos] || op.pos
-          var altLabel = POSITIONS[altKey] ? POSITIONS[altKey].label : op.pos
+          var opPos = normalizePosKey(op.pos)
+          var altKey = SIGLA_TO_POS[opPos] || opPos
+          var altLabel = POSITIONS[altKey] ? POSITIONS[altKey].label : opPos
           var altColor = (POSITIONS[altKey] || {}).color || '#2663EB'
           switchHtml += '<div class="pd-pos-row" data-switch-pos="' + op.pos + '" style="color:' + altColor + ';cursor:pointer;font-weight:600">' +
-            '<span>' + altLabel + ' (' + (POS_ABBR[altKey] || op.pos) + ')</span><span>✅ 100%</span></div>'
+            '<span>' + altLabel + ' (' + (POS_ABBR[altKey] || opPos) + ')</span><span>✅ 100%</span></div>'
         })
         switchHtml += '</div>'
         switchContainer.innerHTML = switchHtml
