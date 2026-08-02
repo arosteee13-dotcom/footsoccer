@@ -3324,13 +3324,18 @@ function renderBenchCard(player, extraClass) {
         <span class="bc-name">${player.name}</span>
         <span class="bc-pos" style="background:${pos.color}">${pos.label}</span>
       </div>
-      <div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${player.energy}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>
+      <div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${getEneVal(player.energy)}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>
     </div>
   </div>`
 }
 
 /* ============ TÁCTICA + CONVOCATORIA ============ */
+function getEneVal(energy) {
+  return energy != null && !Number.isNaN(energy) ? energy : 80
+}
+
 function getEneColor(energy) {
+  if (!(energy >= 0)) energy = 80
   if (energy > 70) return '#10B981'
   if (energy >= 50) return '#F59E0B'
   return '#EF4444'
@@ -3414,14 +3419,15 @@ function renderTactics(tactic) {
     var posAbbr = roleAbbrOverride || (POS_ABBR[posKey] || player.position)
     var cls = ''
     var avatarStyle = 'background-image:url(' + (player.avatar || NOPHOTO) + ');background-size:cover;background-position:center;background-color:var(--bg-card)'
-    var eneColor = player.energy >= 60 ? '#22C55E' : player.energy >= 30 ? '#F59E0B' : '#EF4444'
+    var ene = getEneVal(player.energy)
+    var eneColor = ene >= 60 ? '#22C55E' : ene >= 30 ? '#F59E0B' : '#EF4444'
     var displaySkill = effectiveSkill || player.skill
     var isOutOfPosition = effectiveSkill && effectiveSkill < player.skill
     return '<div class="tp-player-card' + cls + '" data-' + dataset + '="' + dataVal + '" style="--pos-color:' + posColor + '">' +
       '<div class="tp-card-top"><span style="display:flex;align-items:center;gap:2px">' + (isOutOfPosition ? '<span style="font-size:9px">\u26a0\ufe0f</span>' : '') + '<span class="tp-stat-skill" style="' + getPowerBadgeStyle(displaySkill) + '">' + displaySkill + '</span></span><span class="tp-card-pos" style="color:' + posColor + '">' + posAbbr + '</span></div>' +
       '<div class="tp-card-avatar" style="position:relative;' + avatarStyle + '">' + (player._suspended ? '<span class="tp-card-susp-overlay"><span class="tp-susp-card">' + player._suspended + '</span></span>' : '') + '</div>' +
       '<span class="tp-card-name">' + (player.injury ? '\ud83e\ude79 ' : '') + player.name.split(' ').slice(-1)[0] + '</span>' +
-      '<div class="tp-energy-bar"><div class="tp-energy-fill" style="width:' + player.energy + '%;background:' + eneColor + '"></div></div>' +
+      '<div class="tp-energy-bar"><div class="tp-energy-fill" style="width:' + ene + '%;background:' + eneColor + '"></div></div>' +
       (player.injury ? '<div class="tp-injury-badge">\ud83e\ude79 ' + player.injury.remaining + 'j</div>' : '') +
     '</div>'
   }
@@ -4364,7 +4370,7 @@ function abrirTacticasModal() {
         </div>
         <span class="p11-slot-role" style="color:${isRed ? '#EF4444' : '#fff'}">${isRed ? '🟥' : pos.label}</span>
         <span class="p11-slot-name">${isRed ? '🟥 Expulsado' : player.name.split(' ').slice(-1)[0]}</span>
-        ${isRed ? '' : `<div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${player.energy}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>`}
+        ${isRed ? '' : `<div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${getEneVal(player.energy)}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>`}
       </div>`
     } else {
       html += `<div class="p11-slot-wrap">
@@ -4490,7 +4496,7 @@ function abrirTacticasModal() {
           <div class="slot-avatar" style="${avatarStyle}">${p.avatar ? '' : getInitials(p.name)}</div>
         </div>
         <span class="bench-slot-name">${p.name}</span>
-        <div class="stat-row"><div class="stat-circle" style="background:${getEneColor(p.energy)}">${p.energy}</div><div class="stat-circle" style="background:#9CA3AF">${p.skill}</div></div>
+        <div class="stat-row"><div class="stat-circle" style="background:${getEneColor(p.energy)}">${getEneVal(p.energy)}</div><div class="stat-circle" style="background:#9CA3AF">${p.skill}</div></div>
       </div>`
     }).join('')
     bench.querySelectorAll('.bench-slot.filled').forEach(el => {
@@ -5268,6 +5274,10 @@ function procesarVentanaTransferencias() {
   return mktResult
 }
 
+function getReputacion(team) {
+  return team ? (team.rating || 50) : 50
+}
+
 function getTeamBudget(team) {
   var r = team.rating || 50
   return Math.round(r * 150000)
@@ -5709,7 +5719,7 @@ function procesarIAOfertasCesionAlUsuario() {
       var loanDur = Math.random() < 0.3 ? 0.5 : Math.random() < 0.6 ? 1 : 2
       var loanUntil = '30/06/' + (2026 + sn + Math.ceil(loanDur))
       var duracionLabel = loanDur === 0.5 ? 'media temporada' : loanDur === 1 ? '1 temporada' : '2 temporadas'
-      var playerClone = { ...p, id: team.teamId + '-loan-' + Date.now(), onLoan: true, loanFrom: state.teamId, loanUntil: loanUntil, loanListed: false, energy: randInt(70, 100) }
+      var playerClone = { ...p, id: team.teamId + '-loan-' + Date.now(), onLoan: true, loanFrom: state.teamId, loanUntil: loanUntil, loanListed: false, energy: randInt(70, 100), loanTo: null, loanToName: null, loanToLogo: null }
       var idx = state.players.indexOf(p)
       if (idx >= 0) state.players.splice(idx, 1)
       team.players.push(playerClone)
@@ -5780,7 +5790,7 @@ function procesarCesionesCPU() {
       var sn = state.seasonNumber || 1
       var loanDur = Math.random() < 0.3 ? 0.5 : Math.random() < 0.6 ? 1 : 2
       var loanUntil = '30/06/' + (2026 + sn + Math.ceil(loanDur))
-      var loaned = { ...sourcePlayer, id: `${team.teamId}-loan-${Date.now()}`, onLoan: true, loanFrom: sourceTeam.teamId, loanUntil: loanUntil, loanListed: false, transferListed: false, energy: randInt(70, 100) }
+      var loaned = { ...sourcePlayer, id: `${team.teamId}-loan-${Date.now()}`, onLoan: true, loanFrom: sourceTeam.teamId, loanUntil: loanUntil, loanListed: false, transferListed: false, energy: randInt(70, 100), loanTo: null, loanToName: null, loanToLogo: null }
       team.players.push(loaned)
       if (team.teamId === state.teamId || sourceTeam.teamId === state.teamId) {
         addNotification('transfer', `🔄 Cesión: ${sourcePlayer.name}`, `${sourcePlayer.name} cedido al ${team.name} desde ${sourceTeam.name}`)
@@ -5815,7 +5825,7 @@ function procesarSolicitudCesion(player, team, seasons, resEl) {
         sourceTeam.players[ti].loanUntil = loanUntil
       }
     }
-    var newPlayer = { ...player, id: 'loan-' + Date.now(), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, onLoan: true, loanFrom: player.teamId, loanUntil: loanUntil }
+    var newPlayer = { ...player, id: 'loan-' + Date.now(), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, onLoan: true, loanFrom: player.teamId, loanUntil: loanUntil, loanTo: null, loanToName: null, loanToLogo: null }
     state.players.push(newPlayer)
     state.boughtPlayerIds.push(player.id)
     registrarTraspasoEnHistorial({
@@ -6460,8 +6470,11 @@ function iniciarNuevaTemporada() {
           var destTeamL = state.leagueTeams.find(function(t) { return t.teamId === pL.loanTo })
           if (!destTeamL && pL.loanTo === state.teamId) destTeamL = { players: state.players }
           if (destTeamL) {
-            var cloneL = Object.assign({}, pL, { id: pL.id + '-loan-' + Date.now(), onLoan: true, loanFrom: srcTeamL.teamId })
-            destTeamL.players.push(cloneL)
+            var dupCloneL = destTeamL.players.some(function(x) { return x.loanFrom === srcTeamL.teamId && x.name === pL.name })
+            if (!dupCloneL) {
+              var cloneL = Object.assign({}, pL, { id: pL.id + '-loan-' + Date.now(), onLoan: true, loanFrom: srcTeamL.teamId, loanTo: null, loanToName: null, loanToLogo: null, energy: 100 })
+              destTeamL.players.push(cloneL)
+            }
           }
         }
       }
@@ -8203,7 +8216,7 @@ function simularPartidoRapido(fixture, rivalId) {
 
     /* Fatigue for user's players */
     state.players.forEach(p => {
-      if (!p.injury && startingIds.includes(p.id)) p.energy = Math.max(10, p.energy - (GAME_PLANS[state.tactic.gamePlan]?.drain || 10))
+      if (!p.injury && startingIds.includes(p.id)) p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - (GAME_PLANS[state.tactic.gamePlan]?.drain || 10))
       p.enPista = false; p.convocado = false; p.titular = false
     })
     /* Recovery for unused players (bench/reserves who didn't play) */
@@ -10559,7 +10572,7 @@ function newGame(coach) {
     const base = getRealSquad(t.id)
     const cap = t.rating || 99
     const squad = base
-      ? base.map(p => { var pp = { ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null }; if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp })
+      ? base.map(p => { var pp = { ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100 }; if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp })
       : generateCpuSquad(t.id, state.countryId, t.rating)
     const defaultStaff = t.staff || generateStaff(t.name, state.countryId)
     state.leagueTeams.push({ teamId: t.id, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: squad, staff: defaultStaff, rating: t.rating || 50, palmares: t.palmares })
@@ -10575,8 +10588,12 @@ function newGame(coach) {
         var destTeam = state.leagueTeams.find(t => t.teamId === p.loanTo)
         if (!destTeam && p.loanTo === state.teamId) { destTeam = { players: state.players } }
         if (destTeam) {
-          var clone = { ...p, id: p.id + '-loan-' + Date.now(), onLoan: true, loanFrom: srcTeam.teamId, loanFromName: srcTeam.name, loanFromLogo: srcTeam.logo, loanUntil: null }
-          destTeam.players.push(clone)
+          /* Skip if the destination already has the loaned player (double-marking) */
+          var dupClone = destTeam.players.some(function(x) { return x.loanFrom === srcTeam.teamId && x.name === p.name })
+          if (!dupClone) {
+            var clone = { ...p, id: p.id + '-loan-' + Date.now(), onLoan: true, loanFrom: srcTeam.teamId, loanFromName: srcTeam.name, loanFromLogo: srcTeam.logo, loanUntil: null, loanTo: null, loanToName: null, loanToLogo: null, energy: 100 }
+            destTeam.players.push(clone)
+          }
         }
       }
     }
@@ -10703,6 +10720,57 @@ function loadAllCountries(callback) {
   })
 }
 
+function migrarPartidaEnergy() {
+  var changed = false
+  var nrg = function(p) {
+    if (!p || typeof p !== 'object') return
+    var e = p.energy
+    if (e === undefined || e === null || e === '' || (typeof e === 'number' && isNaN(e))) { p.energy = 100; changed = true; return }
+    var num = Number(e)
+    if (isNaN(num)) { p.energy = 100; changed = true; return }
+    var clamped = Math.min(100, Math.max(0, Math.round(num)))
+    if (clamped !== num) { p.energy = clamped; changed = true }
+  }
+  var lists = [state.players]
+  ;(state.leagueTeams || []).forEach(function(t) { if (Array.isArray(t.players)) lists.push(t.players) })
+  if (Array.isArray(state.filialSquad)) lists.push(state.filialSquad)
+  if (Array.isArray(state.globalPlayers)) lists.push(state.globalPlayers)
+  if (Array.isArray(state.loanPool)) lists.push(state.loanPool)
+  var removed = {}
+  lists.forEach(function(list) {
+    list.forEach(nrg)
+    var baseMap = {}
+    list.forEach(function(p) {
+      if (!p || typeof p !== 'object') return
+      if (p.loanFrom && !/-loan-/.test(p.id || '')) {
+        var k = p.loanFrom + '|' + (p.name || '')
+        if (!baseMap[k]) baseMap[k] = p
+      }
+    })
+    var kept = []
+    list.forEach(function(p) {
+      if (!p || typeof p !== 'object' || !p.loanFrom || !/-loan-/.test(p.id || '')) { kept.push(p); return }
+      var k = p.loanFrom + '|' + (p.name || '')
+      if (baseMap[k]) {
+        removed[p.id] = baseMap[k].id
+        changed = true
+        return
+      }
+      kept.push(p)
+    })
+    list.length = 0
+    Array.prototype.push.apply(list, kept)
+  })
+  ;['tacticsSlots', 'benchIds', 'reserveIds'].forEach(function(k) {
+    if (Array.isArray(state[k])) {
+      state[k] = state[k].map(function(id) { return removed[id] || id }).filter(function(id, i, arr) { return arr.indexOf(id) === i })
+    }
+  })
+  if (state.captainId && removed[state.captainId]) state.captainId = removed[state.captainId]
+  if (changed) console.log('[MIGRATE] Partida normalizada: energy y duplicados de cesi\u00f3n')
+  return changed
+}
+
 function loadGame(id) {
   const saves = getSaves()
   const data = saves.find(s => Number(s.id) === Number(id))
@@ -10758,6 +10826,7 @@ function loadGame(id) {
   state.absoluteFinal = data.absoluteFinal || null
   state.historialTraspasosGlobal = data.historialTraspasosGlobal || []
   state.mercadoSimuladoSemana = data.mercadoSimuladoSemana || 0
+  migrarPartidaEnergy()
   /* Migrate stale allTeamsHistory competition/division names from before canonicalization */
   if (state.allTeamsHistory) {
     for (var _athid in state.allTeamsHistory) {
