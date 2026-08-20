@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#FFFFFF">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Footsoccer</title>
-  <link rel="stylesheet" href="css/styles.css?v=2">
+  <link rel="stylesheet" href="css/styles.css?v=9">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -203,7 +203,11 @@
 
         <!-- LIGA -->
         <section id="view-league" class="view">
-          <div class="country-strip" id="country-strip"></div>
+          <button class="league-country-selector" id="league-country-selector">
+            <span class="lcs-flag" id="lcs-flag"></span>
+            <span class="lcs-name" id="lcs-name"></span>
+            <span class="lcs-arrow">&#9660;</span>
+          </button>
           <div class="league-logos" id="league-logos"></div>
           <div id="league-content">
             <div id="league-table-wrap"></div>
@@ -224,6 +228,35 @@
           <div id="home-content"></div>
         </section>
 
+        <!-- PARTIDO EN VIVO -->
+        <section id="live-match-screen" class="view hidden">
+          <div class="lm-matchlabel" id="lm-matchlabel"></div>
+          <div class="lm-scoreboard">
+            <div class="lm-team" id="lm-home-team">
+              <img class="lm-logo" id="lm-home-logo" alt="">
+              <span class="lm-teamname" id="lm-home-name"></span>
+            </div>
+            <div class="lm-center">
+              <div class="lm-score" id="lm-score">0 - 0</div>
+              <div class="lm-min" id="lm-min">0'</div>
+            </div>
+            <div class="lm-team lm-rival" id="lm-away-team">
+              <img class="lm-logo" id="lm-away-logo" alt="">
+              <span class="lm-teamname" id="lm-away-name"></span>
+            </div>
+          </div>
+          <div class="lm-events" id="lm-events"></div>
+          <div class="lm-tabs">
+            <button class="lm-tab-btn active" data-lmtab="user">Mi equipo</button>
+            <button class="lm-tab-btn" data-lmtab="rival">Rival</button>
+          </div>
+          <div class="lm-ratings" id="lm-ratings"></div>
+          <div class="lm-controls">
+            <button class="btn-primary lm-ctrl" id="lm-pause">Pausar</button>
+            <button class="btn-secondary lm-ctrl" id="lm-tactics">T&aacute;ctica / Cambios (0/5)</button>
+          </div>
+        </section>
+
         <!-- CALENDARIO -->
         <section id="view-calendar" class="view">
           <div id="calendar-content"></div>
@@ -235,50 +268,12 @@
             <h2 id="market-header">Mercado de fichajes</h2>
           </div>
           <div class="market-tabs" id="market-tabs" style="display:flex;gap:4px;padding:6px 10px"></div>
-          <div class="market-search-wrap" id="market-search-wrap">
-            <input class="market-search" id="market-search" type="text" placeholder="🔍 Buscar jugador...">
-          </div>
-          <div class="market-filters-wrap" id="market-filters">
-            <div style="display:flex;gap:6px;flex-wrap:wrap;padding:6px 10px">
-              <select id="mf-pos" style="flex:1;min-width:70px;padding:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
-                <option value="">Posición</option>
-                <option value="POR">POR</option>
-                <option value="DFC">DFC</option>
-                <option value="LD">LD</option>
-                <option value="LI">LI</option>
-                <option value="CAD">CAD</option>
-                <option value="CAI">CAI</option>
-                <option value="MCD">MCD</option>
-                <option value="MC">MC</option>
-                <option value="MCO">MCO</option>
-                <option value="MD">MD</option>
-                <option value="MI">MI</option>
-                <option value="ED">ED</option>
-                <option value="EI">EI</option>
-                <option value="DC">DC</option>
-              </select>
-              <select id="mf-nat" style="flex:1;min-width:70px;padding:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
-                <option value="">Nacionalidad</option>
-              </select>
-              <select id="mf-age" style="flex:1;min-width:60px;padding:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
-                <option value="">Edad</option>
-                <option value="15-19">15-19</option>
-                <option value="20-24">20-24</option>
-                <option value="25-29">25-29</option>
-                <option value="30-34">30-34</option>
-                <option value="35-50">35+</option>
-              </select>
-              <select id="mf-skill" style="flex:1;min-width:60px;padding:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
-                <option value="">Skill</option>
-                <option value="0-39">0-39</option>
-                <option value="40-49">40-49</option>
-                <option value="50-59">50-59</option>
-                <option value="60-69">60-69</option>
-                <option value="70-79">70-79</option>
-                <option value="80-89">80-89</option>
-                <option value="90-99">90-99</option>
-              </select>
+          <div class="market-toolbar" id="market-toolbar">
+            <div class="market-search-wrap" id="market-search-wrap">
+              <span class="market-search-icon">&#128269;</span>
+              <input class="market-search" id="market-search" type="text" placeholder="Buscar jugador..." autocomplete="off">
             </div>
+            <button class="market-filters-btn" id="market-filters-btn" type="button">&#9881; Filtros avanzados</button>
           </div>
           <div id="market-content"></div>
         </section>
@@ -368,14 +363,31 @@
       </div>
     </div>
 
-    <div id="nat-picker-modal" class="modal-overlay hidden">
-      <div class="modal-content" style="max-width:360px">
-        <h3 style="margin:0 0 10px;font-size:15px;color:var(--text);text-align:center">Nacionalidad del mister</h3>
-        <input class="nat-search" id="nat-search" type="text" placeholder="Buscar pa\u00eds..." autocomplete="off">
-        <div class="modal-scroll">
-          <div id="nat-picker-list" style="display:flex;flex-direction:column;gap:2px"></div>
+    <div id="country-selector-modal" class="modal-overlay hidden">
+      <div class="modal-content" style="max-width:380px">
+        <h3 class="cs-modal-title">Elegir competici&oacute;n</h3>
+        <div class="cs-search-wrap">
+          <span class="cs-search-icon">&#128269;</span>
+          <input class="nat-search" id="country-selector-search" type="text" placeholder="Buscar pa&iacute;s..." autocomplete="off">
         </div>
-        <button class="btn-secondary modal-close" id="nat-picker-close" style="margin:6px 16px 12px;width:calc(100% - 32px);flex-shrink:0">CANCELAR</button>
+        <div class="modal-scroll">
+          <div id="country-selector-list" class="cs-list"></div>
+        </div>
+        <button class="btn-secondary modal-close" id="country-selector-close" style="margin:6px 16px 12px;width:calc(100% - 32px);flex-shrink:0">CANCELAR</button>
+      </div>
+    </div>
+
+    <div id="nat-picker-modal" class="modal-overlay hidden">
+      <div class="modal-content cs-mc" style="max-width:380px">
+        <h3 class="cs-modal-title">Nacionalidad del mister</h3>
+        <div class="cs-search-wrap">
+          <span class="cs-search-icon">&#128269;</span>
+          <input class="nat-search" id="nat-search" type="text" placeholder="Buscar pa&iacute;s..." autocomplete="off">
+        </div>
+        <div class="modal-scroll">
+          <div id="nat-picker-list" class="cs-list"></div>
+        </div>
+        <button class="btn-secondary modal-close" id="nat-picker-close">CANCELAR</button>
       </div>
     </div>
 
@@ -402,6 +414,90 @@
         </div>
         <button class="btn-primary" id="tm-apply" style="margin:0 20px 8px">APLICAR CAMBIOS</button>
         <button class="btn-secondary modal-close" id="tm-close">← VOLVER</button>
+      </div>
+    </div>
+
+    <!-- MATCH TACTICS (liv) -->
+    <div id="match-tactics-modal" class="modal-overlay mt-fullscreen hidden">
+      <div class="mt-header">
+        <div>
+          <div class="mt-title">T&aacute;ctica</div>
+          <div class="mt-sub" id="mt-sub">Cambios restantes: 5</div>
+        </div>
+        <button class="bs-close" id="mt-close-live">&times;</button>
+      </div>
+      <div class="mt-scroll">
+        <div class="tc-live-pitch" id="mt-live-pitch"></div>
+        <div class="tc-section-label" id="mt-live-bench-label">SUSTITUTOS</div>
+        <div class="tc-subs-grid" id="mt-live-bench"></div>
+      </div>
+    </div>
+
+    <!-- ADVANCED FILTERS (bottom sheet) -->
+    <div id="advanced-filters-modal" class="modal-overlay bs-overlay hidden">
+      <div class="bs-sheet" id="af-sheet">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
+          <h3 class="bs-title">Filtros avanzados</h3>
+          <button class="bs-close" id="af-close">&times;</button>
+        </div>
+        <div class="bs-body">
+          <label class="af-label" for="af-pos">Posición</label>
+          <select class="af-select" id="af-pos">
+            <option value="">Todas</option>
+            <option value="POR">POR</option>
+            <option value="DFC">DFC</option>
+            <option value="LI">LI</option>
+            <option value="LD">LD</option>
+            <option value="MCD">MCD</option>
+            <option value="MC">MC</option>
+            <option value="MCO">MCO</option>
+            <option value="MI">MI</option>
+            <option value="MD">MD</option>
+            <option value="DC">DC</option>
+            <option value="EI">EI</option>
+            <option value="ED">ED</option>
+          </select>
+
+          <label class="af-label" for="af-division">División</label>
+          <select class="af-select" id="af-division">
+            <option value="">Todas</option>
+          </select>
+
+          <label class="af-label" for="af-nat">Nacionalidad</label>
+          <select class="af-select" id="af-nat">
+            <option value="">Todas</option>
+          </select>
+
+          <div class="af-range">
+            <div class="af-range-col">
+              <label class="af-label" for="af-age-min">Edad mín.</label>
+              <input class="af-input" id="af-age-min" type="number" min="16" max="40" placeholder="16">
+            </div>
+            <div class="af-range-col">
+              <label class="af-label" for="af-age-max">Edad máx.</label>
+              <input class="af-input" id="af-age-max" type="number" min="16" max="40" placeholder="40">
+            </div>
+          </div>
+
+          <div class="af-range">
+            <div class="af-range-col">
+              <label class="af-label" for="af-skill-min">Rating mín.</label>
+              <input class="af-input" id="af-skill-min" type="number" min="50" max="99" placeholder="50">
+            </div>
+            <div class="af-range-col">
+              <label class="af-label" for="af-skill-max">Rating máx.</label>
+              <input class="af-input" id="af-skill-max" type="number" min="50" max="99" placeholder="99">
+            </div>
+          </div>
+
+          <label class="af-label" for="af-maxvalue">Valor máximo (€)</label>
+          <input class="af-input" id="af-maxvalue" type="text" inputmode="numeric" placeholder="Sin límite">
+        </div>
+        <div class="bs-footer">
+          <button class="btn-secondary bs-btn" id="af-reset">Restablecer</button>
+          <button class="btn-primary bs-btn" id="af-apply">Aplicar filtros</button>
+        </div>
       </div>
     </div>
   </div>
@@ -606,15 +702,15 @@
     </div>
   </div>
 
-  <script src="js/data/spain.js"></script>
+  <script src="js/data/spain.js?v=2"></script>
   <script src="js/data/poland.js"></script>
   <script src="js/data/argentina.js"></script>
   <script src="js/data/brazil.js"></script>
   <script src="js/data/germany.js"></script>
   <script src="js/data/england.js"></script>
-  <script src="js/data/italy.js"></script>
+  <script src="js/data/italy.js?v=2"></script>
   <script src="js/data/portugal.js"></script>
-  <script src="js/matchEngine.js?v=1"></script>
-  <script src="js/app.js?v=11"></script>
+  <script src="js/matchEngine.js?v=5"></script>
+  <script src="js/app.js?v=25"></script>
 </body>
 </html>
