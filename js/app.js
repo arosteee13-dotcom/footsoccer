@@ -13460,7 +13460,7 @@ function showNewGameScreen() {
 
 function renderCountryGrid() {
   const grid = document.getElementById('ng-country-grid')
-  grid.innerHTML = COUNTRIES.map(c => `
+  grid.innerHTML = COUNTRIES.slice().sort(function(a, b) { return a.name.localeCompare(b.name, 'es') }).map(c => `
     <div class="ng-country-card${selectedCountry && selectedCountry.id === c.id ? ' selected' : ''}" data-cid="${c.id}">
       <div class="ng-country-name">${c.name}</div>
       <div class="ng-country-flag">${c.flag}</div>
