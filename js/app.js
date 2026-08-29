@@ -1015,6 +1015,15 @@ var COPA_SCHEDULE = [
   { week: 35, label: 'Final' },
 ]
 
+var BELGIUM_CUP_SCHEDULE = [
+  { week: 5, label: '1/32' },
+  { week: 10, label: '1/16' },
+  { week: 15, label: 'Octavos' },
+  { week: 20, label: 'Cuartos' },
+  { week: 25, label: 'Semifinal' },
+  { week: 35, label: 'Final' },
+]
+
 var POLAND_CUP_SCHEDULE = [
   { week: 3, label: '1/64' },
   { week: 7, label: '1/32' },
@@ -1405,6 +1414,25 @@ function getSupercopaTeams() {
     return [p1, p2].filter(Boolean)
   }
 
+  if (activeCountry === 'belgium') {
+    if (state.seasonNumber === 1) {
+      return ['club-brugge', 'union-saint-gilloise']
+    }
+    var b1 = state.leagueChampion
+    var b2 = state.cupChampion
+    var bCupRunnerUp = state.cupRunnerUp
+    var bLeagueRunnerUp = state.leagueRunnerUp
+    if (!b1) b1 = 'club-brugge'
+    if (!b2) b2 = 'union-saint-gilloise'
+    /* Doblete: si el campeón de Liga ganó también la Copa, juega contra el
+       subcampeón (finalista perdedor) de la Copa. */
+    if (b1 === b2) {
+      b2 = bCupRunnerUp || bLeagueRunnerUp
+    }
+    if (b2 === b1) b2 = null
+    return [b1, b2].filter(Boolean)
+  }
+
   return []
 }
 
@@ -1441,6 +1469,10 @@ function getCopaTeamsForRound(roundIdx) {
     }
     if (state.countryId === 'england') {
       return getLeagueTeams('epl') || []
+    }
+    if (state.countryId === 'belgium') {
+      var l1b = getLeagueTeams('l1b')
+      return (l1b || [])
     }
     /* R0: Todas las divisiones - Primera + Segunda + Primera Fed */
     var allTeams = []
@@ -1686,6 +1718,12 @@ function getCupSchedule() {
   if (state.countryId === 'italy') return ITALY_CUP_SCHEDULE
   if (state.countryId === 'germany') return GERMANY_CUP_SCHEDULE
   if (state.countryId === 'england') return FA_CUP_SCHEDULE
+  if (state.countryId === 'belgium') {
+    if (window.BelgiumCopa && typeof window.BelgiumCopa.getSchedule === 'function') {
+      return window.BelgiumCopa.getSchedule()
+    }
+    return BELGIUM_CUP_SCHEDULE
+  }
   return COPA_SCHEDULE
 }
 
@@ -1697,7 +1735,7 @@ function getMatchSystem(comp, countryId) {
   if (comp === 'league') return 'draw'
   if (countryId === 'france') return 'penalties'
   if (comp === 'taca_da_liga' || comp === 'efl_cup') return 'penalties'
-  if (comp === 'supercopa' && (countryId === 'germany' || countryId === 'england')) return 'penalties'
+  if (comp === 'supercopa' && (countryId === 'germany' || countryId === 'england' || countryId === 'belgium')) return 'penalties'
   return 'extra_time'
 }
 
@@ -1864,6 +1902,12 @@ function generarSupercopa() {
   }
 
   if (activeCountry === 'england') {
+    if (teams.length < 2) return null
+    var finalMatch = { round: 'F', label: 'Final', week: 1, home: teams[0], away: teams[1], homeScore: null, awayScore: null, played: false }
+    return { week: 1, fixtures: [], final: finalMatch, winner: null }
+  }
+
+  if (activeCountry === 'belgium') {
     if (teams.length < 2) return null
     var finalMatch = { round: 'F', label: 'Final', week: 1, home: teams[0], away: teams[1], homeScore: null, awayScore: null, played: false }
     return { week: 1, fixtures: [], final: finalMatch, winner: null }
@@ -3922,6 +3966,8 @@ function renderHome() {
   if (!matchFixture && state.fixtures && state.fixtures.length > 0) {
     matchFixture = state.fixtures.find(function(f) { return !f.played }) || null
   }
+  const homeLocIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'
+  const awayLocIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>'
   var matchHtml = ''
   if (matchFixture) {
     var mIsHome = matchFixture.home == state.teamId
@@ -3945,7 +3991,7 @@ function renderHome() {
         '</div>' +
       '</div>' +
       (state.absoluteFinal && state.absoluteFinal === matchFixture ? '<div class="home-matchday-label">\ud83c\udfc6 Final por el T\u00edtulo Absoluto de ' + (getGroupedConfig(state.leagueId) ? getGroupedConfig(state.leagueId).name : 'Primera Federaci\u00f3n') + '</div>' : (cupActive && cupNext === matchFixture ? '<div class="home-matchday-label">' + cupLabel + '</div>' : (isPlayoffs ? '<div class="home-matchday-label">Eliminatoria</div>' : '<div class="home-matchday-label">Jornada ' + (matchFixture.matchday || state.currentMatchday) + ' de ' + state.totalMatchdays + '</div>'))) +
-      '<div class="home-match-location">' + (mIsHome ? '\ud83c\udfe1 Local' : '\u2708\ufe0f Visitante') + '</div>' +
+      '<div class="home-match-location">' + (mIsHome ? homeLocIcon + 'Local' : awayLocIcon + 'Visitante') + '</div>' +
       '<div class="home-match-actions">' +
       '<button class="btn-primary btn-home-play" id="btn-home-play" style="height:42px;font-size:13px;font-weight:700">Jugar Partido</button>' +
       '<button class="btn-secondary btn-home-simulate" id="btn-home-simulate" style="height:42px;font-size:13px;font-weight:700">Simular Partido</button>' +
@@ -4372,7 +4418,7 @@ function renderTactics(tactic) {
 
   /* Once inicial: posici\u00f3n exacta primero, luego mejor ajuste */
   state.tacticsSlots = roles.map(function(role) {
-    var candidates = allPlayers.filter(function(p) { return !assigned.includes(p.id) && !p._suspended })
+    var candidates = allPlayers.filter(function(p) { return !assigned.includes(p.id) && !p._suspended && !(state.countryId === 'belgium' && window.BelgiumCopa && typeof window.BelgiumCopa.isCupSuspended === 'function' && window.BelgiumCopa.isCupSuspended(p)) })
     candidates = candidates.filter(function(p) {
       var pKey = SIGLA_TO_POS[p.position] || p.position
       if (role === 'portero') return pKey === 'portero'
@@ -4793,8 +4839,8 @@ function renderLeague(viewedLeagueId) {
     }
     displayLogos = otherLogos.concat(displayLogos)
     /* Añadir copa nacional */
-    var countryHasCup = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria'
-    var countryHasSupercopa = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england'
+    var countryHasCup = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria' || activeCountryId === 'belgium'
+    var countryHasSupercopa = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'belgium'
     if (countryHasCup) {
       displayLogos.push({ id: 'copa_del_rey', name: getCupCompName(activeCountryId), logo: getCupLogo(activeCountryId) })
     }
@@ -4828,7 +4874,7 @@ function renderLeague(viewedLeagueId) {
           renderCopaView('tacaDaLiga')
         } else if (lid === 'efl_cup') {
           renderCopaView('eflCup')
-        } else if (activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria') {
+        } else if (activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria' || activeCountryId === 'belgium') {
           renderCopaView(lid === 'copa_del_rey' ? 'copa' : 'supercopa')
         } else {
           var tableWrap = document.getElementById('league-table-wrap')
@@ -7639,7 +7685,7 @@ function iniciarNuevaTemporada() {
     state.seasonNumber++
     state.presupuestoInicial = Math.round(getDivisionBaseBudget(state.leagueId) * getCountryBudgetMult(state.countryId))
     try {
-      if (state.countryId === 'spain' || state.countryId === 'portugal' || state.countryId === 'poland' || state.countryId === 'france' || state.countryId === 'italy' || state.countryId === 'germany' || state.countryId === 'england' || state.countryId === 'austria') {
+      if (state.countryId === 'spain' || state.countryId === 'portugal' || state.countryId === 'poland' || state.countryId === 'france' || state.countryId === 'italy' || state.countryId === 'germany' || state.countryId === 'england' || state.countryId === 'austria' || state.countryId === 'belgium') {
         state.cup = generarCopa()
         state.supercopa = generarSupercopa()
         if (state.countryId === 'austria') state.supercopa = null
@@ -9658,7 +9704,7 @@ function startLiveMatch(fixture, rivalId) {
   var slots = state.tacticsSlots || []
   var startingIds = slots.filter(Boolean).filter(function(pid) {
     var p = state.players.find(function(x) { return x.id === pid })
-    return p && !p._suspended && !p.injury
+    return p && !p._suspended && !p.injury && !(state.countryId === 'belgium' && window.BelgiumCopa && typeof window.BelgiumCopa.isCupSuspended === 'function' && window.BelgiumCopa.isCupSuspended(p))
   })
   if (startingIds.length < 11) { alert('\u26a0\ufe0f Necesitas 11 jugadores disponibles (revisa lesiones/suspensiones).'); return }
 
@@ -9716,6 +9762,7 @@ function startLiveMatch(fixture, rivalId) {
     simResult: simResult, events: eventsAll, eventIdx: 0,
     userTeamObj: userTeamObj, rivalTeam: rivalTeam, rivalXI: rivalXI,
     ratings: ratings, ratingsSide: ratingsSide, ratingsSkill: ratingsSkill,
+    sentOff: [], sentOffMinute: {},
     minute: 0, paused: false, subsUsed: 0, finished: false, timer: null,
     startSlots: (state.tacticsSlots || []).slice(), startBench: (state.benchIds || []).slice(),
     comp: compInfo.comp, compInfo: compInfo,
@@ -9731,6 +9778,16 @@ function startLiveMatch(fixture, rivalId) {
     if (_rules) {
       state.liveMatch.maxSubs = _rules.maxSubs
       state.liveMatch.maxWindows = _rules.maxWindows
+    }
+  }
+  /* Croky Cup (Bélgica): 6º cambio + 4ª ventana solo con prórroga,
+     que solo existe desde los 1/16 de final. */
+  if (window.BelgiumCopa && typeof window.BelgiumCopa.getSubRules === 'function' && compInfo.comp === 'cup' && state.countryId === 'belgium') {
+    var _beIsET = window.BelgiumCopa.hasExtraTime(state.cup ? state.cup.roundIdx : 0)
+    var _beRules = window.BelgiumCopa.getSubRules({ isCup: true, isExtraTime: _beIsET })
+    if (_beRules) {
+      state.liveMatch.maxSubs = _beRules.maxSubs
+      state.liveMatch.maxWindows = _beRules.maxWindows
     }
   }
 
@@ -9803,6 +9860,38 @@ function avgSkill(list) {
   return n ? (sum / n) : 0
 }
 
+/* Reequilibra el XI visible tras una expulsión:
+   - Se descarta al expulsado (juega con un jugador menos).
+   - Si el expulsado era defensa, un atacante retrocede a tapar el hueco.
+   Devuelve un nuevo array [{player, role}] SOLO para mostrar (no muta slots). */
+function reshapeLiveXI(xi, sentOff) {
+  if (!xi) return xi
+  var set = {}
+  ;(sentOff || []).forEach(function(id) { set[id] = true })
+  var hasSent = (xi || []).some(function(x) { return x && x.player && set[x.player.id] })
+  if (!hasSent) return xi
+  var DEF = {}
+  ;['lateral_izq', 'lateral_der', 'carrilero_izq', 'carrilero_der', 'defensa_central'].forEach(function(r) { DEF[r] = true })
+  var MIDS = {}
+  ;['mediocentro', 'medio_def', 'medio_izq', 'medio_der'].forEach(function(r) { MIDS[r] = true })
+  var sentDefRoles = (xi || []).filter(function(x) { return x && x.player && set[x.player.id] && DEF[x.role] }).map(function(x) { return x.role })
+  var players = (xi || []).filter(function(x) { return x && x.player && !set[x.player.id] })
+  var result = players.slice()
+  sentDefRoles.forEach(function(dRole) {
+    var fwdIdx = -1
+    for (var i = 0; i < result.length; i++) {
+      var r = result[i].role
+      if (r === 'portero' || DEF[r]) continue
+      fwdIdx = i
+      break
+    }
+    if (fwdIdx >= 0) {
+      result[fwdIdx] = { player: result[fwdIdx].player, role: dRole, reshuffled: true }
+    }
+  })
+  return result
+}
+
 function renderLiveRatings() {
   var lm = state.liveMatch
   var container = document.getElementById('lm-ratings')
@@ -9825,7 +9914,7 @@ function renderLiveRatings() {
     rivalXI.forEach(function(x) { if (x.player && (!bestCap || (x.player.skill || 0) > (bestCap.skill || 0))) bestCap = x.player })
     captainId = bestCap ? bestCap.id : null
     side = rivalSide
-    xis = rivalXI
+    xis = rivalXI.map(function(x) { return x }).filter(Boolean)
     media = avgSkill(rivalXI.map(function(x) { return x.player }).filter(Boolean))
   } else {
     teamName = state.team
@@ -9839,19 +9928,47 @@ function renderLiveRatings() {
     media = avgSkill(xis.map(function(x) { return x.player }).filter(Boolean))
   }
 
-  var pitch = buildPitchField(xis.map(function(x) { return x.role }), formation, function(i) {
-    var item = xis[i]
+  var displayXI = reshapeLiveXI(xis, lm.sentOff)
+  var sentOffSet = {}
+  ;(lm.sentOff || []).forEach(function(id) { sentOffSet[id] = true })
+  if (!lm._reshuffleApplied) lm._reshuffleApplied = {}
+  displayXI.forEach(function(it) {
+    if (!it || !it.reshuffled) return
+    var pid = it.player.id
+    if (lm._reshuffleApplied[pid]) return
+    lm._reshuffleApplied[pid] = true
+    if (lm.ratings && lm.ratings[pid] != null) {
+      var mult = getPositionMultiplier(it.player.position, it.role)
+      var pen = mult < 0.7 ? (0.7 - mult) : 0
+      if (pen > 0) lm.ratings[pid] = Math.max(1, Math.min(10, lm.ratings[pid] - pen))
+    }
+  })
+  media = avgSkill(displayXI.map(function(x) { return x.player }).filter(Boolean))
+  var xRoles = displayXI.map(function(x) { return x.role })
+
+  var pitch = buildPitchField(xRoles, formation, function(i) {
+    var item = displayXI[i]
     if (!item || !item.player) {
-      var pos0 = POSITIONS[item ? item.role : roles[i]]
+      var pos0 = POSITIONS[item ? item.role : xRoles[i]]
       return '<div class="pitch-player-node pp-live pp-empty"><span class="pp-empty-plus">+</span><span class="pp-empty-role">' + (pos0 ? pos0.label : '') + '</span></div>'
     }
     return buildPlayerNode(item.player, item.role, { mode: 'live', lm: lm, captainId: captainId, side: side, roleColor: item.role, cls: 'pp-alignment' })
   }, 'tc-pitch-compact')
 
+  /* Expulsados: presentes en la alineación pero fuera del césped */
+  var sentOffBand = ''
+  var sideSent = (xis || []).filter(function(x) { return x && x.player && sentOffSet[x.player.id] })
+  if (sideSent.length) {
+    sentOffBand = '<div class="lm-sentoff-band"><span class="lm-sentoff-title">EXPULSADOS</span>' +
+      sideSent.map(function(x) {
+        return '<span class="lm-sentoff-item" title="' + escHtml(x.player.name) + ' · Expulsado min ' + (lm.sentOffMinute && lm.sentOffMinute[x.player.id] != null ? lm.sentOffMinute[x.player.id] : '?') + '\'"><img class="lm-sentoff-photo" src="' + (x.player.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><span class="lm-sentoff-name">' + escHtml((x.player.name || '').split(' ').pop()) + '</span><span class="lm-sentoff-red">\ud83d\udfe5</span></span>'
+      }).join('') + '</div>'
+  }
+
   container.innerHTML = '<div class="lm-pitch-head">' +
     '<span class="lm-pitch-team">' + escHtml(teamName) + '</span>' +
     '<span class="lm-pitch-media">Media GRL <b>' + Math.round(media) + '</b></span>' +
-    '</div>' + pitch
+    '</div>' + sentOffBand + pitch
 }
 
 function updateLiveEventsFeed() {
@@ -9942,6 +10059,8 @@ function tickLiveMatch() {
     if (e.type === 'yellow') addDelta(e.player.id, -0.5)
     else if (e.type === 'red') {
       addDelta(e.player.id, -2.0)
+      if (lm.sentOff.indexOf(e.player.id) < 0) lm.sentOff.push(e.player.id)
+      if (lm.sentOffMinute[e.player.id] == null) lm.sentOffMinute[e.player.id] = lm.minute
       var sideIsUser = lm.isHome ? (e.side === 'home') : (e.side === 'away')
       if (sideIsUser) {
         var sp = state.players.find(function(x) { return x.id === e.player.id })
@@ -9980,6 +10099,7 @@ function tickLiveMatch() {
   Object.keys(lm.ratings || {}).forEach(function(pid) {
     var cur = lm.ratings[pid]
     if (cur == null) return
+    if (lm.sentOff && lm.sentOff.indexOf(pid) >= 0) return
     var side = (lm.ratingsSide && lm.ratingsSide[pid]) || userSide
     var sideDiff = (side === 'home') ? (hg - ag) : (ag - hg)
     lm.ratings[pid] = nextVal(cur, { skill: (lm.ratingsSkill && lm.ratingsSkill[pid]) || 70, sideDiff: sideDiff, eventDelta: delta[pid] || 0 })
@@ -10173,12 +10293,17 @@ function renderLiveTactics() {
     var _bRules = window.AustriaCopa.getSubRules({ isCup: true, isExtraTime: true })
     if (_bRules && _bRules.bench) benchLimit = _bRules.bench
   }
+  if (window.BelgiumCopa && lm && lm.compInfo && lm.compInfo.comp === 'cup' && state.countryId === 'belgium') {
+    var _beB = window.BelgiumCopa.getSubRules({ isCup: true, isExtraTime: window.BelgiumCopa.hasExtraTime(state.cup ? state.cup.roundIdx : 0) })
+    if (_beB && _beB.bench) benchLimit = _beB.bench
+  }
   var onPitch = new Set(state.tacticsSlots.filter(Boolean))
   var benchPool = state.benchIds.map(function(id) { return state.players.find(function(p) { return p.id === id }) }).filter(Boolean)
   var onBenchIds = new Set(benchPool.map(function(p) { return p.id }))
   state.players.forEach(function(p) {
     if (onPitch.has(p.id) || onBenchIds.has(p.id)) return
     if (p.injury || p._suspended) return
+    if (state.countryId === 'belgium' && window.BelgiumCopa && typeof window.BelgiumCopa.isCupSuspended === 'function' && window.BelgiumCopa.isCupSuspended(p)) return
     if (benchPool.length < benchLimit) benchPool.push(p)
   })
   document.getElementById('mt-live-bench-label').textContent = 'SUSTITUTOS (' + Math.min(benchPool.length, benchLimit) + ')'
@@ -10237,16 +10362,23 @@ function applyLiveSub(outPid, inPid) {
   var maxSubs = lm.maxSubs || 5
   var maxWindows = lm.maxWindows || 3
   if (lm.subsUsed >= maxSubs) { alert('\u26a0\ufe0f Has alcanzado el m\u00e1ximo de ' + maxSubs + ' cambios.'); return }
-  /* Ventana de sustitucion: en copa con prorroga se permite la 4ª ventana. */
-  if (window.AustriaCopa && typeof window.AustriaCopa.getSubWindow === 'function') {
-    var band = window.AustriaCopa.getSubWindow(lm.minute)
+  /* Ventana de sustitucion: en copa con prorroga se permite la 4ª ventana.
+     Copa de Austria y Croky Cup (Bélgica) definen sus propias bandas. */
+  var _subWinFn = null
+  if (window.BelgiumCopa && typeof window.BelgiumCopa.getSubWindow === 'function' && lm.compInfo && lm.compInfo.comp === 'cup' && state.countryId === 'belgium') {
+    _subWinFn = window.BelgiumCopa.getSubWindow
+  } else if (window.AustriaCopa && typeof window.AustriaCopa.getSubWindow === 'function') {
+    _subWinFn = window.AustriaCopa.getSubWindow
+  }
+  if (_subWinFn) {
+    var band = _subWinFn(lm.minute)
     if (band !== lm._lastSubBand) {
       lm.subWindowsUsed = (lm.subWindowsUsed || 0) + 1
       lm._lastSubBand = band
     }
     if (lm.subWindowsUsed > maxWindows) {
       lm.subWindowsUsed = Math.max(1, maxWindows)
-      lm._lastSubBand = window.AustriaCopa.getSubWindow(lm.minute)
+      lm._lastSubBand = _subWinFn(lm.minute)
       alert('\u26a0\ufe0f Has agotado las ' + maxWindows + ' ventanas de cambio para este partido.')
       return
     }
@@ -10527,6 +10659,14 @@ function finishLiveMatch() {
   procesarSuspensiones()
 
   var cInfo = lm.compInfo || { isCup: false, comp: 'league' }
+  procesarSuspensiones()
+  /* Croky Cup (Bélgica): sanciones de tarjetas independientes de la Liga.
+     Las rojas las procesa procesarSuspensiones (pueden afectar a la Liga);
+     las amarillas de Copa se acumulan por separado (2 en eliminatorias
+     distintas -> suspensión para el siguiente partido de Copa). */
+  if (cInfo.isCup && state.countryId === 'belgium' && window.BelgiumCopa && typeof window.BelgiumCopa.processCupYellowCards === 'function') {
+    window.BelgiumCopa.processCupYellowCards(state.players)
+  }
 
   if (cInfo.isCup) {
     /* Prórroga/penaltis si empate en copa (replicando la simulación rápida) */
@@ -12508,6 +12648,16 @@ function renderCopaView(viewType, selectedRoundIdx) {
       cup = state.cup
       supercopa = state.supercopa
     }
+  } else if (activeCountry === 'belgium') {
+    if (state.countryId !== 'belgium') {
+      cup = null
+      supercopa = null
+    } else {
+      if (!state.cup) state.cup = generarCopa()
+      if (!state.supercopa) state.supercopa = generarSupercopa()
+      cup = state.cup
+      supercopa = state.supercopa
+    }
   } else {
     cup = state.cup
     supercopa = state.supercopa
@@ -12623,7 +12773,7 @@ function renderCopaView(viewType, selectedRoundIdx) {
       : cup.schedule
     /* Match count per round index */
     /* Match count per round index */
-    var matchCounts = activeCountry === 'poland' ? [32, 16, 8, 4, 2, 1, 1] : activeCountry === 'france' ? [18, 9, 5, 3, 2, 1] : activeCountry === 'italy' ? [20, 10, 5, 2, 2, 1] : activeCountry === 'germany' || activeCountry === 'england' ? [32, 16, 8, 4, 2, 1] : [41, 20, 10, 5, 3, 2, 1]
+    var matchCounts = activeCountry === 'poland' ? [32, 16, 8, 4, 2, 1, 1] : activeCountry === 'france' ? [18, 9, 5, 3, 2, 1] : activeCountry === 'italy' ? [20, 10, 5, 2, 2, 1] : activeCountry === 'germany' || activeCountry === 'england' ? [32, 16, 8, 4, 2, 1] : activeCountry === 'belgium' ? (window.BelgiumCopa ? window.BelgiumCopa.getCupBlueprint(18).map(function(x) { return Math.max(1, Math.ceil(x.teams / 2)) }) : [9, 8, 4, 2, 1, 1]) : [41, 20, 10, 5, 3, 2, 1]
     console.log('copaSchedule:', copaSchedule)
     copaSchedule.forEach(function(s, ri) {
       if (s.isSupercopa) return
@@ -12909,6 +13059,7 @@ function getCupLogo(countryId) {
   if (countryId === 'italy') return 'https://cdn.resfu.com/media/img/league_logos/coppa-italia.png?size=120x&lossy=1'
   if (countryId === 'germany') return 'https://cdn.resfu.com/media/img/league_logos/dfb_pokal.png?size=120x&lossy=1'
   if (countryId === 'england') return 'https://cdn.resfu.com/media/img/league_logos/fa_cup.png?size=120x&lossy=1'
+  if (countryId === 'belgium') return 'https://cdn.resfu.com/media/img/league_logos/copa-belgica.png?size=120x&lossy=1'
   return 'https://cdn.resfu.com/media/img/league_logos/copa_del_rey.png?size=120x&lossy=1'
 }
 
@@ -12920,6 +13071,7 @@ function getCupTrofeo(countryId) {
   if (countryId === 'italy') return 'https://cdn.resfu.com/img_data/competiciones/copa/296.png?size=120x&lossy=1'
   if (countryId === 'germany') return 'https://cdn.resfu.com/img_data/competiciones/copa/140.png?size=120x&lossy=1'
   if (countryId === 'england') return 'https://cdn.resfu.com/img_data/competiciones/copa/139.png?size=120x&lossy=1'
+  if (countryId === 'belgium') return getCompTrofeo('Copa Belga') || 'https://cdn.resfu.com/img_data/competiciones/copa/651.png?size=120x&lossy=1'
   return 'https://cdn.resfu.com/img_data/competiciones/copa/129.png?size=120x&lossy=1'
 }
 
@@ -12930,6 +13082,7 @@ function getSupercopaLogo(countryId) {
   if (countryId === 'italy') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_italia.png?size=120x&lossy=1'
   if (countryId === 'germany') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_alemania.png?size=120x&lossy=1'
   if (countryId === 'england') return 'https://cdn.resfu.com/media/img/league_logos/community_shield.png?size=120x&lossy=1'
+  if (countryId === 'belgium') return 'https://cdn.resfu.com/media/img/league_logos/supercopa-belga.png?size=120x&lossy=1'
   return 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=120x&lossy=1'
 }
 
@@ -12940,6 +13093,7 @@ function getSupercopaTrofeo(countryId) {
   if (countryId === 'italy') return 'https://cdn.resfu.com/img_data/competiciones/copa/179.png?size=120x&lossy=1'
   if (countryId === 'germany') return 'https://cdn.resfu.com/img_data/competiciones/copa/180.png?size=120x&lossy=1'
   if (countryId === 'england') return 'https://cdn.resfu.com/img_data/competiciones/copa/322.png?size=120x&lossy=1'
+  if (countryId === 'belgium') return getCompTrofeo('Supercopa Belga') || 'https://cdn.resfu.com/img_data/competiciones/copa/676.png?size=120x&lossy=1'
   return 'https://cdn.resfu.com/img_data/competiciones/copa/132.png?size=120x&lossy=1'
 }
 
@@ -13094,7 +13248,7 @@ function newGame(coach) {
   initAllLeagueData()
 
   /* Generate cup for supported countries */
-  if (state.countryId === 'spain' || state.countryId === 'portugal' || state.countryId === 'poland' || state.countryId === 'france' || state.countryId === 'italy' || state.countryId === 'germany' || state.countryId === 'england' || state.countryId === 'austria') {
+  if (state.countryId === 'spain' || state.countryId === 'portugal' || state.countryId === 'poland' || state.countryId === 'france' || state.countryId === 'italy' || state.countryId === 'germany' || state.countryId === 'england' || state.countryId === 'austria' || state.countryId === 'belgium') {
     state.cup = generarCopa()
     state.supercopa = generarSupercopa()
     if (state.countryId === 'austria') state.supercopa = null
@@ -13333,7 +13487,7 @@ function loadGame(id) {
     }
   }
   /* Clean up stale cup data */
-  if (state.countryId !== 'spain' && state.countryId !== 'portugal' && state.countryId !== 'poland' && state.countryId !== 'france' && state.countryId !== 'italy' && state.countryId !== 'germany' && state.countryId !== 'england') {
+  if (state.countryId !== 'spain' && state.countryId !== 'portugal' && state.countryId !== 'poland' && state.countryId !== 'france' && state.countryId !== 'italy' && state.countryId !== 'germany' && state.countryId !== 'england' && state.countryId !== 'belgium') {
     state.cup = null
     state.supercopa = null
   }
