@@ -12577,6 +12577,21 @@ function getEnglandSupercopaForView() {
   return { week: 1, fixtures: [], final: finalMatch, winner: null }
 }
 
+function getEflCupForView() {
+  var eplTeams = getLeagueTeams('epl') || []
+  if (eplTeams.length < 2) return null
+  var paired = pairTeamsWithoutFiliales(eplTeams.slice())
+  var fixtures = []
+  for (var i = 0; i < paired.pairs.length; i++) {
+    fixtures.push({ round: 'R0', label: '1/16', week: EFL_CUP_SCHEDULE[0].week, home: paired.pairs[i][0].id, away: paired.pairs[i][1].id, homeScore: null, awayScore: null, played: false })
+  }
+  var eflState = { schedule: EFL_CUP_SCHEDULE, roundIdx: 0, allFixtures: fixtures, eliminated: [] }
+  if (paired.bye) {
+    eflState._pendingByes = { 0: paired.bye.id }
+  }
+  return eflState
+}
+
 function renderCopaView(viewType, selectedRoundIdx) {
   console.log('renderCopaView state.cup:', state.cup);
   var activeCountry = state.leagueViewCountry || state.countryId || 'spain'
@@ -12635,6 +12650,7 @@ function renderCopaView(viewType, selectedRoundIdx) {
     if (state.countryId !== 'england') {
       cup = getEnglandCupForView()
       supercopa = getEnglandSupercopaForView()
+      eflCupData = getEflCupForView()
     } else {
       cup = state.cup
       supercopa = state.supercopa

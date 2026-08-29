@@ -85,6 +85,7 @@ html, body {
 #app-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding: 10px;
   padding-bottom: 8px;
@@ -2992,6 +2993,7 @@ html, body {
 
 .league-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   background: var(--bg-card);
   border-radius: var(--radius-md);
@@ -3012,7 +3014,16 @@ html, body {
   letter-spacing: 0.3px;
 }
 
-.league-table th:first-child { padding-left: 12px; text-align: left; }
+.league-table th:first-child { padding-left: 12px; text-align: left; width: 34px; }
+.league-table th:nth-child(2) { text-align: left; width: 40%; }
+.league-table th:nth-child(3),
+.league-table th:nth-child(4),
+.league-table th:nth-child(5),
+.league-table th:nth-child(6),
+.league-table th:nth-child(7),
+.league-table th:nth-child(8),
+.league-table th:nth-child(9),
+.league-table th:nth-child(10) { width: 6%; }
 .league-table th:last-child { padding-right: 12px; }
 
 .league-table td {
@@ -3023,7 +3034,13 @@ html, body {
 }
 
 .league-table td:first-child { padding-left: 12px; text-align: left; font-weight: 700; }
-.league-table td:nth-child(2) { text-align: left; font-weight: 600; }
+.league-table td:nth-child(2) {
+  text-align: left;
+  font-weight: 600;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+}
 
 .league-row-user {
   background: var(--accent-light) !important;
