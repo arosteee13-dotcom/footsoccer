@@ -3046,6 +3046,9 @@ td.pos-bar.bar-permanencia { border-left-color: #BCBCBC }
 td.pos-bar.bar-title-playoff { border-left-color: #49CB2B }
 td.pos-bar.bar-relegation-playoff { border-left-color: #FCA6A1 }
 td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
+td.pos-bar.bar-europa-2 { border-left-color: #38D996 }
+td.pos-bar.bar-europa-3 { border-left-color: #5694D8 }
+td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
 
 /* Group selector for Polish 4th division */
 .lpl4-group-selector {
@@ -3139,6 +3142,9 @@ td.pos-bar.bar-descenso { border-left-color: #ED3B46 }
 .legend-bar.bar-promotion { background: #49CB2B }
 .legend-bar.bar-promotion-playoff { background: #38D996 }
 .legend-bar.bar-descenso { background: #ED3B46 }
+.legend-bar.bar-europa-2 { background: #38D996 }
+.legend-bar.bar-europa-3 { background: #5694D8 }
+.legend-bar.bar-europa-4 { background: #79B9DE }
 
 /* ───────── MATCHDAY CARD ───────── */
 .league-matchday-card {

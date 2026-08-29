@@ -728,6 +728,7 @@ const COUNTRIES = [
   { id: 'poland', name: 'Polonia', flag: '🇵🇱' },
   { id: 'portugal', name: 'Portugal', flag: '🇵🇹' },
   { id: 'austria', name: 'Austria', flag: '🇦🇹' },
+  { id: 'belgium', name: 'Bélgica', flag: '🇧🇪' },
 ]
 
 window.DB = window.DB || {}
@@ -4955,6 +4956,13 @@ function renderLeague(viewedLeagueId) {
       else if (i === 5) barClass = 'bar-conference'
       else if (i >= totalTeams - 3 && i < totalTeams - 2) barClass = 'bar-relegation-playoff'
       else if (i >= totalTeams - 2) barClass = 'bar-descenso'
+    } else if (displayLid === 'l1b') {
+      if (i === 0) barClass = 'bar-champion'
+      else if (i === 1) barClass = 'bar-europa-2'
+      else if (i === 2) barClass = 'bar-europa-3'
+      else if (i === 3) barClass = 'bar-europa-4'
+      else if (i < totalTeams - 2) barClass = 'bar-permanencia'
+      else barClass = 'bar-descenso'
     } else if (displayLid === 'l2fr') {
       if (i < 2) barClass = 'bar-promotion'
       else if (i < 5) barClass = 'bar-promotion-playoff'
@@ -5083,6 +5091,15 @@ function renderLeague(viewedLeagueId) {
       { cls: 'bar-permanencia', label: 'Permanencia' },
       { cls: 'bar-relegation-playoff', label: 'Playoff Descenso' },
       { cls: 'bar-descenso', label: 'Descenso' },
+    ]
+  } else if (displayLid === 'l1b') {
+    legendItems = [
+      { cls: 'bar-champion', label: 'Campeón · Champions League' },
+      { cls: 'bar-europa-2', label: '2º · Previa Champions League' },
+      { cls: 'bar-europa-3', label: '3º · Previa Europa League' },
+      { cls: 'bar-europa-4', label: '4º · Previa Conference League' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-descenso', label: 'Descenso directo' },
     ]
   } else if (displayLid === 'l2fr') {
     legendItems = [
@@ -12763,6 +12780,7 @@ function getDivisionBaseBudget(leagueId) {
   if (leagueId === 'bl') return 18000000
   if (leagueId === 'bl2') return 5000000
   if (leagueId === 'epl') return 25000000
+  if (leagueId === 'l1b') return 10000000
   if (leagueId.startsWith('lpl4g')) return 300000
   if (leagueId.startsWith('l3sg')) return 500000
   if (leagueId.startsWith('l2b')) return 1500000
@@ -12781,6 +12799,7 @@ function getCountryBudgetMult(countryId) {
   if (countryId === 'france') return 1.1
   if (countryId === 'italy') return 1.2
   if (countryId === 'germany') return 1.0
+  if (countryId === 'belgium') return 0.85
   return 1.0
 }
 
@@ -12792,6 +12811,7 @@ function getCupCompName(countryId) {
   if (countryId === 'italy') return 'Coppa Italia'
   if (countryId === 'germany') return 'DFB-Pokal'
   if (countryId === 'england') return 'FA Cup'
+  if (countryId === 'belgium') return 'Copa de Bélgica'
   return 'Copa del Rey'
 }
 
@@ -12802,6 +12822,7 @@ function getSupercopaCompName(countryId) {
   if (countryId === 'italy') return 'Supercopa Italia'
   if (countryId === 'germany') return 'Supercopa Alemania'
   if (countryId === 'england') return 'Community Shield'
+  if (countryId === 'belgium') return 'Supercopa de Bélgica'
   return 'Supercopa de Espa\u00f1a'
 }
 
@@ -12816,6 +12837,12 @@ var COMP_TROFEO_MAP = {
   'Champions League': 'https://cdn.resfu.com/img_data/competiciones/copa/107.png?size=120x&lossy=1',
   'Europa League': 'https://cdn.resfu.com/img_data/competiciones/copa/117.png?size=120x&lossy=1',
   'Supercopa Europa': 'https://cdn.resfu.com/img_data/competiciones/copa/133.png?size=120x&lossy=1',
+  'Liga Belga': 'https://cdn.resfu.com/img_data/competiciones/copa/12.png?size=120x&lossy=1',
+  'Copa Belga': 'https://cdn.resfu.com/img_data/competiciones/copa/651.png?size=120x&lossy=1',
+  'Supercopa Belga': 'https://cdn.resfu.com/img_data/competiciones/copa/676.png?size=120x&lossy=1',
+  'Segunda Divisi\u00f3n B\u00e9lgica': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
+  'Divisi\u00f3n Nacional Belga 1': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
+  'Divisi\u00f3n Belga 2': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
   'Copa Intercontinental': 'https://cdn.resfu.com/img_data/competiciones/copa/1747.png?size=120x&lossy=1',
   'Mundial de Clubes': 'https://cdn.resfu.com/img_data/competiciones/copa/137.png?size=120x&lossy=1',
   'Primera Federaci\u00f3n': 'https://cdn.resfu.com/img_data/competiciones/copa/2468.png?size=120x&lossy=1',
@@ -13435,7 +13462,7 @@ function showNewGameScreen() {
   document.getElementById('ng-step-teams').classList.add('ng-hidden')
 
   /* Pre-load all country data to show league counts */
-  var _countriesToLoad = ['france', 'spain', 'portugal', 'poland', 'austria']
+  var _countriesToLoad = ['france', 'spain', 'portugal', 'poland', 'austria', 'belgium']
   var _loadedCount = 0
   _countriesToLoad.forEach(function(cid) {
     loadCountryData(cid, function() {
