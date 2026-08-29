@@ -42,16 +42,6 @@
             <div class="ng-team-badge" id="ng-team-badge">
               <span class="ng-badge-placeholder">Sin equipo seleccionado...</span>
             </div>
-            <div class="ng-manager-inputs">
-              <div class="ng-input-wrap">
-                <input class="ng-coach-input" id="ng-coach-input" type="text" placeholder="Mister" maxlength="30" autocomplete="off">
-              </div>
-              <div class="ng-nat-selector" id="ng-nat-selector" onclick="showNationalityPicker()">
-                <span class="ng-nat-flag" id="ng-flag">🇵🇱</span>
-                <span class="ng-nat-name" id="ng-nat-name">Polonia</span>
-                <span class="ng-nat-arrow">▾</span>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -374,20 +364,6 @@
           <div id="country-selector-list" class="cs-list"></div>
         </div>
         <button class="btn-secondary modal-close" id="country-selector-close" style="margin:6px 16px 12px;width:calc(100% - 32px);flex-shrink:0">CANCELAR</button>
-      </div>
-    </div>
-
-    <div id="nat-picker-modal" class="modal-overlay hidden">
-      <div class="modal-content cs-mc" style="max-width:380px">
-        <h3 class="cs-modal-title">Nacionalidad del mister</h3>
-        <div class="cs-search-wrap">
-          <span class="cs-search-icon">&#128269;</span>
-          <input class="nat-search" id="nat-search" type="text" placeholder="Buscar pa&iacute;s..." autocomplete="off">
-        </div>
-        <div class="modal-scroll">
-          <div id="nat-picker-list" class="cs-list"></div>
-        </div>
-        <button class="btn-secondary modal-close" id="nat-picker-close">CANCELAR</button>
       </div>
     </div>
 
@@ -717,6 +693,10 @@
   <script src="js/copaAustria.js"></script>
   <script src="js/copaBelgica.js"></script>
   <script src="js/matchEngine.js?v=5"></script>
+  <script src="js/zonaClubView.js"></script>
+  <script src="js/zonaClubCards.js"></script>
+  <script src="js/instalacionesView.js"></script>
+  <script src="js/estadioView.js"></script>
   <script src="js/app.js?v=25"></script>
 </body>
 </html>

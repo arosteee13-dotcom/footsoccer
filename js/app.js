@@ -586,26 +586,6 @@ function calcValue(skill, age, position) {
   return Math.round(base * (pm[position] || 0.8) * am)
 }
 
-function generateStaffMember(teamName, countryId, role) {
-  const noface = 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
-  const nat = NATIONALITIES[countryId] || NATIONALITIES.es
-  const first = pickRandom(STAFF_FIRST[countryId] || STAFF_FIRST.es)
-  const surname = pickRandom(SURNAMES_BY_COUNTRY[countryId] || SURNAMES_BY_COUNTRY.es)
-  const now = new Date().toLocaleDateString('es-ES')
-  return {
-    name: `${first} ${surname}`,
-    nationality: nat.label,
-    role: role || 'headCoach',
-    avatar: noface,
-    career: [{ team: teamName || '—', from: now, to: 'Actualidad', matches: 0, won: 0, drawn: 0, lost: 0 }],
-  }
-}
-
-function generateStaff(teamName, countryId) {
-  const cid = countryId || 'es'
-  return [ generateStaffMember(teamName, cid, 'headCoach') ]
-}
-
 function generateCpuPlayer(teamId, countryId, teamRating, position, overrides) {
   const cid = countryId || 'es'
   const minS = Math.max(30, (teamRating || 70) - 15)
@@ -812,7 +792,7 @@ function createDummyTeam(name, id, countryId) {
     })
   }
 
-  return { id: id, name: name, logo: '', players: players, staff: [] }
+  return { id: id, name: name, logo: '', players: players }
 }
 
 function getNatCodeForCountry(countryId) {
@@ -926,7 +906,7 @@ const STORAGE_KEY = 'futsal_saves'
 const TACTICS_KEY = 'futsal_tactics'
 
 const state = {
-  coach: '', team: '', teamId: '', teamLogo: '', countryId: '', leagueId: '',
+  team: '', teamId: '', teamLogo: '', countryId: '', leagueId: '',
   gameId: null,
   matchdaySquad: [], startingFive: [], subsBench: [], convocatoriaValidada: false,
   stats: { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
@@ -948,7 +928,6 @@ const state = {
   clubSubTab: 'squad',
   marketTab: 'buy',
   globalPlayers: [],
-  staff: [],
   tacticsSlots: [],
   benchIds: [],
   reserveIds: [],
@@ -987,6 +966,8 @@ const state = {
   historialTraspasosGlobal: [],
   marketSubTab: 'active',
   mercadoSimuladoSemana: 0,
+  zonaClub: null,
+  zcScreen: null,
 }
 
 /* ============ HELPERS ============ */
@@ -2384,8 +2365,6 @@ window.SaveSystem = {
       const data = {
         id: Number(gameId),
         meta: {
-          managerName: state.coach || 'Manager',
-          nationality: state.staff && state.staff[0] ? state.staff[0].nationality || '' : '',
           teamName: state.team || 'Equipo',
           teamLogo: teamLogoUrl,
           leagueName: leagueName,
@@ -2394,14 +2373,14 @@ window.SaveSystem = {
           gameDate: `Jornada ${matchday}`,
           saveDate: new Date().toISOString(),
         },
-        coach: state.coach, team: state.team, teamId: state.teamId, teamLogo: teamLogoUrl,
+        team: state.team, teamId: state.teamId, teamLogo: teamLogoUrl,
         countryId: state.countryId, leagueId: state.leagueId,
         date: new Date().toISOString(), matchday,
         players: (state.players || []).map(cleanup),
         tactic: state.tactic,
         finances: state.finances, stats: state.stats,
         leagueTeams: (state.leagueTeams || []).map(t => ({
-          teamId: t.teamId, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: (t.players || []).map(cleanup), staff: t.staff
+          teamId: t.teamId, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: (t.players || []).map(cleanup)
         })),
         currentMatchday: state.currentMatchday, totalMatchdays: state.totalMatchdays, fixtures: state.fixtures,
         allLeagueData: state.allLeagueData,
@@ -2409,7 +2388,6 @@ window.SaveSystem = {
         captainId: state.captainId,
         benchIds: state.benchIds,
         reserveIds: state.reserveIds,
-        staff: state.staff,
         inbox: state.inbox,
         soundEnabled: state.soundEnabled,
         filialSquad: (state.filialSquad || []).map(cleanup),
@@ -2422,6 +2400,9 @@ window.SaveSystem = {
         presupuestoInicial: state.presupuestoInicial || 0,
         cup: state.cup,
         supercopa: state.supercopa,
+        eflCup: state.eflCup,
+        eflCupChampion: state.eflCupChampion,
+        zonaClub: state.zonaClub,
         cupChampion: state.cupChampion,
         cupRunnerUp: state.cupRunnerUp,
         leagueChampion: state.leagueChampion,
@@ -2642,7 +2623,7 @@ function getTeamObj(id) {
         if (palmares) break
       }
     }
-    return { name: state.team, players: state.players, teamId: state.teamId, staff: state.staff, palmares: palmares }
+    return { name: state.team, players: state.players, teamId: state.teamId, palmares: palmares }
   }
   const filialId = getFilialId(state.teamId)
   if (filialId && id === filialId && state.filialSquad) {
@@ -2668,10 +2649,10 @@ function getTeamObj(id) {
       const team = l.teams.find(x => x.id === id)
       if (team) {
         if (getRealSquad(team.id)) {
-          return { name: team.name, players: getRealSquad(team.id).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }).map(function(p) { var pp = { ...p }; if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp }), teamId: team.id, staff: team.staff, formation: team.formation, gamePlan: team.gamePlan, logo: team.logo, palmares: team.palmares }
+          return { name: team.name, players: getRealSquad(team.id).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }).map(function(p) { var pp = { ...p }; if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp }), teamId: team.id, formation: team.formation, gamePlan: team.gamePlan, logo: team.logo, palmares: team.palmares }
         }
         const rating = team.rating || getBaseDato(id)?.rating || 70
-        return { name: team.name, players: generateCpuSquad(id, state.countryId, rating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, staff: team.staff || generateStaff(team.name, state.countryId), formation: team.formation, gamePlan: team.gamePlan, logo: team.logo, palmares: team.palmares }
+        return { name: team.name, players: generateCpuSquad(id, state.countryId, rating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, formation: team.formation, gamePlan: team.gamePlan, logo: team.logo, palmares: team.palmares }
       }
     }
   }
@@ -2679,12 +2660,12 @@ function getTeamObj(id) {
   const atDb = (window._MODESTO_AUSTRIA_MAP && window._MODESTO_AUSTRIA_MAP[id]) || null
   if (atDb) {
     var atRating = atDb.rating || 60
-    return { name: atDb.name, players: generateCpuSquad(id, 'austria', atRating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, staff: generateStaff(atDb.name, 'austria'), formation: '4-3-3', gamePlan: 'suave', logo: atDb.logo, palmares: null }
+    return { name: atDb.name, players: generateCpuSquad(id, 'austria', atRating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, formation: '4-3-3', gamePlan: 'suave', logo: atDb.logo, palmares: null }
   }
   /* Equipos de cantera austriaca (p. ej. Austria Wien U18): usan su plantilla real */
   const acDb = (window._AUSTRIA_ACADEMY_TEAMS && window._AUSTRIA_ACADEMY_TEAMS[id]) || null
   if (acDb) {
-    return { name: acDb.name, players: (getRealSquad(id) || []).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }).map(function(p) { return { ...p } }), teamId: id, staff: generateStaff(acDb.name, 'austria'), formation: '4-3-3', gamePlan: 'suave', logo: acDb.logo, palmares: null }
+    return { name: acDb.name, players: (getRealSquad(id) || []).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }).map(function(p) { return { ...p } }), teamId: id, formation: '4-3-3', gamePlan: 'suave', logo: acDb.logo, palmares: null }
   }
   return null
 }
@@ -3731,15 +3712,6 @@ function renderSquadInfo(players) {
   })
   document.getElementById('club-player-count').textContent = `${players.length}/${MAX_SQUAD} jugadores`
   let html = ''
-  const roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
-  if (state.staff && state.staff.length > 0) {
-    html += `<div class="tactics-subsection-label">Staff técnico (${state.staff.length})</div>`
-    state.staff.forEach(s => {
-      const avatar = s.avatar || 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
-      const avatarStyle = `background-image:url(${avatar});background-size:cover;background-position:center;background-color:var(--bg-surface)`
-      html += `<div class="staff-card"><div class="staff-card-avatar" style="${avatarStyle}"></div><div class="staff-card-info"><div class="staff-card-name">${s.name}</div><div class="staff-card-meta">${s.nationality}</div></div><span class="staff-card-role" data-role="${s.role}">${roleLabels[s.role] || s.role}</span></div>`
-    })
-  }
   container.innerHTML += html
   html = `<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (${active.length})</div>
     <div class="tp-table-header" style="padding:6px 14px">
@@ -7636,7 +7608,6 @@ function iniciarNuevaTemporada() {
         teamId: t.id, name: t.name, logo: t.logo || null, palmares: t.palmares || null,
         players: existing ? existing.players.map(function(p) { return Object.assign({}, p, { energy: 100, injury: null, goals: 0, matches: 0 }) })
           : (getRealSquad(t.id) || []).map(function(p) { var pp = Object.assign({}, p, { value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 }); if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp }),
-        staff: t.staff || existing && existing.staff || [],
       }
     })
     var allTeamsL = state.leagueTeams.concat([{ teamId: state.teamId, players: state.players }])
@@ -9569,7 +9540,7 @@ function simularPartidoRapido(fixture, rivalId) {
     if (state.presupuestoInicial > 0) {
       var mIngresos = 0
       if (isHome) {
-        var taquilla = Math.round(state.presupuestoInicial * 0.0015)
+        var taquilla = getTaquillaEstadio()
         state.finances.balance += taquilla
         state.finances.history.push({ reason: 'Ingresos por d\u00eda de partido (local)', amount: taquilla })
         mIngresos += taquilla
@@ -10428,7 +10399,7 @@ function gestionarResultadoCopaLive(cInfo, us, them, rivalId) {
   else { state.stats.losses++; state.finances.balance += getCupRewardLoss(cupRoundIdx) }
   state.finances.history.push({ reason: compName + ': ' + us + '-' + them + ' vs ' + getTeamName(rivalId), amount: us > them ? rew : getCupRewardLoss(cupRoundIdx) })
   if (state.presupuestoInicial > 0 && fixture && fixture.home === state.teamId) {
-    var taquilla = Math.round(state.presupuestoInicial * 0.0015)
+    var taquilla = getTaquillaEstadio()
     state.finances.balance += taquilla
     state.finances.history.push({ reason: 'Taquilla ' + compName + ' (local)', amount: taquilla })
   }
@@ -10941,7 +10912,7 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga, isEflCu
     else { state.finances.losses++; state.finances.balance += getCupRewardLoss(cupRoundIdx) }
     state.finances.history.push({ reason: (isSupercopa ? getSupercopaCompName(state.countryId) : getCupCompName(state.countryId)) + ': ' + us + '-' + them + ' vs ' + getTeamName(rivalId), amount: us > them ? rew : getCupRewardLoss(cupRoundIdx) })
     if (state.presupuestoInicial > 0 && isHome) {
-      var taquillaCopa = Math.round(state.presupuestoInicial * 0.0015)
+      var taquillaCopa = getTaquillaEstadio()
       state.finances.balance += taquillaCopa
       state.finances.history.push({ reason: 'Taquilla Copa (local)', amount: taquillaCopa })
     }
@@ -11346,6 +11317,7 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
           state.currentMatchday++
           simularJornadaEnTodasLasLigas(state.currentMatchday)
           procesarEconomiaSemanal()
+          procesarObrasClub()
           liberarSuspensiones()
           autoSave()
           renderTab('home')
@@ -11412,11 +11384,8 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
     state.currentMatchday++
     simularJornadaEnTodasLasLigas(state.currentMatchday)
     procesarEconomiaSemanal()
+    procesarObrasClub()
     liberarSuspensiones()
-    const assistCount = state.staff.filter(function(s) { return s.role === 'assistantCoach' }).length
-    if (assistCount > 0) {
-      state.players.forEach(function(p) { p.energy = Math.min(100, p.energy + assistCount * 10) })
-    }
     autoSave()
     renderTab('home')
   }
@@ -11499,11 +11468,6 @@ function showMatchdayResults(userScore, rivalScore, rivalName) {
       simularJornadaEnTodasLasLigas(state.currentMatchday)
       procesarEconomiaSemanal()
       liberarSuspensiones()
-      /* Staff bonus: 2º Entrenador → +5 energía/jornada */
-      const assistCount = state.staff.filter(s => s.role === 'assistantCoach').length
-      if (assistCount > 0) {
-        state.players.forEach(p => { p.energy = Math.min(100, p.energy + assistCount * 10) })
-      }
       /* AI promotion from filial to first team */
       var parentIdAI = getParentTeamId(state.teamId)
       if (parentIdAI) {
@@ -11707,7 +11671,7 @@ function autoSimularPartidoUsuario(fixture) {
   /* Matchday income */
   if (state.presupuestoInicial > 0) {
     if (isHome) {
-      var taquilla = Math.round(state.presupuestoInicial * 0.0015)
+      var taquilla = getTaquillaEstadio()
       state.finances.balance += taquilla
       state.finances.history.push({ reason: 'Ingresos por d\u00eda de partido (local)', amount: taquilla })
     }
@@ -12099,10 +12063,8 @@ function renderMarketContent() {
 function buyPlayer(player, team, agreedPrice) {
   if (!state.transferWindowOpen) { alert('\ud83d\udd12 El mercado de fichajes est\u00e1 cerrado. Vuelve cuando se abra.'); return }
   if (state.players.length >= MAX_SQUAD) { alert('Plantilla completa (' + MAX_SQUAD + ' jugadores)'); return }
-  const delegateCount = state.staff.filter(s => s.role === 'delegate').length
-  const discount = Math.max(0, 1 - delegateCount * 0.1)
   const basePrice = agreedPrice || player.value
-  const finalValue = Math.round(basePrice * discount)
+  const finalValue = Math.round(basePrice)
   if (state.finances.balance < finalValue) { alert('Fondos insuficientes. Necesitas ' + formatMoney(finalValue)); return }
   state.finances.balance -= finalValue
   var _posBuy = POS_ABBR[player.position] || player.position || '?'
@@ -12136,25 +12098,6 @@ function buyPlayer(player, team, agreedPrice) {
     isLoan: false,
     teamStats: player.teamStats ? player.teamStats[team.teamId] : null
   })
-  renderMarketContent()
-}
-
-function hireStaff(staffMember, team) {
-  if (state.staff.some(s => s.role === staffMember.role)) return
-  const cost = 2000
-  if (state.finances.balance < cost) return
-  const roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
-  state.finances.balance -= cost
-  state.finances.history.push({ reason: `Contratación: ${staffMember.name} (${roleLabels[staffMember.role] || staffMember.role})`, amount: -cost })
-  if (team) {
-    const staffTeam = state.leagueTeams.find(t => t.teamId === team.teamId)
-    if (staffTeam) {
-      const idx = staffTeam.staff.indexOf(staffMember)
-      if (idx >= 0) staffTeam.staff.splice(idx, 1)
-    }
-  }
-  state.staff.push({ ...staffMember })
-  addNotification('transfer', `Staff contratado: ${staffMember.name}`, `${roleLabels[staffMember.role] || staffMember.role} · ${formatMoney(cost)}`)
   renderMarketContent()
 }
 
@@ -12196,6 +12139,9 @@ function envejecerYProgresar() {
       if (playRate > 0 && playRate < 0.3) gain -= 1
 
       gain = Math.max(-4, Math.min(5, gain))
+      /* Instalaciones de Entrenamiento: aceleran el desarrollo de los j\u00f3venes */
+      if (p.age <= 23 && typeof getBonusEntrenamiento === 'function') gain += getBonusEntrenamiento()
+      gain = Math.max(-4, Math.min(15, gain))
       p.skill = Math.min(99, Math.max(1, p.skill + gain))
     } else {
       var baseLoss = p.age >= 35 ? 4 : p.age >= 33 ? 2 : 1
@@ -12233,20 +12179,6 @@ function envejecerYProgresar() {
     /* Retirement check */
     if (p.age >= 35 && (p.matches || 0) < 5 && Math.random() < 0.5) retirados.push(p)
   })
-
-  /* GK coach bonus */
-  var gkCoachCount = state.staff.filter(function(s) { return s.role === 'goalkeeperCoach' }).length
-  if (gkCoachCount > 0) {
-    state.players.filter(function(p) { return p.position === 'portero' }).forEach(function(p) {
-      var baseChance = 0.25 * gkCoachCount
-      var matchBonus = Math.min(0.5, (p.matches || 0) * 0.02)
-      if (Math.random() < baseChance + matchBonus) {
-        var oldS = p.skill
-        p.skill = Math.min(99, p.skill + 2)
-        changes.push({ name: p.name, pos: p.position, oldSkill: oldS, newSkill: p.skill, change: 2 })
-      }
-    })
-  }
 
   /* Recalcular valores tras cambios de skill y aplicar rendimiento */
   state.players.forEach(function(p) {
@@ -13136,7 +13068,7 @@ function getDivisionMatchReward(leagueId) {
 }
 
 /* ============ GAME INIT ============ */
-function newGame(coach) {
+function newGame() {
   const countryData = window.DB[selectedCountry.id]
   const country = countryData ? countryData.country : null
   /* Resolve league — handle merged grouped leagues (lpl4g, l3sg) */
@@ -13151,17 +13083,10 @@ function newGame(coach) {
     realLeagueId = realGroup ? realGroup.id : (getGroupedConfig(realLeagueId) ? getGroupedConfig(realLeagueId).groups[0] : realLeagueId)
   }
   const league = country ? country.leagues.find(l => l.id === realLeagueId) : null
-  state.coach = coach
   state.team = selectedTeam.name
   state.teamId = selectedTeam.id
   state.teamLogo = selectedTeam.logo || ''
   state.myPalmares = selectedTeam.palmares || null
-  const noface = 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
-  const countryId = selectedCountry.id
-  const natLabel = coachNationality ? (coachNationality.flag + ' ' + coachNationality.name) : (countryData ? (countryData.country.flag + ' ' + countryData.country.name) : '\ud83c\uddf5\ud83c\uddf1 Polonia')
-  state.staff = [
-    { name: coach, nationality: natLabel, role: 'headCoach', avatar: noface, career: [{ team: selectedTeam.name, from: new Date().toLocaleDateString('es-ES'), to: 'Actualidad', matches: 0, won: 0, drawn: 0, lost: 0 }] },
-  ]
   state.countryId = selectedCountry.id
   state.leagueId = realLeagueId
   state.gameId = Date.now()
@@ -13176,6 +13101,7 @@ function newGame(coach) {
   const startingBudget = selectedTeam.budget || Math.round(getDivisionBaseBudget(state.leagueId) * getCountryBudgetMult(state.countryId) * ((selectedTeam.rating || 50) / 50))
   state.presupuestoInicial = startingBudget
   state.finances = { balance: startingBudget, history: [] }
+  initZonaClub()
   state.inbox = []
   state.captainId = null
   state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
@@ -13212,7 +13138,9 @@ function newGame(coach) {
     state.filial2Squad = (getRealSquad(myU18Id) || []).map(p => {
       const bp2 = getBaseDato(myU18Id)
       const fCap2 = bp2 ? bp2.rating : 99
-      return { ...p, skill: Math.min(fCap2, p.skill), id: 'filial2-' + p.id, value: calcValue(p.skill, p.age, p.position), energy: 100, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matches: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, teamStats: {} }
+      const canteraBonus = typeof getBonusCantera === 'function' ? getBonusCantera() : 0
+      const canteraSkill = Math.min(fCap2, (p.skill || 0) + canteraBonus)
+      return { ...p, skill: canteraSkill, id: 'filial2-' + p.id, value: calcValue(canteraSkill, p.age, p.position), energy: 100, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matches: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, teamStats: {} }
     })
   } else {
     state.filial2Squad = []
@@ -13228,8 +13156,7 @@ function newGame(coach) {
     const squad = base
       ? base.map(p => { var pp = { ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100 }; if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp })
       : generateCpuSquad(t.id, state.countryId, t.rating)
-    const defaultStaff = t.staff || generateStaff(t.name, state.countryId)
-    state.leagueTeams.push({ teamId: t.id, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: squad, staff: defaultStaff, rating: t.rating || 50, palmares: t.palmares })
+    state.leagueTeams.push({ teamId: t.id, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: squad, rating: t.rating || 50, palmares: t.palmares })
     allTeamIds.push(t.id)
   }
   console.log('[INIT] leagueTeams:', state.leagueTeams.map(t => t.name + ': ' + t.players.length + ' players').join(', '))
@@ -13360,7 +13287,7 @@ function newGame(coach) {
 
   autoAssignSquad()
 
-  addNotification('general', `🏆 Bienvenido, ${coach}!`, `${coach} asume el banquillo del ${selectedTeam.name} en la ${league.name}`)
+  addNotification('general', `🏆 ¡Bienvenido a ${league.name}!`, `Te haces cargo del ${selectedTeam.name} en la ${league.name}`)
   startGame()
 }
 
@@ -13431,7 +13358,7 @@ function loadGame(id) {
   const saves = getSaves()
   const data = saves.find(s => Number(s.id) === Number(id))
   if (!data) { console.warn('[LOAD] Save not found for id:', id, 'saves:', saves.length); return }
-  state.coach = data.coach
+  if (typeof state.zonaClub === 'undefined') state.zonaClub = null
   state.team = data.team
   state.teamId = data.teamId
   state.teamLogo = data.teamLogo || ''
@@ -13455,7 +13382,6 @@ function loadGame(id) {
   state.captainId = data.captainId || null
   state.benchIds = data.benchIds || []
   state.reserveIds = data.reserveIds || []
-  state.staff = data.staff || []
   state.inbox = data.inbox || []
   state.soundEnabled = data.soundEnabled !== false
   state.filialSquad = data.filialSquad || []
@@ -13483,6 +13409,10 @@ function loadGame(id) {
   state.absoluteFinal = data.absoluteFinal || null
   state.historialTraspasosGlobal = data.historialTraspasosGlobal || []
   state.mercadoSimuladoSemana = data.mercadoSimuladoSemana || 0
+  state.zonaClub = data.zonaClub || null
+  state.eflCup = data.eflCup || null
+  state.eflCupChampion = data.eflCupChampion || null
+  initZonaClub()
   migrarPartidaEnergy()
   /* Migrate stale allTeamsHistory competition/division names from before canonicalization */
   if (state.allTeamsHistory) {
@@ -13644,8 +13574,6 @@ function showNewGameScreen() {
   /* Render country grid */
   renderCountryGrid()
 
-  /* Clear inputs */
-  document.getElementById('ng-coach-input').value = ''
   updateTeamBadge(null)
 
   /* Update progress: step 1 active */
@@ -13824,7 +13752,6 @@ function renderTeamList(league) {
     const rating = rs ? getTop11Average(rs) : (db ? db.rating : t.rating || 70)
     const squadCount = rs ? rs.length : 10
     const isSelected = selectedTeam && selectedTeam.id === t.id
-    const coachName = (t.staff && t.staff.find(s => s.role === 'headCoach')?.name) || ''
     html += `<div class="ng-team-row${isSelected ? ' selected' : ''}" data-tid="${t.id}">
       <img class="ng-team-logo" src="${t.logo || NOPHOTO}" alt="" loading="lazy" onerror="this.src='${NOPHOTO}'">
       <span class="ng-team-name">${t.name}</span>
@@ -13895,7 +13822,6 @@ function showTeamPreview(teamId) {
     const rating = db ? db.rating : 70
     const rawSquad = getRealSquad(teamId) || generateCpuSquad(teamId, foundCountryId, rating)
     const realSquad = rawSquad.map(p => { var pp = { ...p, value: p.value || calcValue(p.skill, p.age, p.position), energy: (p.energy != null ? p.energy : 100) }; if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp })
-    const staff = team.staff || []
     const logo = team.logo || ''
 
     document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active') })
@@ -13942,9 +13868,15 @@ function showTeamPreview(teamId) {
 
     function renderPreviewTab() {
       var content = ''
+      if (ZC_VISTA && ZC_VISTA.teamId === teamId && typeof renderZonaClubScreenDe === 'function') {
+        document.getElementById('tp-list').style.display = 'none'
+        document.getElementById('tp-table-header').style.display = 'none'
+        var cZcEl = document.getElementById('tp-view-content')
+        if (cZcEl) { cZcEl.style.display = ''; cZcEl.innerHTML = renderZonaClubScreenDe(teamId) }
+        return
+      }
       if (tptab === 'general') {
         var leagueName = foundLeague ? foundLeague.name : ''
-        var coach = staff.find(function(s) { return s.role === 'headCoach' })
         var captain = orderedPlayers.length > 0 ? orderedPlayers[0] : null
         var bestPlayer = orderedPlayers.reduce(function(best, p) { return (!best || p.skill > best.skill) ? p : best }, null)
         content += '<div class="tp-stats" style="margin-bottom:6px">' +
@@ -13961,14 +13893,16 @@ function showTeamPreview(teamId) {
           '</div>' +
           '<div style="padding:10px 14px;background:var(--bg);border-radius:8px;margin:0 14px 8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-secondary)">Presupuesto</span><span style="font-size:15px;font-weight:700;color:#10B981">€' + formatShort(teamBudget) + '</span></div>'
         content += '<div class="tactics-subsection-label" style="margin-top:8px">Personal clave</div>'
-        if (coach) { var av = coach.avatar || NOPHOTO; content += '<div class="staff-card"><div class="staff-card-avatar" style="background-image:url(' + av + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + coach.name + '</div><div class="staff-card-meta">' + (coach.nationality || '') + '</div></div><span class="staff-card-role" style="background:var(--accent);color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Manager</span></div>' }
         if (captain) { var av2 = captain.avatar || NOPHOTO; content += '<div class="staff-card"><div class="staff-card-avatar" style="background-image:url(' + av2 + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + captain.name + '</div><div class="staff-card-meta">' + (captain.nationality || '') + ' · ' + (POS_ABBR[captain.position] || captain.position) + '</div></div><span class="staff-card-role" style="background:var(--accent);color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Capitán</span></div>' }
         if (bestPlayer) { var av3 = bestPlayer.avatar || NOPHOTO; content += '<div class="staff-card"><div class="staff-card-avatar" style="background-image:url(' + av3 + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + bestPlayer.name + '</div><div class="staff-card-meta">' + (bestPlayer.nationality || '') + ' · ' + (POS_ABBR[bestPlayer.position] || bestPlayer.position) + ' · ' + bestPlayer.skill + '</div></div><span class="staff-card-role" style="background:#F59E0B;color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Mejor jugador</span></div>' }
+        if (typeof renderZonaClubSectionDe === 'function') { content += renderZonaClubSectionDe(teamId) }
         document.getElementById('tp-list').style.display = 'none'
         document.getElementById('tp-table-header').style.display = 'none'
+        document.getElementById('tp-view-content').style.display = ''
       } else if (tptab === 'squad') {
         document.getElementById('tp-list').style.display = ''
         document.getElementById('tp-table-header').style.display = ''
+        document.getElementById('tp-view-content').style.display = 'none'
         var listHtml = activePlayers.map(function(p) {
           var valShort = formatShort(p.value || 0)
           var cedTag = p.onLoan && p.loanFrom ? ' <span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CED</span>' : ''
@@ -13992,6 +13926,7 @@ function showTeamPreview(teamId) {
       } else if (tptab === 'history') {
         document.getElementById('tp-list').style.display = 'none'
         document.getElementById('tp-table-header').style.display = 'none'
+        document.getElementById('tp-view-content').style.display = ''
         var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
         content += '<div class="tactics-subsection-label">' + trophySvg + ' Palmar\u00e9s</div>'
         var palmares = team.palmares || []
@@ -14022,7 +13957,7 @@ function showTeamPreview(teamId) {
 
     renderPreviewTab()
     document.querySelectorAll('#view-team-preview .sub-tab').forEach(function(btn) {
-      btn.onclick = function() { document.querySelectorAll('#view-team-preview .sub-tab').forEach(function(b) { b.classList.remove('active') }); btn.classList.add('active'); tptab = btn.dataset.tptab; renderPreviewTab() }
+      btn.onclick = function() { document.querySelectorAll('#view-team-preview .sub-tab').forEach(function(b) { b.classList.remove('active') }); btn.classList.add('active'); tptab = btn.dataset.tptab; ZC_VISTA = null; renderPreviewTab() }
     })
     selectedTeam = team
     document.getElementById('tp-header-back').onclick = function() { document.getElementById('view-team-preview').classList.add('hidden'); document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active') }); document.getElementById('view-newgame').classList.add('active'); if (selectedLeague) { updateTeamBadge(selectedTeam); document.querySelectorAll('.ng-team-row').forEach(function(r) { r.classList.toggle('selected', r.dataset.tid === selectedTeam.id) }) } }
@@ -14030,11 +13965,6 @@ function showTeamPreview(teamId) {
 }
 
 function startNewGame() {
-  const coachName = document.getElementById('ng-coach-input').value.trim()
-  if (!coachName) {
-    document.getElementById('ng-coach-input').focus()
-    return
-  }
   if (!selectedTeam) return
   const db = window.DB[selectedCountry.id]
   if (!selectedLeague && db) selectedLeague = db.country.leagues[0]
@@ -14047,204 +13977,10 @@ function startNewGame() {
     selectedTeam.rating = 70
   }
 
-  newGame(coachName)
+  newGame()
 }
 
-/* ============ COACH NATIONALITY PICKER ============ */
-const COACH_NATIONALITIES = [
-  { flag: '🇦🇱', name: 'Albania' },
-  { flag: '🇩🇪', name: 'Alemania' },
-  { flag: '🇦🇴', name: 'Angola' },
-  { flag: '🇸🇦', name: 'Arabia Saudí' },
-  { flag: '🇩🇿', name: 'Argelia' },
-  { flag: '🇦🇷', name: 'Argentina' },
-  { flag: '🇦🇲', name: 'Armenia' },
-  { flag: '🇦🇺', name: 'Australia' },
-  { flag: '🇦🇹', name: 'Austria' },
-  { flag: '🇧🇩', name: 'Bangladés' },
-  { flag: '🇧🇪', name: 'Bélgica' },
-  { flag: '🇧🇯', name: 'Benín' },
-  { flag: '🇧🇾', name: 'Bielorrusia' },
-  { flag: '🇧🇦', name: 'Bosnia' },
-  { flag: '🇧🇷', name: 'Brasil' },
-  { flag: '🇧🇬', name: 'Bulgaria' },
-  { flag: '🇧🇫', name: 'Burkina Faso' },
-  { flag: '🇨🇲', name: 'Camerún' },
-  { flag: '🇨🇦', name: 'Canadá' },
-  { flag: '🇨🇱', name: 'Chile' },
-  { flag: '🇨🇳', name: 'China' },
-  { flag: '🇨🇴', name: 'Colombia' },
-  { flag: '🇨🇬', name: 'Congo' },
-  { flag: '🇰🇵', name: 'Corea del Norte' },
-  { flag: '🇰🇷', name: 'Corea del Sur' },
-  { flag: '🇨🇮', name: 'Costa de Marfil' },
-  { flag: '🇭🇷', name: 'Croacia' },
-  { flag: '🇩🇰', name: 'Dinamarca' },
-  { flag: '🇪🇨', name: 'Ecuador' },
-  { flag: '🇪🇬', name: 'Egipto' },
-  { flag: '🇦🇪', name: 'Emiratos Árabes Unidos' },
-  { flag: '🇸🇰', name: 'Eslovaquia' },
-  { flag: '🇸🇮', name: 'Eslovenia' },
-  { flag: '🇪🇸', name: 'España' },
-  { flag: '🇺🇸', name: 'Estados Unidos' },
-  { flag: '🇪🇪', name: 'Estonia' },
-  { flag: '🇪🇹', name: 'Etiopía' },
-  { flag: '🇵🇭', name: 'Filipinas' },
-  { flag: '🇫🇮', name: 'Finlandia' },
-  { flag: '🇫🇷', name: 'Francia' },
-  { flag: '🇬🇦', name: 'Gabón' },
-  { flag: '🇬🇲', name: 'Gambia' },
-  { flag: '🇬🇪', name: 'Georgia' },
-  { flag: '🇬🇭', name: 'Ghana' },
-  { flag: '🇬🇷', name: 'Grecia' },
-  { flag: '🇬🇳', name: 'Guinea' },
-  { flag: '🇭🇳', name: 'Honduras' },
-  { flag: '🇭🇺', name: 'Hungría' },
-  { flag: '🇮🇳', name: 'India' },
-  { flag: '🇮🇩', name: 'Indonesia' },
-  { flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', name: 'Inglaterra' },
-  { flag: '🇮🇶', name: 'Irak' },
-  { flag: '🇮🇷', name: 'Irán' },
-  { flag: '🇮🇪', name: 'Irlanda' },
-  { flag: '🇮🇸', name: 'Islandia' },
-  { flag: '🇮🇱', name: 'Israel' },
-  { flag: '🇮🇹', name: 'Italia' },
-  { flag: '🇯🇲', name: 'Jamaica' },
-  { flag: '🇯🇵', name: 'Japón' },
-  { flag: '🇯🇴', name: 'Jordania' },
-  { flag: '🇰🇿', name: 'Kazajistán' },
-  { flag: '🇰🇪', name: 'Kenia' },
-  { flag: '🇽🇰', name: 'Kosovo' },
-  { flag: '🇰🇼', name: 'Kuwait' },
-  { flag: '🇱🇻', name: 'Letonia' },
-  { flag: '🇱🇧', name: 'Líbano' },
-  { flag: '🇱🇷', name: 'Liberia' },
-  { flag: '🇱🇾', name: 'Libia' },
-  { flag: '🇱🇹', name: 'Lituania' },
-  { flag: '🇱🇺', name: 'Luxemburgo' },
-  { flag: '🇲🇰', name: 'Macedonia del Norte' },
-  { flag: '🇲🇬', name: 'Madagascar' },
-  { flag: '🇲🇾', name: 'Malasia' },
-  { flag: '🇲🇼', name: 'Malaui' },
-  { flag: '🇲🇱', name: 'Malí' },
-  { flag: '🇲🇹', name: 'Malta' },
-  { flag: '🇲🇦', name: 'Marruecos' },
-  { flag: '🇲🇺', name: 'Mauricio' },
-  { flag: '🇲🇷', name: 'Mauritania' },
-  { flag: '🇲🇽', name: 'México' },
-  { flag: '🇲🇩', name: 'Moldavia' },
-  { flag: '🇲🇪', name: 'Montenegro' },
-  { flag: '🇲🇿', name: 'Mozambique' },
-  { flag: '🇲🇲', name: 'Myanmar' },
-  { flag: '🇳🇦', name: 'Namibia' },
-  { flag: '🇳🇮', name: 'Nicaragua' },
-  { flag: '🇳🇪', name: 'Níger' },
-  { flag: '🇳🇬', name: 'Nigeria' },
-  { flag: '🇳🇴', name: 'Noruega' },
-  { flag: '🇳🇿', name: 'Nueva Zelanda' },
-  { flag: '🇴🇲', name: 'Omán' },
-  { flag: '🇳🇱', name: 'Países Bajos' },
-  { flag: '🇵🇰', name: 'Pakistán' },
-  { flag: '🇵🇦', name: 'Panamá' },
-  { flag: '🇵🇬', name: 'Papúa Nueva Guinea' },
-  { flag: '🇵🇾', name: 'Paraguay' },
-  { flag: '🇵🇪', name: 'Perú' },
-  { flag: '🇵🇱', name: 'Polonia' },
-  { flag: '🇵🇹', name: 'Portugal' },
-  { flag: '🇵🇷', name: 'Puerto Rico' },
-  { flag: '🇶🇦', name: 'Qatar' },
-  { flag: '🇨🇩', name: 'R.D. Congo' },
-  { flag: '🇨🇿', name: 'República Checa' },
-  { flag: '🇷🇼', name: 'Ruanda' },
-  { flag: '🇷🇴', name: 'Rumanía' },
-  { flag: '🇷🇺', name: 'Rusia' },
-  { flag: '🇸🇳', name: 'Senegal' },
-  { flag: '🇷🇸', name: 'Serbia' },
-  { flag: '🇸🇱', name: 'Sierra Leona' },
-  { flag: '🇸🇬', name: 'Singapur' },
-  { flag: '🇸🇾', name: 'Siria' },
-  { flag: '🇸🇴', name: 'Somalia' },
-  { flag: '🇱🇰', name: 'Sri Lanka' },
-  { flag: '🇸🇿', name: 'Suazilandia' },
-  { flag: '🇸🇩', name: 'Sudán' },
-  { flag: '🇸🇸', name: 'Sudán del Sur' },
-  { flag: '🇸🇪', name: 'Suecia' },
-  { flag: '🇨🇭', name: 'Suiza' },
-  { flag: '🇸🇷', name: 'Surinam' },
-  { flag: '🇹🇭', name: 'Tailandia' },
-  { flag: '🇹🇼', name: 'Taiwán' },
-  { flag: '🇹🇿', name: 'Tanzania' },
-  { flag: '🇹🇯', name: 'Tayikistán' },
-  { flag: '🇹🇱', name: 'Timor Oriental' },
-  { flag: '🇹🇬', name: 'Togo' },
-  { flag: '🇹🇹', name: 'Trinidad y Tobago' },
-  { flag: '🇹🇳', name: 'Túnez' },
-  { flag: '🇹🇲', name: 'Turkmenistán' },
-  { flag: '🇹🇷', name: 'Turquía' },
-  { flag: '🇺🇦', name: 'Ucrania' },
-  { flag: '🇺🇬', name: 'Uganda' },
-  { flag: '🇺🇾', name: 'Uruguay' },
-  { flag: '🇺🇿', name: 'Uzbekistán' },
-  { flag: '🇻🇺', name: 'Vanuatu' },
-  { flag: '🇻🇪', name: 'Venezuela' },
-  { flag: '🇻🇳', name: 'Vietnam' },
-  { flag: '🇾🇪', name: 'Yemen' },
-  { flag: '🇿🇲', name: 'Zambia' },
-  { flag: '🇿🇼', name: 'Zimbabue' },
-]
-
-var coachNationality = COACH_NATIONALITIES[0]
-
-function renderNationalities(filter) {
-  var list = document.getElementById('nat-picker-list')
-  var q = (filter || '').toLowerCase().trim()
-  var filtered = q ? COACH_NATIONALITIES.filter(function(n) {
-    return n.name.toLowerCase().indexOf(q) !== -1
-  }) : COACH_NATIONALITIES
-  var sorted = filtered.slice().sort(function(a, b) { return a.name.localeCompare(b.name, 'es') })
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') }
-  list.innerHTML = sorted.map(function(n) {
-    var active = n.flag === coachNationality.flag
-    return '<button class="cs-item' + (active ? ' cs-active' : '') + '" data-nat-flag="' + n.flag + '" data-nat-name="' + esc(n.name) + '">' +
-      '<span class="cs-flag">' + n.flag + '</span>' +
-      '<span class="cs-label">' + n.name + '</span>' +
-      '<span class="cs-check">\u2713</span></button>'
-  }).join('')
-  list.querySelectorAll('.cs-item').forEach(function(el) {
-    el.onclick = function() {
-      selectCoachNationality(el.getAttribute('data-nat-flag'), el.getAttribute('data-nat-name'))
-    }
-  })
-}
-
-function showNationalityPicker() {
-  var modal = document.getElementById('nat-picker-modal')
-  renderNationalities('')
-  modal.classList.remove('hidden')
-  requestAnimationFrame(function() { modal.classList.add('open') })
-  setTimeout(function() { document.getElementById('nat-search').focus() }, 150)
-}
-
-function selectCoachNationality(flag, name) {
-  var modal = document.getElementById('nat-picker-modal')
-  coachNationality = { flag: flag, name: name }
-  document.getElementById('ng-flag').textContent = flag
-  document.getElementById('ng-nat-name').textContent = name
-  modal.classList.remove('open')
-  setTimeout(function() { modal.classList.add('hidden') }, 250)
-}
-
-/* Close nat picker */
 document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('nat-picker-close').onclick = function() {
-    var modal = document.getElementById('nat-picker-modal')
-    modal.classList.remove('open')
-    modal.classList.add('hidden')
-  }
-  document.getElementById('nat-search').oninput = function() {
-    renderNationalities(this.value)
-  }
-
   var lmPause = document.getElementById('lm-pause')
   if (lmPause) lmPause.onclick = function() { pauseLiveMatch() }
   var lmTactics = document.getElementById('lm-tactics')
@@ -14282,7 +14018,6 @@ function showLoadMenu() {
   const content = document.getElementById('load-content')
   content.innerHTML = slots.filter(Boolean).map((save, idx) => {
     const m = save.meta || {}
-    const mgrName = m.managerName || save.coach || '—'
     const teamName = m.teamName || save.team || '—'
     const logo = m.teamLogo || save.teamLogo || ''
     const leagueName = m.leagueName || ''
@@ -14297,7 +14032,7 @@ function showLoadMenu() {
       <div class="ls-crest">${logo ? `<img src="${logo}" alt="${teamName}">` : `<div class="ls-crest-fallback">${initials}</div>`}</div>
       <div class="ls-info">
         <div class="ls-team">${teamName}</div>
-        <div class="ls-manager">${mgrName}</div>
+        <div class="ls-manager">${leagueName || ''}</div>
         <div class="ls-meta">${seasonLabel} · ${gameDate}${leagueName ? ` · ${leagueName}` : ''}</div>
       </div>
       <div class="ls-actions">
@@ -14520,7 +14255,6 @@ function showTeamInfo(teamId) {
     }
     if (teamFlag) break
   }
-  var roleLabels = { headCoach: 'Entrenador', assistantCoach: '2º Entrenador', delegate: 'Delegado', goalkeeperCoach: 'Entrenador de porteros', fitnessCoach: 'Preparador físico' }
   var teamViewTab = 'general'
   var squadTab = 'info'
   var orderedPlayers = [...team.players].sort(function(a, b) {
@@ -14531,7 +14265,11 @@ function showTeamInfo(teamId) {
 
   function renderTeamView() {
     var content = ''
-    if (teamViewTab === 'general') {
+    if (teamId === state.teamId && state.zcScreen && typeof renderZonaClubScreen === 'function') {
+      content += renderZonaClubScreen()
+    } else if (teamId !== state.teamId && ZC_VISTA && ZC_VISTA.teamId === teamId && typeof renderZonaClubScreenDe === 'function') {
+      content += renderZonaClubScreenDe(teamId)
+    } else if (teamViewTab === 'general') {
       content += '<div class="tp-stats" style="margin-bottom:6px">' +
         '<div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">' + posDisplay + '</span></div>' +
         '<div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">' + stars + '</span></div>' +
@@ -14548,7 +14286,6 @@ function showTeamInfo(teamId) {
         var balance = state.finances ? state.finances.balance : 0
         content += '<div style="padding:10px 14px;background:var(--bg);border-radius:8px;margin:0 14px 8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-secondary)">Presupuesto</span><span style="font-size:15px;font-weight:700;color:#10B981">\u20AC' + formatShort(balance) + '</span></div>'
       }
-      var coach = team.staff ? team.staff.find(function(s) { return s.role === 'headCoach' }) : null
       var captain = null
       if (teamId === state.teamId && state.captainId) {
         captain = team.players.find(function(p) { return p.id === state.captainId })
@@ -14557,12 +14294,8 @@ function showTeamInfo(teamId) {
         captain = sortedByMatches.length > 0 ? sortedByMatches[0] : null
       }
       var bestPlayer = [...team.players].sort(function(a, b) { return (b.skill || 0) - (a.skill || 0) })[0]
-      if (coach || captain || bestPlayer) {
+      if (captain || bestPlayer) {
         content += '<div class="tactics-subsection-label">Personal clave</div>'
-        if (coach) {
-          var coAv = coach.avatar || NOPHOTO
-          content += '<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="background-image:url(' + coAv + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + coach.name + '</div><div class="staff-card-meta">' + (coach.nationality || '') + '</div></div><span class="staff-card-role" style="background:var(--accent);color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Manager</span></div>'
-        }
         if (captain) {
           var caAv = captain.avatar || NOPHOTO
           content += '<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="background-image:url(' + caAv + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + captain.name + '</div><div class="staff-card-meta">' + (captain.nationality || '') + ' · ' + (POS_ABBR[captain.position] || captain.position) + '</div></div><span class="staff-card-role" style="background:var(--accent);color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Capit\u00e1n</span></div>'
@@ -14571,6 +14304,11 @@ function showTeamInfo(teamId) {
           var bpAv = bestPlayer.avatar || NOPHOTO
           content += '<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="background-image:url(' + bpAv + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + bestPlayer.name + '</div><div class="staff-card-meta">' + (bestPlayer.nationality || '') + ' · ' + (POS_ABBR[bestPlayer.position] || bestPlayer.position) + ' · ' + bestPlayer.skill + '</div></div><span class="staff-card-role" style="background:#F59E0B;color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Mejor jugador</span></div>'
         }
+      }
+      if (teamId === state.teamId && typeof renderZonaClubSection === 'function') {
+        content += renderZonaClubSection()
+      } else if (teamId !== state.teamId && typeof renderZonaClubSectionDe === 'function') {
+        content += renderZonaClubSectionDe(teamId)
       }
     } else if (teamViewTab === 'squad') {
       content += '<div class="tactics-subsection-label">PLANTILLA (' + team.players.length + ')</div>'
@@ -14838,6 +14576,8 @@ function showTeamInfo(teamId) {
       document.querySelectorAll('#view-team .sub-tab').forEach(function(b) { b.classList.remove('active') })
       btn.classList.add('active')
       teamViewTab = btn.dataset.teamtab
+      state.zcScreen = null
+      ZC_VISTA = null
       renderTeamView()
     }
   })
@@ -16250,19 +15990,11 @@ try {
   el('btn-ng-continue') && (el('btn-ng-continue').onclick = () => {
     const teams = el('ng-step-teams')
     if (teams && teams.classList.contains('ng-hidden') === false) {
-      const coachInput = el('ng-coach-input')
-      if (!coachInput || !coachInput.value.trim()) {
-        if (coachInput) { coachInput.focus(); coachInput.style.borderColor = '#EF4444' }
-        return
-      }
-      coachInput.style.borderColor = ''
       startNewGame()
     } else if (selectedCountry) {
       showTeamSelectionStep()
     }
   })
-  const coachInput = el('ng-coach-input')
-  if (coachInput) coachInput.oninput = function() { this.style.borderColor = '' }
   el('btn-tactica') && (el('btn-tactica').onclick = abrirTacticasModal)
   el('settings-close-btn') && (el('settings-close-btn').onclick = () => { const m = el('settings-modal'); if (m) m.classList.remove('open') })
   el('settings-modal') && (el('settings-modal').onclick = (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open') })
