@@ -681,6 +681,20 @@ function getAsistenciaPartido(precio) {
   return Math.round(getCapacidadEstadio() * getFactorOcupacion(precio))
 }
 
+/* Asistencia estimada de un partido con cierto margen aleatorio (±10%) */
+function getAsistenciaPartidoConVariacion(capacidad, precio) {
+  var base = Math.round(capacidad * getFactorOcupacion(precio))
+  var v = base * (0.9 + Math.random() * 0.2)
+  return Math.max(0, Math.round(v))
+}
+
+/* Asistencia estimada del estadio de un equipo ajeno (usando su config) */
+function getAsistenciaPartidoDe(teamId) {
+  var m = getZonaClubDe(teamId)
+  if (!m) return 0
+  return getAsistenciaPartidoConVariacion(getCapacidadEstadioDe(m), m.estadio.precioEntrada)
+}
+
 function getIngresosEstimadosPartido(precio) {
   var p = precio == null ? getPrecioEntrada() : precio
   return getAsistenciaPartido(p) * p

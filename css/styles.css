@@ -3098,9 +3098,9 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
 /* Phase tabs — Bundesliga de Austria (Temporada Regular / Ronda Campeonato / Ronda Descenso) */
 .phase-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 10px 16px 4px;
-  overflow-x: auto;
 }
 .phase-tab {
   padding: 6px 12px;
@@ -5257,17 +5257,16 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
 .tc-subs-grid .tp-card-name { font-size: 8px; color: var(--text); text-shadow: none; }
 .tc-subs-grid .tp-stat-skill, .tc-subs-grid .tp-stat-ene { width: 16px; height: 16px; font-size: 7px; }
 
-/* Reserves scroll */
+/* Reserves grid: filas de 6 jugadores (sin scroll horizontal) */
 .tc-reserves-scroll {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
   padding: 4px 0 8px;
-  -webkit-overflow-scrolling: touch;
   margin-bottom: 8px;
 }
 .tc-reserves-scroll::-webkit-scrollbar { display: none; }
-.tc-reserves-scroll .tp-player-card { flex-shrink: 0; }
+.tc-reserves-scroll .tp-player-card { width: 100%; }
 .tc-reserves-scroll .tp-card-name { font-size: 8px; color: var(--text); text-shadow: none; }
 .tc-reserves-scroll .tp-stat-skill, .tc-reserves-scroll .tp-stat-ene { width: 16px; height: 16px; font-size: 7px; }
 
@@ -6380,6 +6379,31 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
   margin-bottom: 10px;
   box-shadow: var(--shadow-sm);
 }
+.lm-attendance {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.lm-attendance b { color: var(--accent); font-weight: 700; }
+.lm-attendance .lm-att-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--text);
+}
+.lm-attendance .lm-att-title svg { width: 14px; height: 14px; color: var(--accent); flex-shrink: 0; }
 .lm-team {
   display: flex;
   flex-direction: column;
@@ -6618,7 +6642,7 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
 }
 .lm-ratings {
   overflow-y: auto;
-  height: 405px;
+  height: 495px;
   margin-bottom: 10px;
   min-height: 0;
 }
@@ -6652,7 +6676,7 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
   font-family: var(--font-display);
 }
 .tc-pitch-compact {
-  height: 288px !important;
+  height: 365px !important;
   margin-bottom: 2px;
   border-radius: var(--radius-sm);
 }
@@ -6821,6 +6845,9 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
   align-items: stretch;
   cursor: pointer;
   -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 .pitch-player-node .pp-avatar {
   width: 42px;
@@ -6876,7 +6903,7 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-  width: 15px;
+  min-width: 15px;
   height: 15px;
   padding: 0 3px;
   background: rgba(0,0,0,0.62);
@@ -7026,6 +7053,9 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
   font-weight: 700;
   text-align: center;
   cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
   white-space: nowrap;
 }
