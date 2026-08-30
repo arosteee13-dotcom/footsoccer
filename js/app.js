@@ -488,6 +488,133 @@
 })()
 ;
 /* ============================================================
+ * copaHolanda.js — Configuracion y ayudantes de la Copa de los
+ * Países Bajos (KNVB Beker).
+ *
+ * Formato: cuadro eliminatorio a partido unico que comienza en los
+ * 1/32 de final, cuando entran los 18 equipos de la Eredivisie junto
+ * a los conjuntos de Segunda División (representados por equipos
+ * modesto regionales). La localía se sortea: si un equipo de Primera
+ * visita el estadio de uno de categoría inferior, el de Segunda es
+ * el local.
+ *
+ *   - Empate a los 90': prórroga (2x15'); si sigue empatado, penaltis.
+ *   - Convocatoria: 21 jugadores (11 titulares + 10 suplentes).
+ *   - Cambios: máximo 5 en 3 ventanas en tiempo regular; en prórroga
+ *     cada equipo recibe 1 cambio adicional (total 6) y 1 ventana de
+ *     sustitución extra.
+ *   - Premio mayor: el campeón se clasifica directo a la Europa League
+ *     (Fase de liga), sin importar su posición en la liga.
+ * ============================================================ */
+(function () {
+  'use strict'
+
+  /* Nombre, logo y trofeo de la competición. */
+  var CONFIG = {
+    id: 'copa_holanda',
+    countryId: 'netherlands',
+    name: 'Copa de los Países Bajos',
+    shortName: 'KNVB Beker',
+    logo: 'https://cdn.resfu.com/media/img/league_logos/beker.png?size=120x&lossy=1',
+    trofeo: 'https://cdn.resfu.com/img_data/competiciones/copa/524.png?size=120x&lossy=1',
+  }
+
+  /* Seis rondas eliminatorias (32 → 1 campeón, partido único). */
+  var SCHEDULE = [
+    { week: 4, label: '1/32' },
+    { week: 9, label: '1/16' },
+    { week: 15, label: 'Octavos' },
+    { week: 21, label: 'Cuartos' },
+    { week: 27, label: 'Semifinal' },
+    { week: 34, label: 'Final' },
+  ]
+
+  /* La prórroga (y por tanto el 6º cambio + 4ª ventana) se aplica en
+     todas las rondas de la KNVB Beker, salvo la primera (1/32). */
+  function hasExtraTime(roundIdx) {
+    return roundIdx > 0
+  }
+
+  /* Normas de convocatoria y sustituciones.
+   *   { isCup, isExtraTime } ->
+   *   { bench, maxSubs, maxWindows }
+   * En partido con prórroga se permite el 6º cambio y la 4ª ventana. */
+  function getSubRules(opts) {
+    opts = opts || {}
+    if (opts.isCup) {
+      if (opts.isExtraTime) {
+        return { bench: 10, maxSubs: 6, maxWindows: 4 }
+      }
+      return { bench: 10, maxSubs: 5, maxWindows: 3 }
+    }
+    return { bench: 10, maxSubs: 5, maxWindows: 3 }
+  }
+
+  /* Banda de ventana de sustitución según el minuto del partido:
+   *   0-45   -> 1
+   *   45-90  -> 2
+   *   90-105 -> 3 (prórroga)
+   *   105+   -> 4 (prórroga) */
+  function getSubWindow(minute) {
+    minute = minute || 0
+    if (minute <= 45) return 1
+    if (minute <= 90) return 2
+    if (minute <= 105) return 3
+    return 4
+  }
+
+  /* Equipos modesto regionales holandeses que, junto con los 18 equipos
+     de la Eredivisie, completan el cuadro de 32 de la primera ronda.
+     Se les trata como conjuntos de categoría inferior (Segunda), por lo
+     que ejercen de local cuando se cruzan con un club de Primera. */
+  var REGIONAL_NAMES = [
+    'FC Volendam', 'De Graafschap', 'Roda JC Kerkrade', 'MVV Maastricht',
+    'VVV-Venlo', 'FC Dordrecht', 'FC Den Bosch', 'FC Eindhoven',
+    'TOP Oss', 'Helmond Sport', 'SC Emmen', 'Vitesse',
+    'NAC Breda', 'Almere City', 'RKC Waalwijk', 'VV Katwijk',
+    'SV Spakenburg', 'FC Lisse', 'Quick Boys', 'De Treffers',
+    'SC Telstar II', 'Jong Heerenveen',
+  ]
+
+  /* Inicializa (una sola vez) el mapa global de equipos modesto
+     regionales holandeses para que el resto del juego (nombres, logos,
+     valoraciones) pueda resolver sus ids. */
+  function initModestoMap() {
+    if (window._MODESTO_HOLANDA_MAP) return window._MODESTO_HOLANDA_MAP
+    var map = {}
+    for (var i = 0; i < REGIONAL_NAMES.length; i++) {
+      var id = 'nlr-' + (i + 1)
+      map[id] = {
+        id: id,
+        name: REGIONAL_NAMES[i],
+        nombre: REGIONAL_NAMES[i],
+        rating: 38 + (i % 10),
+        logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
+      }
+    }
+    window._MODESTO_HOLANDA_MAP = map
+    return map
+  }
+
+  function getRegionalTeams(count) {
+    var map = initModestoMap()
+    var keys = Object.keys(map)
+    var n = count == null ? keys.length : Math.min(count, keys.length)
+    return keys.slice(0, n)
+  }
+
+  window.KnvbCopa = {
+    config: CONFIG,
+    schedule: SCHEDULE,
+    hasExtraTime: hasExtraTime,
+    getSubRules: getSubRules,
+    getSubWindow: getSubWindow,
+    initModestoMap: initModestoMap,
+    getRegionalTeams: getRegionalTeams,
+  }
+})()
+;
+/* ============================================================
    ZONA DEL CLUB — Núcleo (estado, config, obras, modales)
    Cargado antes de app.js. Las pantallas dedicadas viven en
    zonaClubCards.js (tarjetas), instalacionesView.js y
@@ -958,7 +1085,25 @@ var ZC_CLUBES_INICIAL = {
   's2-16': { nombre: 'Est\u00e1dio Manuel Marques', capacidad: 4000, precioMin: 8, precioMax: 28, entrenamiento: 8, cantera: 9, zonas: { esquina1: 1, esquina2: 1, esquina3: 1, esquina4: 1, tribuna1: 2, tribuna2: 2, fondo1: 2, fondo2: 2 } },
   's2-8': { nombre: 'Est\u00e1dio Dr. Machado de Matos', capacidad: 7540, precioMin: 8, precioMax: 28, entrenamiento: 8, cantera: 8, zonas: { esquina1: 1, esquina2: 1, esquina3: 1, esquina4: 1, tribuna1: 4, tribuna2: 3, fondo1: 2, fondo2: 2 } },
   's2-10': { nombre: 'Est\u00e1dio do Lusit\u00e2nia', capacidad: 8000, precioMin: 8, precioMax: 30, entrenamiento: 8, cantera: 9, zonas: { esquina1: 2, esquina2: 2, esquina3: 2, esquina4: 2, tribuna1: 4, tribuna2: 3, fondo1: 3, fondo2: 3 } },
-  's2-2': { nombre: 'Est\u00e1dio Municipal de Amarante', capacidad: 5000, precioMin: 7, precioMax: 25, entrenamiento: 7, cantera: 8, zonas: { esquina1: 1, esquina2: 1, esquina3: 1, esquina4: 1, tribuna1: 3, tribuna2: 2, fondo1: 1, fondo2: 1 } }
+  's2-2': { nombre: 'Est\u00e1dio Municipal de Amarante', capacidad: 5000, precioMin: 7, precioMax: 25, entrenamiento: 7, cantera: 8, zonas: { esquina1: 1, esquina2: 1, esquina3: 1, esquina4: 1, tribuna1: 3, tribuna2: 2, fondo1: 1, fondo2: 1 } },
+  'ajax': { nombre: 'Johan Cruijff ArenA', capacidad: 55885, precioMin: 30, precioMax: 90, entrenamiento: 15, cantera: 15, zonas: { esquina1: 13, esquina2: 13, esquina3: 13, esquina4: 13, tribuna1: 14, tribuna2: 14, fondo1: 12, fondo2: 13 } },
+  'psv': { nombre: 'Philips Stadion', capacidad: 35119, precioMin: 20, precioMax: 75, entrenamiento: 14, cantera: 14, zonas: { esquina1: 9, esquina2: 9, esquina3: 9, esquina4: 9, tribuna1: 10, tribuna2: 10, fondo1: 9, fondo2: 10 } },
+  'feyenoord': { nombre: 'De Kuip', capacidad: 51117, precioMin: 25, precioMax: 85, entrenamiento: 14, cantera: 15, zonas: { esquina1: 13, esquina2: 13, esquina3: 13, esquina4: 13, tribuna1: 14, tribuna2: 14, fondo1: 13, fondo2: 13 } },
+  'az-alkmaar': { nombre: 'AFAS Stadion', capacidad: 19478, precioMin: 14, precioMax: 50, entrenamiento: 13, cantera: 14, zonas: { esquina1: 6, esquina2: 6, esquina3: 6, esquina4: 6, tribuna1: 7, tribuna2: 7, fondo1: 6, fondo2: 7 } },
+  'twente': { nombre: 'De Grolsch Veste', capacidad: 30205, precioMin: 15, precioMax: 55, entrenamiento: 11, cantera: 12, zonas: { esquina1: 8, esquina2: 8, esquina3: 8, esquina4: 8, tribuna1: 9, tribuna2: 9, fondo1: 8, fondo2: 9 } },
+  'utrecht': { nombre: 'Stadion Galgenwaard', capacidad: 23750, precioMin: 14, precioMax: 52, entrenamiento: 11, cantera: 11, zonas: { esquina1: 5, esquina2: 5, esquina3: 5, esquina4: 5, tribuna1: 8, tribuna2: 8, fondo1: 7, fondo2: 8 } },
+  'groningen': { nombre: 'Euroborg', capacidad: 22525, precioMin: 12, precioMax: 48, entrenamiento: 11, cantera: 11, zonas: { esquina1: 7, esquina2: 7, esquina3: 7, esquina4: 7, tribuna1: 8, tribuna2: 8, fondo1: 7, fondo2: 6 } },
+  'heerenveen': { nombre: 'Abe Lenstra Stadion', capacidad: 27224, precioMin: 12, precioMax: 48, entrenamiento: 11, cantera: 12, zonas: { esquina1: 7, esquina2: 7, esquina3: 7, esquina4: 7, tribuna1: 9, tribuna2: 9, fondo1: 7, fondo2: 8 } },
+  'nec-nijmegen': { nombre: 'Goffertstadion', capacidad: 12500, precioMin: 11, precioMax: 42, entrenamiento: 10, cantera: 11, zonas: { esquina1: 4, esquina2: 4, esquina3: 4, esquina4: 4, tribuna1: 5, tribuna2: 5, fondo1: 5, fondo2: 5 } },
+  'sparta-rotterdam': { nombre: 'Sparta Stadion Het Kasteel', capacidad: 11026, precioMin: 12, precioMax: 45, entrenamiento: 10, cantera: 13, zonas: { esquina1: 4, esquina2: 4, esquina3: 4, esquina4: 4, tribuna1: 5, tribuna2: 5, fondo1: 4, fondo2: 4 } },
+  'go-ahead-eagles': { nombre: 'De Adelaarshorst', capacidad: 10400, precioMin: 11, precioMax: 40, entrenamiento: 9, cantera: 10, zonas: { esquina1: 2, esquina2: 2, esquina3: 2, esquina4: 2, tribuna1: 5, tribuna2: 4, fondo1: 4, fondo2: 4 } },
+  'pec-zwolle': { nombre: 'MAC 3PARK Stadion', capacidad: 14000, precioMin: 10, precioMax: 38, entrenamiento: 9, cantera: 10, zonas: { esquina1: 5, esquina2: 5, esquina3: 5, esquina4: 5, tribuna1: 6, tribuna2: 6, fondo1: 5, fondo2: 5 } },
+  'fortuna-sittard': { nombre: 'Fortuna Sittard Stadion', capacidad: 12500, precioMin: 10, precioMax: 36, entrenamiento: 9, cantera: 9, zonas: { esquina1: 4, esquina2: 4, esquina3: 4, esquina4: 4, tribuna1: 5, tribuna2: 5, fondo1: 4, fondo2: 4 } },
+  'ado-den-haag': { nombre: 'Bingoal Stadion', capacidad: 15000, precioMin: 11, precioMax: 42, entrenamiento: 10, cantera: 10, zonas: { esquina1: 5, esquina2: 5, esquina3: 5, esquina4: 5, tribuna1: 6, tribuna2: 6, fondo1: 5, fondo2: 5 } },
+  'willem-ii': { nombre: 'Koning Willem II Stadion', capacidad: 14700, precioMin: 11, precioMax: 40, entrenamiento: 10, cantera: 11, zonas: { esquina1: 5, esquina2: 5, esquina3: 5, esquina4: 5, tribuna1: 6, tribuna2: 6, fondo1: 5, fondo2: 6 } },
+  'excelsior': { nombre: 'Van Donge & De Roo Stadion', capacidad: 4400, precioMin: 9, precioMax: 32, entrenamiento: 9, cantera: 10, zonas: { esquina1: 1, esquina2: 1, esquina3: 1, esquina4: 1, tribuna1: 2, tribuna2: 2, fondo1: 1, fondo2: 2 } },
+  'cambuur': { nombre: 'Kesselkaat Stadion', capacidad: 15000, precioMin: 10, precioMax: 38, entrenamiento: 10, cantera: 10, zonas: { esquina1: 5, esquina2: 5, esquina3: 5, esquina4: 5, tribuna1: 6, tribuna2: 6, fondo1: 5, fondo2: 5 } },
+  'telstar': { nombre: '711 Stadion', capacidad: 3625, precioMin: 8, precioMax: 28, entrenamiento: 8, cantera: 9, zonas: { esquina1: 1, esquina2: 1, esquina3: 1, esquina4: 1, tribuna1: 2, tribuna2: 1, fondo1: 1, fondo2: 1 } }
 }
 
 /* ---------- Estado ---------- */
@@ -1315,7 +1460,7 @@ function procesarObrasClub() {
 
 function openZonaClubView(screen) {
   if (!state || !state.teamId) return
-  if (['entrenamiento', 'cantera', 'estadio'].indexOf(screen) < 0) return
+  if (['entrenamiento', 'cantera', 'estadio', 'patrocinadores'].indexOf(screen) < 0) return
   state.zcScreen = screen
   if (typeof showTeamInfo === 'function') showTeamInfo(state.teamId)
 }
@@ -1331,6 +1476,7 @@ function renderZonaClubScreen() {
   var screen = state.zcScreen
   if (screen === 'estadio' && typeof renderEstadioScreen === 'function') return renderEstadioScreen()
   if ((screen === 'entrenamiento' || screen === 'cantera') && typeof renderInstalacionesScreen === 'function') return renderInstalacionesScreen(screen)
+  if (screen === 'patrocinadores' && typeof renderPatrocinadoresScreen === 'function') return renderPatrocinadoresScreen()
   return ''
 }
 
@@ -1640,6 +1786,19 @@ function renderZonaClubCards() {
     'openZonaClubView(\'estadio\')'
   )
 
+  /* 4.ª tarjeta: Patrocinadores y Comercial */
+  var slotsSponsor = (state.sponsors && state.sponsors.slots) ? state.sponsors.slots : {}
+  var firmados = Object.keys(slotsSponsor).filter(function(k) { return slotsSponsor[k] }).length
+  var metaSponsor = firmados > 0 ? firmados + '/4 slots firmados' : 'Pendiente de firma'
+  var iconoSponsor = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6"/><path d="M9 16h6"/><path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M3 10h18"/></svg>'
+  html += zcCardMini(
+    iconoSponsor,
+    'Patrocinadores',
+    'Comercial y patrocinio del club.',
+    metaSponsor,
+    'openZonaClubView(\'patrocinadores\')'
+  )
+
   html += '</div>'
   return html
 }
@@ -1653,6 +1812,47 @@ function zcCardMini(icono, titulo, descripcion, meta, handlersJson) {
     '<span class="zc-btn zc-btn-ghost zc-card-mini-btn">Ver m\u00e1s</span>' +
   '</div>'
 }
+
+/* Pantalla dedicada de Patrocinadores (4 slots). */
+function renderPatrocinadoresScreen() {
+  var zc = getZonaClub()
+  var slots = (state.sponsors && state.sponsors.slots) ? state.sponsors.slots : { principal: null, tecnico: null, secundarios: null, naming: null }
+  var html = zcScreenHead('Patrocinadores y Comercial', 'Ingresos de patrocinio por temporada')
+  html += '<div class="sponsor-grid">'
+  Object.keys(SPONSOR_SLOTS).forEach(function(cat) {
+    var cfg = SPONSOR_SLOTS[cat]
+    var contrato = slots[cat]
+    html += zcPatrocinioSlot(cat, cfg, contrato, zc)
+  })
+  html += '</div>'
+  html += '<div class="zc-hint" style="margin:10px 14px 16px;font-size:12px;color:var(--text-muted)">Revisa la bandeja de entrada para firmar o rechazar las ofertas de cada categor\u00eda.</div>'
+  return html
+}
+
+function zcPatrocinioSlot(cat, cfg, contrato, zc) {
+  var html = '<div class="sponsor-slot">'
+  html += '<div class="sponsor-slot-head">'
+  html += '<div class="sponsor-slot-title">' + (cfg ? cfg.label : cat) + '</div>'
+  html += '<div class="sponsor-slot-sub">' + (cfg ? cfg.desc : '') + '</div>'
+  html += '</div>'
+  var cuerpo = '<div class="sponsor-slot-body">'
+  if (contrato) {
+    cuerpo += '<div class="sponsor-contract">'
+    cuerpo += '<div class="sponsor-brand"><span class="sponsor-brand-name">' + escHtml(contrato.brand) + '</span></div>'
+    cuerpo += '<div class="sponsor-line"><span>Fijo anual</span><strong>' + formatMoney(contrato.anual) + '</strong></div>'
+    cuerpo += '<div class="sponsor-line"><span>Duraci\u00f3n</span><strong>' + contrato.anios + ' a\u00f1os</strong></div>'
+    if (contrato.bonusObjetivo > 0) cuerpo += '<div class="sponsor-line"><span>Bonus</span><strong>' + formatMoney(contrato.bonusObjetivo) + '</strong></div>' +
+      '<div class="sponsor-bonus-desc">Se paga al final de temporada si: ' + escHtml(contrato.descBonus || '') + '</div>'
+    cuerpo += '</div>'
+  } else {
+    cuerpo += '<div class="sponsor-empty">Pendiente de firma</div>'
+  }
+  cuerpo += '</div>'
+  html += cuerpo
+  html += '</div>'
+  return html
+}
+
 ;
 /* ============================================================
    ZONA DEL CLUB — Pantallas dedicadas de instalaciones
@@ -1919,9 +2119,9 @@ const MIN_MC = 2
 const MIN_FW = 2
 
 const GAME_PLANS = {
-  pesado:     { label: 'Pesada',     desc: 'Presión intensa y constante sobre el rival.', attack: 1.3, defense: 1.3, drain: 15, events: 1.15 },
-  extremo:    { label: 'Extrema',    desc: 'Estilo muy intenso, todo o nada.', attack: 1.5, defense: 0.8, drain: 18, events: 1.30 },
-  suave:      { label: 'Suave',      desc: 'Estilo relajado, prioriza la conservación de energía.', attack: 0.8, defense: 1.1, drain: 6, events: 0.80 },
+  pesado:     { label: 'Pesada',     desc: 'Presión intensa y constante sobre el rival.', attack: 1.3, defense: 1.3, drain: 22, events: 1.15 },
+  extremo:    { label: 'Extrema',    desc: 'Estilo muy intenso, todo o nada.', attack: 1.5, defense: 0.8, drain: 28, events: 1.30 },
+  suave:      { label: 'Suave',      desc: 'Estilo relajado, prioriza la conservación de energía.', attack: 0.8, defense: 1.1, drain: 10, events: 0.80 },
 }
 
 const MAX_SQUAD = 30
@@ -2398,7 +2598,7 @@ function generateCpuPlayer(teamId, countryId, teamRating, position, overrides) {
   const skill = overrides && overrides.skill != null ? overrides.skill : randInt(minS, maxS)
   const age = overrides && overrides.age != null ? overrides.age : randInt(20, 35)
   const foot = overrides && overrides.foot ? overrides.foot : pickRandom(['DER', 'IZQ'])
-  return {
+  const player = {
     id: `${teamId}-cpu-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     name: `${first} ${sur}`,
     position: position,
@@ -2418,6 +2618,8 @@ function generateCpuPlayer(teamId, countryId, teamRating, position, overrides) {
     _suspended: null,
     _redType: null,
   }
+  ensurePlayerPotencial(player)
+  return player
 }
 
 function normalizarPlantillas() {
@@ -2464,7 +2666,7 @@ function rebuildGlobalPlayerPool() {
 }
 
 function generateCpuSquad(teamId, countryId, teamRating) {
-  const cid = countryId || 'es'
+  const cid = getNatCodeForCountry(countryId || 'es')
   const minS = Math.max(30, (teamRating || 70) - 15)
   const maxS = Math.min(99, (teamRating || 70))
   const nat = NATIONALITIES[cid] || NATIONALITIES.es
@@ -2496,6 +2698,7 @@ function generateCpuSquad(teamId, countryId, teamRating) {
       })
     }
   }
+  players.forEach(function(p) { ensurePlayerPotencial(p) })
   return players
 }
 
@@ -2509,6 +2712,7 @@ const COUNTRIES = [
   { id: 'portugal', name: 'Portugal', flag: '🇵🇹' },
   { id: 'austria', name: 'Austria', flag: '🇦🇹' },
   { id: 'belgium', name: 'Bélgica', flag: '🇧🇪' },
+  { id: 'netherlands', name: 'Países Bajos', flag: '🇳🇱' },
 ]
 
 window.DB = window.DB || {}
@@ -2596,7 +2800,7 @@ function createDummyTeam(name, id, countryId) {
 }
 
 function getNatCodeForCountry(countryId) {
-  var map = { spain: 'es', portugal: 'pt', italy: 'it', brazil: 'br', argentina: 'ar', poland: 'pl' }
+  var map = { spain: 'es', portugal: 'pt', italy: 'it', brazil: 'br', argentina: 'ar', poland: 'pl', netherlands: 'nl' }
   return map[countryId] || 'es'
 }
 
@@ -2735,7 +2939,10 @@ const state = {
   selectedPlayerId: null,
   captainId: null,
   inbox: [],
+  inboxFilter: 'all',
   soundEnabled: true,
+  _popupShownMatchday: null,
+  _popupSuppressed: false,
   filialSquad: [],
   filial2Squad: [],
   leagueViewCountry: '',
@@ -2747,6 +2954,7 @@ const state = {
   loanPool: [],
   boughtPlayerIds: [],
   presupuestoInicial: 0,
+  sponsors: { slots: { principal: null, tecnico: null, secundarios: null, naming: null }, generated: false },
   cup: null,
   supercopa: null,
   tacaDaLiga: null,
@@ -2782,6 +2990,227 @@ function escHtml(str) {
 function formatMoney(amount) {
   const fmt = Math.abs(amount).toLocaleString('es-ES', { useGrouping: true })
   return amount >= 0 ? `${fmt} €` : `-${fmt} €`
+}
+
+/* ============ PATROCINADORES Y COMERCIAL (SPONSORSHIP) ============
+   Cuatro categorías de slots: Principal (pecho), Técnico (ropa),
+   Secundarios (mangas/pantalón) y Naming Rights (nombre del estadio).
+   Los importes se generan aleatoriamente según el prestigio/división del
+   club. El jugador firma o rechaza desde la bandeja de entrada. */
+
+var SPONSOR_SLOTS = {
+  principal:  { label: 'Patrocinador Principal', desc: 'Pecho',       anios: [2, 3, 4],   bonusTypo: 'europa' },
+  tecnico:    { label: 'Patrocinador T\u00e9cnico', desc: 'Ropa',        anios: [2, 3],     bonusTypo: 'top8' },
+  secundarios:{ label: 'Patrocinadores Secundarios', desc: 'Mangas / Pantal\u00f3n', anios: [1, 2], bonusTypo: 'copa' },
+  naming:     { label: 'Naming Rights',         desc: 'Nombre del Estadio', anios: [3, 5], bonusTypo: 'ninguno' },
+}
+
+var SPONSOR_BRANDS = {
+  principal: [
+    { name: 'Nike',        logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Adidas',      logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Puma',        logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Emirates',    logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Fly Emirates',logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Coca-Cola',   logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Spotify',     logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'EA Sports',   logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+  ],
+  tecnico: [
+    { name: 'Adidas',  logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Nike',    logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'hummel',  logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'JAKO',    logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Craft',   logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Macron',  logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+  ],
+  secundarios: [
+    { name: 'Vodafone', logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'KPN',      logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'KIA',      logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Amstel',   logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Heineken', logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Microsoft',logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+  ],
+  naming: [
+    { name: 'Johan Cruijff ArenA',  logo: 'https://cdn.resfu.com/media/img/league_logos/eredivisix.png?size=120x&lossy=1' },
+    { name: 'De Kuip',              logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Philips Stadion',      logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'AFAS Stadion',         logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Ebony',                logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+    { name: 'Stadion',              logo: 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1' },
+  ],
+}
+
+/* Multiplicador de prestigio según la división y presupuesto del club. */
+function getPatrocinioPrestigio() {
+  var base = (typeof getDivisionBaseBudget === 'function') ? getDivisionBaseBudget(state.leagueId) : 10000000
+  var mult = (typeof getCountryBudgetMult === 'function') ? getCountryBudgetMult(state.countryId) : 1.0
+  return Math.max(1, (base * mult) / 8000000)
+}
+
+/* Rango de importe anual (€) por categoría, escalado al prestigio. */
+function getRangoPatrocinio(cat) {
+  var p = getPatrocinioPrestigio()
+  var rangos = {
+    principal: [Math.round(2500000 * p), Math.round(9000000 * p)],
+    tecnico:   [Math.round(800000 * p), Math.round(2500000 * p)],
+    secundarios:[Math.round(400000 * p), Math.round(1200000 * p)],
+    naming:    [Math.round(1500000 * p), Math.round(5000000 * p)],
+  }
+  return rangos[cat] || [Math.round(500000 * p), Math.round(1500000 * p)]
+}
+
+/* Genera una oferta aleatoria de una categoría. */
+function generarOfertaPatrocinio(cat) {
+  var brands = SPONSOR_BRANDS[cat] || []
+  var slot = SPONSOR_SLOTS[cat]
+  var brand = brands[Math.floor(Math.random() * brands.length)] || { name: 'Marca', logo: '' }
+  var rango = getRangoPatrocinio(cat)
+  var anual = Math.round((rango[0] + Math.random() * (rango[1] - rango[0])) / 10000) * 10000
+  var anios = (slot && slot.anios && slot.anios[Math.floor(Math.random() * slot.anios.length)]) || 3
+  var descBonus = '', bonusObjetivo = 0
+  if (cat === 'principal') {
+    bonusObjetivo = Math.round(anual * (0.3 + Math.random() * 0.4))
+    descBonus = 'Clasificar a la Europa League'
+  } else if (cat === 'tecnico') {
+    bonusObjetivo = Math.round(anual * (0.2 + Math.random() * 0.3))
+    descBonus = 'Terminar en el Top 8 de la liga'
+  } else if (cat === 'secundarios') {
+    bonusObjetivo = Math.round(anual * (0.15 + Math.random() * 0.25))
+    descBonus = 'Ganar la Copa Nacional'
+  }
+  return { brand: brand.name, logo: brand.logo, anual: anual, anios: anios, bonusObjetivo: bonusObjetivo, descBonus: descBonus }
+}
+
+/* Genera las 4 ofertas iniciales de patrocinio (una por categoría). */
+/* Ofertas iniciales al crear la partida (una sola vez, para todos los slots). */
+function generarOfertasPatrocinioIniciales() {
+  if (!state.sponsors) state.sponsors = { slots: { principal: null, tecnico: null, secundarios: null, naming: null }, generated: false }
+  if (state.sponsors.generated) return
+  state.sponsors.generated = true
+  var cats = ['principal', 'tecnico', 'secundarios', 'naming']
+  cats.forEach(function(cat) { emitirOfertaPatrocinioCat(cat) })
+}
+
+/* Firma, rechaza o deja pendiente un slot de patrocinio. */
+function firmarPatrocinio(catid, oferta) {
+  if (!state.sponsors) state.sponsors = { slots: { principal: null, tecnico: null, secundarios: null, naming: null }, generated: true }
+  var tempo = state.seasonNumber || 1
+  state.sponsors.slots[catid] = {
+    brand: oferta.brand, logo: oferta.logo, anual: oferta.anual, anios: oferta.anios,
+    bonusObjetivo: oferta.bonusObjetivo, descBonus: oferta.descBonus,
+    temporadaFirma: tempo, expiraTemporada: tempo + (oferta.anios || 1),
+    firmadoEn: state.currentMatchday || 1,
+  }
+  /* Naming Rights: renombra el estadio con sufijo sin apilar. */
+  if (catid === 'naming') {
+    var zc = getZonaClub()
+    if (zc && zc.estadio) {
+      if (!zc.estadio.nombreOriginal) zc.estadio.nombreOriginal = zc.estadio.nombre
+      zc.estadio.nombre = zc.estadio.nombreOriginal + ' ' + oferta.brand
+    }
+  }
+  addNotification('general', '\ud83d\udcb0 Contrato firmado con ' + oferta.brand, (SPONSOR_SLOTS[catid] ? SPONSOR_SLOTS[catid].label : catid) + ' \u00b7 ' + formatMoney(oferta.anual) + '/a\u00f1o por ' + oferta.anios + ' a\u00f1os')
+}
+
+/* ¿El slot tiene una oferta de patrocinio pendiente sin resolver en el inbox? */
+function slotTieneOfertaPendiente(catid) {
+  return (state.inbox || []).some(function(n) {
+    return n && n.type === 'sponsor' && n.sponsor && (n.sponsor.catid === catid || n.sponsor.categoriaPatrocinio === catid)
+  })
+}
+
+/* Restaura el nombre original del estadio si un Naming Rights expira sin renovar. */
+function revertirNamingRightsSiVacio() {
+  var zc = getZonaClub()
+  if (zc && zc.estadio && zc.estadio.nombreOriginal) {
+    zc.estadio.nombre = zc.estadio.nombreOriginal
+  }
+}
+
+/* Genera ofertas de patrocinio al inicio de cada temporada:
+   - Slots vacíos → SIEMPRE ofertas nuevas.
+   - Contrato activo (expira > temporada) → NO se toca.
+   - Contrato que expira este año → ofertas de RENOVACIÓN; si no se renueva
+     y es Naming Rights, se quita el sufijo del estadio. */
+function generarOfertasPatrocinioRenovacion() {
+  if (!state.sponsors) return
+  var tempo = state.seasonNumber || 1
+  Object.keys(SPONSOR_SLOTS).forEach(function(cat) {
+    var contrato = state.sponsors.slots[cat]
+    if (!contrato) {
+      /* Vacante: nueva oferta cada temporada hasta firmar. */
+      if (!slotTieneOfertaPendiente(cat)) emitirOfertaPatrocinioCat(cat)
+      return
+    }
+    var expira = contrato.expiraTemporada || (contrato.temporadaFirma || 1) + (contrato.anios || 1)
+    if (tempo < expira) return /* Contrato activo: corre solo. */
+    /* Contrato expirado: el patrocinio ya no está vigente. Si es Naming
+       Rights, se quita el sufijo del estadio. Luego se ofrece renovación. */
+    if (cat === 'naming') {
+      state.sponsors.slots.naming = null
+      revertirNamingRightsSiVacio()
+    } else {
+      state.sponsors.slots[cat] = null
+    }
+    if (!slotTieneOfertaPendiente(cat)) emitirOfertaPatrocinioCat(cat)
+  })
+}
+
+function emitirOfertaPatrocinioCat(cat) {
+  var ofertas = []
+  for (var i = 0; i < 3; i++) ofertas.push(generarOfertaPatrocinio(cat))
+  var slot = SPONSOR_SLOTS[cat]
+  addNotification('sponsor', 'Ofertas de ' + (slot ? slot.label : cat), 'Hay 3 propuestas de patrocinio disponibles para esta categor\u00eda.', { categoriaPatrocinio: cat, catid: cat, categoria: cat, ofertas: ofertas })
+}
+
+function rechazarPatrocinio(catid) {
+  /* Deja el slot pendiente (vacío). Solo notifica. */
+  addNotification('general', 'Oferta de ' + (SPONSOR_SLOTS[catid] ? SPONSOR_SLOTS[catid].label : catid) + ' rechazada', 'Puedes buscar otros patrocinadores m\u00e1s adelante.')
+}
+
+/* Ingreso semanal (prorrateado) de los patrocinios firmados. */
+function procesarIngresosPatrocinio() {
+  if (!state.sponsors || !state.sponsors.slots) return
+  Object.keys(state.sponsors.slots).forEach(function(cat) {
+    var c = state.sponsors.slots[cat]
+    if (!c || !c.anual) return
+    var semanas = Math.max(1, (state.totalMatchdays || 34))
+    var ingreso = Math.round(c.anual / semanas)
+    if (ingreso > 0) {
+      state.finances.balance += ingreso
+      state.finances.history.push({ reason: 'Patrocinio: ' + c.brand, amount: ingreso })
+    }
+  })
+}
+
+/* Verifica y paga el bonus por objetivos al final de temporada. */
+function procesarBonusPatrocinioFinTemporada() {
+  if (!state.sponsors || !state.sponsors.slots) return
+  var pos = null
+  try {
+    var standings = updateLeagueStandings()
+    var idx = standings.findIndex(function(s) { return s.teamId === state.teamId })
+    if (idx >= 0) pos = idx + 1
+  } catch (e) { pos = null }
+  var europa = (pos != null && pos <= 4)
+  var ganadaCopa = state.cupChampion === state.teamId
+  Object.keys(state.sponsors.slots).forEach(function(cat) {
+    var c = state.sponsors.slots[cat]
+    if (!c || !c.bonusObjetivo || c._bonusPagado) return
+    var cumple = false
+    if (cat === 'principal') { cumple = europa }
+    else if (cat === 'tecnico') { cumple = (pos != null && pos <= 8) }
+    else if (cat === 'secundarios') { cumple = ganadaCopa }
+    else { cumple = false }
+    if (cumple) {
+      state.finances.balance += c.bonusObjetivo
+      state.finances.history.push({ reason: 'Bonus patrocinio: ' + c.brand, amount: c.bonusObjetivo })
+      addNotification('general', '\ud83c\udfc6 \u00a1Bonus de ' + c.brand + '!', 'Objetivo cumplido: ' + c.descBonus + ' \u00b7 ' + formatMoney(c.bonusObjetivo))
+    }
+    c._bonusPagado = true
+  })
 }
 
 /* ============ COPA / CUP SYSTEM ============ */
@@ -2939,18 +3368,74 @@ function isL2pTeam(teamId) {
   return l2p.some(function(t) { return t.id === teamId || t.teamId === teamId })
 }
 
-function getCupReward(roundIdx) {
-  if (state.countryId === 'portugal') {
-    var rewardsPt = [100000, 250000, 500000, 1000000, 1500000, 3000000]
-    return rewardsPt[roundIdx] || 0
-  }
-  var rewards = [50000, 100000, 250000, 500000, 1000000, 2000000, 5000000]
-  return rewards[roundIdx] || 0
+/* ============ PREMIOS POR COMPETICIONES (COPAS Y SUPERCOPAS) ============
+   Sistema híbrido: tabla base fija por fase (×1.0) escalada por el
+   multiplicador de liga/país según el nivel del país (Tier 1-5). */
+
+/* Multiplicador de liga según el país/comptención. */
+function getLeagueTierMultiplier(countryId, comp) {
+  comp = comp || 'cup'
+  if (comp === 'efl_cup') return 1.5                      /* Copa de la Liga inglesa */
+  if (countryId === 'spain' || countryId === 'england') return 2.5   /* Tier 1 */
+  if (countryId === 'germany' || countryId === 'italy' || countryId === 'france') return 2.0  /* Tier 2 */
+  if (countryId === 'netherlands' || countryId === 'portugal') return 1.5  /* Tier 3 */
+  if (countryId === 'austria' || countryId === 'belgium' || countryId === 'poland') return 1.0  /* Tier 4 */
+  return 1.0
 }
 
-function getCupRewardLoss(roundIdx) {
-  var losses = [0, 0, 0, 0, 0, 0, 500000]
-  return losses[roundIdx] || 0
+/* Índice de fase (0-6) a partir de la etiqueta de ronda del cuadro.
+   0=Previa, 1=1/64, 2=1/32, 3=1/16, 4=Octavos(1/8), 5=Cuartos(1/4),
+   6=Semifinal. La Final (7) se resuelve aparte con Campeón/Subcampeón. */
+function getKoPhaseIndex(roundLabel) {
+  var l = String(roundLabel || '').toLowerCase()
+  if (l.indexOf('semifinal') >= 0 || l.indexOf('semi') >= 0) return 6
+  if (l.indexOf('final') >= 0) return 7
+  if (l.indexOf('cuarto') >= 0 || l.indexOf('1/4') >= 0 || l.indexOf('quarter') >= 0) return 5
+  if (l.indexOf('octavo') >= 0 || l.indexOf('1/8') >= 0) return 4
+  if (l.indexOf('1/16') >= 0 || l.indexOf('16') >= 0) return 3
+  if (l.indexOf('1/32') >= 0 || l.indexOf('32') >= 0) return 2
+  if (l.indexOf('1/64') >= 0 || l.indexOf('64') >= 0) return 1
+  if (l.indexOf('previa') >= 0 || l.indexOf('pre)') >= 0 || l.indexOf('preliminar') >= 0) return 0
+  return 0
+}
+
+/* Premiación de mérito por la fase superada (sin contar Final, que se
+   resuelve aparte con Campeón/Subcampeón). */
+function getBaseCupPrize(phaseIndex) {
+  var base = [15000, 30000, 60000, 120000, 250000, 500000, 1000000]
+  return base[phaseIndex] || 0
+}
+
+function getBaseCupChampionPrize() { return 3500000 }
+function getBaseCupRunnerUpPrize() { return 2000000 }
+
+/* Supercopa: premio fijo por ser Campeón o Subcampeón. */
+function getSupercopaBonusPrize(isWinner) {
+  return isWinner ? getBaseCupChampionPrize() : getBaseCupRunnerUpPrize()
+}
+
+/* Calcula el premio económico de un partido de KO (copa, taca, efl, supercopa):
+   - comp: 'cup' | 'supercopa' | 'taca_da_liga' | 'efl_cup'
+   - roundLabel: etiqueta de la ronda del partido
+   - isWinner: true si el usuario avanza en la eliminatoria. */
+function computeKoReward(comp, roundLabel, isWinner) {
+  var mult = getLeagueTierMultiplier(state.countryId, comp)
+  if (comp === 'supercopa') {
+    var scPrize = getSupercopaBonusPrize(isWinner)
+    return { amount: Math.round(scPrize * mult), label: isWinner ? 'Campe\u00f3n' : 'Subcampe\u00f3n' }
+  }
+  var phase = getKoPhaseIndex(roundLabel)
+  var amount, label
+  if (phase === 7) {
+    /* Final: Campeón al ganar, Subcampeón al perder. */
+    amount = isWinner ? getBaseCupChampionPrize() : getBaseCupRunnerUpPrize()
+    label = isWinner ? 'Campe\u00f3n' : 'Subcampe\u00f3n'
+  } else {
+    /* Fase superada (ganar): premio de esa fase. Perder: consolación (mitad). */
+    amount = getBaseCupPrize(phase) * (isWinner ? 1 : 0.5)
+    label = isWinner ? 'Avance ' + (roundLabel || 'fase') : 'Eliminado ' + (roundLabel || 'fase')
+  }
+  return { amount: Math.round(amount * mult), label: label }
 }
 
 function getCupLabel(roundIdx) {
@@ -3214,8 +3699,33 @@ function getSupercopaTeams() {
     return [b1, b2].filter(Boolean)
   }
 
+  if (activeCountry === 'netherlands') {
+    /* Johan Cruyff Shield: Campeón de la Eredivisie vs Campeón de la Copa.
+       En la primera temporada se juega PSV vs AZ Alkmaar. */
+    if (state.seasonNumber === 1) {
+      return ['psv', 'az-alkmaar']
+    }
+    var n1 = state.leagueChampion
+    var n2 = state.cupChampion
+    var nCupRunnerUp = state.cupRunnerUp
+    var nLeagueRunnerUp = state.leagueRunnerUp
+    if (!n1) n1 = getSupercopaSeason1Champ()
+    if (!n2) n2 = getSupercopaSeason1Opponent()
+    /* Doblete: si el campeón de Liga ganó también la Copa, el partido lo juega
+       el Campeón de Liga contra el Subcampeón de la Copa. */
+    if (n1 === n2) {
+      n2 = nCupRunnerUp || nLeagueRunnerUp
+    }
+    if (n2 === n1) n2 = null
+    return [n1, n2].filter(Boolean)
+  }
+
   return []
 }
+
+/* Primeros equipos usados como defaults para la Supercopa de Países Bajos. */
+function getSupercopaSeason1Champ() { return 'psv' }
+function getSupercopaSeason1Opponent() { return 'az-alkmaar' }
 
 function getCopaTeamsForRound(roundIdx) {
   if (roundIdx === 0) {
@@ -3254,6 +3764,24 @@ function getCopaTeamsForRound(roundIdx) {
     if (state.countryId === 'belgium') {
       var l1b = getLeagueTeams('l1b')
       return (l1b || [])
+    }
+    if (state.countryId === 'netherlands') {
+      /* R0 (1/32): 18 Eredivisie + equipos modesto de Segunda hasta 32. */
+      var er = getLeagueTeams('eredivisie') || []
+      var round = er.slice()
+      var need = 32 - round.length
+      if (need > 0 && window.KnvbCopa && typeof window.KnvbCopa.getRegionalTeams === 'function') {
+        var regIds = window.KnvbCopa.getRegionalTeams(Math.max(need, 14))
+        regIds.forEach(function(id) {
+          if (round.length < 32 && !round.some(function(t) { return (t.id || t.teamId) === id })) {
+            round.push({ id: id })
+          }
+        })
+      }
+      /* Garantizar que el equipo del usuario esté incluido */
+      if (state.teamId && !round.some(function(t) { return (t.id || t.teamId) === state.teamId }) && round.length < 32) round.push({ id: state.teamId })
+      if (round.length % 2 !== 0) round = round.slice(0, Math.floor(round.length / 2) * 2)
+      return round
     }
     /* R0: Todas las divisiones - Primera + Segunda + Primera Fed */
     var allTeams = []
@@ -3439,6 +3967,14 @@ function generarRondaCopa(roundIdx, previousWinners, cupState) {
       var home = pairedResult.pairs[fi][0].id
       var away = pairedResult.pairs[fi][1].id
       if (!home || !away) continue
+      /* KNVB Beker: localía por sorteo puro; si un equipo de Primera
+         visita el estadio de uno de Segunda, el de Segunda es el local.
+         Se considera Segunda a los equipos modesto regionales (no Eredivisie). */
+      if (state.countryId === 'netherlands') {
+        var homeIsLower = !!(window._MODESTO_HOLANDA_MAP && window._MODESTO_HOLANDA_MAP[home])
+        var awayIsLower = !!(window._MODESTO_HOLANDA_MAP && window._MODESTO_HOLANDA_MAP[away])
+        if (!homeIsLower && awayIsLower) { var t1 = home; home = away; away = t1 }
+      }
       fixtures.push({ round: 'R' + roundIdx, label: entry.label, week: entry.week, home: home, away: away, homeScore: null, awayScore: null, played: false })
     }
     /* Odd team gets bye */
@@ -3505,6 +4041,9 @@ function getCupSchedule() {
     }
     return BELGIUM_CUP_SCHEDULE
   }
+  if (state.countryId === 'netherlands') {
+    return (window.KnvbCopa && window.KnvbCopa.schedule) || []
+  }
   return COPA_SCHEDULE
 }
 
@@ -3516,7 +4055,7 @@ function getMatchSystem(comp, countryId) {
   if (comp === 'league') return 'draw'
   if (countryId === 'france') return 'penalties'
   if (comp === 'taca_da_liga' || comp === 'efl_cup') return 'penalties'
-  if (comp === 'supercopa' && (countryId === 'germany' || countryId === 'england' || countryId === 'belgium')) return 'penalties'
+  if (comp === 'supercopa' && (countryId === 'germany' || countryId === 'england' || countryId === 'belgium' || countryId === 'netherlands')) return 'penalties'
   return 'extra_time'
 }
 
@@ -3694,6 +4233,14 @@ function generarSupercopa() {
     return { week: 1, fixtures: [], final: finalMatch, winner: null }
   }
 
+  if (activeCountry === 'netherlands') {
+    /* Johan Cruyff Shield: partido único que abre la temporada (semana 1),
+       en el estadio del campeón de liga. */
+    if (teams.length < 2) return null
+    var nlFinal = { round: 'F', label: 'Final', week: 1, home: teams[0], away: teams[1], homeScore: null, awayScore: null, played: false }
+    return { week: 1, fixtures: [], final: nlFinal, winner: null }
+  }
+
   if (activeCountry !== 'spain') {
     if (teams.length < 2) return null
     var week = (activeCountry === 'poland') ? 1 : 20
@@ -3757,11 +4304,6 @@ function getEflCupTrofeo() { return getCompTrofeo(getEflCupCompName()) || getEfl
 function getTacaDaLigaLabel(roundIdx) {
   var labels = ['Cuartos', 'Semifinal', 'Final']
   return labels[roundIdx] || 'Copa de la Liga'
-}
-
-function getTacaDaLigaReward(roundIdx) {
-  var rewards = [200000, 500000, 1500000]
-  return rewards[roundIdx] || 0
 }
 
 function generarRondaTacaDaLiga(roundIdx, previousWinners, tdlState) {
@@ -4307,6 +4849,7 @@ window.MatchEngine = Object.assign(window.MatchEngine || {}, {
     if (!leagueId) return 9
     /* Austria: máximo 7 suplentes en 1ª y 2ª división */
     if (leagueId === 'bl1' || leagueId === 'bl2a') return 7
+    if (leagueId === 'eredivisie') return 12
     if (leagueId === 'lpl' || leagueId === 'lpl2' || leagueId === 'l1s' || leagueId === 'l2s' || leagueId === 'l1p' || leagueId === 'l2p') return 12
     if (leagueId.startsWith('lnfs') || leagueId.startsWith('l2b')) return 12
     return 9
@@ -4462,6 +5005,12 @@ function getTeamObj(id) {
     var atRating = atDb.rating || 60
     return { name: atDb.name, players: generateCpuSquad(id, 'austria', atRating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, formation: '4-3-3', gamePlan: 'suave', logo: atDb.logo, palmares: null }
   }
+  /* Equipos modesto holandeses (KNVB Beker) */
+  const nlDb = (window._MODESTO_HOLANDA_MAP && window._MODESTO_HOLANDA_MAP[id]) || null
+  if (nlDb) {
+    var nlRating = nlDb.rating || 50
+    return { name: nlDb.name, players: generateCpuSquad(id, 'netherlands', nlRating).filter(function(p) { return !state.boughtPlayerIds || state.boughtPlayerIds.indexOf(p.id) < 0 }), teamId: id, formation: '4-3-3', gamePlan: 'suave', logo: nlDb.logo, palmares: null }
+  }
   /* Equipos de cantera austriaca (p. ej. Austria Wien U18): usan su plantilla real */
   const acDb = (window._AUSTRIA_ACADEMY_TEAMS && window._AUSTRIA_ACADEMY_TEAMS[id]) || null
   if (acDb) {
@@ -4487,6 +5036,87 @@ function recuperarPorterosAl100() {
 /* Desgaste de partido de un portero: 3-5% máx., independiente del plan de presión */
 function desgastePortero() { return 3 + Math.floor(Math.random() * 3) }
 
+/* ============ SISTEMA DE ENERGÍA / STAMINA / FATIGA ============
+   - Desgaste base por 90' según intensidad (Pesada 22 ≈ 20-25%).
+   - Variabilidad individual: veteranos (>30) sufren desgaste extra.
+   - Desgaste proporcional a los minutos disputados.
+   - Recuperación diaria (+7%/día): semana normal llega al 100%,
+     semana de doble partido (≤4 días) se topa al 85% y obliga a rotar. */
+
+/* Desgaste base por 90 minutos según la intensidad del plan. */
+function getBaseDrain(gamePlan) {
+  var p = GAME_PLANS[gamePlan]
+  if (p && p.drain != null) return p.drain
+  return 22
+}
+
+/* Factor de desgaste individual según la edad (veteranos sufren más). */
+function getPlayerStaminaFactor(p) {
+  if (!p) return 1.0
+  var age = p.age || 22
+  if (age >= 34) return 1.20
+  if (age >= 30) return 1.10
+  return 1.0
+}
+
+/* Fracción de desgaste según los minutos disputados (proporcional a 90'). */
+function getMatchMinutesFactor(p) {
+  var min = Math.floor(p && p.minutosEnPista != null ? p.minutosEnPista : 0)
+  return Math.max(0, Math.min(1, min / 90))
+}
+
+/* Recuperación diaria (%) aplicada al avanzar entre jornadas.
+   Valor ajustado para que la fatiga sea visible y acumulable: en una
+   semana normal el jugador solo se recupera hasta ~92%, y en semana de
+   doble partido (≤4 días) hasta ~80%. */
+function getDailyRecovery() { return 2 }
+
+/* Días hasta el siguiente partido del usuario (fallback 6 si no hay fecha). */
+function getDaysUntilNextMatch(fixture) {
+  /* Usa el matchday del propio partido jugado para localizar el siguiente,
+     de modo que el cálculo sea independiente de si state.currentMatchday
+     ya se ha incrementado al avanzar la jornada. */
+  var next = fixture && fixture.matchday != null
+    ? getFixtureForUser(fixture.matchday + 1)
+    : getFixtureForUser((state.currentMatchday || 1) + 1)
+  if (fixture && fixture.date && next && next.date) {
+    var cur = new Date(fixture.date + 'T12:00:00')
+    var nxt = new Date(next.date + 'T12:00:00')
+    var days = Math.round((nxt - cur) / (1000 * 60 * 60 * 24))
+    if (!isNaN(days) && days > 0) return days
+  }
+  return 6
+}
+
+/* Aplica el desgaste de un partido a un jugador (proporcional + edad). */
+function aplicarDesgastePartido(p, gamePlan, isGk) {
+  if (!p || p.injury) return
+  var drain
+  if (isGk || esPortero(p)) {
+    drain = desgastePortero() * getMatchMinutesFactor(p) * getPlayerStaminaFactor(p)
+  } else {
+    drain = getBaseDrain(gamePlan) * getMatchMinutesFactor(p) * getPlayerStaminaFactor(p)
+  }
+  p.energy = Math.max(5, (p.energy != null ? p.energy : 80) - drain)
+}
+
+/* Aplica la recuperación diaria al avanzar de jornada. En semana normal la
+   energía topa en ~92% (no vuelve a 100 para que la fatiga se vea y se
+   acumule); en semana de doble partido (≤4 días) topa en ~80% y obliga a
+   rotar. Los porteros vuelven al 100%. */
+function aplicarRecuperacionDiaria(justPlayedFixture) {
+  if (!justPlayedFixture) return
+  var days = getDaysUntilNextMatch(justPlayedFixture)
+  var tight = days <= 4
+  var maxAfter = tight ? 80 : 92
+  var recovery = getDailyRecovery() * days
+  ;(state.players || []).forEach(function(p) {
+    if (!p || p.injury) return
+    if (esPortero(p)) { p.energy = Math.min(100, (p.energy != null ? p.energy : 80) + recovery) }
+    else p.energy = Math.min(maxAfter, (p.energy != null ? p.energy : 80) + recovery)
+  })
+}
+
 /* Lesión en caliente (1%) + cambio automático del portero titular.
    Prioriza un portero del banquillo; si no hay, un jugador de campo con penalización máxima. */
 function gestionarLesionPortero(startingIds) {
@@ -4497,7 +5127,7 @@ function gestionarLesionPortero(startingIds) {
     if (p && esPortero(p) && !gk) gk = p
   })
   if (!gk || gk.injury || gk._suspended) return null
-  if (Math.random() >= 0.006) return null
+  if (Math.random() >= 0.003) return null
 
   var weeks = 1 + Math.floor(Math.random() * 3)
   gk.injury = { remaining: weeks, type: 'match', description: 'Lesión durante el partido' }
@@ -4554,17 +5184,24 @@ function seleccionarTitularesCPU(players) {
 function aplicarFatigaEquipo(team, gamePlan) {
   if (!team || !team.players) return
   gamePlan = gamePlan || team.gamePlan || 'pesado'
-  var drain = (GAME_PLANS[gamePlan] || {}).drain || 10
-  var starters = seleccionarTitularesCPU(team.players)
+  var start = seleccionarTitularesCPU(team.players)
   var ids = {}
-  starters.forEach(function(p) { ids[p.id] = true })
+  start.forEach(function(p) { ids[p.id] = true })
   team.players.forEach(function(p) {
     if (!p || p.injury) return
     var e = p.energy != null ? p.energy : 80
-    var base
-    if (esPortero(p)) base = ids[p.id] ? e - desgastePortero() : 100
-    else base = ids[p.id] ? e - drain : e + 5
-    p.energy = Math.min(100, Math.max(10, base) + 20)
+    var drain
+    if (esPortero(p)) {
+      drain = desgastePortero() * getPlayerStaminaFactor(p)
+      if (!ids[p.id]) p.energy = 100
+      else p.energy = Math.max(5, e - drain)
+    } else if (ids[p.id]) {
+      drain = getBaseDrain(gamePlan) * getPlayerStaminaFactor(p)
+      p.energy = Math.max(5, e - drain)
+    } else {
+      p.energy = e + getDailyRecovery() * 2
+    }
+    p.energy = Math.min(100, p.energy)
   })
 }
 
@@ -5204,6 +5841,85 @@ function resolverPlayoffConferenceCPU() {
   state.playoffs = null
   var slot = (window.AustriaLiga && window.AustriaLiga.config.playoffEuropeo.prize) || 'Fase Previa de la Conference League'
   addNotification('general', '\ud83c\udf0d ' + getTeamName(finalWinner) + ' jugar\u00e1 la Fase Previa de la Conference League', 'Playoff Europeo de Austria')
+  return true
+}
+
+/* ============== EREDIVISIE (PAÍSES BAJOS): PLAYOFF CONFERENCE 5º-8º ============== */
+/* Tras la última jornada, los puestos 5º, 6º, 7º y 8º juegan un cuadro a
+ * partido único: SF (5v8 y 6v7) y Final. El ganador obtiene la plaza de
+ * Fase Previa de la Conference League. */
+function isEredivisie(lid) { return lid === 'eredivisie' }
+
+function iniciarPlayoffConferenceEredivisie() {
+  if (state.playoffs) return false
+  if (!isEredivisie(state.leagueId)) return false
+  if (state.currentMatchday < state.totalMatchdays) return false
+  if (state.conferencePlayoffWinner !== null) return false
+
+  var tabla = updateLeagueStandings()
+  if (!tabla || tabla.length < 8) return false
+  var ids = tabla.slice(4, 8).map(function(s) { return s.teamId })
+  if (ids.length !== 4) return false
+
+  state.playoffs = {
+    round: 'SF',
+    esConferenceNed: true,
+    fixtures: [
+      { round: 'SF', home: ids[0], away: ids[3], homeScore: null, awayScore: null, played: false },
+      { round: 'SF', home: ids[1], away: ids[2], homeScore: null, awayScore: null, played: false },
+    ],
+  }
+  addNotification('general', '\ud83c\udf0d Playoff Europeo (Conference League)', '5º-8º de la Eredivisie se disputan la plaza de Fase Previa de la Conference League')
+  return true
+}
+
+/* Si el usuario NO participa en el Playoff Conference de la Eredivisie
+ * (acabó 9º o peor), lo resolvemos íntegramente por CPU. */
+function resolverPlayoffConferenceEredivisieCPU() {
+  if (!state.playoffs || !state.playoffs.esConferenceNed) return false
+  var pf = state.playoffs
+  var userIn = pf.fixtures.some(function(f) { return f.home === state.teamId || f.away === state.teamId })
+  if (userIn) return false
+
+  var sfWinners = []
+  pf.fixtures.forEach(function(f) {
+    var r = simularPartidoPorRating(f.home, f.away, 'europa')
+    sfWinners.push(r.homeScore >= r.awayScore ? f.home : f.away)
+  })
+  var fr = simularPartidoPorRating(sfWinners[0], sfWinners[1], 'europa')
+  var finalWinner = fr.homeScore >= fr.awayScore ? sfWinners[0] : sfWinners[1]
+
+  state.conferencePlayoffWinner = finalWinner
+  state.playoffs = null
+  addNotification('general', '\ud83c\udf0d ' + getTeamName(finalWinner) + ' jugar\u00e1 la Fase Previa de la Conference League', 'Playoff Europeo de la Eredivisie')
+  return true
+}
+
+/* Punto de entrada único tras la última jornada de la Eredivisie. */
+function tratarFinTemporadaEredivisie() {
+  if (!isEredivisie(state.leagueId)) return false
+  if (state.currentMatchday < state.totalMatchdays) return false
+  if (state.playoffs || state.conferencePlayoffWinner !== null) return false
+  if (!iniciarPlayoffConferenceEredivisie()) return false
+
+  if (resolverPlayoffConferenceEredivisieCPU()) {
+    saveGame()
+    procesarFinTemporada()
+    return true
+  }
+  var cpuLoop = 0
+  while (state.playoffs && cpuLoop < 3) {
+    var hasUserP = state.playoffs.fixtures.some(function(f) { return !f.played && (f.home === state.teamId || f.away === state.teamId) })
+    if (hasUserP) break
+    avanzarRondaPlayoff()
+    cpuLoop++
+  }
+  if (!state.playoffs) {
+    saveGame()
+    procesarFinTemporada()
+    return true
+  }
+  renderTab('home')
   return true
 }
 
@@ -5885,6 +6601,9 @@ function renderClub() {
   var subTabs = document.querySelector('#view-club .sub-tabs')
   if (teamInfo) teamInfo.style.display = isClubInfo ? '' : 'none'
   if (subTabs) subTabs.style.display = (isHamburgerView || isClubInfo) ? 'none' : ''
+  /* En la bandeja de entrada no se muestra el nombre ni el logo del club. */
+  var clubHeader = document.querySelector('#view-club .view-header')
+  if (clubHeader) clubHeader.style.display = (state.clubSubTab === 'inbox') ? 'none' : ''
   document.querySelectorAll('#view-club .sub-tab').forEach(b => b.classList.toggle('active', b.dataset.subtab === state.clubSubTab))
   if (state.clubSubTab === 'squad') {
     document.getElementById('club-squad-content').classList.remove('hidden')
@@ -6666,8 +7385,8 @@ function renderLeague(viewedLeagueId) {
     }
     displayLogos = otherLogos.concat(displayLogos)
     /* Añadir copa nacional */
-    var countryHasCup = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria' || activeCountryId === 'belgium'
-    var countryHasSupercopa = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'belgium'
+    var countryHasCup = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria' || activeCountryId === 'belgium' || activeCountryId === 'netherlands'
+    var countryHasSupercopa = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'belgium' || activeCountryId === 'netherlands'
     if (countryHasCup) {
       displayLogos.push({ id: 'copa_del_rey', name: getCupCompName(activeCountryId), logo: getCupLogo(activeCountryId) })
     }
@@ -6701,7 +7420,7 @@ function renderLeague(viewedLeagueId) {
           renderCopaView('tacaDaLiga')
         } else if (lid === 'efl_cup') {
           renderCopaView('eflCup')
-        } else if (activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria' || activeCountryId === 'belgium') {
+        } else if (activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria' || activeCountryId === 'belgium' || activeCountryId === 'netherlands') {
           renderCopaView(lid === 'copa_del_rey' ? 'copa' : 'supercopa')
         } else {
           var tableWrap = document.getElementById('league-table-wrap')
@@ -6835,6 +7554,15 @@ function renderLeague(viewedLeagueId) {
       else if (i === 2) barClass = 'bar-europa-3'
       else if (i === 3) barClass = 'bar-europa-4'
       else if (i < totalTeams - 2) barClass = 'bar-permanencia'
+      else barClass = 'bar-descenso'
+    } else if (displayLid === 'eredivisie') {
+      if (i === 0) barClass = 'bar-champion'
+      else if (i === 1) barClass = 'bar-ucl'
+      else if (i === 2) barClass = 'bar-europa-2'
+      else if (i === 3) barClass = 'bar-uel'
+      else if (i < 8) barClass = 'bar-conference'
+      else if (i < totalTeams - 3) barClass = 'bar-permanencia'
+      else if (i < totalTeams - 2) barClass = 'bar-relegation-playoff'
       else barClass = 'bar-descenso'
     } else if (displayLid === 'l2fr') {
       if (i < 2) barClass = 'bar-promotion'
@@ -6973,6 +7701,17 @@ function renderLeague(viewedLeagueId) {
       { cls: 'bar-europa-4', label: '4º · Previa Conference League' },
       { cls: 'bar-permanencia', label: 'Permanencia' },
       { cls: 'bar-descenso', label: 'Descenso directo' },
+    ]
+  } else if (displayLid === 'eredivisie') {
+    legendItems = [
+      { cls: 'bar-champion', label: 'Campeón' },
+      { cls: 'bar-ucl', label: 'Champions League' },
+      { cls: 'bar-europa-2', label: 'Previa Champions League' },
+      { cls: 'bar-uel', label: 'Europa League' },
+      { cls: 'bar-conference', label: 'Playoff Conference League' },
+      { cls: 'bar-permanencia', label: 'Permanencia' },
+      { cls: 'bar-relegation-playoff', label: 'Play-off de descenso' },
+      { cls: 'bar-descenso', label: 'Descenso' },
     ]
   } else if (displayLid === 'l2fr') {
     legendItems = [
@@ -7536,21 +8275,12 @@ function finishMatch(isHome, fixture, rival) {
   const resultLabel = userScore > rivalScore ? 'Victoria' : userScore === rivalScore ? 'Empate' : 'Derrota'
   addNotification('match', `${resultLabel} ${userScore}-${rivalScore} vs ${rival.name}`, `Jornada ${state.currentMatchday} · +${matchIncome} €`)
 
-  /* Post-match recovery: calculate days until next match */
-  const nextFixture = getFixtureForUser(state.currentMatchday + 1)
-  let recoveryMult = 1.0
-  if (nextFixture && nextFixture.date) {
-    const curDate = new Date(fixture.date + 'T12:00:00')
-    const nxtDate = new Date(nextFixture.date + 'T12:00:00')
-    const days = Math.round((nxtDate - curDate) / (1000 * 60 * 60 * 24))
-    if (days <= 4) recoveryMult = 0.5
-  }
+  /* Reset de boletos y minutos tras el partido */
   state.players.forEach(p => {
     p.enPista = false
     p.minutosEnPista = 0
     p.convocado = false
     p.titular = false
-    p.energy = Math.min(100, p.energy + Math.round(randInt(15, 30) * recoveryMult))
   })
   state.convocatoriaValidada = false
 
@@ -7916,12 +8646,21 @@ function showMovementsTab(visible) {
 
 /* ============ ECONOMÍA SEMANAL ============ */
 function procesarEconomiaSemanal() {
+  /* Recuperación diaria de energía: al avanzar de jornada, el partido ya
+     jugado (currentMatchday - 1) se recupera +7%/día según los días hasta
+     el siguiente. Semana normal → 100%; doble partido (≤4 días) → tope 85%. */
+  try {
+    var justPlayed = getFixtureForUser(state.currentMatchday - 1)
+    if (justPlayed) aplicarRecuperacionDiaria(justPlayed)
+  } catch (e) { console.warn('[RECOVERY] Error al recuperar energía:', e) }
+
   /* Gastos operativos semanales (0.8% del presupuesto inicial) */
   if (state.presupuestoInicial > 0) {
     var gastos = Math.round(state.presupuestoInicial * 0.008)
     state.finances.balance -= gastos
     state.finances.history.push({ reason: 'Gastos operativos semanales', amount: -gastos })
   }
+  procesarIngresosPatrocinio()
   procesarLesiones()
   recuperarPorterosAl100()
   procesarVentasCPU()
@@ -7933,13 +8672,15 @@ function procesarEconomiaSemanal() {
     generarOfertasCanteranos()
     detectarExcedentesCantera()
   }
+  /* Pop-up prioritario una vez por avance de semana (anti-spam). */
+  try { mostrarPopupPrioridad() } catch (e) { console.warn('[POPUP] Error al mostrar popup prioridad:', e) }
 }
 
 function procesarLesiones() {
   /* Weekly injury chance for user's players (training/match fatigue) */
   if (!state.players) return
-  var injuryProb = 0.025  /* 2.5% per field player per week */
-  var gkProb = 0.015     /* 1.5% per goalkeeper per week */
+  var injuryProb = 0.008  /* 0.8% per field player per week */
+  var gkProb = 0.005     /* 0.5% per goalkeeper per week */
   for (var i = 0; i < state.players.length; i++) {
     var p = state.players[i]
     if (p.injury) continue
@@ -9498,6 +10239,8 @@ function iniciarNuevaTemporada() {
       state.leaguePhase = 'regular'
     }
     state.currentMatchday = 1
+    state._popupShownMatchday = null
+    state._popupSuppressed = false
     state.transferWindowOpen = true
     state.mercadoSimuladoSemana = 0
     state.allLeagueData = {}
@@ -9516,7 +10259,7 @@ function iniciarNuevaTemporada() {
     state.seasonNumber++
     state.presupuestoInicial = Math.round(getDivisionBaseBudget(state.leagueId) * getCountryBudgetMult(state.countryId))
     try {
-      if (state.countryId === 'spain' || state.countryId === 'portugal' || state.countryId === 'poland' || state.countryId === 'france' || state.countryId === 'italy' || state.countryId === 'germany' || state.countryId === 'england' || state.countryId === 'austria' || state.countryId === 'belgium') {
+      if (state.countryId === 'spain' || state.countryId === 'portugal' || state.countryId === 'poland' || state.countryId === 'france' || state.countryId === 'italy' || state.countryId === 'germany' || state.countryId === 'england' || state.countryId === 'austria' || state.countryId === 'belgium' || state.countryId === 'netherlands') {
         state.cup = generarCopa()
         state.supercopa = generarSupercopa()
         if (state.countryId === 'austria') state.supercopa = null
@@ -9526,6 +10269,10 @@ function iniciarNuevaTemporada() {
       else { state.cup = null; state.supercopa = null; state.tacaDaLiga = null; state.eflCup = null }
     } catch (cupErr) { console.error('[SEASON] Error generating cups:', cupErr); state.cup = null; state.supercopa = null; state.tacaDaLiga = null; state.eflCup = null }
     state.players.forEach(function(p) { p.energy = 100; p.injury = null; p.goals = 0; p.matches = 0 })
+    /* Renovaciones de patrocinio al inicio de cada temporada:
+       slots vacíos siempre ofertan; los contratos activos corren solos;
+       los que expiran ofrecen renovación (y el Naming Rights se revierte). */
+    try { generarOfertasPatrocinioRenovacion() } catch (e) { console.warn('[SPONSOR] Error renovacion:', e) }
     document.getElementById('league-results-wrap').classList.add('hidden')
     renderTab('home')
     actualizarIndicadorTemporada()
@@ -10098,6 +10845,8 @@ function divName(leagueId) {
 
 function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
   state.lastFinalStandings = updateLeagueStandings()
+  /* Bonus de patrocinios por objetivos cumplidos (Top 8, Europa, Copa...). */
+  try { procesarBonusPatrocinioFinTemporada() } catch (e) { console.warn('[SPONSOR] Error bonus fin temporada:', e) }
   /* Auto-simulate remaining cup/taca rounds if user eliminated */
   try {
     if (state.cup && state.cup.roundIdx >= 0) {
@@ -10663,11 +11412,44 @@ function avanzarRondaPlayoff() {
       }
     })
   }
+  if (pf.esConferenceNed) {
+    pf.fixtures.forEach(function(f) {
+      if (!f.played) {
+        var cne = simularPartidoPorRating(f.home, f.away, 'europa')
+        f.homeScore = cne.homeScore; f.awayScore = cne.awayScore; f.played = true
+      }
+    })
+  }
   const allPlayed = pf.fixtures.every(f => f.played)
   if (!allPlayed) return
 
   const winners = pf.fixtures.map(f => (f.homeScore > f.awayScore ? f.home : f.away))
 
+  if (pf.esConferenceNed) {
+    if (pf.round === 'SF') {
+      pf.round = 'F'
+      pf.fixtures = [
+        { round: 'F', home: winners[0], away: winners[1], homeScore: null, awayScore: null, played: false },
+      ]
+      saveGame()
+      return
+    }
+    if (pf.round === 'F') {
+      const ganador = winners[0]
+      const esUser = ganador === state.teamId
+      addNotification('general', '\ud83c\udf0d ' + getTeamName(ganador) + ' jugar\u00e1 la Fase Previa de la Conference League', 'Playoff Europeo de la Eredivisie')
+      state.playoffs = null
+      state.conferencePlayoffWinner = ganador
+      if (esUser) {
+        var trofeoConfNed = { competition: 'Playoff Europeo (Conference League)', season: state.seasonNumber }
+        if (!hasTrophy(state.trophies, trofeoConfNed.competition, state.seasonNumber)) state.trophies.push(trofeoConfNed)
+        addNotification('trophy', '\ud83c\udfc6 \u00a1Clasificado a la Conference League!', 'Playoff Europeo de la Eredivisie', { logo: getLeagueTrofeo(getLeagueFromId(state.leagueId)) })
+      }
+      setTimeout(function() { procesarFinTemporada() }, 250)
+      return
+    }
+    return
+  }
   if (pf.esConferenceAustria) {
     if (pf.round === 'SF') {
       const sfWinner = winners[0]
@@ -11281,7 +12063,7 @@ function simularPartidoRapido(fixture, rivalId) {
     procesarSuspensiones()
 
     /* Match injuries for user's players (los porteros tienen su propia tirada al 1%) */
-    var injProb = 0.03
+    var injProb = 0.01
     state.players.filter(p => startingIds.includes(p.id) && !esPortero(p) && !p.injury).forEach(function(p) {
       if (Math.random() < injProb) {
         var weeks = 1 + Math.floor(Math.random() * 3)
@@ -11293,19 +12075,12 @@ function simularPartidoRapido(fixture, rivalId) {
     /* Lesión en caliente del portero (1%) + cambio automático */
     gestionarLesionPortero(startingIds)
 
-    /* Fatigue for user's players (los porteros solo desgastan 3-5%, ajenos al plan) */
+    /* Fatigue for user's players (desgaste proporcional a minutos + edad) */
     state.players.forEach(p => {
       if (!p.injury && startingIds.includes(p.id)) {
-        var drain = esPortero(p) ? desgastePortero() : (GAME_PLANS[state.tactic.gamePlan]?.drain || 10)
-        p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - drain)
+        aplicarDesgastePartido(p, state.tactic.gamePlan)
       }
       p.enPista = false; p.convocado = false; p.titular = false
-    })
-    /* Recovery for unused players (bench/reserves who didn't play) */
-    state.players.forEach(p => {
-      if (!p.injury && p.minutosEnPista === 0 && p.energy < 100) {
-        p.energy = Math.min(100, p.energy + 25)
-      }
     })
     /* Fatiga + recuperación del rival (equipos CPU persistentes) */
     if (rivalTeam && rivalTeam !== userTeamObj && rivalTeam.players) {
@@ -11608,6 +12383,14 @@ function startLiveMatch(fixture, rivalId) {
     if (_beRules) {
       state.liveMatch.maxSubs = _beRules.maxSubs
       state.liveMatch.maxWindows = _beRules.maxWindows
+    }
+  }
+  if (window.KnvbCopa && typeof window.KnvbCopa.getSubRules === 'function' && compInfo.comp === 'cup' && state.countryId === 'netherlands') {
+    var _nlIsET = window.KnvbCopa.hasExtraTime(state.cup ? state.cup.roundIdx : 0)
+    var _nlRules = window.KnvbCopa.getSubRules({ isCup: true, isExtraTime: _nlIsET })
+    if (_nlRules) {
+      state.liveMatch.maxSubs = _nlRules.maxSubs
+      state.liveMatch.maxWindows = _nlRules.maxWindows
     }
   }
 
@@ -12133,6 +12916,10 @@ function renderLiveTactics() {
     var _beB = window.BelgiumCopa.getSubRules({ isCup: true, isExtraTime: window.BelgiumCopa.hasExtraTime(state.cup ? state.cup.roundIdx : 0) })
     if (_beB && _beB.bench) benchLimit = _beB.bench
   }
+  if (window.KnvbCopa && lm && lm.compInfo && lm.compInfo.comp === 'cup' && state.countryId === 'netherlands') {
+    var _nlB = window.KnvbCopa.getSubRules({ isCup: true, isExtraTime: window.KnvbCopa.hasExtraTime(state.cup ? state.cup.roundIdx : 0) })
+    if (_nlB && _nlB.bench) benchLimit = _nlB.bench
+  }
   var onPitch = new Set(state.tacticsSlots.filter(Boolean))
   var benchPool = state.benchIds.map(function(id) { return state.players.find(function(p) { return p.id === id }) }).filter(Boolean)
   var onBenchIds = new Set(benchPool.map(function(p) { return p.id }))
@@ -12226,6 +13013,8 @@ function applyLiveSub(outPid, inPid) {
   var _subWinFn = null
   if (window.BelgiumCopa && typeof window.BelgiumCopa.getSubWindow === 'function' && lm.compInfo && lm.compInfo.comp === 'cup' && state.countryId === 'belgium') {
     _subWinFn = window.BelgiumCopa.getSubWindow
+  } else if (window.KnvbCopa && typeof window.KnvbCopa.getSubWindow === 'function' && lm.compInfo && lm.compInfo.comp === 'cup' && state.countryId === 'netherlands') {
+    _subWinFn = window.KnvbCopa.getSubWindow
   } else if (window.AustriaCopa && typeof window.AustriaCopa.getSubWindow === 'function') {
     _subWinFn = window.AustriaCopa.getSubWindow
   }
@@ -12282,10 +13071,12 @@ function gestionarResultadoCopaLive(cInfo, us, them, rivalId) {
   if (!isNaN(cupRnd)) cupRoundIdx = cupRnd
 
   var compName = cInfo.isSupercopa ? getSupercopaCompName(state.countryId) : cInfo.isTacaDaLiga ? getTacaDaLigaCompName() : cInfo.isEflCup ? getEflCupCompName() : getCupCompName(state.countryId)
-  var rew = getCupReward(cupRoundIdx)
-  if (us > them) { state.finances.balance += rew; state.stats.wins++ }
-  else { state.stats.losses++; state.finances.balance += getCupRewardLoss(cupRoundIdx) }
-  state.finances.history.push({ reason: compName + ': ' + us + '-' + them + ' vs ' + getTeamName(rivalId), amount: us > them ? rew : getCupRewardLoss(cupRoundIdx) })
+  var koComp = cInfo.isSupercopa ? 'supercopa' : cInfo.isTacaDaLiga ? 'taca_da_liga' : cInfo.isEflCup ? 'efl_cup' : 'cup'
+  var koRoundLabel = (fixture && (fixture.label || fixture.round)) || ''
+  var koResult = computeKoReward(koComp, koRoundLabel, us > them)
+  if (us > them) { state.finances.balance += koResult.amount; state.stats.wins++ }
+  else { state.stats.losses++; state.finances.balance += koResult.amount }
+  state.finances.history.push({ reason: compName + ' (' + koResult.label + '): ' + us + '-' + them + ' vs ' + getTeamName(rivalId), amount: koResult.amount })
   if (state.presupuestoInicial > 0 && fixture && fixture.home === state.teamId) {
     var taquilla = getTaquillaEstadio()
     state.finances.balance += taquilla
@@ -12504,16 +13295,27 @@ function finishLiveMatch() {
     }
   })
 
+  /* Lesiones en partido para jugadores de campo (misma tirada que el modo simular) */
+  var liveInjProb = 0.01
+  state.players.filter(function(p) {
+    return state.tacticsSlots.includes(p.id) && !esPortero(p) && !p.injury
+  }).forEach(function(p) {
+    if (Math.random() < liveInjProb) {
+      var weeks = 1 + Math.floor(Math.random() * 3)
+      if (Math.random() < 0.15) weeks += 1 + Math.floor(Math.random() * 6)
+      p.injury = { remaining: weeks }
+      addNotification('injury', '\u26A0 Lesi\u00f3n: ' + p.name, p.name + ' se lesiona durante el partido (' + weeks + ' jornada' + (weeks > 1 ? 's' : '') + ')', { logo: NOPHOTO })
+    }
+  })
+  /* Lesión en caliente del portero (0.3%) + cambio automático */
+  gestionarLesionPortero(state.tacticsSlots)
+
   /* Fatiga */
   state.players.forEach(function(p) {
     if (!p.injury && state.tacticsSlots.includes(p.id)) {
-      var drain = esPortero(p) ? desgastePortero() : (GAME_PLANS[state.tactic.gamePlan]?.drain || 10)
-      p.energy = Math.max(10, (p.energy != null ? p.energy : 80) - drain)
+      aplicarDesgastePartido(p, state.tactic.gamePlan)
     }
     p.enPista = false; p.convocado = false; p.titular = false
-  })
-  state.players.forEach(function(p) {
-    if (!p.injury && p.minutosEnPista === 0 && p.energy < 100) p.energy = Math.min(100, p.energy + 25)
   })
   procesarSuspensiones()
 
@@ -12772,20 +13574,12 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga, isEflCu
     procesarSuspensiones()
     /* Lesión en caliente del portero (1%) + cambio automático */
     gestionarLesionPortero(startingIds)
-    /* Fatigue (los porteros solo desgastan 3-5%, ajenos al plan) */
+    /* Fatigue (desgaste proporcional a minutos + edad) */
     state.players.forEach(function(p) {
       if (!p.injury && startingIds.indexOf(p.id) >= 0) {
-        var drainC = esPortero(p) ? desgastePortero() : (GAME_PLANS[state.tactic.gamePlan]?.drain || 10)
-        p.energy = Math.max(10, p.energy - drainC)
+        aplicarDesgastePartido(p, state.tactic.gamePlan)
       }
       p.enPista = false; p.convocado = false; p.titular = false
-    })
-    state.players.forEach(function(p) {
-      if (!p.injury && p.minutosEnPista === 0 && p.energy < 100) p.energy = Math.min(100, p.energy + 25)
-    })
-    /* Fatiga extra por partido intersemanal (Copa en mi\u00e9rcoles + Liga en finde) — no afecta a los porteros */
-    state.players.forEach(function(p) {
-      if (startingIds.indexOf(p.id) >= 0 && !esPortero(p)) p.energy = Math.max(5, (p.energy || 80) - 15)
     })
     /* Fatiga + recuperación del rival (equipos CPU persistentes) */
     if (rivalTeam && rivalTeam !== userTeamObj && rivalTeam.players) {
@@ -12793,15 +13587,13 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga, isEflCu
     }
 
     /* Financial reward + taquilla local */
-    var cupRoundIdx = 0
-    if (!isSupercopa && state.cup && fixture.round) {
-      var rndNum = parseInt(fixture.round.replace('R', ''))
-      if (!isNaN(rndNum)) cupRoundIdx = rndNum
-    }
-    var rew = getCupReward(cupRoundIdx)
-    if (us > them) { state.finances.balance += rew; state.stats.wins++ }
-    else { state.finances.losses++; state.finances.balance += getCupRewardLoss(cupRoundIdx) }
-    state.finances.history.push({ reason: (isSupercopa ? getSupercopaCompName(state.countryId) : getCupCompName(state.countryId)) + ': ' + us + '-' + them + ' vs ' + getTeamName(rivalId), amount: us > them ? rew : getCupRewardLoss(cupRoundIdx) })
+    var koComp = isEflCup ? 'efl_cup' : isTacaDaLiga ? 'taca_da_liga' : isSupercopa ? 'supercopa' : 'cup'
+    var koRoundLabel = (fixture && (fixture.label || fixture.round)) || ''
+    var koResult = computeKoReward(koComp, koRoundLabel, us > them)
+    if (us > them) { state.finances.balance += koResult.amount; state.stats.wins++ }
+    else { state.finances.losses++; state.finances.balance += koResult.amount }
+    var _koCompName = isSupercopa ? getSupercopaCompName(state.countryId) : isTacaDaLiga ? getTacaDaLigaCompName() : isEflCup ? getEflCupCompName() : getCupCompName(state.countryId)
+    state.finances.history.push({ reason: _koCompName + ' (' + koResult.label + '): ' + us + '-' + them + ' vs ' + getTeamName(rivalId), amount: koResult.amount })
     if (state.presupuestoInicial > 0 && isHome) {
       var taquillaCopa = getTaquillaEstadio()
       state.finances.balance += taquillaCopa
@@ -13242,6 +14034,10 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
           return
         }
       }
+      /* === EREDIVISIE: final de temporada → Playoff Conference 5º-8º === */
+      if (tratarFinTemporadaEredivisie()) {
+        return
+      }
       /* Check for absolute final in grouped leagues */
       if (state.leagueId && isGroupedLeague(state.leagueId) && !state.absoluteFinal) {
         var league = getLeagueFromId(state.leagueId)
@@ -13338,6 +14134,10 @@ function showMatchdayResults(userScore, rivalScore, rivalName) {
         if (state.leagueId === 'lnfs1' && pos <= 8 && !state.playoffs) {
           hideLoading()
           iniciarPlayoffs(standings.slice(0, 8).map(s => s.teamId))
+          return
+        }
+        if (tratarFinTemporadaEredivisie()) {
+          hideLoading()
           return
         }
         hideLoading()
@@ -13531,17 +14331,10 @@ function autoSimularPartidoUsuario(fixture) {
   /* Lesión en caliente del portero (1%) + cambio automático */
   gestionarLesionPortero(ids)
 
-  /* Fatigue (los porteros solo desgastan 3-5%, ajenos al plan) */
+  /* Fatigue (desgaste proporcional a minutos + edad) */
   state.players.forEach(p => {
     if (!p.injury && ids.includes(p.id)) {
-      var drainA = esPortero(p) ? desgastePortero() : (GAME_PLANS[state.tactic.gamePlan]?.drain || 10)
-      p.energy = Math.max(10, p.energy - drainA)
-    }
-  })
-  /* Recovery for unused players */
-  state.players.forEach(p => {
-    if (!p.injury && !ids.includes(p.id) && p.energy < 100) {
-      p.energy = Math.min(100, p.energy + 25)
+      aplicarDesgastePartido(p, state.tactic.gamePlan)
     }
   })
   /* Fatiga + recuperación del rival (equipos CPU persistentes) */
@@ -13988,6 +14781,104 @@ function calcularAvgRating(matchHistory) {
   return count > 0 ? sum / count : 0
 }
 
+/* ============ FÓRMULA DE EVOLUCIÓN DE MEDIA (GRL) ============
+   Puntos = FactorEdad × FactorMinutos × FactorEntrenamiento
+   Los puntos se acumulan en un buffer (p.progreso). Cada ±10 acumulados
+   aplican ±1 de GRL (con tope de potencial para jóvenes y suelo mínimo
+   para veteranos). Se evalúa una vez por temporada (season rollover). */
+
+/* Factor Edad: crecimiento rápido en jóvenes, declive progresivo en veteranos. */
+function getFactorEdad(age) {
+  if (age <= 22) return 1.5
+  if (age <= 27) return 0.8
+  if (age <= 30) return 0.0
+  if (age <= 33) return -0.8
+  return -1.5
+}
+
+/* Factor Minutos: cuánto ha jugado durante la temporada (proporción de minutos). */
+function getFactorMinutos(seasonMinPct) {
+  if (seasonMinPct > 0.75) return 1.3
+  if (seasonMinPct >= 0.35) return 1.0
+  return 0.4
+}
+
+/* Factor Entrenamiento: instalaciones del club, nivel 1-15. */
+function getFactorEntrenamiento(nivel) {
+  nivel = nivel || 1
+  return 1 + (nivel * 0.05)
+}
+
+/* % de minutos jugados en la temporada respecto al total posible. */
+function getSeasonMinutesPct(p, totalM) {
+  if (!p) return 0
+  var total = 0
+  var hist = p.matchHistory || []
+  for (var i = 0; i < hist.length; i++) total += (hist[i].minutes || 0)
+  var max = (totalM || 34) * 90
+  if (max <= 0) return 0
+  return Math.max(0, Math.min(1, total / max))
+}
+
+/* Nivel de instalaciones asignado a un equipo IA según su rating/reputación. */
+function getAIFacilityLevel(rating) {
+  rating = rating || 70
+  if (rating >= 80) return 11
+  if (rating >= 70) return 8
+  if (rating >= 60) return 5
+  return 3
+}
+
+/* Margen de potencial según la edad (cuánto puede crecer desde su GRL actual). */
+function getAgeHeadroom(age) {
+  if (age <= 18) return 25
+  if (age <= 21) return 18
+  if (age <= 25) return 10
+  if (age <= 28) return 4
+  return 0
+}
+
+/* Suelo mínimo de GRL para veteranos (nunca bajan de aquí). */
+function getMinSkillFloor(age) {
+  if (age >= 35) return 40
+  if (age >= 33) return 45
+  return 50
+}
+
+/* Potencial (tope de crecimiento): se deriva dinámicamente en la primera
+   carga. Un jugador nunca debe crecer por encima de p.potencial. */
+function ensurePlayerPotencial(p) {
+  if (p == null) return
+  if (p.potencial == null) {
+    p.potencial = Math.min(99, (p.skill || 50) + getAgeHeadroom(p.age || 22))
+  }
+  if (p.progreso == null) p.progreso = 0
+}
+
+/* Motor central de la fórmula: acumula puntos y aplica ±1 de GRL cada ±10. */
+function aplicarFormulaEvolucion(p, totalM, nivelEntrenamiento) {
+  if (!p) return 0
+  ensurePlayerPotencial(p)
+  var edad = getFactorEdad(p.age || 22)
+  var minutos = getFactorMinutos(getSeasonMinutesPct(p, totalM))
+  var ent = getFactorEntrenamiento(nivelEntrenamiento)
+  p.progreso = (p.progreso || 0) + (edad * minutos * ent)
+
+  var growth = 0
+  while (p.progreso >= 10) {
+    var cap = p.potencial != null ? Math.min(99, p.potencial) : 99
+    if ((p.skill || 0) < cap) { p.skill = Math.min(99, (p.skill || 0) + 1); growth++ }
+    p.progreso -= 10
+  }
+  while (p.progreso <= -10) {
+    var floor = getMinSkillFloor(p.age || 22)
+    if ((p.skill || 0) > floor) { p.skill = Math.max(1, (p.skill || 0) - 1); growth-- }
+    p.progreso += 10
+  }
+  p.skill = Math.min(99, Math.max(1, p.skill || 1))
+  return growth
+}
+
 function envejecerYProgresar() {
   var totalM = state.totalMatchdays || 34
   var changes = []
@@ -13997,53 +14888,24 @@ function envejecerYProgresar() {
   state.players.forEach(function(p) {
     var oldValue = p.value || 0
     var oldSkill = p.skill
-    var playRate = Math.min(1, (p.matches || 0) / totalM)
-    var avgRating = calcularAvgRating(p.matchHistory)
 
-    if (p.age <= 29) {
-      var gain
-      if (avgRating >= 8.0) gain = 6
-      else if (avgRating >= 7.0) gain = 4
-      else if (avgRating >= 6.5) gain = 3
-      else if (avgRating >= 5.5) gain = 2
-      else if (avgRating >= 4.5) gain = 1
-      else gain = -1
-
-      if (p.age < 23 && playRate >= 0.7) gain += 1
-      if (playRate > 0 && playRate < 0.3) gain -= 1
-
-      gain = Math.max(-4, Math.min(5, gain))
-      /* Instalaciones de Entrenamiento: aceleran el desarrollo de los j\u00f3venes */
-      if (p.age <= 23 && typeof getBonusEntrenamiento === 'function') gain += getBonusEntrenamiento()
-      gain = Math.max(-4, Math.min(15, gain))
-      p.skill = Math.min(99, Math.max(1, p.skill + gain))
-    } else {
-      var baseLoss = p.age >= 35 ? 4 : p.age >= 33 ? 2 : 1
-      var change
-      if (avgRating >= 8.0) change = 2
-      else if (avgRating >= 7.0) change = 1
-      else if (avgRating >= 6.0) change = 0
-      else if (avgRating >= 5.0) change = -1
-      else if (avgRating >= 4.0) change = -2
-      else change = -4
-
-      change -= baseLoss - 1
-      if (playRate < 0.3 && avgRating > 0) change -= 1
-      if (playRate === 0) change -= 1
-
-      var minSkill = p.age >= 35 ? 40 : p.age >= 33 ? 45 : 50
-      var finalSkill = Math.max(minSkill, Math.min(99, p.skill + Math.max(-4, Math.min(3, change))))
-      change = finalSkill - p.skill
-      p.skill = finalSkill
-    }
+    /* Fórmula de evolución: FactorEdad × FactorMinutos × FactorEntrenamiento */
+    var nivelEnt = (typeof getZonaClub === 'function' && getZonaClub()) ? (getZonaClub().entrenamiento || 1) : 1
+    aplicarFormulaEvolucion(p, totalM, nivelEnt)
 
     /* Versatility bonus: jugar en múltiples posiciones ayuda al desarrollo */
     var otherPosCount = 0
     if (p.otherPositions) {
       otherPosCount = p.otherPositions.filter(function(o) { return o.pct >= 15 }).length
     }
-    if (otherPosCount >= 4) p.skill = Math.min(99, p.skill + 2)
-    else if (otherPosCount >= 2) p.skill = Math.min(99, p.skill + 1)
+    var versBonus = 0
+    if (otherPosCount >= 4) versBonus = 2
+    else if (otherPosCount >= 2) versBonus = 1
+    if (versBonus > 0) {
+      /* No crecer por encima del potencial por el bonus de versatilidad */
+      var capPs = p.potencial != null ? Math.min(99, p.potencial) : 99
+      p.skill = Math.min(capPs, (p.skill || 0) + versBonus)
+    }
 
     var change = Math.round(p.skill - oldSkill)
     if (change !== 0) {
@@ -14081,42 +14943,10 @@ function progresarJugadoresIA(totalM) {
   var retirados = []
   state.leagueTeams.forEach(function(team) {
     var keep = []
+    var aiNivel = getAIFacilityLevel(team.rating || 70)
     team.players.forEach(function(p) {
-      var playRate = Math.min(1, (p.matches || 0) / totalM)
-      var avgRating = calcularAvgRating(p.matchHistory)
-
-      if (p.age <= 29) {
-        var gain
-        if (avgRating >= 8.0) gain = 5
-        else if (avgRating >= 7.0) gain = 3
-        else if (avgRating >= 6.0) gain = 2
-        else if (avgRating >= 5.0) gain = 1
-        else if (avgRating >= 4.0) gain = 0
-        else gain = -1
-
-        if (p.age < 23 && playRate >= 0.7) gain += 1
-        if (playRate > 0 && playRate < 0.3) gain -= 1
-
-        gain = Math.max(-4, Math.min(5, gain))
-        p.skill = Math.min(99, Math.max(1, p.skill + gain))
-      } else {
-        var baseLoss = p.age >= 35 ? 4 : p.age >= 33 ? 2 : 1
-        var change
-        if (avgRating >= 8.0) change = 1
-        else if (avgRating >= 7.0) change = 0
-        else if (avgRating >= 6.0) change = -1
-        else if (avgRating >= 5.0) change = -1
-        else if (avgRating >= 4.0) change = -2
-        else change = -4
-
-        change -= baseLoss - 1
-        if (playRate < 0.3 && avgRating > 0) change -= 1
-        if (playRate === 0) change -= 1
-
-        var minSkill = p.age >= 35 ? 40 : p.age >= 33 ? 45 : 50
-        var finalSkill = Math.max(minSkill, Math.min(99, p.skill + Math.max(-4, Math.min(3, change))))
-        p.skill = finalSkill
-      }
+      /* Fórmula de evolución con nivel de instalaciones según rating del club */
+      aplicarFormulaEvolucion(p, totalM, aiNivel)
 
       /* Versatility bonus for IA players */
       var otherCount = 0
@@ -14284,6 +15114,13 @@ function getPolandSupercopaForView() {
   return { week: 1, fixtures: [], final: finalMatch, winner: null }
 }
 
+function getNetherlandsSupercopaForView() {
+  /* Johan Cruyff Shield para ver desde otro país: PSV vs AZ Alkmaar */
+  var teams = ['psv', 'az-alkmaar']
+  var finalMatch = { round: 'F', label: 'Final', week: 1, home: teams[0], away: teams[1], homeScore: null, awayScore: null, played: false }
+  return { week: 1, fixtures: [], final: finalMatch, winner: null }
+}
+
 function getFranceCupForView() {
   var l1fr = (getLeagueTeams('l1fr') || []).map(function(t) { return t.id || t.teamId })
   var l2fr = (getLeagueTeams('l2fr') || []).map(function(t) { return t.id || t.teamId })
@@ -14348,6 +15185,64 @@ function getAustriaCupForView() {
   return cupState
 }
 
+/* R0 (1/32) de la KNVB Beker: 18 Eredivisie + modesto de Segunda hasta 32.
+   No depende de state.countryId, por lo que sirve también para ver la copa
+   de Países Bajos desde otro país (solo muestra clubes holandeses). */
+function generarRondaCopaHolanda(roundIdx, previousWinners, cupState) {
+  var sched = (window.KnvbCopa && window.KnvbCopa.schedule) || []
+  var entry = sched[roundIdx]
+  if (!entry) return []
+  var roundTeams
+  if (roundIdx === 0) {
+    roundTeams = []
+    /* Eredivisie (18) */
+    var er = getLeagueTeams('eredivisie') || []
+    er.forEach(function(t) {
+      var tid = t.id || t.teamId
+      if (tid && roundTeams.indexOf(tid) < 0) roundTeams.push(tid)
+    })
+    /* Modesto de Segunda hasta completar 32 */
+    var need = 32 - roundTeams.length
+    if (need > 0 && window.KnvbCopa && typeof window.KnvbCopa.getRegionalTeams === 'function') {
+      var regIds = window.KnvbCopa.getRegionalTeams(Math.max(need, 14))
+      regIds.forEach(function(id) { if (roundTeams.indexOf(id) < 0 && roundTeams.length < 32) roundTeams.push(id) })
+    }
+    if (roundTeams.length % 2 !== 0) roundTeams = roundTeams.slice(0, Math.floor(roundTeams.length / 2) * 2)
+  } else {
+    roundTeams = (previousWinners || []).slice()
+    if (cupState && cupState._pendingByes && cupState._pendingByes[roundIdx - 1]) {
+      roundTeams.push(cupState._pendingByes[roundIdx - 1])
+      delete cupState._pendingByes[roundIdx - 1]
+    }
+  }
+  if (!roundTeams || roundTeams.length < 2) return []
+
+  var pairedResult = pairTeamsWithoutFiliales(roundTeams)
+  var fixtures = []
+  for (var pi = 0; pi < pairedResult.pairs.length; pi++) {
+    var home = pairedResult.pairs[pi][0]
+    var away = pairedResult.pairs[pi][1]
+    /* Segunda (modesto) siempre local cuando se cruza con un club de Primera */
+    var homeIsLower = !!(window._MODESTO_HOLANDA_MAP && window._MODESTO_HOLANDA_MAP[home])
+    var awayIsLower = !!(window._MODESTO_HOLANDA_MAP && window._MODESTO_HOLANDA_MAP[away])
+    if (!homeIsLower && awayIsLower) { var tmp = home; home = away; away = tmp }
+    fixtures.push({ round: 'R' + roundIdx, label: entry.label, week: entry.week, home: home, away: away, homeScore: null, awayScore: null, played: false })
+  }
+  if (pairedResult.bye && cupState) {
+    cupState._pendingByes = cupState._pendingByes || {}
+    cupState._pendingByes[roundIdx] = pairedResult.bye
+  }
+  return fixtures
+}
+
+function getNetherlandsCupForView() {
+  if (!window.KnvbCopa) return null
+  var cupState = { schedule: window.KnvbCopa.schedule, roundIdx: 0, allFixtures: [], eliminated: [], _pendingByes: {} }
+  var f = generarRondaCopaHolanda(0, [], cupState)
+  cupState.allFixtures = f.slice()
+  return cupState
+}
+
 function getGermanySupercopaForView() {
   var blTeams = getLeagueTeams('bl') || []
   if (blTeams.length < 2) return null
@@ -14399,7 +15294,6 @@ function getEflCupForView() {
 }
 
 function renderCopaView(viewType, selectedRoundIdx) {
-  console.log('renderCopaView state.cup:', state.cup);
   var activeCountry = state.leagueViewCountry || state.countryId || 'spain'
   var tdl = state.tacaDaLiga
   var eflCupData = state.eflCup
@@ -14474,6 +15368,16 @@ function renderCopaView(viewType, selectedRoundIdx) {
     if (state.countryId !== 'belgium') {
       cup = null
       supercopa = null
+    } else {
+      if (!state.cup) state.cup = generarCopa()
+      if (!state.supercopa) state.supercopa = generarSupercopa()
+      cup = state.cup
+      supercopa = state.supercopa
+    }
+  } else if (activeCountry === 'netherlands') {
+    if (state.countryId !== 'netherlands') {
+      cup = getNetherlandsCupForView()
+      supercopa = getNetherlandsSupercopaForView()
     } else {
       if (!state.cup) state.cup = generarCopa()
       if (!state.supercopa) state.supercopa = generarSupercopa()
@@ -14595,13 +15499,11 @@ function renderCopaView(viewType, selectedRoundIdx) {
       : cup.schedule
     /* Match count per round index */
     /* Match count per round index */
-    var matchCounts = activeCountry === 'poland' ? [32, 16, 8, 4, 2, 1, 1] : activeCountry === 'france' ? [18, 9, 5, 3, 2, 1] : activeCountry === 'italy' ? [20, 10, 5, 2, 2, 1] : activeCountry === 'germany' || activeCountry === 'england' ? [32, 16, 8, 4, 2, 1] : activeCountry === 'belgium' ? (window.BelgiumCopa ? window.BelgiumCopa.getCupBlueprint(18).map(function(x) { return Math.max(1, Math.ceil(x.teams / 2)) }) : [9, 8, 4, 2, 1, 1]) : [41, 20, 10, 5, 3, 2, 1]
-    console.log('copaSchedule:', copaSchedule)
+    var matchCounts = activeCountry === 'poland' ? [32, 16, 8, 4, 2, 1, 1] : activeCountry === 'france' ? [18, 9, 5, 3, 2, 1] : activeCountry === 'italy' ? [20, 10, 5, 2, 2, 1] : activeCountry === 'germany' || activeCountry === 'england' ? [32, 16, 8, 4, 2, 1] : activeCountry === 'belgium' ? (window.BelgiumCopa ? window.BelgiumCopa.getCupBlueprint(18).map(function(x) { return Math.max(1, Math.ceil(x.teams / 2)) }) : [9, 8, 4, 2, 1, 1]) : activeCountry === 'netherlands' ? [16, 8, 4, 2, 1, 1] : [41, 20, 10, 5, 3, 2, 1]
     copaSchedule.forEach(function(s, ri) {
       if (s.isSupercopa) return
       var actualIdx = cup.schedule.indexOf(s)
       var roundFixtures = cup.allFixtures ? cup.allFixtures.filter(function(f) { return f.round === ('R' + actualIdx) || f.week === s.week }) : []
-      console.log('roundFixtures:', roundFixtures)
       var hasFixtures = roundFixtures.length > 0
       html += '<div class="copa-round">'
       if (hasFixtures) {
@@ -14753,6 +15655,7 @@ function getDivisionBaseBudget(leagueId) {
   if (leagueId === 'bl2') return 5000000
   if (leagueId === 'epl') return 25000000
   if (leagueId === 'l1b') return 10000000
+  if (leagueId === 'eredivisie') return 12000000
   if (leagueId.startsWith('lpl4g')) return 300000
   if (leagueId.startsWith('l3sg')) return 500000
   if (leagueId.startsWith('l2b')) return 1500000
@@ -14784,6 +15687,7 @@ function getCupCompName(countryId) {
   if (countryId === 'germany') return 'DFB-Pokal'
   if (countryId === 'england') return 'FA Cup'
   if (countryId === 'belgium') return 'Copa de Bélgica'
+  if (countryId === 'netherlands') return 'Copa de los Países Bajos'
   return 'Copa del Rey'
 }
 
@@ -14795,6 +15699,7 @@ function getSupercopaCompName(countryId) {
   if (countryId === 'germany') return 'Supercopa Alemania'
   if (countryId === 'england') return 'Community Shield'
   if (countryId === 'belgium') return 'Supercopa de Bélgica'
+  if (countryId === 'netherlands') return 'Supercopa de los Países Bajos'
   return 'Supercopa de Espa\u00f1a'
 }
 
@@ -14811,7 +15716,9 @@ var COMP_TROFEO_MAP = {
   'Supercopa Europa': 'https://cdn.resfu.com/img_data/competiciones/copa/133.png?size=120x&lossy=1',
   'Liga Belga': 'https://cdn.resfu.com/img_data/competiciones/copa/12.png?size=120x&lossy=1',
   'Copa Belga': 'https://cdn.resfu.com/img_data/competiciones/copa/651.png?size=120x&lossy=1',
+  'Copa de los Pa\u00edses Bajos': 'https://cdn.resfu.com/img_data/competiciones/copa/524.png?size=120x&lossy=1',
   'Supercopa Belga': 'https://cdn.resfu.com/img_data/competiciones/copa/676.png?size=120x&lossy=1',
+  'Supercopa de los Pa\u00edses Bajos': 'https://cdn.resfu.com/img_data/competiciones/copa/298.png?size=120x&lossy=1',
   'Segunda Divisi\u00f3n B\u00e9lgica': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
   'Divisi\u00f3n Nacional Belga 1': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
   'Divisi\u00f3n Belga 2': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
@@ -14869,7 +15776,11 @@ var COMP_TROFEO_MAP = {
   'Copa de Austria': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
   'Segunda Austria': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
   'Tercera Austria': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
-  'Cuarta Austria': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1'
+  'Cuarta Austria': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
+  'Eredivisie': 'https://cdn.resfu.com/img_data/competiciones/copa/9.png?size=120x&lossy=1',
+  'Eerste Divisie': 'https://cdn.resfu.com/media/img/trophy_pic/cup_nofoto.png?size=120x&lossy=1',
+  'KNVB Beker': 'https://cdn.resfu.com/img_data/competiciones/copa/524.png?size=120x&lossy=1',
+  'Supercopa Pa\u00edses Bajos': 'https://cdn.resfu.com/img_data/competiciones/copa/298.png?size=120x&lossy=1'
 }
 function getCompTrofeo(name) { return COMP_TROFEO_MAP[name] || null }
 
@@ -14882,6 +15793,7 @@ function getCupLogo(countryId) {
   if (countryId === 'germany') return 'https://cdn.resfu.com/media/img/league_logos/dfb_pokal.png?size=120x&lossy=1'
   if (countryId === 'england') return 'https://cdn.resfu.com/media/img/league_logos/fa_cup.png?size=120x&lossy=1'
   if (countryId === 'belgium') return 'https://cdn.resfu.com/media/img/league_logos/copa-belgica.png?size=120x&lossy=1'
+  if (countryId === 'netherlands') return 'https://cdn.resfu.com/media/img/league_logos/beker.png?size=120x&lossy=1'
   return 'https://cdn.resfu.com/media/img/league_logos/copa_del_rey.png?size=120x&lossy=1'
 }
 
@@ -14894,6 +15806,7 @@ function getCupTrofeo(countryId) {
   if (countryId === 'germany') return 'https://cdn.resfu.com/img_data/competiciones/copa/140.png?size=120x&lossy=1'
   if (countryId === 'england') return 'https://cdn.resfu.com/img_data/competiciones/copa/139.png?size=120x&lossy=1'
   if (countryId === 'belgium') return getCompTrofeo('Copa Belga') || 'https://cdn.resfu.com/img_data/competiciones/copa/651.png?size=120x&lossy=1'
+  if (countryId === 'netherlands') return getCompTrofeo('Copa de los Países Bajos') || 'https://cdn.resfu.com/img_data/competiciones/copa/524.png?size=120x&lossy=1'
   return 'https://cdn.resfu.com/img_data/competiciones/copa/129.png?size=120x&lossy=1'
 }
 
@@ -14905,6 +15818,7 @@ function getSupercopaLogo(countryId) {
   if (countryId === 'germany') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_alemania.png?size=120x&lossy=1'
   if (countryId === 'england') return 'https://cdn.resfu.com/media/img/league_logos/community_shield.png?size=120x&lossy=1'
   if (countryId === 'belgium') return 'https://cdn.resfu.com/media/img/league_logos/supercopa-belga.png?size=120x&lossy=1'
+  if (countryId === 'netherlands') return 'https://cdn.resfu.com/media/img/league_logos/supercopa_holanda.png?size=120x&lossy=1'
   return 'https://cdn.resfu.com/media/img/league_logos/supercopa_espana.png?size=120x&lossy=1'
 }
 
@@ -14916,6 +15830,7 @@ function getSupercopaTrofeo(countryId) {
   if (countryId === 'germany') return 'https://cdn.resfu.com/img_data/competiciones/copa/180.png?size=120x&lossy=1'
   if (countryId === 'england') return 'https://cdn.resfu.com/img_data/competiciones/copa/322.png?size=120x&lossy=1'
   if (countryId === 'belgium') return getCompTrofeo('Supercopa Belga') || 'https://cdn.resfu.com/img_data/competiciones/copa/676.png?size=120x&lossy=1'
+  if (countryId === 'netherlands') return getCompTrofeo('Supercopa de los Países Bajos') || 'https://cdn.resfu.com/img_data/competiciones/copa/298.png?size=120x&lossy=1'
   return 'https://cdn.resfu.com/img_data/competiciones/copa/132.png?size=120x&lossy=1'
 }
 
@@ -14960,6 +15875,11 @@ function newGame() {
   state.finances = { balance: startingBudget, history: [] }
   initZonaClub()
   state.inbox = []
+  if (!state.sponsors) state.sponsors = { slots: { principal: null, tecnico: null, secundarios: null, naming: null }, generated: false }
+  generarOfertasPatrocinioIniciales()
+  state._popupShownMatchday = null
+  state._popupSuppressed = false
+  setTimeout(function() { try { mostrarPopupPrioridad() } catch (e) {} }, 600)
   state.captainId = null
   state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
   state.allTeamsHistory = {}
@@ -14972,6 +15892,7 @@ function newGame() {
     enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null,
     teamStats: {},
   }))
+  state.players.forEach(p => { ensurePlayerPotencial(p) })
   state.players.forEach(p => { p.energy = 100 })
   state.players.forEach(p => {
     if (p.loanedFrom) { p.onLoan = true; p.loanFrom = p.loanedFrom; p.loanFromName = p.loanedFromName; p.loanFromLogo = p.loanedFromLogo }
@@ -14984,7 +15905,9 @@ function newGame() {
     state.filialSquad = (getRealSquad(myFilialId) || []).map(p => {
       const bp = getBaseDato(myFilialId)
       const fCap = bp ? bp.rating : 99
-      return { ...p, skill: Math.min(fCap, p.skill), id: 'filial-' + p.id, value: calcValue(p.skill, p.age, p.position), energy: 100, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matches: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, teamStats: {} }
+      const pp = { ...p, skill: Math.min(fCap, p.skill), id: 'filial-' + p.id, value: calcValue(p.skill, p.age, p.position), energy: 100, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matches: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, teamStats: {} }
+      ensurePlayerPotencial(pp)
+      return pp
     })
   } else {
     state.filialSquad = []
@@ -14997,7 +15920,9 @@ function newGame() {
       const fCap2 = bp2 ? bp2.rating : 99
       const canteraBonus = typeof getBonusCantera === 'function' ? getBonusCantera() : 0
       const canteraSkill = Math.min(fCap2, (p.skill || 0) + canteraBonus)
-      return { ...p, skill: canteraSkill, id: 'filial2-' + p.id, value: calcValue(canteraSkill, p.age, p.position), energy: 100, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matches: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, teamStats: {} }
+      const pp2 = { ...p, skill: canteraSkill, id: 'filial2-' + p.id, value: calcValue(canteraSkill, p.age, p.position), energy: 100, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matches: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, teamStats: {} }
+      ensurePlayerPotencial(pp2)
+      return pp2
     })
   } else {
     state.filial2Squad = []
@@ -15011,7 +15936,7 @@ function newGame() {
     const base = getRealSquad(t.id)
     const cap = t.rating || 99
     const squad = base
-      ? base.map(p => { var pp = { ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100 }; if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp })
+      ? base.map(p => { var pp = { ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100 }; ensurePlayerPotencial(pp); if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp })
       : generateCpuSquad(t.id, state.countryId, t.rating)
     state.leagueTeams.push({ teamId: t.id, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: squad, rating: t.rating || 50, palmares: t.palmares })
     allTeamIds.push(t.id)
@@ -15048,7 +15973,7 @@ function newGame() {
   initAllLeagueData()
 
   /* Generate cup for supported countries */
-  if (state.countryId === 'spain' || state.countryId === 'portugal' || state.countryId === 'poland' || state.countryId === 'france' || state.countryId === 'italy' || state.countryId === 'germany' || state.countryId === 'england' || state.countryId === 'austria' || state.countryId === 'belgium') {
+  if (state.countryId === 'spain' || state.countryId === 'portugal' || state.countryId === 'poland' || state.countryId === 'france' || state.countryId === 'italy' || state.countryId === 'germany' || state.countryId === 'england' || state.countryId === 'austria' || state.countryId === 'belgium' || state.countryId === 'netherlands') {
     state.cup = generarCopa()
     state.supercopa = generarSupercopa()
     if (state.countryId === 'austria') state.supercopa = null
@@ -15419,7 +16344,7 @@ function showNewGameScreen() {
   document.getElementById('ng-step-teams').classList.add('ng-hidden')
 
   /* Pre-load all country data to show league counts */
-  var _countriesToLoad = ['france', 'spain', 'portugal', 'poland', 'austria', 'belgium']
+  var _countriesToLoad = ['france', 'spain', 'portugal', 'poland', 'austria', 'belgium', 'netherlands']
   var _loadedCount = 0
   _countriesToLoad.forEach(function(cid) {
     loadCountryData(cid, function() {
@@ -15571,6 +16496,9 @@ function getBaseDato(teamId) {
   }
   if (window._MODESTO_AUSTRIA_MAP && window._MODESTO_AUSTRIA_MAP[teamId]) {
     return window._MODESTO_AUSTRIA_MAP[teamId]
+  }
+  if (window._MODESTO_HOLANDA_MAP && window._MODESTO_HOLANDA_MAP[teamId]) {
+    return window._MODESTO_HOLANDA_MAP[teamId]
   }
   if (window._AUSTRIA_ACADEMY_TEAMS && window._AUSTRIA_ACADEMY_TEAMS[teamId]) {
     return window._AUSTRIA_ACADEMY_TEAMS[teamId]
@@ -16851,7 +17779,12 @@ function addNotification(type, title, body, extraData) {
     if (extraData.playerId) notif.offer = extraData
     else if (extraData.logo) notif.logo = extraData.logo
     if (extraData.playerData) notif.playerData = extraData.playerData
+    if (extraData.categoriaPatrocinio !== undefined) notif.sponsor = extraData
   }
+  /* Eventos prioritarios: ofertas de fichaje/cesión y patrocinio, que
+     requieren decisión del usuario. Desencadenan el pop-up central. */
+  if (type === 'transfer' && notif.offer) notif.priority = true
+  else if (type === 'sponsor' && notif.sponsor) notif.priority = true
   state.inbox.unshift(notif)
   updateInboxBadge()
 }
@@ -16881,6 +17814,96 @@ function updateInboxBadge() {
   }
 }
 
+/* ============ POP-UP DE NOTIFICACIÓN PRIORITARIA ============
+   Muestra UN único pop-up por avance de semana con un resumen de las
+   novedades prioritarias (ofertas de fichaje/cesión y patrocinio). Evita
+   el spam: una vez mostrado en una jornada, no vuelve a saltar. */
+
+function esNotifPrioritaria(n) {
+  return !!(n && n.priority && !n.read && !n._popupShown)
+}
+
+function collectPrioridadesSemana() {
+  var md = state.currentMatchday || 0
+  var prioridades = (state.inbox || []).filter(function(n) {
+    return esNotifPrioritaria(n) && (n.matchday === md || n.matchday === 0)
+  })
+  var transfers = prioridades.filter(function(n) { return n.type === 'transfer' && n.offer })
+  var sponsors = prioridades.filter(function(n) { return n.type === 'sponsor' && n.sponsor })
+  return { transfers: transfers, sponsors: sponsors, all: prioridades }
+}
+
+function marcarPrioridadesVistas(prioridades) {
+  (prioridades || []).forEach(function(n) { n._popupShown = true })
+  state._popupShownMatchday = state.currentMatchday || 0
+}
+
+function mostrarPopupPrioridad() {
+  if (state._popupSuppressed) return
+  if (state._popupShownMatchday === (state.currentMatchday || 0)) return
+  var info = collectPrioridadesSemana()
+  if (info.all.length === 0) return
+  /* Anti-spam: un único pop-up por semana. */
+  marcarPrioridadesVistas(info.all)
+
+  var titulo = 'Novedades en la bandeja de entrada'
+  var resumen = ''
+  if (info.transfers.length > 0) {
+    var nombres = info.transfers.map(function(n) { return n.title.replace(/^Oferta por /, '') })
+    resumen += '<div class="pp-block"><div class="pp-block-title">\ud83d\udcb0 ' + info.transfers.length + ' oferta' + (info.transfers.length > 1 ? 's' : '') + ' de fichaje/cesi\u00f3n</div><div class="pp-block-list">' + nombres.map(function(x) { return '<div class="pp-line">\u00b7 ' + x + '</div>' }).join('') + '</div></div>'
+  }
+  if (info.sponsors.length > 0) {
+    resumen += '<div class="pp-block"><div class="pp-block-title">\ud83d\udccb ' + info.sponsors.length + ' oferta' + (info.sponsors.length > 1 ? 's' : '') + ' de patrocinio</div><div class="pp-block-list">' + info.sponsors.map(function(n) { return '<div class="pp-line">\u00b7 ' + escHtml(n.title) + '</div>' }).join('') + '</div></div>'
+  }
+  if (!resumen) resumen = '<div class="pp-block">Hay novedades que requieren tu atenci\u00f3n en la bandeja de entrada.</div>'
+
+  /* Acciones rápidas si hay EXACTAMENTE 1 oferta de transferencia. */
+  var solaOferta = (info.transfers.length === 1 && info.sponsors.length === 0) ? info.transfers[0] : null
+
+  var overlay = document.createElement('div')
+  overlay.id = 'popup-prioridad'
+  overlay.className = 'modal-overlay popup-prioridad'
+  overlay.style.cssText = 'display:flex;align-items:center;justify-content:center;z-index:2000;opacity:1;visibility:visible'
+  var html = '<div class="modal-content pp-modal" style="max-width:420px;width:90%">'
+  html += '<div class="pp-title"><svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> ' + titulo + '</div>'
+  html += '<div class="pp-body">' + resumen + '</div>'
+  if (solaOferta) {
+    var of = solaOferta.offer
+    html += '<div class="pp-offer"><img src="' + (of.teamLogo || NOPHOTO) + '" style="width:34px;height:34px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'"><span style="flex:1;font-size:13px">' + escHtml(of.teamName || 'Equipo') + ' ofrece <strong>' + formatMoney(of.amount || 0) + '</strong> por ' + escHtml(of.playerName || '') + '</span></div>'
+  }
+  html += '<div class="pp-actions">' +
+    (solaOferta ? '<div id="pp-accept" class="pp-btn pp-accept">Aceptar</div><div id="pp-reject" class="pp-btn pp-reject">Rechazar</div>' : '') +
+    '<div id="pp-inbox" class="pp-btn pp-primary">Ir a Bandeja de Entrada</div>' +
+    '<div id="pp-close" class="pp-btn pp-close">Cerrar</div>' +
+  '</div>'
+  html += '</div>'
+  overlay.innerHTML = html
+  document.body.appendChild(overlay)
+
+  var closePopup = function() { if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay) }
+  document.getElementById('pp-close').onclick = closePopup
+  document.getElementById('pp-inbox').onclick = function() {
+    closePopup()
+    state.clubSubTab = 'inbox'
+    if (typeof renderTab === 'function') renderTab('club')
+    if (typeof hideInboxDetail === 'function') hideInboxDetail()
+  }
+  if (solaOferta) {
+    document.getElementById('pp-accept').onclick = function() {
+      if (typeof window.aceptarOferta === 'function') window.aceptarOferta(of.playerId, of.teamId, of.amount)
+      solaOferta.offer = null
+      closePopup()
+      if (typeof renderInbox === 'function') renderInbox()
+    }
+    document.getElementById('pp-reject').onclick = function() {
+      if (typeof window.rechazarOferta === 'function') window.rechazarOferta(of.playerId)
+      solaOferta.offer = null
+      closePopup()
+      if (typeof renderInbox === 'function') renderInbox()
+    }
+  }
+}
+
 function renderInbox() {
   const container = document.getElementById('club-inbox-content')
   if (!container) return
@@ -16889,6 +17912,7 @@ function renderInbox() {
     injury: { label: 'Servicio M\u00e9dico', icon: '<svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg>' },
     transfer: { label: 'Mercado', icon: '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 6v12M6 12h12"/></svg>' },
     trophy: { label: 'Logro', icon: '<svg viewBox="0 0 24 24"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/><path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/><path d="M6 21h12"/><path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"/><path d="M6 9a6 6 0 0 1 12 0v1a6 6 0 0 1-12 0z"/></svg>' },
+    sponsor: { label: 'Patrocinio', icon: '<svg viewBox="0 0 24 24"><path d="M9 12h6"/><path d="M9 16h6"/><path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M3 10h18"/></svg>' },
     general: { label: 'Notificaci\u00f3n', icon: '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' },
   }
   if (!state.inbox || state.inbox.length === 0) {
@@ -16903,22 +17927,49 @@ function renderInbox() {
     (unreadCount > 0 ? '<span style="background:#EF4444;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px">' + unreadCount + '</span>' : '') +
     '</div>' +
   '</div>'
-  let html = headerHtml + '<div class="inbox-list" id="inbox-list">'
-  html += state.inbox.map(n => {
-    const t = senderLabels[n.type] || senderLabels.general
-    const date = new Date(n.createdAt)
-    const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })
-    const timeStr = String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0')
-    return '<div class="inbox-item' + (n.read ? '' : ' unread') + '" data-inbox-id="' + n.id + '">' +
-      '<div class="inbox-avatar ' + n.type + '">' + t.icon + '</div>' +
-      '<div class="inbox-body">' +
-        '<div class="inbox-row1"><span class="inbox-sender">' + t.label + '</span><span class="inbox-date">' + dateStr + ' ' + timeStr + '</span></div>' +
-        '<div class="inbox-subject">' + ((n.offer && n.offer.categoriaEquipo) ? '<span style="background:' + (n.offer.categoriaEquipo === 'SUB_18' ? '#8B5CF6' : n.offer.categoriaEquipo === 'EQUIPO_B' ? '#2563EB' : '#6B7280') + ';color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:5px">' + (n.offer.categoriaEquipo === 'SUB_18' ? 'U18' : n.offer.categoriaEquipo === 'EQUIPO_B' ? 'B' : '1º') + '</span>' : '') + n.title + '</div>' +
-        (n.body ? '<div class="inbox-preview">' + n.body + '</div>' : '') +
-      '</div></div>'
-  }).join('')
+
+  /* Filtros por tipo (tarjetas). 'all' = General. */
+  var f = state.inboxFilter || 'all'
+  var tipos = [
+    { key: 'all', label: 'General' },
+    { key: 'general', label: 'Notificaci\u00f3n' },
+    { key: 'transfer', label: 'Mercado' },
+    { key: 'match', label: 'Resultado' },
+    { key: 'injury', label: 'Servicio M\u00e9dico' },
+    { key: 'sponsor', label: 'Patrocinio' },
+  ]
+  var filtrosHtml = '<div class="inbox-filters">' + tipos.map(function(t) {
+    var count = t.key === 'all' ? state.inbox.length : state.inbox.filter(function(n) { return n.type === t.key }).length
+    return '<div class="inbox-filter' + (f === t.key ? ' active' : '') + '" data-filter="' + t.key + '"><span class="inbox-filter-label">' + t.label + '</span><span class="inbox-filter-count">' + count + '</span></div>'
+  }).join('') + '</div>'
+
+  var filtered = f === 'all' ? state.inbox : state.inbox.filter(function(n) { return n.type === f })
+  let html = headerHtml + filtrosHtml + '<div class="inbox-list" id="inbox-list">'
+  if (filtered.length === 0) {
+    html += '<div class="inbox-empty" style="padding:30px 20px"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg><p>No hay notificaciones de este tipo</p></div>'
+  } else {
+    html += filtered.map(n => {
+      const t = senderLabels[n.type] || senderLabels.general
+      const date = new Date(n.createdAt)
+      const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })
+      const timeStr = String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0')
+      return '<div class="inbox-item' + (n.read ? '' : ' unread') + '" data-inbox-id="' + n.id + '">' +
+        '<div class="inbox-avatar ' + n.type + '">' + t.icon + '</div>' +
+        '<div class="inbox-body">' +
+          '<div class="inbox-row1"><span class="inbox-sender">' + t.label + '</span><span class="inbox-date">' + dateStr + ' ' + timeStr + '</span></div>' +
+          '<div class="inbox-subject">' + ((n.offer && n.offer.categoriaEquipo) ? '<span style="background:' + (n.offer.categoriaEquipo === 'SUB_18' ? '#8B5CF6' : n.offer.categoriaEquipo === 'EQUIPO_B' ? '#2563EB' : '#6B7280') + ';color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:5px">' + (n.offer.categoriaEquipo === 'SUB_18' ? 'U18' : n.offer.categoriaEquipo === 'EQUIPO_B' ? 'B' : '1º') + '</span>' : '') + n.title + '</div>' +
+          (n.body ? '<div class="inbox-preview">' + n.body + '</div>' : '') +
+        '</div></div>'
+    }).join('')
+  }
   html += '</div><div class="inbox-detail" id="inbox-detail" style="display:none"><div class="inbox-detail-header"><button class="inbox-detail-back" id="inbox-detail-back"><svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Volver</button></div><div class="inbox-detail-body" id="inbox-detail-body"></div></div>'
   container.innerHTML = html
+  container.querySelectorAll('.inbox-filter').forEach(function(fel) {
+    fel.onclick = function() {
+      state.inboxFilter = fel.dataset.filter
+      renderInbox()
+    }
+  })
   container.querySelectorAll('.inbox-item').forEach(function(el) {
     el.onclick = function() {
       const id = parseFloat(el.dataset.inboxId)
@@ -16952,6 +18003,7 @@ function showInboxDetail(n) {
     injury: { label: 'Servicio M\u00e9dico', icon: '<svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg>' },
     transfer: { label: 'Mercado', icon: '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 6v12M6 12h12"/></svg>' },
     trophy: { label: 'Logro', icon: '<svg viewBox="0 0 24 24"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/><path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/><path d="M6 21h12"/><path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"/><path d="M6 9a6 6 0 0 1 12 0v1a6 6 0 0 1-12 0z"/></svg>' },
+    sponsor: { label: 'Patrocinio', icon: '<svg viewBox="0 0 24 24"><path d="M9 12h6"/><path d="M9 16h6"/><path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M3 10h18"/></svg>' },
     general: { label: 'Notificaci\u00f3n', icon: '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' },
   }
   const t = senderLabels[n.type] || senderLabels.general
@@ -16999,6 +18051,35 @@ function showInboxDetail(n) {
         '<div id="ib-reject-' + n.id + '" style="flex:1;padding:13px;background:#DC2626;border-radius:10px;text-align:center;font-size:14px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg> Rechazar</div>' +
       '</div>' +
       '<div id="ib-counter-' + n.id + '" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:var(--accent);border-radius:10px;text-align:center;font-size:14px;font-weight:700;color:#fff;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Contraofertar</div>'
+  } else if (n.sponsor) {
+    var sp = n.sponsor
+    var spCat = sp.categoriaPatrocinio || sp.catid
+    var spSlot = SPONSOR_SLOTS[spCat] || { label: spCat }
+    bodyHtml = '<div style="margin-bottom:14px;padding:10px 14px;background:#2563EB;color:#fff;border-radius:10px;font-size:13px;font-weight:600;text-align:center">Elige una de las 3 propuestas para ' + escHtml(spSlot.label) + '</div>'
+    var spSigned = (state.sponsors && state.sponsors.slots && state.sponsors.slots[spCat])
+    bodyHtml += '<div class="sponsor-offer-list">'
+    ;(sp.ofertas || []).forEach(function(o, oi) {
+      var spAnual = formatMoney(o.anual)
+      var spBonus = o.bonusObjetivo > 0 ? formatMoney(o.bonusObjetivo) : '—'
+      bodyHtml += '<div class="sponsor-offer' + (spSigned ? ' disabled' : '') + '">' +
+        '<div class="sponsor-offer-head">' +
+          '<span class="sponsor-offer-brand">' + escHtml(o.brand) + '</span>' +
+          '<span class="sponsor-offer-anual">' + spAnual + '/a\u00f1o</span>' +
+        '</div>' +
+        '<div class="sponsor-offer-rows">' +
+          '<div class="sponsor-offer-row"><span>Duraci\u00f3n</span><strong>' + o.anios + ' a\u00f1os</strong></div>' +
+          '<div class="sponsor-offer-row"><span>Bonus por objetivos</span><strong>' + spBonus + '</strong></div>' +
+          (o.descBonus ? '<div class="sponsor-offer-bonus">' + escHtml(o.descBonus) + '</div>' : '') +
+        '</div>' +
+        '<div id="sp-sign-' + n.id + '-' + oi + '" class="sponsor-sign-btn' + (spSigned ? ' hidden' : '') + '">Firmar Contrato</div>' +
+      '</div>'
+    })
+    bodyHtml += '</div>'
+    if (spSigned) {
+      bodyHtml += '<div style="padding:8px 14px;background:rgba(16,185,129,0.08);border-radius:10px;font-size:12px;color:#059669;text-align:center;margin-top:10px">\u2713 Patrocinio activo en esta categor\u00eda</div>'
+    } else {
+      bodyHtml += '<div id="sp-reject-' + n.id + '" style="margin-top:12px;padding:12px;background:#DC2626;border-radius:10px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer">Rechazar oferta</div>'
+    }
   } else if (n.playerData) {
     var pd = n.playerData
     var pk = SIGLA_TO_POS[pd.position] || pd.position
@@ -17110,6 +18191,30 @@ function showInboxDetail(n) {
           counterBtn.style.display = ''
           inputDiv.remove()
         }
+      }
+    }, 0)
+  }
+  if (n.sponsor) {
+    setTimeout(function() {
+      var spCat = n.sponsor.categoriaPatrocinio || n.sponsor.catid
+      var ofertas = n.sponsor.ofertas || []
+      var resolvido = (state.sponsors && state.sponsors.slots && state.sponsors.slots[spCat])
+      ofertas.forEach(function(o, oi) {
+        var btn = document.getElementById('sp-sign-' + n.id + '-' + oi)
+        if (btn && !resolvido) btn.onclick = function() {
+          firmarPatrocinio(spCat, o)
+          n.sponsor = null
+          hideInboxDetail()
+          renderInbox()
+          if (typeof window.showTeamInfo === 'function') { try { window.showTeamInfo(state.teamId) } catch (e) {} }
+        }
+      })
+      var rejectBtn = document.getElementById('sp-reject-' + n.id)
+      if (rejectBtn) rejectBtn.onclick = function() {
+        rechazarPatrocinio(spCat)
+        n.sponsor = null
+        hideInboxDetail()
+        renderInbox()
       }
     }, 0)
   }

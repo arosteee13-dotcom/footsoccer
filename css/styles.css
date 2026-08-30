@@ -2374,6 +2374,52 @@ html, body {
   min-height: 0;
 }
 
+.inbox-filters {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: none;
+}
+.inbox-filters::-webkit-scrollbar { display: none; }
+.inbox-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s;
+}
+.inbox-filter:hover {
+  border-color: rgba(38,99,235,0.4);
+  background: var(--accent-light);
+}
+.inbox-filter.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.inbox-filter.active .inbox-filter-label { color: #fff; }
+.inbox-filter.active .inbox-filter-count { background: #fff; color: var(--accent); }
+.inbox-filter-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+.inbox-filter-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
 .inbox-list {
   flex: 1;
   overflow-y: auto;
@@ -2429,6 +2475,8 @@ html, body {
 .inbox-avatar.transfer { background: rgba(245,158,11,0.12); }
 .inbox-avatar.trophy { background: rgba(251,191,36,0.15); }
 .inbox-avatar.general { background: rgba(107,114,128,0.1); }
+.inbox-avatar.sponsor { background: rgba(124,58,237,0.12); }
+.inbox-avatar.sponsor svg { color: #7C3AED; }
 
 .inbox-body {
   flex: 1;
@@ -2904,6 +2952,14 @@ html, body {
   background: var(--bg-card);
   border-radius: 12px;
   margin-bottom: 10px;
+}
+
+/* Uniforme en todos los contextos (liga, copa, supercopa...): los contenedores
+   de copa/supercopa añaden padding propio, y la fila de estadísticas debe
+   alinearse al mismo ancho que la vista de liga. */
+.copa-wrap .comp-stats-row {
+  margin-left: -12px;
+  margin-right: -12px;
 }
 
 .comp-stat-card {
@@ -6046,15 +6102,16 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
 }
 
 .cs-modal-title {
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   padding-top: 18px;
   font-size: 16px;
+  font-weight: 700;
   color: var(--text);
   text-align: center;
 }
 .cs-search-wrap {
   position: relative;
-  margin: 0 16px 10px;
+  margin: 0 16px 12px;
   flex-shrink: 0;
 }
 .cs-search-icon {
@@ -6069,6 +6126,26 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
 .cs-search-wrap .nat-search {
   padding-left: 34px;
 }
+.nat-search {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.nat-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(38,99,235,0.12);
+}
+.nat-search::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
 #country-selector-modal {
   padding-top: 24px;
   padding-bottom: 24px;
@@ -6078,6 +6155,7 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
   flex: 0 0 auto;
   display: block;
   height: 300px;
+  padding: 0 16px;
 }
 /* Compartido con el selector de país */
 #country-selector-modal {
@@ -6097,64 +6175,82 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
   min-height: 260px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
+  padding: 4px 2px;
 }
 .cs-item {
-  padding: 10px 14px;
+  padding: 12px 14px;
   font-size: 14px;
   text-align: left;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: none;
-  border: none;
-  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
   color: var(--text);
   font-family: var(--font-body);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: all 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 .cs-item:hover {
+  border-color: rgba(38,99,235,0.4);
   background: var(--accent-light);
+  transform: translateX(2px);
 }
 .cs-item:active {
-  background: var(--accent-light);
+  transform: scale(0.98);
 }
 .cs-item.cs-continental {
   font-weight: 700;
-  border-bottom: 1px solid var(--accent);
-  background: rgba(38,99,235,0.06);
+  border-style: dashed;
+  border-color: var(--accent);
+  background: rgba(38,99,235,0.05);
 }
 .cs-item.cs-continental .cs-flag {
   font-size: 18px;
 }
 .cs-item .cs-flag {
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1;
-  width: 30px;
+  width: 34px;
   text-align: center;
   flex-shrink: 0;
 }
 .cs-item .cs-label {
   flex: 1;
-  font-weight: 500;
+  font-weight: 600;
 }
 .cs-item.cs-active {
   background: var(--accent);
   color: #fff;
-  border-bottom-color: transparent;
+  border-color: var(--accent);
 }
 .cs-item.cs-active .cs-label {
   font-weight: 700;
 }
+.cs-item.cs-active:hover {
+  background: var(--accent);
+}
 .cs-item .cs-check {
   flex-shrink: 0;
-  font-size: 14px;
-  opacity: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: transparent;
+  transition: all 0.2s ease;
 }
 .cs-item.cs-active .cs-check {
-  opacity: 1;
+  background: #fff;
+  border-color: transparent;
+  color: var(--accent);
 }
 
 /* ───────── MARKET TOOLBAR ───────── */
@@ -7229,3 +7325,126 @@ td.pos-bar.bar-europa-4 { border-left-color: #79B9DE }
   padding: 9px 12px;
   margin: 12px 0 10px;
 }
+
+/* ───────── PATROCINADORES Y COMERCIAL ───────── */
+.sponsor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 0 14px 12px;
+}
+.sponsor-slot {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.sponsor-slot-head {
+  padding: 12px 14px;
+  background: rgba(124,58,237,0.08);
+  border-bottom: 1px solid var(--border);
+}
+.sponsor-slot-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.sponsor-slot-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.sponsor-slot-body { padding: 14px; flex: 1; display: flex; flex-direction: column; }
+.sponsor-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 18px 0;
+}
+.sponsor-contract { display: flex; flex-direction: column; gap: 6px; }
+.sponsor-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.sponsor-logo { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; background: var(--bg-card); padding: 3px; }
+.sponsor-brand-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.sponsor-line {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 13px; color: var(--text-secondary); padding: 3px 0;
+}
+.sponsor-line strong { color: var(--text); font-weight: 700; }
+.sponsor-bonus-desc { font-size: 11px; color: var(--accent); margin-top: 2px; line-height: 1.3; }
+
+/* Lista de ofertas en el correo */
+.sponsor-offer-list { display: flex; flex-direction: column; gap: 10px; }
+.sponsor-offer {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.sponsor-offer.disabled { opacity: 0.55; pointer-events: none; }
+.sponsor-offer-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.sponsor-offer-logo { width: 30px; height: 30px; object-fit: contain; border-radius: 6px; background: var(--bg-card); padding: 3px; }
+.sponsor-offer-brand { font-size: 15px; font-weight: 700; color: var(--text); flex: 1; }
+.sponsor-offer-anual { font-size: 14px; font-weight: 800; color: #2E7D32; }
+.sponsor-offer-rows { display: flex; flex-direction: column; gap: 4px; }
+.sponsor-offer-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 13px; color: var(--text-secondary); padding: 2px 0;
+}
+.sponsor-offer-row strong { color: var(--text); }
+.sponsor-offer-bonus { font-size: 11px; color: var(--accent); margin-top: 2px; }
+.sponsor-sign-btn {
+  margin-top: 10px; padding: 11px; background: #2563EB; border-radius: 10px;
+  text-align: center; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: background 0.15s;
+}
+.sponsor-sign-btn:hover { background: #1D4ED8; }
+.sponsor-sign-btn.hidden { display: none; }
+
+/* ───────── POPUP DE NOTIFICACIÓN PRIORITARIA ───────── */
+.popup-prioridad {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.pp-modal {
+  padding: 0;
+  overflow: hidden;
+}
+.pp-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(38,99,235,0.05);
+}
+.pp-title svg { color: var(--accent); flex-shrink: 0; }
+.pp-body { padding: 14px 20px; max-height: 55vh; overflow-y: auto; }
+.pp-block { margin-bottom: 12px; }
+.pp-block-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.pp-block-list { display: flex; flex-direction: column; gap: 4px; }
+.pp-line { font-size: 12.5px; color: var(--text-secondary); padding-left: 4px; }
+.pp-offer {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 20px 12px; padding: 10px 12px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  font-size: 13px; color: var(--text);
+}
+.pp-actions {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 14px 20px 16px;
+  border-top: 1px solid var(--border);
+}
+.pp-btn {
+  flex: 1; min-width: 130px;
+  padding: 12px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; font-size: 14px; font-weight: 700;
+  cursor: pointer; color: #fff;
+  transition: opacity 0.15s, background 0.15s;
+}
+.pp-btn:hover { opacity: 0.92; }
+.pp-primary { background: #2563EB; }
+.pp-accept { background: #2E7D32; }
+.pp-reject { background: #DC2626; }
+.pp-close { background: #DC2626; }
+.pp-close:hover { background: #B91C1C; }
