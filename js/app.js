@@ -4654,6 +4654,37 @@ function getTop11Average(players) {
   return Math.round(top.reduce((s, p) => s + (p.skill || 0), 0) / top.length)
 }
 
+/* Convierte el GRL del club a una valoración de estrellas (0.5 - 5.0).
+   Escala exacta:
+   GRL <  50 => 0.5 | 50-55 => 1.0 | 56-60 => 1.5 | 61-65 => 2.0 | 66-70 => 2.5
+   71-74 => 3.0 | 75-78 => 3.5 | 79-82 => 4.0 | 83-86 => 4.5 | >=87 => 5.0 */
+function starsFromGrl(grl) {
+  grl = Number(grl) || 0
+  let value
+  if (grl < 50) value = 0.5
+  else if (grl <= 55) value = 1.0
+  else if (grl <= 60) value = 1.5
+  else if (grl <= 65) value = 2.0
+  else if (grl <= 70) value = 2.5
+  else if (grl <= 74) value = 3.0
+  else if (grl <= 78) value = 3.5
+  else if (grl <= 82) value = 4.0
+  else if (grl <= 86) value = 4.5
+  else value = 5.0
+  let html = ''
+  for (let i = 1; i <= 5; i++) {
+    const pos = value - (i - 1)
+    if (pos >= 1) {
+      html += '<span class="star filled">★</span>'
+    } else if (pos >= 0.5) {
+      html += '<span class="star half">★</span>'
+    } else {
+      html += '<span class="star">★</span>'
+    }
+  }
+  return html
+}
+
 function getTop11EnergyFactor(players) {
   if (!players || players.length === 0) return 1
   const top = [...players].sort((a, b) => (b.skill || 0) - (a.skill || 0)).slice(0, 11)
@@ -6571,8 +6602,7 @@ function renderClub() {
   }
   /* Team stats panel */
   const displayPower = getTop11Average(state.players)
-  const reputation = displayPower < 42 ? 1 : displayPower < 58 ? 2 : displayPower < 72 ? 3 : displayPower < 85 ? 4 : 5
-  const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
+  const stars = starsFromGrl(displayPower)
   const countryFlag = window.DB[state.countryId]?.country.flag || ''
   const totalVal = state.players.reduce((s, p) => s + (p.value || 0), 0)
   var leagueName = getTeamLeagueName(state.teamId)
@@ -16577,12 +16607,55 @@ function renderTeamList(league) {
 
 function updateTeamBadge(team) {
   const badge = document.getElementById('ng-team-badge')
-  if (team) {
+  const info = document.getElementById('ng-manager-info')
+  const grlEl = document.getElementById('ng-team-grl')
+  if (!team) {
+    if (badge) badge.innerHTML = '<span class="ng-badge-placeholder">Sin equipo seleccionado...</span>'
+    if (info) info.innerHTML = '<span class="ng-manager-placeholder">Selecciona un club</span>'
+    if (grlEl) grlEl.innerHTML = ''
+    return
+  }
+  if (team.id === 'custom') {
+    if (badge) badge.innerHTML = '<span class="ng-badge-placeholder">Mi Club</span>'
+    if (info) info.innerHTML = '<span class="ng-manager-title">' + team.name + '</span><span class="ng-manager-sub">Club personalizado</span>'
+    if (grlEl) grlEl.innerHTML = '<div class="ng-team-rating">' + (team.rating || 70) + '</div>'
+    return
+  }
+  const db = getBaseDato(team.id)
+  const rs = getRealSquad(team.id)
+  const grl = rs ? getTop11Average(rs) : (db ? db.rating : team.rating || 70)
+  const repStars = starsFromGrl(grl)
+  const budget = team.budget || (db ? db.budget : 0)
+  if (badge) {
     badge.innerHTML = team.logo
-      ? `<img src="${team.logo}" alt="${team.name}">`
-      : `<span class="ng-badge-placeholder">${team.name}</span>`
-  } else {
-    badge.innerHTML = '<span class="ng-badge-placeholder">Sin equipo seleccionado...</span>'
+      ? '<img src="' + team.logo + '" alt="' + team.name + '" onerror="this.classList.add(\'ng-badge-nologo\');this.removeAttribute(\'src\')">'
+      : '<span class="ng-badge-placeholder">' + team.name + '</span>'
+  }
+  if (grlEl) grlEl.innerHTML =
+    '<span class="ng-manager-budget"><span class="ng-manager-budget-label">Presupuesto</span><span class="ng-manager-budget-value">€' + formatShort(budget) + '</span></span>' +
+    '<div class="ng-team-rating">' + grl + '</div>'
+  if (info) {
+    const squad = (rs || []).filter(function(p) { return !(p.onLoan && p.loanTo) })
+    var captain = null, key = null
+    if (squad.length > 0) {
+      var outfield = squad.filter(function(p) { return p.position !== 'POR' && p.position !== 'portero' })
+      captain = outfield.length > 0 ? outfield.reduce(function(a, b) { return b.skill > a.skill ? b : a }) : squad.reduce(function(a, b) { return b.skill > a.skill ? b : a })
+      key = squad.reduce(function(a, b) { return b.skill > a.skill ? b : a })
+      if (key && captain && key.id === captain.id) {
+        var second = squad.filter(function(p) { return p.id !== captain.id }).reduce(function(a, b) { return b.skill > a.skill ? b : a })
+        key = second || key
+      }
+    }
+    var capHtml = captain
+      ? '<div class="ng-manager-player"><div class="ng-manager-avatar" style="background-image:url(' + (captain.avatar || NOPHOTO) + ')"></div><div class="ng-manager-player-info"><span class="ng-manager-player-role">Capitán</span><span class="ng-manager-player-name">' + captain.name.split(' ').slice(-1)[0] + '</span></div></div>'
+      : ''
+    var keyHtml = key
+      ? '<div class="ng-manager-player"><div class="ng-manager-avatar" style="background-image:url(' + (key.avatar || NOPHOTO) + ')"></div><div class="ng-manager-player-info"><span class="ng-manager-player-role">Jugador clave</span><span class="ng-manager-player-name">' + key.name.split(' ').slice(-1)[0] + '</span></div></div>'
+      : ''
+    info.innerHTML =
+      '<span class="ng-manager-title">' + team.name + '</span>' +
+      '<span class="ng-manager-reputation">' + repStars + '</span>' +
+      '<span class="ng-manager-players">' + capHtml + keyHtml + '</span>'
   }
 }
 
@@ -16617,8 +16690,7 @@ function showTeamPreview(teamId) {
 
     var totalVal = realSquad.reduce(function(s, p) { return s + (p.value || 0) }, 0)
     var displayPower = getTop11Average(realSquad)
-    var reputation = displayPower < 42 ? 1 : displayPower < 58 ? 2 : displayPower < 72 ? 3 : displayPower < 85 ? 4 : 5
-    var stars = Array.from({ length: 5 }, function(_, i) { return '<span class="star' + (i < reputation ? ' filled' : '') + '">★</span>' }).join('')
+    var stars = starsFromGrl(displayPower)
     var countryFlag = window.DB[foundCountryId] ? window.DB[foundCountryId].country.flag : ''
     var teamBudget = team.budget || (foundLeague ? Math.round(getDivisionBaseBudget(foundLeague.id) * getCountryBudgetMult(foundCountryId) * ((team.rating || 50) / 50)) : 0)
     var orderedPlayers = [...realSquad].sort(function(a, b) {
@@ -17022,8 +17094,7 @@ function showTeamInfo(teamId) {
   const logo = getTeamLogo(teamId)
   const posDisplay = pos > 0 ? `${pos}º` : (team.players.length > 0 ? '—' : 'Otra liga')
   const displayPower = getTop11Average(team.players)
-  const reputation = displayPower < 42 ? 1 : displayPower < 58 ? 2 : displayPower < 72 ? 3 : displayPower < 85 ? 4 : 5
-  const stars = Array.from({ length: 5 }, (_, i) => `<span class="star${i < reputation ? ' filled' : ''}">★</span>`).join('')
+  const stars = starsFromGrl(displayPower)
   const totalVal = team.players.reduce((s, p) => s + (p.value || 0), 0)
   /* Find country flag and league name for this team */
   let teamFlag = ''
