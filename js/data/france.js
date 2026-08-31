@@ -5,7 +5,7 @@ window.DB.france = {
     leagues: [
       { id: 'l1fr', name: 'Ligue 1', logo: 'https://cdn.resfu.com/media/img/league_logos/ligue-1.png?size=120x&lossy=1',
         teams: [
-          { id: 'psg', name: 'Paris Saint-Germain', rating: 85, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1924.jpg?size=120x&lossy=1', budget: 120000000,
+          { id: 'psg', name: 'Paris Saint-Germain', rating: 85, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1924.jpg?size=120x&lossy=1', budget: 210000000,
             palmares: [
               { comp: 'Ligue 1', count: 14, years: ['2025-26', '2024-25', '2023-24', '2022-23', '2021-22', '2019-20', '2018-19', '2017-18', '2015-16', '2014-15', '2013-14', '2012-13', '1993-94', '1985-86'] },
               { comp: 'Copa de Francia', count: 14, years: ['2025', '2024', '2021', '2020', '2018', '2017', '2016', '2015', '2010', '2006', '2004', '1998', '1995', '1993'] },
@@ -15,7 +15,7 @@ window.DB.france = {
             ],
             staff: [{ name: 'Luis Enrique', nationality: '🇪🇸 España', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/3501.jpg?size=120x&lossy=1' }]
           },
-          { id: 'om', name: 'Olympique de Marsella', rating: 80, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/5117.jpg?size=120x&lossy=1', budget: 40000000,
+          { id: 'om', name: 'Olympique de Marsella', rating: 80, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/5117.jpg?size=120x&lossy=1', budget: 65000000,
             palmares: [
               { comp: 'Ligue 1', count: 9, years: ['2009-10', '1991-92', '1990-91', '1989-90', '1988-89', '1971-72', '1970-71', '1947-48', '1936-37'] },
               { comp: 'Champions League', count: 1, years: ['1992-93'] },
@@ -23,14 +23,14 @@ window.DB.france = {
               { comp: 'Ligue 2', count: 1, years: ['1994-95'] }
             ],
             staff: [{ name: 'Bruno Génésio', nationality: '🇫🇷 Francia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/223.jpg?size=120x&lossy=1' }] },
-          { id: 'ol', name: 'Olympique Lyonnais', rating: 79, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1866.jpg?size=120x&lossy=1', budget: 35000000,
+          { id: 'ol', name: 'Olympique Lyonnais', rating: 79, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1866.jpg?size=120x&lossy=1', budget: 55000000,
             palmares: [
               { comp: 'Ligue 1', count: 7, years: ['2007-08', '2006-07', '2005-06', '2004-05', '2003-04', '2002-03', '2001-02'] },
               { comp: 'Supercopa Francia', count: 8, years: ['2012', '2007', '2006', '2005', '2004', '2003', '2002', '1972'] },
               { comp: 'Copa de Francia', count: 2, years: ['2012', '2008'] }
             ],
             staff: [{ name: 'Paulo Fonseca', nationality: '🇵🇹 Portugal', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1432.jpg?size=120x&lossy=1' }] },
-          { id: 'monaco', name: 'AS Monaco', rating: 80, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1713.jpg?size=120x&lossy=1', budget: 50000000,
+          { id: 'monaco', name: 'AS Monaco', rating: 80, formation: '4-4-2', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1713.jpg?size=120x&lossy=1', budget: 70000000,
             palmares: [
               { comp: 'Ligue 1', count: 8, years: ['2016-17', '1999-00', '1996-97', '1987-88', '1981-82', '1977-78', '1962-63', '1960-61'] },
               { comp: 'Supercopa Francia', count: 4, years: ['2000', '1997', '1984', '1960'] },
@@ -38,7 +38,7 @@ window.DB.france = {
               { comp: 'Ligue 2', count: 1, years: ['2012-13'] }
             ],
             staff: [{ name: 'Filipe Luís', nationality: '🇧🇷 Brasil', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/68247.jpg?size=120x&lossy=1' }] },
-          { id: 'lille', name: 'LOSC Lille', rating: 78, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/3015.jpg?size=120x&lossy=1', budget: 25000000,
+          { id: 'lille', name: 'LOSC Lille', rating: 78, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/3015.jpg?size=120x&lossy=1', budget: 45000000,
             palmares: [
               { comp: 'Ligue 1', count: 4, years: ['2020-21', '2010-11', '1953-54', '1945-46'] },
               { comp: 'Supercopa Francia', count: 1, years: ['2021'] },
@@ -46,19 +46,19 @@ window.DB.france = {
               { comp: 'Ligue 2', count: 1, years: ['1999-00'] }
             ],
             staff: [{ name: 'Davide Ancelotti', nationality: '🇮🇹 Italia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/53591.jpg?size=120x&lossy=1' }] },
-          { id: 'nice', name: 'OGC Nice', rating: 76, formation: '3-4-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1799.jpg?size=120x&lossy=1', budget: 20000000,
+          { id: 'nice', name: 'OGC Nice', rating: 76, formation: '3-4-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1799.jpg?size=120x&lossy=1', budget: 38000000,
             palmares: [
               { comp: 'Ligue 1', count: 4, years: ['1958-59', '1955-56', '1951-52', '1950-51'] },
               { comp: 'Supercopa Francia', count: 1, years: ['1969'] },
               { comp: 'Copa de Francia', count: 1, years: ['1997'] }
             ],
             staff: [{ name: 'Olivier Pantaloni', nationality: '🇫🇷 Francia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1322.jpg?size=120x&lossy=1' }] },
-          { id: 'rennes', name: 'Stade Rennais', rating: 77, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/3863.jpg?size=120x&lossy=1', budget: 22000000,
+          { id: 'rennes', name: 'Stade Rennais', rating: 77, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/3863.jpg?size=120x&lossy=1', budget: 35000000,
             palmares: [
               { comp: 'Copa de Francia', count: 1, years: ['2019'] }
             ],
             staff: [{ name: 'Franck Haise', nationality: '🇫🇷 Francia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/7683.jpg?size=120x&lossy=1' }] },
-          { id: 'lens', name: 'RC Lens', rating: 78, formation: '3-5-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1544.jpg?size=120x&lossy=1', budget: 18000000,
+          { id: 'lens', name: 'RC Lens', rating: 78, formation: '3-5-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1544.jpg?size=120x&lossy=1', budget: 40000000,
             palmares: [
               { comp: 'Ligue 1', count: 1, years: ['1997-98'] },
               { comp: 'Copa de Francia', count: 1, years: ['2026'] },
@@ -77,102 +77,102 @@ window.DB.france = {
               { comp: 'Copa de Francia', count: 1, years: ['2023'] },
               { comp: 'Ligue 2', count: 1, years: ['2021-22'] }
             ] },
-          { id: 'brest', name: 'Stade Brestois', rating: 74, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2420.jpg?size=120x&lossy=1', budget: 15000000 },
-          { id: 'lorient', name: 'FC Lorient', rating: 71, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1586.jpg?size=120x&lossy=1', budget: 11000000,
+          { id: 'brest', name: 'Stade Brestois', rating: 74, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2420.jpg?size=120x&lossy=1', budget: 24000000 },
+          { id: 'lorient', name: 'FC Lorient', rating: 71, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1586.jpg?size=120x&lossy=1', budget: 16000000,
             palmares: [
               { comp: 'Copa de Francia', count: 1, years: ['2002'] },
               { comp: 'Ligue 2', count: 2, years: ['2024-25', '2019-20'] }
             ] },
-          { id: 'auxerre', name: 'AJ Auxerre', rating: 69, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/399.jpg?size=120x&lossy=1', budget: 7000000,
+          { id: 'auxerre', name: 'AJ Auxerre', rating: 69, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/399.jpg?size=120x&lossy=1', budget: 14000000,
             palmares: [
               { comp: 'Ligue 1', count: 1, years: ['1995-96'] },
               { comp: 'Copa de Francia', count: 4, years: ['2005', '2003', '1996', '1994'] },
               { comp: 'Ligue 2', count: 1, years: ['2023-24'] }
             ] },
-          { id: 'le_havre', name: 'Le Havre AC', rating: 68, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1527.jpg?size=120x&lossy=1', budget: 6000000,
+          { id: 'le_havre', name: 'Le Havre AC', rating: 68, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1527.jpg?size=120x&lossy=1', budget: 11000000,
             palmares: [
               { comp: 'Supercopa Francia', count: 1, years: ['1958'] },
               { comp: 'Ligue 2', count: 2, years: ['2022-23', '2007-08'] }
             ] },
-          { id: 'angers', name: 'Angers SCO', rating: 68, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/224.jpg?size=120x&lossy=1', budget: 5000000 },
-          { id: 'paris_fc', name: 'Paris FC', rating: 71, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1925.jpg?size=120x&lossy=1', budget: 10000000 },
+          { id: 'angers', name: 'Angers SCO', rating: 68, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/224.jpg?size=120x&lossy=1', budget: 10000000 },
+          { id: 'paris_fc', name: 'Paris FC', rating: 71, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1925.jpg?size=120x&lossy=1', budget: 13500000 },
           { id: 'troyes', name: 'ESTAC Troyes', rating: 67, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2539.jpg?size=120x&lossy=1', budget: 5000000,
             palmares: [
               { comp: 'Ligue 2', count: 3, years: ['2025-26', '2020-21', '2014-15'] }
             ] },
-          { id: 'le_mans', name: 'Le Mans FC', rating: 66, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1528.jpg?size=120x&lossy=1', budget: 4000000 }
+          { id: 'le_mans', name: 'Le Mans FC', rating: 66, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1528.jpg?size=120x&lossy=1', budget: 8500000 }
         ]
       },
       { id: 'l2fr', name: 'Ligue 2', logo: 'https://cdn.resfu.com/media/img/league_logos/ligue-2.png?size=120x&lossy=1',
         teams: [
-          { id: 'annecy', name: 'Annecy', rating: 63, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/80351.jpg?size=120x&lossy=1', budget: 3000000 },
-          { id: 'clermont', name: 'Clermont Foot', rating: 65, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/788.jpg?size=120x&lossy=1', budget: 4000000,
+          { id: 'annecy', name: 'Annecy', rating: 63, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/80351.jpg?size=120x&lossy=1', budget: 3800000 },
+          { id: 'clermont', name: 'Clermont Foot', rating: 65, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/788.jpg?size=120x&lossy=1', budget: 9000000,
             palmares: [
               { comp: 'Ligue 3', count: 1, years: ['2007'] }
             ] },
-          { id: 'dijon', name: 'Dijon FCO', rating: 64, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/924.jpg?size=120x&lossy=1', budget: 3500000,
+          { id: 'dijon', name: 'Dijon FCO', rating: 64, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/924.jpg?size=120x&lossy=1', budget: 6000000,
             palmares: [
               { comp: 'Ligue 3', count: 1, years: ['2026'] }
             ] },
-          { id: 'grenoble', name: 'Grenoble Foot 38', rating: 63, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1257.jpg?size=120x&lossy=1', budget: 3000000,
+          { id: 'grenoble', name: 'Grenoble Foot 38', rating: 63, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1257.jpg?size=120x&lossy=1', budget: 5500000,
             palmares: [
               { comp: 'Ligue 3', count: 1, years: ['2001'] }
             ] },
-          { id: 'guingamp', name: 'Guingamp', rating: 64, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1274.jpg?size=120x&lossy=1', budget: 3500000,
+          { id: 'guingamp', name: 'Guingamp', rating: 64, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1274.jpg?size=120x&lossy=1', budget: 7500000,
             palmares: [
               { comp: 'Copa de Francia', count: 2, years: ['2014', '2009'] }
             ] },
-          { id: 'metz', name: 'FC Metz', rating: 66, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1682.jpg?size=120x&lossy=1', budget: 5000000,
+          { id: 'metz', name: 'FC Metz', rating: 66, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1682.jpg?size=120x&lossy=1', budget: 11500000,
             palmares: [
               { comp: 'Ligue 2', count: 3, years: ['2019', '2014', '2007'] }
             ] },
-          { id: 'montpellier', name: 'Montpellier HSC', rating: 67, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1728.jpg?size=120x&lossy=1', budget: 6000000,
+          { id: 'montpellier', name: 'Montpellier HSC', rating: 67, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1728.jpg?size=120x&lossy=1', budget: 14000000,
             palmares: [
               { comp: 'Ligue 1', count: 1, years: ['2012'] }
             ] },
-          { id: 'nancy', name: 'AS Nancy', rating: 60, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1775.jpg?size=120x&lossy=1', budget: 2500000,
+          { id: 'nancy', name: 'AS Nancy', rating: 60, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1775.jpg?size=120x&lossy=1', budget: 5000000,
             palmares: [
               { comp: 'Ligue 2', count: 3, years: ['2016', '2005', '1998'] },
               { comp: 'Ligue 3', count: 1, years: ['2025'] }
             ] },
-          { id: 'nantes', name: 'FC Nantes', rating: 68, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1776.jpg?size=120x&lossy=1', budget: 7000000,
+          { id: 'nantes', name: 'FC Nantes', rating: 68, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1776.jpg?size=120x&lossy=1', budget: 18000000,
             palmares: [
               { comp: 'Ligue 1', count: 8, years: ['2001', '1995', '1983', '1980', '1977', '1973', '1966', '1965'] },
               { comp: 'Copa de Francia', count: 3, years: ['2022', '2000', '1999'] },
               { comp: 'Supercopa Francia', count: 3, years: ['2002', '2000', '1965'] }
             ] },
-          { id: 'pau', name: 'Pau FC', rating: 61, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/6827.jpg?size=120x&lossy=1', budget: 2500000 },
-          { id: 'red_star', name: 'Red Star FC', rating: 60, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/14069.jpg?size=120x&lossy=1', budget: 2000000,
+          { id: 'pau', name: 'Pau FC', rating: 61, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/6827.jpg?size=120x&lossy=1', budget: 4500000 },
+          { id: 'red_star', name: 'Red Star FC', rating: 60, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/14069.jpg?size=120x&lossy=1', budget: 4200000,
             palmares: [
               { comp: 'Ligue 3', count: 3, years: ['2023-24', '2017-18', '2014-15'] }
             ] },
-          { id: 'rodez', name: 'Rodez AF', rating: 60, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2881.jpg?size=120x&lossy=1', budget: 2000000,
+          { id: 'rodez', name: 'Rodez AF', rating: 60, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2881.jpg?size=120x&lossy=1', budget: 4000000,
             palmares: [
               { comp: 'Ligue 3', count: 1, years: ['2018-19'] }
             ] },
-          { id: 'saint_etienne', name: 'AS Saint-Étienne', rating: 67, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2203.jpg?size=120x&lossy=1', budget: 6000000,
+          { id: 'saint_etienne', name: 'AS Saint-Étienne', rating: 67, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2203.jpg?size=120x&lossy=1', budget: 16500000,
             palmares: [
               { comp: 'Ligue 1', count: 10, years: ['1980-81', '1975-76', '1974-75', '1973-74', '1969-70', '1968-69', '1967-68', '1966-67', '1963-64', '1956-57'] },
               { comp: 'Supercopa Francia', count: 5, years: ['1968', '1967', '1966', '1961', '1956'] },
               { comp: 'Ligue 2', count: 2, years: ['2003-04', '1998-99'] }
             ] },
-          { id: 'sochaux', name: 'FC Sochaux', rating: 62, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2355.jpg?size=120x&lossy=1', budget: 3000000,
+          { id: 'sochaux', name: 'FC Sochaux', rating: 62, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2355.jpg?size=120x&lossy=1', budget: 6500000,
             palmares: [
               { comp: 'Ligue 1', count: 2, years: ['1937-38', '1934-35'] },
               { comp: 'Copa de Francia', count: 1, years: ['2007'] }
             ] },
-          { id: 'reims', name: 'Stade de Reims', rating: 66, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2421.jpg?size=120x&lossy=1', budget: 5000000,
+          { id: 'reims', name: 'Stade de Reims', rating: 66, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2421.jpg?size=120x&lossy=1', budget: 15000000,
             palmares: [
               { comp: 'Ligue 1', count: 6, years: ['1961-62', '1959-60', '1957-58', '1954-55', '1952-53', '1948-49'] },
               { comp: 'Supercopa Francia', count: 4, years: ['1965', '1959', '1957', '1954'] },
               { comp: 'Ligue 2', count: 1, years: ['2017-18'] }
             ] },
-          { id: 'laval', name: 'Stade Lavallois', rating: 61, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2837.jpg?size=120x&lossy=1', budget: 2500000,
+          { id: 'laval', name: 'Stade Lavallois', rating: 61, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2837.jpg?size=120x&lossy=1', budget: 3500000,
             palmares: [
               { comp: 'Ligue 3', count: 1, years: ['2021-22'] }
             ] },
-          { id: 'boulogne', name: 'US Boulogne', rating: 58, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2623.jpg?size=120x&lossy=1', budget: 1500000 },
-          { id: 'dunkerque', name: 'USL Dunkerque', rating: 59, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/6674.jpg?size=120x&lossy=1', budget: 2000000 }
+          { id: 'boulogne', name: 'US Boulogne', rating: 58, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2623.jpg?size=120x&lossy=1', budget: 2800000 },
+          { id: 'dunkerque', name: 'USL Dunkerque', rating: 59, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/6674.jpg?size=120x&lossy=1', budget: 3200000 }
         ]
       }
     ]
@@ -181,31 +181,36 @@ window.DB.france = {
     psg: [
       { id: 'psg-1', name: 'Lucas Chevalier', position: 'portero', skill: 74, age: 24, height: 189, nationality: '🇫🇷 Francia', foot: 'DER', number: 1, value: 29750000, avatar: 'https://cdn.resfu.com/img_data/players/medium/695850.jpg?size=120x&lossy=1', mainPct: 100 },
       { id: 'psg-2', name: 'M. Safonov', position: 'portero', skill: 64, age: 27, height: 192, nationality: '🇷🇺 Rusia', foot: 'DER', number: 39, value: 10290000, avatar: 'https://cdn.resfu.com/img_data/players/medium/319379.jpg?size=120x&lossy=1', mainPct: 100 },
-      { id: 'psg-3', name: 'A. Hakimi', position: 'lateral_der', skill: 87, age: 27, height: 181, nationality: '🇲🇦 Marruecos', foot: 'DER', number: 2, value: 82160000, avatar: 'https://cdn.resfu.com/img_data/players/medium/283900.jpg?size=120x&lossy=1', mainPct: 88, otherPositions: [{pos:'medio_der',pct:12}] },
-      { id: 'psg-4', name: 'Willian Pacho', position: 'defensa_central', skill: 85, age: 24, height: 188, nationality: '🇪🇨 Ecuador', foot: 'IZQ', number: 51, value: 85510000, avatar: 'https://cdn.resfu.com/img_data/players/medium/638765.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_izq',pct:10}] },
-      { id: 'psg-5', name: 'Marquinhos', position: 'defensa_central', skill: 82, age: 32, height: 183, nationality: '🇧🇷 Brasil', foot: 'DER', number: 5, value: 29530000, avatar: 'https://cdn.resfu.com/img_data/players/medium/133579.jpg?size=120x&lossy=1', mainPct: 89, otherPositions: [{pos:'medio_def',pct:11}] },
-      { id: 'psg-6', name: 'Nuno Mendes', position: 'lateral_izq', skill: 84, age: 24, height: 180, nationality: '🇵🇹 Portugal', foot: 'IZQ', number: 25, value: 97140000, avatar: 'https://cdn.resfu.com/img_data/players/medium/868370.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'carrilero_izq',pct:15}] },
+      { id: 'psg-3', name: 'A. Hakimi', position: 'lateral_der', skill: 90, age: 27, height: 181, nationality: '🇲🇦 Marruecos', foot: 'DER', number: 2, value: 82160000, avatar: 'https://cdn.resfu.com/img_data/players/medium/283900.jpg?size=120x&lossy=1', mainPct: 88, otherPositions: [{pos:'medio_der',pct:12}] },
+      { id: 'psg-4', name: 'Willian Pacho', position: 'defensa_central', skill: 89, age: 24, height: 188, nationality: '🇪🇨 Ecuador', foot: 'IZQ', number: 51, value: 85510000, avatar: 'https://cdn.resfu.com/img_data/players/medium/638765.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_izq',pct:10}] },
+      { id: 'psg-5', name: 'Marquinhos', position: 'defensa_central', skill: 86, age: 32, height: 183, nationality: '🇧🇷 Brasil', foot: 'DER', number: 5, value: 29530000, avatar: 'https://cdn.resfu.com/img_data/players/medium/133579.jpg?size=120x&lossy=1', mainPct: 89, otherPositions: [{pos:'medio_def',pct:11}] },
+      { id: 'psg-6', name: 'Nuno Mendes', position: 'lateral_izq', skill: 85, age: 24, height: 180, nationality: '🇵🇹 Portugal', foot: 'IZQ', number: 25, value: 97140000, avatar: 'https://cdn.resfu.com/img_data/players/medium/868370.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'carrilero_izq',pct:15}] },
       { id: 'psg-7', name: 'I. Zabarnyi', position: 'defensa_central', skill: 79, age: 23, height: 189, nationality: '🇺🇦 Ucrania', foot: 'DER', number: 3, value: 59920000, avatar: 'https://cdn.resfu.com/img_data/players/medium/798584.jpg?size=120x&lossy=1', mainPct: 95, otherPositions: [{pos:'lateral_der',pct:5}] },
-      { id: 'psg-8', name: 'Lucas Hernández', position: 'defensa_central', skill: 68, age: 30, height: 184, nationality: '🇫🇷 Francia', foot: 'IZQ', number: 21, value: 14860000, avatar: 'https://cdn.resfu.com/img_data/players/medium/164533.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'lateral_izq',pct:20}] },
+      { id: 'psg-8', name: 'Lucas Hernández', position: 'defensa_central', skill: 70, age: 30, height: 184, nationality: '🇫🇷 Francia', foot: 'IZQ', number: 21, value: 14860000, avatar: 'https://cdn.resfu.com/img_data/players/medium/164533.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'lateral_izq',pct:20}] },
       { id: 'psg-9', name: 'Lucas Beraldo', position: 'defensa_central', skill: 70, age: 22, height: 186, nationality: '🇧🇷 Brasil', foot: 'IZQ', number: 35, value: 21020000, avatar: 'https://cdn.resfu.com/img_data/players/medium/982673.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'lateral_izq',pct:15}] },
       { id: 'psg-10', name: 'Y. Zague', position: 'lateral_der', skill: 60, age: 20, height: 168, nationality: '🇫🇷 Francia', foot: 'DER', number: 42, value: 2260000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3211122.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'carrilero_der',pct:10}] },
       { id: 'psg-11', name: 'N. El Hannach', position: 'defensa_central', skill: 52, age: 19, height: 183, nationality: '🇲🇦 Marruecos', foot: 'DER', number: 38, value: 1020000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3230835.jpg?size=120x&lossy=1', mainPct: 95, otherPositions: [{pos:'medio_def',pct:5}] },
-      { id: 'psg-12', name: 'Vitinha', position: 'mediocentro', skill: 84, age: 26, height: 172, nationality: '🇵🇹 Portugal', foot: 'DER', number: 17, value: 117600000, avatar: 'https://cdn.resfu.com/img_data/players/medium/427536.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_def',pct:15}] },
-      { id: 'psg-13', name: 'João Neves', position: 'mediocentro', skill: 81, age: 21, height: 174, nationality: '🇵🇹 Portugal', foot: 'DER', number: 87, value: 112740000, avatar: 'https://cdn.resfu.com/img_data/players/medium/908285.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_def',pct:15}] },
-      { id: 'psg-14', name: 'Fabián', position: 'mediocentro', skill: 81, age: 30, height: 189, nationality: '🇪🇸 España', foot: 'IZQ', number: 8, value: 47680000, avatar: 'https://cdn.resfu.com/img_data/players/medium/235644.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_ofensivo',pct:15}] },
-      { id: 'psg-15', name: 'Zaïre-Emery', position: 'mediocentro', skill: 75, age: 20, height: 178, nationality: '🇫🇷 Francia', foot: 'DER', number: 33, value: 57670000, avatar: 'https://cdn.resfu.com/img_data/players/medium/922208.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'medio_def',pct:12}, {pos:'medio_der',pct:8}] },
+      { id: 'psg-12', name: 'Vitinha', position: 'mediocentro', skill: 88, age: 26, height: 172, nationality: '🇵🇹 Portugal', foot: 'DER', number: 17, value: 117600000, avatar: 'https://cdn.resfu.com/img_data/players/medium/427536.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_def',pct:15}] },
+      { id: 'psg-13', name: 'João Neves', position: 'mediocentro', skill: 86, age: 21, height: 174, nationality: '🇵🇹 Portugal', foot: 'DER', number: 87, value: 112740000, avatar: 'https://cdn.resfu.com/img_data/players/medium/908285.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_def',pct:15}] },
+      { id: 'psg-14', name: 'Fabián', position: 'mediocentro', skill: 85, age: 30, height: 189, nationality: '🇪🇸 España', foot: 'IZQ', number: 8, value: 47680000, avatar: 'https://cdn.resfu.com/img_data/players/medium/235644.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_ofensivo',pct:15}] },
+      { id: 'psg-15', name: 'Zaïre-Emery', position: 'mediocentro', skill: 77, age: 20, height: 178, nationality: '🇫🇷 Francia', foot: 'DER', number: 33, value: 57670000, avatar: 'https://cdn.resfu.com/img_data/players/medium/922208.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'medio_def',pct:12}, {pos:'medio_der',pct:8}] },
       { id: 'psg-17', name: 'S. Mayulu', position: 'mediocentro', skill: 70, age: 20, height: 183, nationality: '🇫🇷 Francia', foot: 'DER', number: 24, value: 31940000, avatar: 'https://cdn.resfu.com/img_data/players/medium/940672.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_ofensivo',pct:15}] },
       { id: 'psg-18', name: 'Renato Sanches', position: 'mediocentro', skill: 61, age: 28, height: 176, nationality: '🇵🇹 Portugal', foot: 'DER', number: 18, value: 3170000, avatar: 'https://cdn.resfu.com/img_data/players/medium/240679.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'medio_def',pct:20}] },
       { id: 'psg-19', name: 'Dro Fernández', position: 'mediocentro', skill: 49, age: 18, height: 180, nationality: '🇪🇸 España', foot: 'DER', number: 40, value: 6670000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3341876.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'medio_ofensivo',pct:10}] },
-      { id: 'psg-20', name: 'O. Dembélé', position: 'extremo_der', skill: 83, age: 29, height: 178, nationality: '🇫🇷 Francia', foot: 'AMB', number: 10, value: 108430000, avatar: 'https://cdn.resfu.com/img_data/players/medium/241919.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_izq',pct:15}, {pos:'delantero',pct:5}] },
+      { id: 'psg-20', name: 'O. Dembélé', position: 'extremo_der', skill: 89, age: 29, height: 178, nationality: '🇫🇷 Francia', foot: 'AMB', number: 10, value: 108430000, avatar: 'https://cdn.resfu.com/img_data/players/medium/241919.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_izq',pct:15}, {pos:'delantero',pct:5}] },
       { id: 'psg-21', name: 'K. Kvaratskhelia', position: 'extremo_izq', skill: 86, age: 25, height: 183, nationality: '🇬🇪 Georgia', foot: 'DER', number: 7, value: 106940000, avatar: 'https://cdn.resfu.com/img_data/players/medium/343234.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'extremo_der',pct:10}, {pos:'medio_ofensivo',pct:5}] },
-      { id: 'psg-22', name: 'B. Barcola', position: 'extremo_izq', skill: 79, age: 23, height: 182, nationality: '🇫🇷 Francia', foot: 'DER', number: 29, value: 84120000, avatar: 'https://cdn.resfu.com/img_data/players/medium/879198.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'extremo_der',pct:10}, {pos:'delantero',pct:5}] },
+      { id: 'psg-22', name: 'B. Barcola', position: 'extremo_izq', skill: 85, age: 23, height: 182, nationality: '🇫🇷 Francia', foot: 'DER', number: 29, value: 84120000, avatar: 'https://cdn.resfu.com/img_data/players/medium/879198.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'extremo_der',pct:10}, {pos:'delantero',pct:5}] },
       { id: 'psg-23', name: 'Kolo Muani', position: 'delantero', skill: 82, age: 27, height: 187, nationality: '🇫🇷 Francia', foot: 'DER', number: 23, value: 39760000, avatar: 'https://cdn.resfu.com/img_data/players/medium/344510.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_der',pct:12}, {pos:'extremo_izq',pct:8}] },
-      { id: 'psg-24', name: 'Désiré Doué', position: 'extremo_izq', skill: 79, age: 21, height: 181, nationality: '🇫🇷 Francia', foot: 'DER', number: 14, value: 95180000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3143458.jpg?size=120x&lossy=1', mainPct: 75, otherPositions: [{pos:'extremo_der',pct:15}, {pos:'medio_ofensivo',pct:10}] },
-      { id: 'psg-25', name: 'I. Mbaye', position: 'delantero', skill: 56, age: 18, height: 175, nationality: '🇸🇳 Senegal', foot: 'DER', number: 49, value: 19390000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3238892.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_der',pct:10}] },
-      { id: 'psg-26', name: 'Q. Ndjantou', position: 'delantero', skill: 50, age: 18, height: 178, nationality: '🇫🇷 Francia', foot: 'DER', number: 50, value: 5000000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3230840.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_izq',pct:10}] },
+      { id: 'psg-24', name: 'Désiré Doué', position: 'extremo_izq', skill: 80, age: 21, height: 181, nationality: '🇫🇷 Francia', foot: 'DER', number: 14, value: 95180000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3143458.jpg?size=120x&lossy=1', mainPct: 75, otherPositions: [{pos:'extremo_der',pct:15}, {pos:'medio_ofensivo',pct:10}] },
+      { id: 'psg-25', name: 'I. Mbaye', position: 'delantero', skill: 58, age: 18, height: 175, nationality: '🇸🇳 Senegal', foot: 'DER', number: 49, value: 19390000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3238892.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_der',pct:10}] },
+      { id: 'psg-26', name: 'Q. Ndjantou', position: 'delantero', skill: 54, age: 18, height: 178, nationality: '🇫🇷 Francia', foot: 'DER', number: 50, value: 5000000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3230840.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_izq',pct:10}] },
       { id: 'psg-27', name: 'Gabriel Moscardo', position: 'medio_def', skill: 57, age: 20, height: 185, mainPct: 79, otherPositions: [{pos:'mediocentro',pct:21}], nationality: '🇧🇷 Brasil', foot: 'DER', number: 27, value: 8230000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3155981.jpg?size=120x&lossy=1', loanedTo: 'e6', loanedToName: 'Espanyol', loanedToLogo: 'https://cdn.resfu.com/img_data/equipos/998.png?size=120x&lossy=1' },
-      { id: 'psg-28', name: 'Renato Marin', position: 'portero', skill: 50, age: 22, height: 190, nationality: '🇧🇷 Brasil', foot: 'DER', number: 28, value: 500000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3318283.jpg?size=120x&lossy=1', mainPct: 100, loanedTo: 'pt13', loanedToName: 'Nacional', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/1766.jpg?size=120x&lossy=1' }
+      { id: 'psg-28', name: 'Renato Marin', position: 'portero', skill: 50, age: 22, height: 190, nationality: '🇧🇷 Brasil', foot: 'DER', number: 28, value: 500000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3318283.jpg?size=120x&lossy=1', mainPct: 100, loanedTo: 'pt13', loanedToName: 'Nacional', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/1766.jpg?size=120x&lossy=1' },
+      { id: 'psg-29', name: 'Lucas Digne', position: 'lateral_izq', skill: 80, age: 33, height: 178, nationality: '🇫🇷 Francia', foot: 'IZQ', number: 23, value: 11770000, mainPct: 85, otherPositions: [{pos:'extremo_izq',pct:15}], avatar: 'https://cdn.resfu.com/img_data/players/medium/94731.jpg?size=120x&lossy=1' },
+      { id: 'psg-30', name: 'M. Akliouche', position: 'extremo_der', skill: 80, age: 24, height: 183, nationality: '🇫🇷 Francia', foot: 'DER', number: 11, value: 49930000, mainPct: 81, otherPositions: [{pos:'medio_der',pct:19}], avatar: 'https://cdn.resfu.com/img_data/players/medium/892963.jpg?size=120x&lossy=1' },
+      { id: 'psg-31', name: 'Mika Godts', position: 'extremo_izq', skill: 78, age: 21, height: 176, nationality: '🇧🇪 Bélgica', foot: 'DER', number: 22, value: 45270000, mainPct: 89, otherPositions: [{pos:'medio_izq',pct:11}], avatar: 'https://cdn.resfu.com/img_data/players/medium/928165.jpg?size=120x&lossy=1' },
+      { id: 'psg-32', name: 'Ferran Torres', position: 'delantero', skill: 75, age: 26, height: 183, nationality: '🇪🇸 España', foot: 'DER', number: 9, value: 54640000, mainPct: 83, otherPositions: [{pos:'extremo_der',pct:17}], avatar: 'https://cdn.resfu.com/img_data/players/medium/342274.jpg?size=120x&lossy=1' },
+      { id: 'psg-33', name: 'Michael Olise', position: 'extremo_der', skill: 89, age: 24, height: 180, nationality: '🇫🇷 Francia', foot: 'IZQ', number: 15, value: 143900000, mainPct: 86, otherPositions: [{pos:'medio_ofensivo',pct:14}], avatar: 'https://cdn.resfu.com/img_data/players/medium/626605.jpg?size=120x&lossy=1' }
     ],
     om: [
     { id: 'om-1', name: 'G. Rulli', position: 'portero', skill: 77, age: 34, height: 189, nationality: '🇦🇷 Argentina', foot: 'DER', number: 1, value: 5340000, avatar: 'https://cdn.resfu.com/img_data/players/medium/128876.jpg?size=120x&lossy=1' , mainPct: 100},
@@ -255,12 +260,11 @@ window.DB.france = {
     { id: 'monaco-19', name: 'Paul Pogba', position: 'mediocentro', skill: 49, age: 33, height: 191, nationality: '🇫🇷 Francia', foot: 'DER', number: 99, value: 856000, avatar: 'https://cdn.resfu.com/img_data/players/medium/130126.jpg?size=120x&lossy=1', mainPct: 92, otherPositions: [{pos:'medio_def',pct:8}] },
     { id: 'monaco-20', name: 'F. Balogun', position: 'delantero', skill: 77, age: 25, height: 178, nationality: '🇺🇸 Estados Unidos', foot: 'DER', number: 9, value: 34000000, avatar: 'https://cdn.resfu.com/img_data/players/medium/427788.jpg?size=120x&lossy=1', mainPct: 95, otherPositions: [{pos:'extremo_izq',pct:5}] },
     { id: 'monaco-21', name: 'T. Minamino', position: 'extremo_izq', skill: 85, age: 31, height: 172, nationality: '🇯🇵 Japón', foot: 'DER', number: 18, value: 16120000, avatar: 'https://cdn.resfu.com/img_data/players/medium/206668.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_der',pct:10}] },
-    { id: 'monaco-22', name: 'M. Akliouche', position: 'extremo_der', skill: 78, age: 24, height: 183, nationality: '🇫🇷 Francia', foot: 'DER', number: 11, value: 49930000, avatar: 'https://cdn.resfu.com/img_data/players/medium/892963.jpg?size=120x&lossy=1', mainPct: 81, otherPositions: [{pos:'medio_der',pct:19}] },
     { id: 'monaco-23', name: 'Mika Biereth', position: 'delantero', skill: 77, age: 23, height: 187, nationality: '🇩🇰 Dinamarca', foot: 'DER', number: 14, value: 36860000, avatar: 'https://cdn.resfu.com/img_data/players/medium/631183.jpg?size=120x&lossy=1', mainPct: 96, otherPositions: [{pos:'extremo_der',pct:4}] },
     { id: 'monaco-24', name: 'Paris Brunner', position: 'delantero', skill: 62, age: 20, height: 186, nationality: '🇩🇪 Alemania', foot: 'DER', number: 20, value: 6560000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3190721.jpg?size=120x&lossy=1', mainPct: 83, otherPositions: [{pos:'extremo_izq',pct:17}] },
      { id: 'monaco-25', name: 'M. Detourbet', position: 'extremo_izq', skill: 57, age: 19, height: 178, nationality: '🇫🇷 Francia', foot: 'DER', number: 19, value: 11940000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3363251.jpg?size=120x&lossy=1', mainPct: 82, otherPositions: [{pos:'medio_izq',pct:18}], loanedFrom: 'manchester-city', loanedFromName: 'Manchester City', loanedFromLogo: 'https://cdn.resfu.com/img_data/escudos/medium/1633.jpg?size=120x&lossy=1' },
     { id: 'monaco-26', name: 'Ansu Fati', position: 'extremo_izq', skill: 63, age: 23, height: 178, nationality: '🇪🇸 España', foot: 'DER', number: 12, value: 10960000, avatar: 'https://cdn.resfu.com/img_data/players/medium/776260.jpg?size=120x&lossy=1', mainPct: 75, otherPositions: [{pos:'delantero',pct:15}, {pos:'extremo_der',pct:10}] },
-     { id: 'monaco-27', name: 'Lucas Michal', position: 'extremo_izq', skill: 52, age: 21, height: 185, nationality: '🇫🇷 Francia', foot: 'DER', number: 36, value: 3400000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3143461.jpg?size=120x&lossy=1', mainPct: 83, otherPositions: [{pos:'delantero',pct:17}] },
+     { id: 'monaco-27', name: 'Lucas Michal', position: 'extremo_izq', skill: 52, age: 21, height: 185, nationality: '🇫🇷 Francia', foot: 'DER', number: 36, value: 3400000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3143461.jpg?size=120x&lossy=1', mainPct: 83, otherPositions: [{pos:'delantero',pct:17}], loanedTo: 'cercle-brugge', loanedToName: 'Cercle Brugge', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/9786.jpg?size=120x&lossy=1' },
      { id: 'monaco-28', name: 'R. Majecki', position: 'portero', skill: 55, age: 26, height: 188, nationality: '🇫🇷 Francia', foot: 'DER', number: 30, value: 1000000, avatar: 'https://cdn.resfu.com/img_data/players/medium/290720.jpg?size=120x&lossy=1', mainPct: 100, loanedTo: 'pafos', loanedToName: 'Pafos', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/16654.jpg?size=120x&lossy=1' }
    ],
    lille: [
@@ -298,7 +302,7 @@ window.DB.france = {
    ],
    lens: [
     { id: 'lens-1', name: 'Robin Risser', position: 'portero', skill: 70, age: 21, height: 193, nationality: '🇫🇷 Francia', foot: 'DER', number: 1, value: 7480000, avatar: 'https://cdn.resfu.com/img_data/players/medium/902981.jpg?size=120x&lossy=1', mainPct: 100 },
-    { id: 'lens-2', name: 'Hervé Koffi', position: 'portero', skill: 70, age: 29, height: 186, nationality: '🇧🇫 Burkina Faso', foot: 'DER', number: 16, value: 3500000, avatar: 'https://cdn.resfu.com/img_data/players/medium/330096.jpg?size=120x&lossy=1', mainPct: 100 },
+    { id: 'lens-2', name: 'Hervé Koffi', position: 'portero', skill: 70, age: 29, height: 186, nationality: '🇧🇫 Burkina Faso', foot: 'DER', number: 16, value: 3500000, avatar: 'https://cdn.resfu.com/img_data/players/medium/330096.jpg?size=120x&lossy=1', mainPct: 100, loanedTo: 'union-saint-gilloise', loanedToName: 'Union Saint-Gilloise', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/7551.jpg?size=120x&lossy=1' },
     { id: 'lens-3', name: 'Ilan Jourdren', position: 'portero', skill: 44, age: 18, height: 188, nationality: '🇫🇷 Francia', foot: 'DER', number: 30, value: 59000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3448183.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'lens-4', name: 'Samson Baidoo', position: 'defensa_central', skill: 77, age: 22, height: 190, nationality: '🇦🇹 Austria', foot: 'DER', number: 4, value: 21260000, avatar: 'https://cdn.resfu.com/img_data/players/medium/886628.jpg?size=120x&lossy=1', mainPct: 98, otherPositions: [{pos:'lateral_der',pct:2}] },
     { id: 'lens-5', name: 'M. Udol', position: 'lateral_izq', skill: 77, age: 30, height: 178, nationality: '🇫🇷 Francia', foot: 'IZQ', number: 3, value: 6480000, avatar: 'https://cdn.resfu.com/img_data/players/medium/239741.jpg?size=120x&lossy=1', mainPct: 82, otherPositions: [{pos:'medio_izq',pct:18}] },
@@ -466,7 +470,6 @@ window.DB.france = {
     { id: 'str-9', name: 'Saidou Sow', position: 'defensa_central', skill: 66, age: 24, height: 187, nationality: '🇬🇳 Guinea', foot: 'DER', number: 4, value: 2550000, avatar: 'https://cdn.resfu.com/img_data/players/medium/921763.jpg?size=120x&lossy=1', mainPct: 98, otherPositions: [{pos:'lateral_izq',pct:2}] },
     { id: 'str-10', name: 'S. Coulibaly', position: 'defensa_central', skill: 62, age: 22, height: 191, nationality: '🇫🇷 Francia', foot: 'DER', number: 17, value: 7220000, avatar: 'https://cdn.resfu.com/img_data/players/medium/878163.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}] },
     { id: 'str-11', name: 'Abakar Sylla', position: 'defensa_central', skill: 60, age: 23, height: 188, nationality: '🇨🇮 Costa de Marfil', foot: 'DER', number: 6, value: 3940000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3248844.jpg?size=120x&lossy=1', mainPct: 95, otherPositions: [{pos:'lateral_der',pct:5}] },
-    { id: 'str-12', name: 'Yoni Gomis', position: 'defensa_central', skill: 48, age: 20, height: 186, nationality: '🇫🇷 Francia', foot: 'DER', number: 19, value: 382000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3210983.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_izq',pct:10}] },
     { id: 'str-13', name: 'Julio Enciso', position: 'medio_ofensivo', skill: 76, age: 22, height: 173, nationality: '🇵🇾 Paraguay', foot: 'DER', number: 10, value: 32250000, avatar: 'https://cdn.resfu.com/img_data/players/medium/850678.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_izq',pct:12},{pos:'delantero',pct:8}] },
     { id: 'str-14', name: 'Valentín Barco', position: 'carrilero_izq', skill: 73, age: 22, height: 170, nationality: '🇦🇷 Argentina', foot: 'IZQ', number: 8, value: 25400000, avatar: 'https://cdn.resfu.com/img_data/players/medium/905808.jpg?size=120x&lossy=1', mainPct: 72, otherPositions: [{pos:'lateral_izq',pct:18},{pos:'extremo_izq',pct:10}] },
     { id: 'str-15', name: 'Diego Moreira', position: 'extremo_izq', skill: 72, age: 21, height: 179, nationality: '🇵🇹 Portugal', foot: 'DER', number: 7, value: 20790000, avatar: 'https://cdn.resfu.com/img_data/players/medium/907013.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_der',pct:20}] },
@@ -475,7 +478,6 @@ window.DB.france = {
     { id: 'str-18', name: 'Pape Diop', position: 'mediocentro', skill: 64, age: 22, height: 182, nationality: '🇸🇳 Senegal', foot: 'DER', number: 22, value: 4780000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3219904.jpg?size=120x&lossy=1', mainPct: 88, otherPositions: [{pos:'medio_ofensivo',pct:12}] },
     { id: 'str-19', name: 'D. Sousa', position: 'mediocentro', skill: 52, age: 20, height: 176, nationality: '🇪🇸 España', foot: 'DER', number: 14, value: 6660000, avatar: 'https://cdn.resfu.com/img_data/players/medium/937481.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_ofensivo',pct:15}] },
     { id: 'str-20', name: 'M. Amougou', position: 'mediocentro', skill: 50, age: 20, height: 177, nationality: '🇫🇷 Francia', foot: 'DER', number: 20, value: 8250000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3214737.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'medio_def',pct:10}] },
-    { id: 'str-21', name: 'Pape Diong', position: 'mediocentro', skill: 46, age: 20, height: 193, nationality: '🇸🇳 Senegal', foot: 'DER', number: 27, value: 1470000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3489388.jpg?size=120x&lossy=1', mainPct: 88, otherPositions: [{pos:'medio_def',pct:12}] },
     { id: 'str-22', name: 'R. Nzingoula', position: 'mediocentro', skill: 51, age: 20, height: 183, nationality: '🇫🇷 Francia', foot: 'DER', number: 26, value: 2670000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3211016.jpg?size=120x&lossy=1', mainPct: 88, otherPositions: [{pos:'medio_ofensivo',pct:12}] },
     { id: 'str-23', name: 'B. Brantlind', position: 'mediocentro', skill: 48, age: 17, height: 183, nationality: '🇸🇪 Suecia', foot: 'DER', number: 31, value: 173000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3402766.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'medio_ofensivo',pct:10}] },
     { id: 'str-24', name: 'J. Panichelli', position: 'delantero', skill: 84, age: 23, height: 190, nationality: '🇦🇷 Argentina', foot: 'DER', number: 9, value: 25990000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3157079.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_izq',pct:10}] },
@@ -645,7 +647,7 @@ window.DB.france = {
     { id: 'ang-13', name: 'Y. Belkhdim', position: 'mediocentro', skill: 67, age: 24, height: 187, nationality: '🇫🇷 Francia', foot: 'DER', number: 8, value: 3750000, avatar: 'https://cdn.resfu.com/img_data/players/medium/883893.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_ofensivo',pct:15}] },
     { id: 'ang-14', name: 'L. Mouton', position: 'mediocentro', skill: 64, age: 24, height: 176, nationality: '🇫🇷 Francia', foot: 'DER', number: 7, value: 1770000, avatar: 'https://cdn.resfu.com/img_data/players/medium/857922.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'medio_def',pct:20}] },
     { id: 'ang-15', name: 'B. Van Den Boomen', position: 'mediocentro', skill: 61, age: 31, height: 188, nationality: '🇳🇱 Países Bajos', foot: 'DER', number: 10, value: 3030000, avatar: 'https://cdn.resfu.com/img_data/players/medium/198444.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_def',pct:15}] },
-    { id: 'ang-16', name: 'M. Courcoul', position: 'mediocentro', skill: 53, age: 19, height: 176, nationality: '🇫🇷 Francia', foot: 'DER', number: 22, value: 2380000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3242282.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_ofensivo',pct:15}] },
+    { id: 'ang-16', name: 'M. Courcoul', position: 'mediocentro', skill: 53, age: 19, height: 176, nationality: '🇫🇷 Francia', foot: 'DER', number: 22, value: 2380000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3242282.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_ofensivo',pct:15}], loanedTo: 'raal-la-louviere', loanedToName: 'RAAL La Louviere', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/63671.jpg?size=120x&lossy=1' },
     { id: 'ang-17', name: 'Amine Sbaï', position: 'mediocentro', skill: 52, age: 21, height: 177, nationality: '🇫🇷 Francia', foot: 'DER', number: 18, value: 1260000, avatar: 'https://cdn.resfu.com/img_data/players/medium/898737.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'medio_ofensivo',pct:15}] },
     { id: 'ang-18', name: 'Jim Allevinah', position: 'extremo_der', skill: 65, age: 31, height: 172, nationality: '🇬🇦 Gabón', foot: 'DER', number: 11, value: 3100000, avatar: 'https://cdn.resfu.com/img_data/players/medium/466322.jpg?size=120x&lossy=1', mainPct: 82, otherPositions: [{pos:'extremo_izq',pct:18}] },
      { id: 'ang-19', name: 'A. El Ouazzani', position: 'delantero', skill: 54, age: 24, height: 185, nationality: '🇲🇦 Marruecos', foot: 'DER', number: 9, value: 2100000, avatar: 'https://cdn.resfu.com/img_data/players/medium/967612.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_izq',pct:10}], loanedFrom: 'pt4', loanedFromName: 'Sporting Braga', loanedFromLogo: 'https://cdn.resfu.com/img_data/escudos/medium/2386.jpg?size=120x&lossy=1' },

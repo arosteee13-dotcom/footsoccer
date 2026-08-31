@@ -7,6 +7,29 @@
    matchEngine.js se mantiene como archivo separado.
    ============================================================ */
 
+/* ============ TEMA (claro/oscuro) ============ */
+(function() {
+  const THEME_KEY = 'footsoccer-theme'
+  function getSavedTheme() {
+    try { var t = localStorage.getItem(THEME_KEY); return (t === 'dark' || t === 'light') ? t : null } catch(e) { return null }
+  }
+  function setThemeAttr(theme) {
+    document.documentElement.setAttribute('data-theme', theme)
+  }
+  /* Aplicar tema guardado lo antes posible (evita destello) */
+  var saved = getSavedTheme()
+  if (saved) setThemeAttr(saved)
+  window.__theme = {
+    apply: function(theme) {
+      setThemeAttr(theme)
+      try { localStorage.setItem(THEME_KEY, theme) } catch(e) {}
+      var meta = document.querySelector('meta[name="theme-color"]')
+      if (meta) meta.setAttribute('content', theme === 'dark' ? '#0F172A' : '#FFFFFF')
+    },
+    current: function() { return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light' }
+  }
+})();
+
 /* ============================================================
  * ligaAustria.js — Modulo de configuracion y ayudantes de la
  * Bundesliga de Austria (liga 3 fases + playoff europeo).
@@ -1103,7 +1126,25 @@ var ZC_CLUBES_INICIAL = {
   'willem-ii': { nombre: 'Koning Willem II Stadion', capacidad: 14700, precioMin: 11, precioMax: 40, entrenamiento: 10, cantera: 11, zonas: { esquina1: 5, esquina2: 5, esquina3: 5, esquina4: 5, tribuna1: 6, tribuna2: 6, fondo1: 5, fondo2: 6 } },
   'excelsior': { nombre: 'Van Donge & De Roo Stadion', capacidad: 4400, precioMin: 9, precioMax: 32, entrenamiento: 9, cantera: 10, zonas: { esquina1: 1, esquina2: 1, esquina3: 1, esquina4: 1, tribuna1: 2, tribuna2: 2, fondo1: 1, fondo2: 2 } },
   'cambuur': { nombre: 'Kesselkaat Stadion', capacidad: 15000, precioMin: 10, precioMax: 38, entrenamiento: 10, cantera: 10, zonas: { esquina1: 5, esquina2: 5, esquina3: 5, esquina4: 5, tribuna1: 6, tribuna2: 6, fondo1: 5, fondo2: 5 } },
-  'telstar': { nombre: '711 Stadion', capacidad: 3625, precioMin: 8, precioMax: 28, entrenamiento: 8, cantera: 9, zonas: { esquina1: 1, esquina2: 1, esquina3: 1, esquina4: 1, tribuna1: 2, tribuna2: 1, fondo1: 1, fondo2: 1 } }
+  'telstar': { nombre: '711 Stadion', capacidad: 3625, precioMin: 8, precioMax: 28, entrenamiento: 8, cantera: 9, zonas: { esquina1: 1, esquina2: 1, esquina3: 1, esquina4: 1, tribuna1: 2, tribuna2: 1, fondo1: 1, fondo2: 1 } },
+  'west-ham': { nombre: 'London Stadium', capacidad: 62500, precioMin: 20, precioMax: 75, entrenamiento: 14, cantera: 14, zonas: { esquina1: 11, esquina2: 11, esquina3: 11, esquina4: 11, tribuna1: 14, tribuna2: 14, fondo1: 12, fondo2: 12 } },
+  'sheffield-united': { nombre: 'Bramall Lane', capacidad: 32702, precioMin: 15, precioMax: 56, entrenamiento: 11, cantera: 12, zonas: { esquina1: 8, esquina2: 8, esquina3: 8, esquina4: 8, tribuna1: 11, tribuna2: 11, fondo1: 10, fondo2: 9 } },
+  'southampton': { nombre: "St Mary's Stadium", capacidad: 32384, precioMin: 15, precioMax: 58, entrenamiento: 14, cantera: 14, zonas: { esquina1: 8, esquina2: 8, esquina3: 8, esquina4: 8, tribuna1: 10, tribuna2: 10, fondo1: 8, fondo2: 9 } },
+  'cardiff-city': { nombre: 'Cardiff City Stadium', capacidad: 33280, precioMin: 14, precioMax: 50, entrenamiento: 11, cantera: 11, zonas: { esquina1: 8, esquina2: 8, esquina3: 8, esquina4: 8, tribuna1: 10, tribuna2: 9, fondo1: 8, fondo2: 8 } },
+  'wolves': { nombre: 'Molineux Stadium', capacidad: 32050, precioMin: 15, precioMax: 58, entrenamiento: 13, cantera: 13, zonas: { esquina1: 8, esquina2: 8, esquina3: 8, esquina4: 8, tribuna1: 10, tribuna2: 10, fondo1: 9, fondo2: 11 } },
+  'derby-county': { nombre: 'Pride Park Stadium', capacidad: 33597, precioMin: 14, precioMax: 50, entrenamiento: 12, cantera: 12, zonas: { esquina1: 8, esquina2: 8, esquina3: 8, esquina4: 8, tribuna1: 10, tribuna2: 10, fondo1: 8, fondo2: 9 } },
+  'blackburn-rovers': { nombre: 'Ewood Park', capacidad: 31367, precioMin: 12, precioMax: 46, entrenamiento: 11, cantera: 11, zonas: { esquina1: 7, esquina2: 7, esquina3: 7, esquina4: 7, tribuna1: 9, tribuna2: 8, fondo1: 8, fondo2: 8 } },
+  'stoke-city': { nombre: 'bet365 Stadium', capacidad: 30089, precioMin: 12, precioMax: 46, entrenamiento: 11, cantera: 11, zonas: { esquina1: 7, esquina2: 7, esquina3: 7, esquina4: 7, tribuna1: 9, tribuna2: 9, fondo1: 8, fondo2: 8 } },
+  'birmingham-city': { nombre: "St. Andrew's Knighthead Park", capacidad: 29409, precioMin: 14, precioMax: 52, entrenamiento: 11, cantera: 12, zonas: { esquina1: 8, esquina2: 8, esquina3: 8, esquina4: 8, tribuna1: 9, tribuna2: 9, fondo1: 8, fondo2: 8 } },
+  'bolton-wanderers': { nombre: 'Toughsheet Community Stadium', capacidad: 28723, precioMin: 11, precioMax: 45, entrenamiento: 10, cantera: 10, zonas: { esquina1: 7, esquina2: 7, esquina3: 7, esquina4: 7, tribuna1: 9, tribuna2: 9, fondo1: 7, fondo2: 7 } },
+  'norwich-city': { nombre: 'Carrow Road', capacidad: 27244, precioMin: 14, precioMax: 52, entrenamiento: 12, cantera: 12, zonas: { esquina1: 7, esquina2: 7, esquina3: 7, esquina4: 7, tribuna1: 9, tribuna2: 8, fondo1: 7, fondo2: 7 } },
+  'bristol-city': { nombre: 'Ashton Gate', capacidad: 27000, precioMin: 12, precioMax: 46, entrenamiento: 11, cantera: 11, zonas: { esquina1: 6, esquina2: 6, esquina3: 6, esquina4: 6, tribuna1: 9, tribuna2: 7, fondo1: 7, fondo2: 8 } },
+  'charlton-athletic': { nombre: 'The Valley', capacidad: 27111, precioMin: 11, precioMax: 44, entrenamiento: 10, cantera: 12, zonas: { esquina1: 6, esquina2: 6, esquina3: 6, esquina4: 6, tribuna1: 9, tribuna2: 7, fondo1: 8, fondo2: 6 } },
+  'west-bromwich-albion': { nombre: 'The Hawthorns', capacidad: 26850, precioMin: 12, precioMax: 48, entrenamiento: 11, cantera: 12, zonas: { esquina1: 7, esquina2: 7, esquina3: 7, esquina4: 7, tribuna1: 9, tribuna2: 8, fondo1: 8, fondo2: 8 } },
+  'burnley': { nombre: 'Turf Moor', capacidad: 21944, precioMin: 15, precioMax: 55, entrenamiento: 12, cantera: 12, zonas: { esquina1: 6, esquina2: 6, esquina3: 6, esquina4: 6, tribuna1: 7, tribuna2: 7, fondo1: 6, fondo2: 6 } },
+  'watford': { nombre: 'Vicarage Road', capacidad: 22200, precioMin: 14, precioMax: 52, entrenamiento: 12, cantera: 11, zonas: { esquina1: 5, esquina2: 5, esquina3: 5, esquina4: 5, tribuna1: 7, tribuna2: 7, fondo1: 6, fondo2: 6 } },
+  'swansea-city': { nombre: 'Swansea.com Stadium', capacidad: 21088, precioMin: 12, precioMax: 48, entrenamiento: 11, cantera: 11, zonas: { esquina1: 6, esquina2: 6, esquina3: 6, esquina4: 6, tribuna1: 7, tribuna2: 7, fondo1: 6, fondo2: 6 } },
+  'wrexham-afc': { nombre: 'Racecourse Ground', capacidad: 12600, precioMin: 12, precioMax: 42, entrenamiento: 9, cantera: 9, zonas: { esquina1: 1, esquina2: 1, esquina3: 1, esquina4: 1, tribuna1: 4, tribuna2: 4, fondo1: 3, fondo2: 4 } }
 }
 
 /* ---------- Estado ---------- */
@@ -2731,7 +2772,7 @@ const TEAM_NAMES = {
 const LEAGUE_NAMES = {
   argentina: ['Primera División', 'Primera Nacional'],
   brazil: ['Brasileirão Série A', 'Brasileirão Série B'],
-  england: ['Premier League'],
+  england: ['Premier League', 'Championship'],
   italy: ['Serie A', 'Serie B'],
   poland: ['Primera División', 'Segunda División'],
   portugal: ['Primeira Liga', 'Segunda Liga'],
@@ -3759,7 +3800,9 @@ function getCopaTeamsForRound(roundIdx) {
       return getLeagueTeams('bl') || []
     }
     if (state.countryId === 'england') {
-      return getLeagueTeams('epl') || []
+      var eplT = getLeagueTeams('epl') || []
+      var chamT = getLeagueTeams('championship') || []
+      return eplT.concat(chamT)
     }
     if (state.countryId === 'belgium') {
       var l1b = getLeagueTeams('l1b')
@@ -4652,6 +4695,23 @@ function getTop11Average(players) {
   if (!players || players.length === 0) return 0
   const top = [...players].sort((a, b) => (b.skill || 0) - (a.skill || 0)).slice(0, 11)
   return Math.round(top.reduce((s, p) => s + (p.skill || 0), 0) / top.length)
+}
+
+/* Jugador de campo con más skill (capitán por defecto) y jugador más determinante.
+   Devuelve { captain, key } con la misma lógica en badge, preview y "Personal clave". */
+function getTeamKeyPlayers(list) {
+  var squad = (list || []).filter(function(p) { return !(p.onLoan && p.loanTo) })
+  var captain = null, key = null
+  if (squad.length > 0) {
+    var outfield = squad.filter(function(p) { return p.position !== 'POR' && p.position !== 'portero' })
+    captain = outfield.length > 0 ? outfield.reduce(function(a, b) { return b.skill > a.skill ? b : a }) : squad.reduce(function(a, b) { return b.skill > a.skill ? b : a })
+    key = squad.reduce(function(a, b) { return b.skill > a.skill ? b : a })
+    if (key && captain && key.id === captain.id) {
+      var second = squad.filter(function(p) { return p.id !== captain.id }).reduce(function(a, b) { return b.skill > a.skill ? b : a })
+      key = second || key
+    }
+  }
+  return { captain: captain, key: key }
 }
 
 /* Convierte el GRL del club a una valoración de estrellas (0.5 - 5.0).
@@ -7992,6 +8052,14 @@ function selectLeagueViewScope(el) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  /* Theme toggle from start menu */
+  var themeBtn = document.getElementById('theme-toggle')
+  if (themeBtn && window.__theme) {
+    window.__theme.apply(window.__theme.current())
+    themeBtn.onclick = function() {
+      window.__theme.apply(window.__theme.current() === 'dark' ? 'light' : 'dark')
+    }
+  }
   var selBtn = document.getElementById('league-country-selector')
   if (selBtn) selBtn.onclick = function() { showCountrySelectorModal() }
   var csClose = document.getElementById('country-selector-close')
@@ -10896,6 +10964,7 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
   let esPrimera = false, esSegunda = false, esSegundaB = false, esTercera = false, esHonor = false, esPrimeraCat = false, esSegonaCat = false, esTerceraCat = false
   let esPolaca1 = false, esPolaca2 = false, esPolaca3 = false, esPolaca4 = false
   let esPrimeraPortugal = false, esSegundaPortugal = false
+  let esPremier = false, esChampionship = false, esPremierEngland = false, esSegundaEngland = false
   let esBundesliga = false, esBundesliga2 = false
   let esBundesligaA = false, esSegundaAustria = false
   let esAscensoFilialBloqueado = false, esDescensoRegional = false
@@ -10935,6 +11004,10 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
     esBundesliga2 = state.leagueId === 'bl2'
     esBundesligaA = state.leagueId === 'bl1'
     esSegundaAustria = state.leagueId === 'bl2a'
+    esPremier = state.leagueId === 'epl'
+    esChampionship = state.leagueId === 'championship'
+    esPremierEngland = esPremier
+    esSegundaEngland = esChampionship
 
     const esTerceraCatalana = state.leagueId === 'l3g1' || state.leagueId === 'l3g2'
     const totalTeams = standings.length
@@ -10985,6 +11058,14 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
       }
     } else if (esSerieBItaly && pos <= 2) {
       state.leagueId = 'sa'
+      cambioDivision = true
+    } else if (esPremier && pos >= 18) {
+      if (getLeagueTeams('championship')) {
+        state.leagueId = 'championship'
+        cambioDivision = true
+      }
+    } else if (esChampionship && pos <= 2) {
+      state.leagueId = 'epl'
       cambioDivision = true
     } else if (esPrimera && pos >= 15) {
       state.leagueId = 'lnfs2'
@@ -11187,6 +11268,15 @@ function procesarFinTemporada(skipAging, skipStandings, extraMsg) {
       if (state._filialRelegue) msg += '\n⚠️ Tu filial desciende automáticamente a 1ª Federación.'
     }
     else if (esPrimeraSpain) msg += '\nPermanencia en Primera División'
+    else if (esPremier && pos === 1) msg += '\n🏆 ¡CAMPEÓN DE LA PREMIER LEAGUE!'
+    else if (esPremier && pos <= 4) msg += '\n✅ Clasificado a Champions League'
+    else if (esPremier && pos === 5) msg += '\n✅ Clasificado a Europa League'
+    else if (esPremier && pos === 6) msg += '\n✅ Clasificado a Conference League'
+    else if (esPremier && pos >= 18) msg += '\n⚠️ DESCENSO a Championship'
+    else if (esPremier) msg += '\nPermanencia en Premier League'
+    else if (esChampionship && cambioDivision && pos <= 2) msg += '\n🎉 ¡ASCENSO a la Premier League!'
+    else if (esChampionship && pos <= 6 && pos >= 3) msg += '\n🏆 Accedes al Playoff de Ascenso a la Premier League'
+    else if (esChampionship) msg += '\nPermanencia en Championship'
     else if (esPrimeraFrance && pos === 1) msg += '\n🏆 ¡CAMPEÓN DE LA LIGUE 1!'
     else if (esPrimeraFrance && pos <= 4) msg += '\n✅ Clasificado a Champions League'
     else if (esPrimeraFrance && pos === 5) msg += '\n✅ Clasificado a Europa League'
@@ -15684,6 +15774,7 @@ function getDivisionBaseBudget(leagueId) {
   if (leagueId === 'bl') return 18000000
   if (leagueId === 'bl2') return 5000000
   if (leagueId === 'epl') return 25000000
+  if (leagueId === 'championship') return 8000000
   if (leagueId === 'l1b') return 10000000
   if (leagueId === 'eredivisie') return 12000000
   if (leagueId.startsWith('lpl4g')) return 300000
@@ -16374,7 +16465,7 @@ function showNewGameScreen() {
   document.getElementById('ng-step-teams').classList.add('ng-hidden')
 
   /* Pre-load all country data to show league counts */
-  var _countriesToLoad = ['france', 'spain', 'portugal', 'poland', 'austria', 'belgium', 'netherlands']
+  var _countriesToLoad = ['france', 'spain', 'portugal', 'poland', 'austria', 'belgium', 'netherlands', 'england']
   var _loadedCount = 0
   _countriesToLoad.forEach(function(cid) {
     loadCountryData(cid, function() {
@@ -16635,17 +16726,8 @@ function updateTeamBadge(team) {
     '<span class="ng-manager-budget"><span class="ng-manager-budget-label">Presupuesto</span><span class="ng-manager-budget-value">€' + formatShort(budget) + '</span></span>' +
     '<div class="ng-team-rating">' + grl + '</div>'
   if (info) {
-    const squad = (rs || []).filter(function(p) { return !(p.onLoan && p.loanTo) })
-    var captain = null, key = null
-    if (squad.length > 0) {
-      var outfield = squad.filter(function(p) { return p.position !== 'POR' && p.position !== 'portero' })
-      captain = outfield.length > 0 ? outfield.reduce(function(a, b) { return b.skill > a.skill ? b : a }) : squad.reduce(function(a, b) { return b.skill > a.skill ? b : a })
-      key = squad.reduce(function(a, b) { return b.skill > a.skill ? b : a })
-      if (key && captain && key.id === captain.id) {
-        var second = squad.filter(function(p) { return p.id !== captain.id }).reduce(function(a, b) { return b.skill > a.skill ? b : a })
-        key = second || key
-      }
-    }
+    const kp = getTeamKeyPlayers(rs || [])
+    var captain = kp.captain, key = kp.key
     var capHtml = captain
       ? '<div class="ng-manager-player"><div class="ng-manager-avatar" style="background-image:url(' + (captain.avatar || NOPHOTO) + ')"></div><div class="ng-manager-player-info"><span class="ng-manager-player-role">Capitán</span><span class="ng-manager-player-name">' + captain.name.split(' ').slice(-1)[0] + '</span></div></div>'
       : ''
@@ -16734,8 +16816,9 @@ function showTeamPreview(teamId) {
       }
       if (tptab === 'general') {
         var leagueName = foundLeague ? foundLeague.name : ''
-        var captain = orderedPlayers.length > 0 ? orderedPlayers[0] : null
-        var bestPlayer = orderedPlayers.reduce(function(best, p) { return (!best || p.skill > best.skill) ? p : best }, null)
+        var kp3 = getTeamKeyPlayers(orderedPlayers)
+        var captain = kp3.captain
+        var bestPlayer = kp3.key
         content += '<div class="tp-stats" style="margin-bottom:6px">' +
           '<div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>' +
           '<div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">' + stars + '</span></div>' +
@@ -16785,31 +16868,33 @@ function showTeamPreview(teamId) {
         document.getElementById('tp-table-header').style.display = 'none'
         document.getElementById('tp-view-content').style.display = ''
         var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
-        content += '<div class="tactics-subsection-label">' + trophySvg + ' Palmar\u00e9s</div>'
+        content += '<div class="hist-subtabs" style="padding:4px 14px 12px">' +
+          '<div class="hist-subtab active" style="cursor:default">' + trophySvg + ' <span>Palmar\u00e9s</span></div>' +
+          '</div>'
+        content += '<div class="hist-subpanel">'
         var palmares = team.palmares || []
         var logosMap = COMP_TROFEO_MAP
-        if (palmares.length === 0) { content += '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin trofeos</div>' } else {
-          content += '<div style="display:flex;gap:12px;padding:4px 14px 12px;overflow-x:auto;scrollbar-width:none">'
+        if (palmares.length === 0) { content += '<div class="hist-card-empty">Sin trofeos</div>' } else {
+          content += '<div class="hist-card"><div class="hist-trophy-list">'
           palmares.forEach(function(p, pi) {
             var ys = p.years && p.years.length > 0 ? p.years.join(', ') : '\u2014'
             var logoUrl = logosMap[p.comp] || null
             if (!logoUrl) { for (var _c2 in window.DB) { var _d2 = window.DB[_c2]; if (_d2) { var _l2 = (_d2.country.leagues || []).find(function(x) { return x.name === p.comp || x.name.indexOf(p.comp) >= 0 }); if (_l2) { logoUrl = _l2.logo; break } } } }
-            content += '<div class="trofeo-card" data-years="' + ys + '" style="flex-shrink:0;width:100px;text-align:center;padding:12px 8px;background:var(--bg);border-radius:10px;cursor:pointer">' +
-              (logoUrl ? '<div style="margin-bottom:4px;height:32px;display:flex;align-items:center;justify-content:center"><img src="' + logoUrl + '" style="max-width:32px;max-height:32px;object-fit:contain"></div>' : '<div style="font-size:28px;margin-bottom:4px">\ud83c\udfc6</div>') +
-              '<div style="font-size:18px;font-weight:800;color:var(--text)">' + p.count + '</div>' +
-              '<div style="font-size:11px;color:var(--text-secondary);line-height:1.2">' + p.comp + '</div></div>'
+            content += '<div class="hist-trophy-row">' +
+              (logoUrl ? '<div class="hist-trophy-logo"><img src="' + logoUrl + '" alt="" loading="lazy"></div>' : '<div class="hist-trophy-logo hist-trophy-noimg">\ud83c\udfc6</div>') +
+              '<div class="hist-trophy-info">' +
+              '<div class="hist-trophy-top"><span class="hist-trophy-count">' + p.count + '</span><span class="hist-trophy-comp">' + p.comp + '</span></div>' +
+              '<div class="hist-trophy-years">' + ys + '</div>' +
+              '</div>' +
+              '</div>'
           })
-          content += '</div>'; content += '<div id="preview-trofeo-tip" style="display:none;margin:4px 14px 8px;padding:10px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:12px"></div>'
+          content += '</div></div>'
         }
-        content += '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px;margin-top:8px">Inicia tu carrera para ver el historial de temporadas</div>'
+        content += '</div>'
+        content += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px">Inicia tu carrera para ver el historial de temporadas</div>'
       }
       var cEl = document.getElementById('tp-view-content')
       if (cEl) cEl.innerHTML = content
-      if (tptab === 'history') {
-        document.querySelectorAll('#tp-view-content .trofeo-card').forEach(function(card) {
-          card.onclick = function() { var tip = document.getElementById('preview-trofeo-tip'); if (!tip) return; if (tip.style.display === 'block') { tip.style.display = 'none'; return }; tip.innerHTML = '\ud83c\udfc6 Temporadas: ' + card.dataset.years; tip.style.display = 'block' }
-        })
-      }
     }
 
     renderPreviewTab()
@@ -17112,6 +17197,7 @@ function showTeamInfo(teamId) {
     if (teamFlag) break
   }
   var teamViewTab = 'general'
+  var histTab = 'palmares'
   var squadTab = 'info'
   var orderedPlayers = [...team.players].sort(function(a, b) {
     var posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
@@ -17142,14 +17228,9 @@ function showTeamInfo(teamId) {
         var balance = state.finances ? state.finances.balance : 0
         content += '<div style="padding:10px 14px;background:var(--bg);border-radius:8px;margin:0 14px 8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-secondary)">Presupuesto</span><span style="font-size:15px;font-weight:700;color:#10B981">\u20AC' + formatShort(balance) + '</span></div>'
       }
-      var captain = null
-      if (teamId === state.teamId && state.captainId) {
-        captain = team.players.find(function(p) { return p.id === state.captainId })
-      } else {
-        var sortedByMatches = [...team.players].sort(function(a, b) { return (b.matches || 0) - (a.matches || 0) })
-        captain = sortedByMatches.length > 0 ? sortedByMatches[0] : null
-      }
-      var bestPlayer = [...team.players].sort(function(a, b) { return (b.skill || 0) - (a.skill || 0) })[0]
+      var kp2 = getTeamKeyPlayers(team.players)
+      var captain = kp2.captain
+      var bestPlayer = kp2.key
       if (captain || bestPlayer) {
         content += '<div class="tactics-subsection-label">Personal clave</div>'
         if (captain) {
@@ -17283,7 +17364,14 @@ function showTeamInfo(teamId) {
       }
       var trophiesList = Object.keys(mergedTrophies).map(function(k) { return mergedTrophies[k] })
       var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
-      content += '<div class="tactics-subsection-label">' + trophySvg + ' Palmar\u00e9s</div>'
+      var histIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
+      content += '<div class="hist-subtabs">' +
+        '<button class="hist-subtab' + (histTab === 'palmares' ? ' active' : '') + '" data-histsub="palmares">' + trophySvg + ' <span>Palmar\u00e9s</span></button>' +
+        '<button class="hist-subtab' + (histTab === 'liga' ? ' active' : '') + '" data-histsub="liga">' + histIcon + ' <span>Historial en liga</span></button>' +
+        '</div>'
+      content += '<div class="hist-subpanel">'
+      if (histTab === 'palmares') {
+      content += '<div class="hist-card"><div class="hist-card-head">' + trophySvg + ' <span>Palmar\u00e9s</span></div>'
       var logosMap = {
         'Copa del Rey': 'https://cdn.resfu.com/img_data/competiciones/copa/129.png?size=120x&lossy=1',
         'Supercopa': 'https://cdn.resfu.com/img_data/competiciones/copa/132.png?size=120x&lossy=1',
@@ -17333,31 +17421,31 @@ function showTeamInfo(teamId) {
         }
       })
       if (trophiesList.length === 0) {
-        content += '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin trofeos</div>'
+        content += '<div class="hist-card-empty">Sin trofeos</div>'
       } else {
-        content += '<div style="display:flex;gap:12px;padding:4px 14px 12px;overflow-x:auto;scrollbar-width:none">'
+        content += '<div class="hist-trophy-scroll"><div class="hist-trophy-list">'
         trophiesList.forEach(function(t, ti) {
           var yearsStr = t.years.length > 0 ? t.years.join(', ') : '—'
-          content += '<div class="trofeo-card" data-years="' + yearsStr + '" data-idx="' + ti + '" style="flex-shrink:0;width:100px;text-align:center;padding:12px 8px;background:var(--bg);border-radius:10px;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background=\'rgba(255,255,255,0.08)\'" onmouseout="this.style.background=\'var(--bg)\'">' +
-            (t.logo ? '<div style="margin-bottom:4px;height:32px;display:flex;align-items:center;justify-content:center"><img src="' + t.logo + '" style="max-width:32px;max-height:32px;object-fit:contain"></div>' : '<div style="font-size:28px;margin-bottom:4px">\ud83c\udfc6</div>') +
-            '<div style="font-size:18px;font-weight:800;color:var(--text)">' + t.count + '</div>' +
-            '<div style="font-size:11px;color:var(--text-secondary);line-height:1.2">' + t.comp + '</div>' +
+          content += '<div class="hist-trophy-row" data-years="' + yearsStr + '" data-idx="' + ti + '">' +
+            (t.logo ? '<div class="hist-trophy-logo"><img src="' + t.logo + '" alt="" loading="lazy"></div>' : '<div class="hist-trophy-logo hist-trophy-noimg">\ud83c\udfc6</div>') +
+            '<div class="hist-trophy-info">' +
+            '<div class="hist-trophy-top"><span class="hist-trophy-count">' + t.count + '</span><span class="hist-trophy-comp">' + t.comp + '</span></div>' +
+            '<div class="hist-trophy-years">' + yearsStr + '</div>' +
+            '</div>' +
             '</div>'
         })
-        content += '</div>'
-        /* Tooltip container */
-        content += '<div id="trofeo-tooltip" style="display:none;margin:4px 14px 8px;padding:10px 14px;background:var(--accent);color:#fff;border-radius:8px;font-size:12px;line-height:1.4"></div>'
+        content += '</div></div>'
       }
-
+      content += '</div>'
+      } else {
       /* League history — from allTeamsHistory */
       var teamHistory = state.allTeamsHistory || {}
       var teamSeasons = teamHistory[teamId] ? teamHistory[teamId].seasons || [] : []
-      var histIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
-      content += '<div class="tactics-subsection-label" style="margin-top:12px">' + histIcon + ' Historial en liga</div>'
+      content += '<div class="hist-card"><div class="hist-card-head">' + histIcon + ' <span>Historial en liga</span></div>'
       if (teamSeasons.length === 0) {
-        content += '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin datos de temporadas anteriores</div>'
+        content += '<div class="hist-card-empty">Sin datos de temporadas anteriores</div>'
       } else {
-        content += '<div style="padding:4px 14px 14px">'
+        content += '<div class="hist-card-body">'
         var reversedSeasons = teamSeasons.slice().reverse()
         reversedSeasons.forEach(function(s) {
           var posDisplay = s.position + '\u00ba'
@@ -17366,14 +17454,17 @@ function showTeamInfo(teamId) {
           if (!logoUrl) {
             for (var _c3 in window.DB) { var _d3 = window.DB[_c3]; if (_d3) { var _l3 = (_d3.country.leagues || []).find(function(x) { return x.name === s.division }); if (_l3) { logoUrl = _l3.logo; break } } }
           }
-          content += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">' +
-            (logoUrl ? '<img src="' + logoUrl + '" style="width:20px;height:20px;object-fit:contain;flex-shrink:0">' : '<div style="width:20px;height:20px;border-radius:50%;background:var(--text-muted);flex-shrink:0"></div>') +
-            '<span style="font-size:12px;color:var(--text-muted);flex-shrink:0">' + s.season + '</span>' +
-            '<span style="margin-left:auto;font-size:13px;font-weight:700;color:' + posColor + '">' + posDisplay + '</span>' +
+          content += '<div class="hist-row">' +
+            (logoUrl ? '<img class="hist-row-logo" src="' + logoUrl + '" alt="" loading="lazy">' : '<div class="hist-row-logo hist-row-nologo"></div>') +
+            '<span class="hist-row-season">' + s.season + '</span>' +
+            '<span class="hist-row-pos" style="color:' + posColor + '">' + posDisplay + '</span>' +
             '</div>'
         })
         content += '</div>'
       }
+      content += '</div>'
+      }
+      content += '</div>'
     }
     document.getElementById('team-view-content').innerHTML = content
     /* Bind player rows for squad tab */
@@ -17395,19 +17486,10 @@ function showTeamInfo(teamId) {
     }
     /* Bind trofeo cards and chart points for history tab */
     if (teamViewTab === 'history') {
-      document.querySelectorAll('#team-view-content .trofeo-card').forEach(function(card) {
-        card.onclick = function() {
-          var tip = document.getElementById('trofeo-tooltip')
-          if (!tip) return
-          var years = card.dataset.years
-          if (tip.style.display === 'block' && tip._activeCard === card) {
-            tip.style.display = 'none'
-            tip._activeCard = null
-          } else {
-            tip.innerHTML = trophySvg + ' Temporadas: ' + years
-            tip.style.display = 'block'
-            tip._activeCard = card
-          }
+      document.querySelectorAll('#team-view-content .hist-subtab').forEach(function(btn) {
+        btn.onclick = function() {
+          histTab = btn.dataset.histsub
+          renderTeamView()
         }
       })
     }
@@ -18336,9 +18418,6 @@ try {
         renderTab('club')
       } else if (action === 'calendar') {
         state.clubSubTab = 'calendar'
-        renderTab('club')
-      } else if (action === 'palmares') {
-        state.clubSubTab = 'palmares'
         renderTab('club')
       } else if (action === 'home') {
         renderTab('home')

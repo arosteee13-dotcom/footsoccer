@@ -5,7 +5,7 @@ window.DB.italy = {
     leagues: [
       { id: 'sa', name: 'Serie A', logo: 'https://cdn.resfu.com/media/img/league_logos/serie-a-2025.png?size=120x&lossy=1',
         teams: [
-          { id: 'inter', name: 'Inter Milan', rating: 85, formation: '3-5-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1381.jpg?size=120x&lossy=1', budget: 80000000,
+          { id: 'inter', name: 'Inter Milan', rating: 85, formation: '3-5-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1381.jpg?size=120x&lossy=1', budget: 140000000,
             palmares: [
               { comp: 'Serie A', count: 20, years: ['2023-24', '2020-21', '2009-10', '2008-09', '2007-08', '2006-07', '2005-06', '2002-03', '1999-00', '1997-98', '1993-94', '1992-93', '1990-91', '1989-90', '1988-89', '1987-88', '1985-86', '1979-80', '1970-71', '1965-66'] },
               { comp: 'Copa Italia', count: 9, years: ['2022-23', '2021-22', '2010-11', '2009-10', '2005-06', '2004-05', '2002-03', '2000-01', '1977-78'] },
@@ -17,7 +17,7 @@ window.DB.italy = {
             ],
             staff: [{ name: 'Cristian Chivu', nationality: '🇷🇴 Rumanía', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/7120.jpg?size=120x&lossy=1' }]
           },
-          { id: 'napoli', name: 'SSC Napoli', rating: 83, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1777.jpg?size=120x&lossy=1', budget: 60000000,
+          { id: 'napoli', name: 'SSC Napoli', rating: 83, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1777.jpg?size=120x&lossy=1', budget: 95000000,
             palmares: [
               { comp: 'Serie A', count: 3, years: ['2022-23', '1989-90', '1986-87'] },
               { comp: 'Copa Italia', count: 6, years: ['2023-24', '2019-20', '2013-14', '2011-12', '1975-76', '1971-72'] },
@@ -25,7 +25,7 @@ window.DB.italy = {
             ],
             staff: [{ name: 'Antonio Conte', nationality: '🇮🇹 Italia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1166.jpg?size=120x&lossy=1' }]
           },
-          { id: 'atalanta', name: 'Atalanta BC', rating: 82, formation: '3-4-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/339.jpg?size=120x&lossy=1', budget: 45000000,
+          { id: 'atalanta', name: 'Atalanta BC', rating: 82, formation: '3-4-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/339.jpg?size=120x&lossy=1', budget: 75000000,
             palmares: [
               { comp: 'Copa Italia', count: 1, years: ['2023-24'] },
               { comp: 'Europa League', count: 1, years: ['2023-24'] },
@@ -33,7 +33,7 @@ window.DB.italy = {
             ],
             staff: [{ name: 'Gian Piero Gasperini', nationality: '🇮🇹 Italia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1477.jpg?size=120x&lossy=1' }]
           },
-          { id: 'juventus', name: 'Juventus FC', rating: 82, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1430.jpg?size=120x&lossy=1', budget: 80000000,
+          { id: 'juventus', name: 'Juventus FC', rating: 82, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1430.jpg?size=120x&lossy=1', budget: 150000000,
             palmares: [
               { comp: 'Serie A', count: 36, years: ['2023-24', '2019-20', '2018-19', '2017-18', '2016-17', '2015-16', '2014-15', '2013-14', '2012-13', '2011-12', '2010-11', '2009-10', '2008-09', '2004-05', '2002-03', '2001-02', '2000-01', '1999-00', '1997-98', '1996-97', '1994-95', '1985-86', '1983-84', '1981-82', '1979-80', '1977-78', '1976-77', '1974-75', '1972-73', '1971-72', '1970-71', '1966-67', '1965-66', '1960-61', '1959-60', '1951-52'] },
               { comp: 'Copa Italia', count: 14, years: ['2023-24', '2020-21', '2018-19', '2017-18', '2016-17', '2015-16', '2014-15', '2003-04', '1999-00', '1994-95', '1992-93', '1990-91', '1989-90', '1982-83'] },
@@ -43,7 +43,7 @@ window.DB.italy = {
               { comp: 'Europa League', count: 1, years: ['1976-77'] }],
             staff: [{ name: 'Thiago Motta', nationality: '🇧🇷 Brasil', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/3264.jpg?size=120x&lossy=1' }]
           },
-          { id: 'lazio', name: 'SS Lazio', rating: 80, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1526.jpg?size=120x&lossy=1', budget: 40000000,
+          { id: 'lazio', name: 'SS Lazio', rating: 80, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1526.jpg?size=120x&lossy=1', budget: 60000000,
             palmares: [
               { comp: 'Serie A', count: 2, years: ['1999-00', '1973-74'] },
               { comp: 'Copa Italia', count: 7, years: ['2012-13', '2008-09', '2003-04', '1997-98', '1994-95', '1976-77', '1970-71'] },
@@ -52,7 +52,7 @@ window.DB.italy = {
             ],
             staff: [{ name: 'Marco Baroni', nationality: '🇮🇹 Italia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1031.jpg?size=120x&lossy=1' }]
           },
-          { id: 'milan', name: 'AC Milan', rating: 80, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1692.jpg?size=120x&lossy=1', budget: 70000000,
+          { id: 'milan', name: 'AC Milan', rating: 80, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1692.jpg?size=120x&lossy=1', budget: 125000000,
             palmares: [
               { comp: 'Serie A', count: 19, years: ['2021-22', '2010-11', '2003-04', '1998-99', '1995-96', '1993-94', '1992-93', '1991-92', '1988-89', '1987-88', '1986-87', '1978-79', '1976-77', '1972-73', '1968-69', '1967-68', '1962-63', '1958-59', '1954-55'] },
               { comp: 'Copa Italia', count: 5, years: ['2002-03', '1997-98', '1976-77', '1972-73', '1966-67'] },
@@ -62,7 +62,7 @@ window.DB.italy = {
               { comp: 'Copa Intercontinental', count: 4, years: ['2007', '2003', '1990', '1989'] }],
             staff: [{ name: 'Massimiliano Allegri', nationality: '🇮🇹 Italia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/2014.jpg?size=120x&lossy=1' }]
           },
-          { id: 'roma', name: 'AS Roma', rating: 79, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2176.jpg?size=120x&lossy=1', budget: 45000000,
+          { id: 'roma', name: 'AS Roma', rating: 79, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2176.jpg?size=120x&lossy=1', budget: 80000000,
             palmares: [
               { comp: 'Serie A', count: 3, years: ['2000-01', '1982-83', '1941-42'] },
               { comp: 'Copa Italia', count: 9, years: ['2007-08', '2006-07', '1990-91', '1989-90', '1985-86', '1982-83', '1980-81', '1968-69', '1963-64'] },
@@ -72,21 +72,21 @@ window.DB.italy = {
             ],
             staff: [{ name: 'Daniele De Rossi', nationality: '🇮🇹 Italia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1603.jpg?size=120x&lossy=1' }]
           },
-          { id: 'bologna', name: 'Bologna FC', rating: 77, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/522.jpg?size=120x&lossy=1', budget: 25000000,
+          { id: 'bologna', name: 'Bologna FC', rating: 77, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/522.jpg?size=120x&lossy=1', budget: 38000000,
             palmares: [
               { comp: 'Serie A', count: 7, years: ['1963-64', '1962-63', '1960-61', '1958-59', '1936-37', '1934-35', '1928-29'] },
               { comp: 'Copa Italia', count: 2, years: ['1969-70', '1961-62'] }
             ],
             staff: [{ name: 'Vincenzo Italiano', nationality: '🇮🇹 Italia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1500.jpg?size=120x&lossy=1' }]
           },
-          { id: 'fiorentina', name: 'ACF Fiorentina', rating: 77, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1142.jpg?size=120x&lossy=1', budget: 25000000,
+          { id: 'fiorentina', name: 'ACF Fiorentina', rating: 77, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1142.jpg?size=120x&lossy=1', budget: 45000000,
             palmares: [
               { comp: 'Serie A', count: 2, years: ['1968-69', '1955-56'] },
               { comp: 'Copa Italia', count: 6, years: ['2000-01', '1995-96', '1992-93', '1974-75', '1968-69', '1960-61'] },
               { comp: 'Supercopa Italia', count: 1, years: ['1996'] }],
             staff: [{ name: 'Raffaele Palladino', nationality: '🇮🇹 Italia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/4636.jpg?size=120x&lossy=1' }]
           },
-          { id: 'torino', name: 'Torino FC', rating: 74, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2508.jpg?size=120x&lossy=1', budget: 20000000,
+          { id: 'torino', name: 'Torino FC', rating: 74, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2508.jpg?size=120x&lossy=1', budget: 28000000,
             palmares: [
               { comp: 'Serie A', count: 7, years: ['1975-76', '1972-73', '1970-71', '1967-68', '1942-43', '1941-42', '1940-41'] },
               { comp: 'Copa Italia', count: 5, years: ['1992-93', '1990-91', '1981-82', '1970-71', '1967-68'] },
@@ -101,16 +101,16 @@ window.DB.italy = {
             ],
             staff: [{ name: 'Alberto Gilardino', nationality: '🇮🇹 Italia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/5722.jpg?size=120x&lossy=1' }]
           },
-          { id: 'cagliari', name: 'Cagliari Calcio', rating: 71, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/609.jpg?size=120x&lossy=1', budget: 15000000,
+          { id: 'cagliari', name: 'Cagliari Calcio', rating: 71, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/609.jpg?size=120x&lossy=1', budget: 13500000,
             palmares: [
               { comp: 'Serie A', count: 1, years: ['1969-70'] },
               { comp: 'Copa Italia', count: 1, years: ['2003-04'] }
             ],
             staff: [{ name: 'Davide Nicola', nationality: '🇮🇹 Italia', role: 'headCoach', avatar: 'https://cdn.resfu.com/img_data/people/original/1491.jpg?size=120x&lossy=1' }]
           },
-          { id: 'udinese', name: 'Udinese Calcio', rating: 71, formation: '3-5-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2573.jpg?size=120x&lossy=1', budget: 15000000,
+          { id: 'udinese', name: 'Udinese Calcio', rating: 71, formation: '3-5-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2573.jpg?size=120x&lossy=1', budget: 16500000,
             palmares: [] },
-          { id: 'como', name: 'Como 1907', rating: 70, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/822.jpg?size=120x&lossy=1', budget: 18000000 },
+          { id: 'como', name: 'Como 1907', rating: 70, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/822.jpg?size=120x&lossy=1', budget: 35000000 },
           { id: 'monza', name: 'AC Monza', rating: 72, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/47.jpg?size=120x&lossy=1', budget: 20000000 },
           { id: 'parma', name: 'Parma Calcio', rating: 69, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1927.jpg?size=120x&lossy=1', budget: 15000000,
             palmares: [
@@ -119,36 +119,36 @@ window.DB.italy = {
               { comp: 'Supercopa Italia', count: 1, years: ['1999'] },
               { comp: 'Copa Intercontinental', count: 1, years: ['1993'] }] },
           { id: 'lecce', name: 'US Lecce', rating: 69, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1531.jpg?size=120x&lossy=1', budget: 12000000 },
-          { id: 'venezia', name: 'Venezia FC', rating: 68, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2673.jpg?size=120x&lossy=1', budget: 12000000,
+          { id: 'venezia', name: 'Venezia FC', rating: 68, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2673.jpg?size=120x&lossy=1', budget: 11000000,
             palmares: [
               { comp: 'Copa Italia', count: 1, years: ['1940-41'] }
             ] },
           { id: 'frosinone', name: 'Frosinone Calcio', rating: 67, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1174.jpg?size=120x&lossy=1', budget: 10000000 },
-          { id: 'sassuolo', name: 'US Sassuolo', rating: 66, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2634.jpg?size=120x&lossy=1', budget: 12000000 }
+          { id: 'sassuolo', name: 'US Sassuolo', rating: 66, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2634.jpg?size=120x&lossy=1', budget: 22000000 }
         ]
       },
       { id: 'sb', name: 'Serie B', logo: 'https://cdn.resfu.com/media/img/league_logos/serieB_italia.png?size=120x&lossy=1',
         teams: [
-          { id: 'ascoli', name: 'Ascoli', rating: 60, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/290.jpg?size=120x&lossy=1', budget: 3000000 },
-          { id: 'avellino', name: 'Avellino', rating: 59, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2622.jpg?size=120x&lossy=1', budget: 2500000 },
-          { id: 'benevento', name: 'Benevento', rating: 63, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/465.jpg?size=120x&lossy=1', budget: 3500000 },
-          { id: 'carrarese', name: 'Carrarese', rating: 56, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/642.jpg?size=120x&lossy=1', budget: 2000000 },
-          { id: 'catanzaro', name: 'Catanzaro', rating: 61, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1053.jpg?size=120x&lossy=1', budget: 3000000 },
-          { id: 'cesena', name: 'Cesena', rating: 58, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/35.jpg?size=120x&lossy=1', budget: 2500000 },
-          { id: 'cremonese', name: 'Cremonese', rating: 71, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2625.jpg?size=120x&lossy=1', budget: 4000000 },
-          { id: 'empoli', name: 'Empoli', rating: 63, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/983.jpg?size=120x&lossy=1', budget: 4000000 },
-          { id: 'fc-sudtirol', name: 'FC Südtirol', rating: 63, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1108.jpg?size=120x&lossy=1', budget: 2000000 },
-          { id: 'hellas-verona', name: 'Hellas Verona', rating: 67, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1305.jpg?size=120x&lossy=1', budget: 5000000 },
-          { id: 'juve-stabia', name: 'Juve Stabia', rating: 66, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2404.jpg?size=120x&lossy=1', budget: 2000000 },
-          { id: 'mantova', name: 'Mantova', rating: 64, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/42.jpg?size=120x&lossy=1', budget: 2000000 },
-          { id: 'modena', name: 'Modena', rating: 66, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1705.jpg?size=120x&lossy=1', budget: 3000000 },
-          { id: 'padova', name: 'Padova', rating: 64, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/619.jpg?size=120x&lossy=1', budget: 2500000 },
-          { id: 'palermo-fc', name: 'Palermo FC', rating: 70, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1906.jpg?size=120x&lossy=1', budget: 5000000 },
-          { id: 'pisa-sc', name: 'Pisa SC', rating: 72, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1973.jpg?size=120x&lossy=1', budget: 3500000 },
-          { id: 'sampdoria', name: 'Sampdoria', rating: 69, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2215.jpg?size=120x&lossy=1', budget: 6000000 },
-          { id: 'ss-arezzo', name: 'SS Arezzo', rating: 61, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/31.jpg?size=120x&lossy=1', budget: 2000000 },
-          { id: 'vicenza', name: 'Vicenza', rating: 63, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2691.jpg?size=120x&lossy=1', budget: 2500000 },
-          { id: 'virtus-entella', name: 'Virtus Entella', rating: 55, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/6503.jpg?size=120x&lossy=1', budget: 2000000 }
+          { id: 'ascoli', name: 'Ascoli', rating: 60, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/290.jpg?size=120x&lossy=1', budget: 4200000 },
+          { id: 'avellino', name: 'Avellino', rating: 59, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2622.jpg?size=120x&lossy=1', budget: 5000000 },
+          { id: 'benevento', name: 'Benevento', rating: 63, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/465.jpg?size=120x&lossy=1', budget: 8500000 },
+          { id: 'carrarese', name: 'Carrarese', rating: 56, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/642.jpg?size=120x&lossy=1', budget: 4500000 },
+          { id: 'catanzaro', name: 'Catanzaro', rating: 61, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1053.jpg?size=120x&lossy=1', budget: 8000000 },
+          { id: 'cesena', name: 'Cesena', rating: 58, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/35.jpg?size=120x&lossy=1', budget: 6500000 },
+          { id: 'cremonese', name: 'Cremonese', rating: 71, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2625.jpg?size=120x&lossy=1', budget: 16500000 },
+          { id: 'empoli', name: 'Empoli', rating: 63, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/983.jpg?size=120x&lossy=1', budget: 18000000 },
+          { id: 'fc-sudtirol', name: 'FC Südtirol', rating: 63, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1108.jpg?size=120x&lossy=1', budget: 7500000 },
+          { id: 'hellas-verona', name: 'Hellas Verona', rating: 67, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1305.jpg?size=120x&lossy=1', budget: 22000000 },
+          { id: 'juve-stabia', name: 'Juve Stabia', rating: 66, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2404.jpg?size=120x&lossy=1', budget: 4000000 },
+          { id: 'mantova', name: 'Mantova', rating: 64, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/42.jpg?size=120x&lossy=1', budget: 6000000 },
+          { id: 'modena', name: 'Modena', rating: 66, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1705.jpg?size=120x&lossy=1', budget: 10000000 },
+          { id: 'padova', name: 'Padova', rating: 64, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/619.jpg?size=120x&lossy=1', budget: 5500000 },
+          { id: 'palermo-fc', name: 'Palermo FC', rating: 70, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1906.jpg?size=120x&lossy=1', budget: 20000000 },
+          { id: 'pisa-sc', name: 'Pisa SC', rating: 72, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1973.jpg?size=120x&lossy=1', budget: 12000000 },
+          { id: 'sampdoria', name: 'Sampdoria', rating: 69, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2215.jpg?size=120x&lossy=1', budget: 15000000 },
+          { id: 'ss-arezzo', name: 'SS Arezzo', rating: 61, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/31.jpg?size=120x&lossy=1', budget: 3800000 },
+          { id: 'vicenza', name: 'Vicenza', rating: 63, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2691.jpg?size=120x&lossy=1', budget: 7000000 },
+          { id: 'virtus-entella', name: 'Virtus Entella', rating: 55, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/6503.jpg?size=120x&lossy=1', budget: 3500000 }
         ]
       }
     ]
@@ -262,7 +262,6 @@ window.DB.italy = {
       { id: 'cag-6', name: 'A. Obert', position: 'defensa_central', skill: 69, age: 23, height: 188, nationality: '\ud83c\uddf8\ud83c\uddf0 Eslovaquia', foot: 'IZQ', number: 3, value: 8890000, avatar: 'https://cdn.resfu.com/img_data/players/medium/810984.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'lateral_izq',pct:15}] },
       { id: 'cag-7', name: 'Ze Pedro', position: 'defensa_central', skill: 66, age: 29, height: 187, nationality: '\ud83c\uddf5\ud83c\uddf9 Portugal', foot: 'DER', number: 4, value: 4110000, avatar: 'https://cdn.resfu.com/img_data/players/medium/460445.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}] },
       { id: 'cag-8', name: 'G. Zappa', position: 'lateral_der', skill: 69, age: 26, height: 187, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 5, value: 5590000, avatar: 'https://cdn.resfu.com/img_data/players/medium/429732.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_der',pct:20}] },
-      { id: 'cag-9', name: 'M. Wieteska', position: 'defensa_central', skill: 59, age: 29, height: 187, nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', foot: 'DER', number: 23, value: 3210000, avatar: 'https://cdn.resfu.com/img_data/players/medium/240900.jpg?size=120x&lossy=1', mainPct: 95, otherPositions: [{pos:'lateral_der',pct:5}] },
       { id: 'cag-10', name: 'R. Idrissi', position: 'defensa_central', skill: 57, age: 21, height: 182, nationality: '\ud83c\uddf2\ud83c\udde6 Marruecos', foot: 'IZQ', number: 24, value: 2530000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3149459.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'lateral_izq',pct:15}] },
       { id: 'cag-11', name: 'J. Rodriguez', position: 'defensa_central', skill: 54, age: 21, height: 190, nationality: '\ud83c\uddfa\ud83c\uddfe Uruguay', foot: 'DER', number: 25, value: 4170000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3527026.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}] },
       { id: 'cag-12', name: 'D. Veroli', position: 'defensa_central', skill: 59, age: 23, height: 188, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 26, value: 1580000, avatar: 'https://cdn.resfu.com/img_data/players/medium/885199.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'medio_def',pct:10}] },
@@ -313,11 +312,10 @@ window.DB.italy = {
       { id: 'com-19', name: 'M. Perrone', position: 'medio_def', skill: 78, age: 23, height: 177, nationality: '\ud83c\udde6\ud83c\uddf7 Argentina', foot: 'IZQ', number: 21, value: 25430000, avatar: 'https://cdn.resfu.com/img_data/players/medium/885954.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'mediocentro',pct:15}] },
       { id: 'com-20', name: 'M. Caqueret', position: 'medio_def', skill: 76, age: 26, height: 174, nationality: '\ud83c\uddeb\ud83c\uddf7 Francia', foot: 'IZQ', number: 7, value: 16600000, avatar: 'https://cdn.resfu.com/img_data/players/medium/343151.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'mediocentro',pct:20}] },
       { id: 'com-21', name: 'L. Mazzitelli', position: 'mediocentro', skill: 65, age: 30, height: 184, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 14, value: 2250000, avatar: 'https://cdn.resfu.com/img_data/players/medium/210314.jpg?size=120x&lossy=1', mainPct: 75, otherPositions: [{pos:'medio_ofensivo',pct:25}] },
-      { id: 'com-22', name: 'M. Liberali', position: 'mediocentro', skill: 59, age: 19, height: 172, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'IZQ', number: 16, value: 7060000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3249930.jpg?size=120x&lossy=1', mainPct: 75, otherPositions: [{pos:'medio_ofensivo',pct:25}] },
       { id: 'com-23', name: 'M. Braunoder', position: 'mediocentro', skill: 58, age: 24, height: 174, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 17, value: 1980000, avatar: 'https://cdn.resfu.com/img_data/players/medium/810645.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_der',pct:20}] },
       { id: 'com-24', name: 'A. Lahdo', position: 'extremo_der', skill: 57, age: 18, height: 179, nationality: '\ud83c\uddf8\ud83c\uddea Suecia', foot: 'DER', number: 19, value: 1600000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3201291.jpg?size=120x&lossy=1', mainPct: 75, otherPositions: [{pos:'extremo_izq',pct:25}] },
       { id: 'com-25', name: 'F. Rispoli', position: 'mediocentro', skill: 55, age: 19, height: 169, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'IZQ', number: 27, value: 3710000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3240979.jpg?size=120x&lossy=1', mainPct: 75, otherPositions: [{pos:'extremo_izq',pct:25}] },
-      { id: 'com-26', name: 'A. Le Borgne', position: 'medio_def', skill: 44, age: 19, height: 189, nationality: '\ud83c\uddeb\ud83c\uddf7 Francia', foot: 'DER', number: 28, value: 30000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3234081.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'defensa_central',pct:10}] },
+      { id: 'com-26', name: 'A. Le Borgne', position: 'medio_def', skill: 44, age: 19, height: 189, nationality: '\ud83c\uddeb\ud83c\uddf7 Francia', foot: 'DER', number: 28, value: 30000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3234081.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'defensa_central',pct:10}], loanedTo: 'hellas-verona', loanedToName: 'Hellas Verona', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/1305.jpg?size=120x&lossy=1' },
       { id: 'com-27', name: 'T. Douvikas', position: 'delantero', skill: 78, age: 26, height: 186, nationality: '\ud83c\uddec\ud83c\uddf7 Grecia', foot: 'DER', number: 9, value: 12990000, avatar: 'https://cdn.resfu.com/img_data/players/medium/396751.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_der',pct:10}] },
       { id: 'com-28', name: 'J. Rodriguez', position: 'delantero', skill: 75, age: 20, height: 185, nationality: '\ud83c\uddea\ud83c\uddf8 España', foot: 'DER', number: 11, value: 30290000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3197021.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'extremo_der',pct:15}] },
       { id: 'com-29', name: 'A. Diao', position: 'extremo_izq', skill: 70, age: 20, height: 185, nationality: '\ud83c\uddf8\ud83c\uddf3 Senegal', foot: 'IZQ', number: 77, value: 34450000, avatar: 'https://cdn.resfu.com/img_data/players/medium/1007369.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_der',pct:20}] },
@@ -511,7 +509,6 @@ window.DB.italy = {
       { id: 'laz-14', name: 'R. Floriani', position: 'defensa_central', skill: 64, age: 23, height: 188, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 33, value: 4950000, avatar: 'https://cdn.resfu.com/img_data/players/medium/884572.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}] },
       { id: 'laz-15', name: 'O. Provstgaard', position: 'defensa_central', skill: 61, age: 23, height: 194, nationality: '\ud83c\udde9\ud83c\uddf0 Dinamarca', foot: 'DER', number: 34, value: 6420000, avatar: 'https://cdn.resfu.com/img_data/players/medium/835009.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}] },
       { id: 'laz-16', name: 'M. Fares', position: 'lateral_izq', skill: 60, age: 30, height: 183, nationality: '\ud83c\udde6\ud83c\uddff Argelia', foot: 'IZQ', number: 35, value: 1020000, avatar: 'https://cdn.resfu.com/img_data/players/medium/218355.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_izq',pct:20}] },
-      { id: 'laz-17', name: 'A. Milani', position: 'lateral_izq', skill: 52, age: 21, height: 178, nationality: '\ud83c\uddfb\ud83c\uddea Venezuela', foot: 'IZQ', number: 36, value: 458000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3149382.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_izq',pct:20}] },
       { id: 'laz-18', name: 'F. Bordon', position: 'defensa_central', skill: 47, age: 21, height: 194, nationality: '\ud83c\udde7\ud83c\uddf7 Brasil', foot: 'DER', number: 37, value: 489000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3241445.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}] },
       { id: 'laz-19', name: 'K. Taylor', position: 'mediocentro', skill: 86, age: 24, height: 182, nationality: '\ud83c\uddf3\ud83c\uddf1 Paises Bajos', foot: 'DER', number: 8, value: 40140000, avatar: 'https://cdn.resfu.com/img_data/players/medium/429357.jpg?size=120x&lossy=1', mainPct: 75, otherPositions: [{pos:'medio_ofensivo',pct:25}] },
       { id: 'laz-20', name: 'D. Cataldi', position: 'mediocentro', skill: 74, age: 31, height: 180, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'IZQ', number: 32, value: 5710000, avatar: 'https://cdn.resfu.com/img_data/players/medium/201270.jpg?size=120x&lossy=1', mainPct: 75, otherPositions: [{pos:'medio_def',pct:25}] },
@@ -601,7 +598,6 @@ window.DB.italy = {
       { id: 'mil-29', name: 'C. Nkunku', position: 'extremo_izq', skill: 74, age: 28, height: 177, nationality: '\ud83c\uddeb\ud83c\uddf7 Francia', foot: 'DER', number: 18, value: 35940000, avatar: 'https://cdn.resfu.com/img_data/players/medium/280417.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_der',pct:20}] },
       { id: 'mil-30', name: 'Goncalo Ramos', position: 'delantero', skill: 70, age: 25, height: 185, nationality: '\ud83c\uddf5\ud83c\uddf9 Portugal', foot: 'DER', number: 99, value: 40450000, avatar: 'https://cdn.resfu.com/img_data/players/medium/677933.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_der',pct:10}] },
       { id: 'mil-31', name: 'F. Camarda', position: 'delantero', skill: 59, age: 18, height: 189, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 73, value: 15450000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3323136.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_der',pct:10}] },
-      { id: 'mil-32', name: 'F. Terracciano', position: 'defensa_central', skill: 73, age: 23, height: 186, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 42, value: 6030000, avatar: 'https://cdn.resfu.com/img_data/players/medium/827219.jpg?size=120x&lossy=1', mainPct: 86, otherPositions: [{pos:'lateral_izq',pct:14}] }
     ],
     napoli: [
       { id: 'nap-1', name: 'V. Milinkovic-Savic', position: 'portero', skill: 80, age: 29, height: 202, nationality: '\ud83c\uddf7\ud83c\uddf8 Serbia', foot: 'DER', number: 1, value: 19380000, avatar: 'https://cdn.resfu.com/img_data/players/medium/231184.jpg?size=120x&lossy=1', mainPct: 100 },
@@ -640,7 +636,6 @@ window.DB.italy = {
       { id: 'nap-34', name: 'L. Lucca', position: 'delantero', skill: 70, age: 25, height: 201, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 14, value: 24800000, avatar: 'https://cdn.resfu.com/img_data/players/medium/665957.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_der',pct:10}] },
       { id: 'nap-35', name: 'J. Lindstrom', position: 'extremo_der', skill: 63, age: 26, height: 182, nationality: '\ud83c\udde9\ud83c\uddf0 Dinamarca', foot: 'DER', number: 28, value: 12510000, avatar: 'https://cdn.resfu.com/img_data/players/medium/596782.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_izq',pct:20}] },
       { id: 'nap-36', name: 'A. Santos', position: 'extremo_der', skill: 56, age: 23, height: 177, nationality: '\ud83c\udde7\ud83c\uddf7 Brasil', foot: 'IZQ', number: 86, value: 4680000, avatar: 'https://cdn.resfu.com/img_data/players/medium/912375.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_izq',pct:20}] },
-      { id: 'nap-37', name: 'G. Ambrosino', position: 'delantero', skill: 62, age: 22, height: 187, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 87, value: 5620000, avatar: 'https://cdn.resfu.com/img_data/players/medium/894093.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'extremo_der',pct:15}] },
       { id: 'nap-38', name: 'Giovane Santana', position: 'delantero', skill: 57, age: 22, height: 184, nationality: '\ud83c\udde7\ud83c\uddf7 Brasil', foot: 'DER', number: 88, value: 11030000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3154688.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'extremo_der',pct:15}] },
       { id: 'nap-39', name: 'C. Ngonge', position: 'extremo_izq', skill: 57, age: 26, height: 180, nationality: '\ud83c\udde7\ud83c\uddea Belgica', foot: 'IZQ', number: 89, value: 6660000, avatar: 'https://cdn.resfu.com/img_data/players/medium/367945.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_der',pct:20}] },
       { id: 'nap-40', name: 'W. Cheddira', position: 'delantero', skill: 56, age: 28, height: 187, nationality: '\ud83c\uddf2\ud83c\udde6 Marruecos', foot: 'DER', number: 90, value: 3380000, avatar: 'https://cdn.resfu.com/img_data/players/medium/830971.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'extremo_der',pct:10}], loanedTo: 'lecce', loanedToName: 'Lecce', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/1592.jpg?size=120x&lossy=1' },
@@ -650,7 +645,6 @@ window.DB.italy = {
     ],
     parma: [
       { id: 'par-1', name: 'Z. Suzuki', position: 'portero', skill: 80, age: 23, height: 190, nationality: '\ud83c\uddef\ud83c\uddf5 Japan', foot: 'DER', number: 31, value: 23220000, avatar: 'https://cdn.resfu.com/img_data/players/medium/448576.jpg?size=120x&lossy=1', mainPct: 100 },
-      { id: 'par-2', name: 'G. Daffara', position: 'portero', skill: 60, age: 21, height: 194, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 22, value: 2080000, avatar: 'https://cdn.resfu.com/img_data/players/medium/921795.jpg?size=120x&lossy=1', mainPct: 100 },
       { id: 'par-3', name: 'E. Corvi', position: 'portero', skill: 45, age: 25, height: 187, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 40, value: 316000, avatar: 'https://cdn.resfu.com/img_data/players/medium/692933.jpg?size=120x&lossy=1', mainPct: 100 },
       { id: 'par-4', name: 'E. Del Prato', position: 'lateral_der', skill: 78, age: 26, height: 183, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 15, value: 8770000, avatar: 'https://cdn.resfu.com/img_data/players/medium/406958.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_der',pct:20}] },
       { id: 'par-5', name: 'A. Circati', position: 'defensa_central', skill: 72, age: 22, height: 191, nationality: '\ud83c\udde6\ud83c\uddfa Australia', foot: 'DER', number: 3, value: 13660000, avatar: 'https://cdn.resfu.com/img_data/players/medium/907924.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}] },
@@ -724,7 +718,6 @@ window.DB.italy = {
       { id: 'ssa-5', name: 'J. Doig', position: 'lateral_izq', skill: 68, age: 24, height: 189, nationality: '\ud83c\uddf8\ud83c\uddec Escocia', foot: 'IZQ', number: 3, value: 7400000, avatar: 'https://cdn.resfu.com/img_data/players/medium/867571.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_izq',pct:20}] },
       { id: 'ssa-6', name: 'S. Walukiewicz', position: 'defensa_central', skill: 71, age: 26, height: 188, nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', foot: 'DER', number: 15, value: 5800000, avatar: 'https://cdn.resfu.com/img_data/players/medium/367216.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}] },
       { id: 'ssa-7', name: 'F. Cande', position: 'defensa_central', skill: 67, age: 28, height: 184, nationality: '\ud83c\uddf3\ud83c\udded Guinea-Bissau', foot: 'DER', number: 13, value: 3880000, avatar: 'https://cdn.resfu.com/img_data/players/medium/387671.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}] },
-      { id: 'ssa-8', name: 'F. Missori', position: 'lateral_der', skill: 54, age: 22, height: 182, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 25, value: 1690000, avatar: 'https://cdn.resfu.com/img_data/players/medium/906394.jpg?size=120x&lossy=1', mainPct: 80, otherPositions: [{pos:'extremo_der',pct:20}] },
       { id: 'ssa-9', name: 'C. Odenthal', position: 'defensa_central', skill: 60, age: 25, height: 190, nationality: '\ud83c\uddf3\ud83c\uddf1 Paises Bajos', foot: 'DER', number: 16, value: 1930000, avatar: 'https://cdn.resfu.com/img_data/players/medium/697135.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}] },
       { id: 'ssa-10', name: 'E. Pieragnolo', position: 'defensa_central', skill: 60, age: 23, height: 184, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'IZQ', number: 23, value: 2560000, avatar: 'https://cdn.resfu.com/img_data/players/medium/884577.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_izq',pct:10}] },
       { id: 'ssa-11', name: 'S. Cinquegrano', position: 'defensa_central', skill: 57, age: 22, height: 192, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 26, value: 671000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3194731.jpg?size=120x&lossy=1', mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}] },
@@ -936,7 +929,6 @@ window.DB.italy = {
     { id: 'ave-10', name: 'F. Missori', position: 'lateral_der', skill: 50, age: 22, height: 182, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 2, value: 1140000, avatar: 'https://cdn.resfu.com/img_data/players/medium/906394.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ave-11', name: 'Alessandro Fontanarosa', position: 'defensa_central', skill: 57, age: 23, height: 185, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 63, value: 1460000, avatar: 'https://cdn.resfu.com/img_data/players/medium/826742.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ave-12', name: 'M. Sala', position: 'lateral_izq', skill: 53, age: 27, height: 182, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 3, value: 1300000, avatar: 'https://cdn.resfu.com/img_data/players/medium/386817.jpg?size=120x&lossy=1', mainPct: 100 },
-    { id: 'ave-13', name: 'A. Milani', position: 'lateral_izq', skill: 51, age: 21, height: 178, nationality: '\ud83c\uddfb\ud83c\uddea Venezuela', foot: 'DER', number: 78, value: 309000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3149382.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ave-14', name: 'Carlo Mellino', position: 'defensa_central', skill: 38, age: 20, height: 183, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 58, value: 16000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3318258.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ave-15', name: 'Filippo Reale', position: 'defensa_central', skill: 45, age: 20, height: 188, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 19, value: 172000, avatar: 'https://cdn.resfu.com/img_data/players/medium/940471.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ave-16', name: 'Umberto Volpe', position: 'defensa_central', skill: 38, age: 20, height: 183, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 60, value: 20000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3318257.jpg?size=120x&lossy=1', mainPct: 100 },
@@ -949,8 +941,6 @@ window.DB.italy = {
     { id: 'ave-23', name: 'Lorenzo Sgarbi', position: 'mediocentro', skill: 52, age: 25, height: 189, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 18, value: 691000, avatar: 'https://cdn.resfu.com/img_data/players/medium/427312.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ave-24', name: 'Justin Kumi', position: 'mediocentro', skill: 43, age: 22, height: 182, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 16, value: 335000, avatar: 'https://cdn.resfu.com/img_data/players/medium/983590.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ave-25', name: 'M. Armellino', position: 'medio_def', skill: 55, age: 36, height: 186, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 21, value: 97000, avatar: 'https://cdn.resfu.com/img_data/players/medium/132676.jpg?size=120x&lossy=1', mainPct: 100 },
-    { id: 'ave-26', name: 'A. Le Borgne', position: 'medio_def', skill: 40, age: 19, height: 189, nationality: '\ud83c\uddeb\ud83c\uddf7 Francia', foot: 'DER', number: 27, value: 49000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3234081.jpg?size=120x&lossy=1', mainPct: 100 },
-    { id: 'ave-27', name: 'G. Tutino', position: 'delantero', skill: 67, age: 29, height: 177, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 7, value: 2460000, avatar: 'https://cdn.resfu.com/img_data/players/medium/197923.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ave-28', name: 'C. Patierno', position: 'delantero', skill: 61, age: 35, height: 185, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 9, value: 351000, avatar: 'https://cdn.resfu.com/img_data/players/medium/208133.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ave-29', name: 'R. Insigne', position: 'extremo_izq', skill: 63, age: 32, height: 172, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 94, value: 1430000, avatar: 'https://cdn.resfu.com/img_data/players/medium/161824.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'delantero',pct:15}] },
     { id: 'ave-30', name: 'R. Russo', position: 'delantero', skill: 54, age: 27, height: 171, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 10, value: 519000, avatar: 'https://cdn.resfu.com/img_data/players/medium/341287.jpg?size=120x&lossy=1', mainPct: 100 },
@@ -1008,22 +998,18 @@ window.DB.italy = {
     { id: 'car-4', name: 'S. Mazzini', position: 'portero', skill: 26, age: 27, height: 194, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 22, value: 27000, avatar: 'https://cdn.resfu.com/img_data/players/medium/337866.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-5', name: 'Marco Imperiale', position: 'defensa_central', skill: 69, age: 27, height: 182, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 3, value: 1840000, avatar: 'https://cdn.resfu.com/img_data/players/medium/413307.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-6', name: 'S. Zanon', position: 'lateral_der', skill: 68, age: 24, height: 178, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 72, value: 2370000, avatar: 'https://cdn.resfu.com/img_data/players/medium/736180.jpg?size=120x&lossy=1', mainPct: 100 },
-    { id: 'car-7', name: 'J. Illanes', position: 'defensa_central', skill: 67, age: 29, height: 188, nationality: '\ud83c\udde6\ud83c\uddf7 Argentina', foot: 'DER', number: 4, value: 1390000, avatar: 'https://cdn.resfu.com/img_data/players/medium/229745.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-8', name: 'B. Salamon', position: 'defensa_central', skill: 64, age: 35, height: 194, nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', foot: 'DER', number: 5, value: 407000, avatar: 'https://cdn.resfu.com/img_data/players/medium/117140.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-9', name: 'Filippo Oliana', position: 'defensa_central', skill: 57, age: 27, height: 185, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 6, value: 796000, avatar: 'https://cdn.resfu.com/img_data/players/medium/584178.jpg?size=120x&lossy=1', mainPct: 100 },
-    { id: 'car-10', name: 'N. Calabrese', position: 'defensa_central', skill: 52, age: 21, height: 183, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 37, value: 472000, avatar: 'https://cdn.resfu.com/img_data/players/medium/979954.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-11', name: 'D. Bouah', position: 'lateral_der', skill: 59, age: 24, height: 183, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 13, value: 853000, avatar: 'https://cdn.resfu.com/img_data/players/medium/427010.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-12', name: 'Fabio Ruggeri', position: 'lateral_izq', skill: 54, age: 21, height: 184, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 26, value: 992000, avatar: 'https://cdn.resfu.com/img_data/players/medium/928191.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-13', name: 'T. Guercio', position: 'defensa_central', skill: 59, age: 21, height: 186, nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', foot: 'DER', number: 78, value: 1910000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3161580.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-14', name: 'Jonas Rouhi', position: 'lateral_izq', skill: 52, age: 22, height: 183, nationality: '\ud83c\uddf8\ud83c\uddea Suecia', foot: 'DER', number: 73, value: 1530000, avatar: 'https://cdn.resfu.com/img_data/players/medium/882871.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-15', name: 'N. Schiavi', position: 'medio_def', skill: 69, age: 31, height: 173, nationality: '\ud83c\udde6\ud83c\uddf7 Argentina', foot: 'DER', number: 18, value: 1200000, avatar: 'https://cdn.resfu.com/img_data/players/medium/222417.jpg?size=120x&lossy=1', mainPct: 100 },
-    { id: 'car-16', name: 'Emanuele Zuelli', position: 'mediocentro', skill: 63, age: 24, height: 182, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 17, value: 2780000, avatar: 'https://cdn.resfu.com/img_data/players/medium/619499.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-17', name: 'Luis Hasa', position: 'mediocentro', skill: 55, age: 22, height: 172, nationality: '\ud83c\udde6\ud83c\uddf1 Albania', foot: 'DER', number: 70, value: 3080000, avatar: 'https://cdn.resfu.com/img_data/players/medium/905701.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-18', name: 'G. Parlanti', position: 'mediocentro', skill: 57, age: 22, height: 181, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 77, value: 1720000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3189398.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-19', name: 'Filippo Melegoni', position: 'mediocentro', skill: 53, age: 27, height: 186, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 8, value: 794000, avatar: 'https://cdn.resfu.com/img_data/players/medium/309622.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-20', name: 'Tommaso Rubino', position: 'mediocentro', skill: 49, age: 19, height: 179, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 21, value: 932000, avatar: 'https://cdn.resfu.com/img_data/players/medium/992208.jpg?size=120x&lossy=1', mainPct: 100, loanedFrom: 'fiorentina', loanedFromName: 'Fiorentina', loanedFromLogo: 'https://cdn.resfu.com/img_data/escudos/medium/1142.jpg?size=120x&lossy=1' },
      { id: 'car-21', name: 'Filippo Di Stefano', position: 'extremo_der', skill: 58, age: 22, height: 176, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 28, value: 2110000, avatar: 'https://cdn.resfu.com/img_data/players/medium/885326.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'mediocentro',pct:15}], loanedTo: 'empoli', loanedToName: 'Empoli', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/983.jpg?size=120x&lossy=1' },
-    { id: 'car-23', name: 'Dachi Lordkipanidze', position: 'mediocentro', skill: 46, age: 21, height: 186, nationality: '\ud83c\uddec\ud83c\uddea Georgia', foot: 'DER', number: 25, value: 200000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3247221.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-24', name: 'S. Liberali', position: 'mediocentro', skill: 31, age: 18, height: 180, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 75, value: 1000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3603125.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-25', name: 'Antonio Troise', position: 'mediocentro', skill: 31, age: 21, height: 180, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 20, value: 2000, avatar: 'https://cdn.resfu.com/img_data/players/medium/904177.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'car-26', name: 'M. Finotto', position: 'delantero', skill: 66, age: 33, height: 186, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 32, value: 643000, avatar: 'https://cdn.resfu.com/img_data/players/medium/288297.jpg?size=120x&lossy=1', mainPct: 100 },
@@ -1051,11 +1037,9 @@ window.DB.italy = {
     { id: 'ctz-13', name: 'Ervin Bashi', position: 'defensa_central', skill: 48, age: 21, height: 192, nationality: '\ud83c\udde6\ud83c\uddf1 Albania', foot: 'DER', number: 5, value: 440000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3333420.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ctz-14', name: 'Mario Paura', position: 'defensa_central', skill: 35, age: 21, height: 187, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 33, value: 10000, avatar: 'https://cdn.resfu.com/img_data/players/medium/983536.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ctz-15', name: 'C. Rombol\u00e0', position: 'defensa_central', skill: 31, age: 16, height: 180, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 83, value: 1000, avatar: 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1', mainPct: 100 },
-    { id: 'ctz-16', name: 'S. Pontisso', position: 'mediocentro', skill: 67, age: 29, height: 184, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 20, value: 1980000, avatar: 'https://cdn.resfu.com/img_data/players/medium/277323.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ctz-17', name: 'J. Petriccione', position: 'medio_def', skill: 68, age: 31, height: 176, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 10, value: 1880000, avatar: 'https://cdn.resfu.com/img_data/players/medium/232088.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ctz-18', name: 'M. Pompetti', position: 'mediocentro', skill: 64, age: 26, height: 182, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 21, value: 2110000, avatar: 'https://cdn.resfu.com/img_data/players/medium/358834.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ctz-19', name: 'M. Liberali', position: 'mediocentro', skill: 59, age: 19, height: 172, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 14, value: 1330000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3249930.jpg?size=120x&lossy=1', mainPct: 100 },
-    { id: 'ctz-20', name: 'Davide Buglio', position: 'medio_def', skill: 63, age: 28, height: 178, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 98, value: 1440000, avatar: 'https://cdn.resfu.com/img_data/players/medium/374189.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ctz-21', name: 'A. Ciss\u00e8', position: 'mediocentro', skill: 43, age: 19, height: 181, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 80, value: 302000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3227660.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ctz-22', name: 'Fabio Rispoli', position: 'mediocentro', skill: 52, age: 19, height: 169, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 32, value: 936000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3240979.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'ctz-23', name: 'Remi Oudin', position: 'medio_ofensivo', skill: 61, age: 29, height: 186, nationality: '\ud83c\uddeb\ud83c\uddf7 Francia', foot: 'DER', number: 28, value: 2120000, avatar: 'https://cdn.resfu.com/img_data/players/medium/290224.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'extremo_der',pct:15}] },
@@ -1097,9 +1081,7 @@ window.DB.italy = {
     { id: 'cse-24', name: 'F. Bertaccini', position: 'mediocentro', skill: 41, age: 19, height: 178, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 43, value: 31000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3610515.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'cse-25', name: 'D. Zamagni', position: 'mediocentro', skill: 34, age: 18, height: 178, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 35, value: 136000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3592334.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'cse-26', name: 'C. Shpendi', position: 'delantero', skill: 69, age: 23, height: 181, nationality: '\ud83c\udde6\ud83c\uddf1 Albania', foot: 'DER', number: 9, value: 6760000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3171140.jpg?size=120x&lossy=1', mainPct: 100 },
-    { id: 'cse-27', name: 'Riccardo Ciervo', position: 'extremo_izq', skill: 60, age: 24, height: 190, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 11, value: 2410000, avatar: 'https://cdn.resfu.com/img_data/players/medium/884456.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'delantero',pct:15}] },
-    { id: 'cse-28', name: 'G. Vrioni', position: 'delantero', skill: 66, age: 27, height: 188, nationality: '\ud83c\udde6\ud83c\uddf1 Albania', foot: 'DER', number: 22, value: 3230000, avatar: 'https://cdn.resfu.com/img_data/players/medium/353709.jpg?size=120x&lossy=1', mainPct: 100 },
-    { id: 'cse-29', name: 'A. Cerri', position: 'delantero', skill: 60, age: 30, height: 194, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 7, value: 1170000, avatar: 'https://cdn.resfu.com/img_data/players/medium/174091.jpg?size=120x&lossy=1', mainPct: 100 },
+{ id: 'cse-27', name: 'Riccardo Ciervo', position: 'extremo_izq', skill: 60, age: 24, height: 190, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 11, value: 2410000, avatar: 'https://cdn.resfu.com/img_data/players/medium/884456.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'delantero',pct:15}] },
     { id: 'cse-30', name: 'Marco Olivieri', position: 'delantero', skill: 52, age: 27, height: 177, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 32, value: 561000, avatar: 'https://cdn.resfu.com/img_data/players/medium/319387.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'cse-31', name: 'Filippo Galvagno', position: 'delantero', skill: 38, age: 19, height: 185, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 75, value: 16000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3612964.jpg?size=120x&lossy=1', mainPct: 100 },
     { id: 'cse-32', name: 'Ibrahima Wade', position: 'extremo_der', skill: 31, age: 19, height: 181, nationality: '\ud83c\uddf8\ud83c\uddf3 Senegal', foot: 'DER', number: 17, value: 44000, avatar: 'https://cdn.resfu.com/img_data/players/medium/3213415.jpg?size=120x&lossy=1', mainPct: 85, otherPositions: [{pos:'delantero',pct:15}] },
@@ -1388,7 +1370,7 @@ window.DB.italy = {
     { id: 'pal-6', name: 'Mattia Bani', position: 'defensa_central', skill: 69, age: 32, height: 188, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 13, value: 1900000, avatar: 'https://cdn.resfu.com/img_data/players/medium/207491.jpg?size=120x&lossy=1', mainPct: 99, otherPositions: [{pos:'lateral_izq',pct:1}] },
     { id: 'pal-7', name: 'T. Augello', position: 'lateral_izq', skill: 69, age: 31, height: 180, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'IZQ', number: 3, value: 1730000, avatar: 'https://cdn.resfu.com/img_data/players/medium/288800.jpg?size=120x&lossy=1', mainPct: 86, otherPositions: [{pos:'carrilero_izq',pct:14}] },
     { id: 'pal-8', name: 'T. Cassandro', position: 'defensa_central', skill: 66, age: 26, height: 186, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 84, value: 1810000, avatar: 'https://cdn.resfu.com/img_data/players/medium/583928.jpg?size=120x&lossy=1', mainPct: 81, otherPositions: [{pos:'lateral_der',pct:19}] },
-    { id: 'pal-9', name: 'Salim Diakite', position: 'lateral_der', skill: 68, age: 26, height: 186, nationality: '\ud83c\uddf2\ud83c\uddf1 Mal\u00ed', foot: 'DER', number: 23, value: 2400000, avatar: 'https://cdn.resfu.com/img_data/players/medium/881077.jpg?size=120x&lossy=1', mainPct: 81, otherPositions: [{pos:'defensa_central',pct:19}] },
+    { id: 'pal-9', name: 'Salim Diakite', position: 'lateral_der', skill: 68, age: 26, height: 186, nationality: '\ud83c\uddf2\ud83c\uddf1 Mal\u00ed', foot: 'DER', number: 23, value: 2400000, avatar: 'https://cdn.resfu.com/img_data/players/medium/881077.jpg?size=120x&lossy=1', mainPct: 81, otherPositions: [{pos:'defensa_central',pct:19}], loanedTo: 'zulte-waregem', loanedToName: 'Zulte-Waregem', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/2799.jpg?size=120x&lossy=1' },
     { id: 'pal-10', name: 'Patryk Peda', position: 'defensa_central', skill: 63, age: 24, height: 192, nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', foot: 'DER', number: 29, value: 2210000, avatar: 'https://cdn.resfu.com/img_data/players/medium/851195.jpg?size=120x&lossy=1', mainPct: 89, otherPositions: [{pos:'lateral_der',pct:11}] },
     { id: 'pal-11', name: 'F. Barba', position: 'defensa_central', skill: 66, age: 32, height: 187, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'IZQ', number: 93, value: 1680000, avatar: 'https://cdn.resfu.com/img_data/players/medium/141617.jpg?size=120x&lossy=1', mainPct: 86, otherPositions: [{pos:'lateral_izq',pct:14}] },
     { id: 'pal-12', name: 'G. Magnani', position: 'defensa_central', skill: 64, age: 30, height: 192, nationality: '\ud83c\uddee\ud83c\uddf9 Italia', foot: 'DER', number: 96, value: 1280000, avatar: 'https://cdn.resfu.com/img_data/players/medium/295645.jpg?size=120x&lossy=1', mainPct: 99, otherPositions: [{pos:'medio_der',pct:1}] },

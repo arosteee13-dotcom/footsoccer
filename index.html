@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#FFFFFF">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Footsoccer</title>
-  <link rel="stylesheet" href="css/styles.css?v=29">
+  <link rel="stylesheet" href="css/styles.css?v=35">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,6 +19,10 @@
     <!-- MENU SCREEN -->
     <div id="menu-screen">
       <canvas id="menu-particles"></canvas>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">
+        <svg class="tt-icon tt-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="tt-icon tt-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+      </button>
       <div id="menu-main">
         <div class="menu-hero">
           <img class="menu-logo" src="app_icon.png" alt="Footsoccer">
@@ -130,10 +134,6 @@
         <div class="dropdown-item" data-action="squad">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
           Plantilla
-        </div>
-        <div class="dropdown-item" data-action="palmares">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>
-          Palmarés
         </div>
         <div class="dropdown-divider"></div>
         <div class="dropdown-item" data-action="calendar">
@@ -683,18 +683,18 @@
     </div>
   </div>
 
-  <script src="js/data/spain.js?v=2"></script>
-  <script src="js/data/poland.js"></script>
+  <script src="js/data/spain.js?v=7"></script>
+  <script src="js/data/poland.js?v=5"></script>
   <script src="js/data/argentina.js"></script>
   <script src="js/data/brazil.js"></script>
-  <script src="js/data/germany.js"></script>
-  <script src="js/data/england.js"></script>
-  <script src="js/data/italy.js?v=2"></script>
-  <script src="js/data/portugal.js"></script>
-  <script src="js/data/austria.js"></script>
-  <script src="js/data/belgium.js"></script>
-  <script src="js/data/netherlands.js?v=16"></script>
+  <script src="js/data/germany.js?v=5"></script>
+  <script src="js/data/england.js?v=8"></script>
+  <script src="js/data/italy.js?v=6"></script>
+  <script src="js/data/portugal.js?v=4"></script>
+  <script src="js/data/austria.js?v=3"></script>
+  <script src="js/data/belgium.js?v=3"></script>
+  <script src="js/data/netherlands.js?v=18"></script>
   <script src="js/matchEngine.js?v=5"></script>
-  <script src="js/app.js?v=51"></script>
+  <script src="js/app.js?v=57"></script>
 </body>
 </html>

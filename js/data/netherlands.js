@@ -5,7 +5,7 @@ window.DB.netherlands = {
     leagues: [
       { id: 'eredivisie', name: 'Eredivisie', logo: 'https://cdn.resfu.com/media/img/league_logos/eredivisix.png?size=120x&lossy=1', country: { id: 'netherlands' },
         teams: [
-          { id: 'ajax', name: 'Ajax', rating: 84, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/98.jpg?size=120x&lossy=1', budget: 90000000,
+          { id: 'ajax', name: 'Ajax', rating: 84, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/98.jpg?size=120x&lossy=1', budget: 25000000,
             palmares: [
               { comp: 'Eerste Divisie', count: 2, years: ['2025-26', '2002-03'] },
               { comp: 'Champions League', count: 4, years: ['1994-95', '1972-73', '1971-72', '1970-71'] },
@@ -16,7 +16,7 @@ window.DB.netherlands = {
               { comp: 'Supercopa Países Bajos', count: 10, years: ['2020', '2014', '2008', '2007', '2006', '2003', '2002', '1995', '1994', '1993'] },
               { comp: 'Copa Intercontinental', count: 2, years: ['1995', '1972'] }
             ] },
-          { id: 'psv', name: 'PSV', rating: 84, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2023.jpg?size=120x&lossy=1', budget: 85000000,
+          { id: 'psv', name: 'PSV', rating: 84, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2023.jpg?size=120x&lossy=1', budget: 35000000,
             palmares: [
               { comp: 'Champions League', count: 1, years: ['1987-88'] },
               { comp: 'Europa League', count: 1, years: ['1977-78'] },
@@ -24,7 +24,7 @@ window.DB.netherlands = {
               { comp: 'KNVB Beker', count: 5, years: ['2022-23', '2021-22', '2011-12', '2004-05', '1995-96'] },
               { comp: 'Supercopa Países Bajos', count: 16, years: ['2026', '2024', '2023', '2022', '2020', '2017', '2016', '2013', '2009', '2004', '2001', '2000', '1998', '1997', '1996', '1992'] }
             ] },
-          { id: 'feyenoord', name: 'Feyenoord', rating: 83, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1135.jpg?size=120x&lossy=1', budget: 70000000,
+          { id: 'feyenoord', name: 'Feyenoord', rating: 83, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1135.jpg?size=120x&lossy=1', budget: 30000000,
             palmares: [
               { comp: 'Champions League', count: 1, years: ['1969-70'] },
               { comp: 'Europa League', count: 2, years: ['2001-02', '1973-74'] },
@@ -33,67 +33,67 @@ window.DB.netherlands = {
               { comp: 'Supercopa Países Bajos', count: 5, years: ['2025', '2019', '2018', '1999', '1991'] },
               { comp: 'Copa Intercontinental', count: 1, years: ['1970'] }
             ] },
-          { id: 'az-alkmaar', name: 'AZ Alkmaar', rating: 79, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/406.jpg?size=120x&lossy=1', budget: 45000000,
+          { id: 'az-alkmaar', name: 'AZ Alkmaar', rating: 79, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/406.jpg?size=120x&lossy=1', budget: 18000000,
             palmares: [
               { comp: 'Eredivisie', count: 2, years: ['2008-09', '1980-81'] },
               { comp: 'KNVB Beker', count: 2, years: ['2025-26', '2012-13'] },
               { comp: 'Supercopa Países Bajos', count: 2, years: ['2027', '2010'] },
               { comp: 'Eerste Divisie', count: 1, years: ['1997-98'] }
             ] },
-          { id: 'twente', name: 'Twente', rating: 78, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1112.jpg?size=120x&lossy=1', budget: 30000000,
+          { id: 'twente', name: 'Twente', rating: 78, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1112.jpg?size=120x&lossy=1', budget: 15000000,
             palmares: [
               { comp: 'Eredivisie', count: 1, years: ['2009-10'] },
               { comp: 'KNVB Beker', count: 2, years: ['2010-11', '2000-01'] },
               { comp: 'Supercopa Países Bajos', count: 2, years: ['2012', '2011'] },
               { comp: 'Eerste Divisie', count: 1, years: ['2018-19'] }
             ] },
-          { id: 'utrecht', name: 'Utrecht', rating: 76, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1115.jpg?size=120x&lossy=1', budget: 25000000,
+          { id: 'utrecht', name: 'Utrecht', rating: 76, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1115.jpg?size=120x&lossy=1', budget: 12000000,
             palmares: [
               { comp: 'KNVB Beker', count: 2, years: ['2003-04', '2002-03'] },
               { comp: 'Supercopa Países Bajos', count: 1, years: ['2005'] }
             ] },
-          { id: 'groningen', name: 'Groningen', rating: 74, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1068.jpg?size=120x&lossy=1', budget: 16000000,
+          { id: 'groningen', name: 'Groningen', rating: 74, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1068.jpg?size=120x&lossy=1', budget: 7000000,
             palmares: [
               { comp: 'KNVB Beker', count: 1, years: ['2014-15'] }
             ] },
-          { id: 'heerenveen', name: 'Heerenveen', rating: 73, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1304.jpg?size=120x&lossy=1', budget: 15000000,
+          { id: 'heerenveen', name: 'Heerenveen', rating: 73, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1304.jpg?size=120x&lossy=1', budget: 8000000,
             palmares: [
               { comp: 'KNVB Beker', count: 1, years: ['2008-09'] }
             ] },
-          { id: 'nec-nijmegen', name: 'NEC Nijmegen', rating: 73, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1789.jpg?size=120x&lossy=1', budget: 13000000,
+          { id: 'nec-nijmegen', name: 'NEC Nijmegen', rating: 73, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1789.jpg?size=120x&lossy=1', budget: 9000000,
             palmares: [
               { comp: 'Eerste Divisie', count: 1, years: ['2014-15'] }
             ] },
-          { id: 'sparta-rotterdam', name: 'Sparta Rotterdam', rating: 72, formation: '3-4-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2378.jpg?size=120x&lossy=1', budget: 12000000,
+          { id: 'sparta-rotterdam', name: 'Sparta Rotterdam', rating: 72, formation: '3-4-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2378.jpg?size=120x&lossy=1', budget: 7500000,
             palmares: [
               { comp: 'Eredivisie', count: 1, years: ['1958-59'] },
               { comp: 'Eerste Divisie', count: 1, years: ['2015-16'] }
             ] },
-          { id: 'go-ahead-eagles', name: 'Go Ahead Eagles', rating: 71, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1242.jpg?size=120x&lossy=1', budget: 10000000,
+          { id: 'go-ahead-eagles', name: 'Go Ahead Eagles', rating: 71, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1242.jpg?size=120x&lossy=1', budget: 6500000,
             palmares: [
               { comp: 'KNVB Beker', count: 1, years: ['2024-25'] }
             ] },
-          { id: 'pec-zwolle', name: 'PEC Zwolle', rating: 70, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1127.jpg?size=120x&lossy=1', budget: 9000000,
+          { id: 'pec-zwolle', name: 'PEC Zwolle', rating: 70, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1127.jpg?size=120x&lossy=1', budget: 5500000,
             palmares: [
               { comp: 'KNVB Beker', count: 1, years: ['2013-14'] },
               { comp: 'Supercopa Países Bajos', count: 1, years: ['2015'] },
               { comp: 'Eerste Divisie', count: 2, years: ['2011-12', '2001-02'] }
             ] },
-          { id: 'fortuna-sittard', name: 'Fortuna Sittard', rating: 70, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1167.jpg?size=120x&lossy=1', budget: 9000000 },
-          { id: 'ado-den-haag', name: 'ADO Den Haag', rating: 69, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/73.jpg?size=120x&lossy=1', budget: 8000000 },
-          { id: 'willem-ii', name: 'Willem II', rating: 69, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2754.jpg?size=120x&lossy=1', budget: 8000000,
+          { id: 'fortuna-sittard', name: 'Fortuna Sittard', rating: 70, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1167.jpg?size=120x&lossy=1', budget: 6000000 },
+          { id: 'ado-den-haag', name: 'ADO Den Haag', rating: 69, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/73.jpg?size=120x&lossy=1', budget: 4500000 },
+          { id: 'willem-ii', name: 'Willem II', rating: 69, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2754.jpg?size=120x&lossy=1', budget: 4000000,
             palmares: [
               { comp: 'Eerste Divisie', count: 2, years: ['2023-24', '2013-14'] }
             ] },
-          { id: 'excelsior', name: 'Excelsior', rating: 68, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1019.jpg?size=120x&lossy=1', budget: 7000000,
+          { id: 'excelsior', name: 'Excelsior', rating: 68, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1019.jpg?size=120x&lossy=1', budget: 5000000,
             palmares: [
               { comp: 'Eerste Divisie', count: 1, years: ['2005-06'] }
             ] },
-          { id: 'cambuur', name: 'Cambuur', rating: 67, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2282.jpg?size=120x&lossy=1', budget: 6000000,
+          { id: 'cambuur', name: 'Cambuur', rating: 67, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2282.jpg?size=120x&lossy=1', budget: 3800000,
             palmares: [
               { comp: 'Eerste Divisie', count: 2, years: ['2020-21', '2012-13'] }
             ] },
-          { id: 'telstar', name: 'SC Telstar', rating: 66, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2924.jpg?size=120x&lossy=1', budget: 5000000 }
+          { id: 'telstar', name: 'SC Telstar', rating: 66, formation: '4-4-2', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2924.jpg?size=120x&lossy=1', budget: 3000000 }
         ]
       }
     ]
@@ -105,7 +105,7 @@ window.DB.netherlands = {
     { "id": "ado-3", "name": "J. Bal", "position": "delantero", "skill": 52, "age": 19, "height": 196, "mainPct": 86, "otherPositions": [ { "pos": "extremo_izq", "pct": 14 } ], "nationality": "🇳🇱 Países Bajos", "foot": "DER", "number": 23, "avatar": "https://cdn.resfu.com/img_data/players/medium/3218112.jpg?size=120x&lossy=1", "value": 386000 },
     { "id": "ado-4", "name": "J. Hawkins", "position": "extremo_der", "skill": 56, "age": 25, "height": 178, "mainPct": 84, "otherPositions": [ { "pos": "medio_der", "pct": 16 } ], "nationality": "🇩🇪 Alemania", "foot": "DER", "number": 77, "avatar": "https://cdn.resfu.com/img_data/players/medium/627266.jpg?size=120x&lossy=1", "value": 1090000 },
     { "id": "ado-5", "name": "I. De Ruijter", "position": "extremo_izq", "skill": 57, "age": 19, "height": 176, "mainPct": 85, "otherPositions": [ { "pos": "lateral_izq", "pct": 15 } ], "nationality": "🇳🇱 Países Bajos", "foot": "DER", "number": 26, "avatar": "https://cdn.resfu.com/img_data/players/medium/3335765.jpg?size=120x&lossy=1", "value": 522000 },
-    { "id": "ado-6", "name": "Y. Eduardo", "position": "delantero", "skill": 59, "age": 20, "height": 193, "mainPct": 96, "otherPositions": [ { "pos": "extremo_der", "pct": 4 } ], "nationality": "🇨🇿 República Checa", "foot": "DER", "number": 46, "avatar": "https://cdn.resfu.com/img_data/players/medium/3191070.jpg?size=120x&lossy=1", "value": 1600000 },
+    { "id": "ado-6", "name": "Y. Eduardo", "position": "delantero", "skill": 59, "age": 20, "height": 193, "mainPct": 96, "otherPositions": [ { "pos": "extremo_der", "pct": 4 } ], "nationality": "🇨🇿 República Checa", "foot": "DER", "number": 46, "avatar": "https://cdn.resfu.com/img_data/players/medium/3191070.jpg?size=120x&lossy=1", "value": 1600000, "loanedFrom": "hoffenheim", "loanedFromName": "Hoffenheim", "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/2542.jpg?size=120x&lossy=1" },
     { "id": "ado-7", "name": "C. Peupion", "position": "extremo_izq", "skill": 65, "age": 23, "height": 175, "mainPct": 83, "otherPositions": [ { "pos": "extremo_der", "pct": 17 } ], "nationality": "🇦🇺 Australia", "foot": "DER", "number": 21, "avatar": "https://cdn.resfu.com/img_data/players/medium/892340.jpg?size=120x&lossy=1", "value": 1090000 },
     { "id": "ado-8", "name": "L. Reischl", "position": "delantero", "skill": 67, "age": 22, "height": 184, "mainPct": 86, "otherPositions": [ { "pos": "medio_ofensivo", "pct": 14 } ], "nationality": "🇦🇹 Austria", "foot": "DER", "number": 19, "avatar": "https://cdn.resfu.com/img_data/players/medium/879109.jpg?size=120x&lossy=1", "value": 2920000 },
     { "id": "ado-9", "name": "D. Bárány", "position": "delantero", "skill": 69, "age": 25, "height": 179, "mainPct": 99, "otherPositions": [ { "pos": "medio_der", "pct": 1 } ], "nationality": "🇭🇺 Hungría", "foot": "DER", "number": 77, "avatar": "https://cdn.resfu.com/img_data/players/medium/704186.jpg?size=120x&lossy=1", "value": 4340000 },
@@ -251,7 +251,7 @@ window.DB.netherlands = {
     { "id": "exc-18", "name": "Osman Turay", "position": "lateral_izq", "skill": 45, "age": 18, "height": 173, "mainPct": 83, "otherPositions": [ { "pos": "medio_izq", "pct": 17 } ], "nationality": "🇩🇪 Alemania", "foot": "DER", "number": 22, "avatar": "https://cdn.resfu.com/img_data/players/medium/3406825.jpg?size=120x&lossy=1", "value": 34000 },
     { "id": "exc-19", "name": "Eric Da Silva", "position": "lateral_der", "skill": 49, "age": 20, "height": 185, "mainPct": 84, "otherPositions": [ { "pos": "extremo_der", "pct": 16 } ], "nationality": "🇩🇪 Alemania", "foot": "DER", "number": 17, "avatar": "https://cdn.resfu.com/img_data/players/medium/3176191.jpg?size=120x&lossy=1", "value": 685000, "loanedFrom": "nottingham-forest", "loanedFromName": "Nottingham Forest", "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/1825.jpg?size=120x&lossy=1" },
     { "id": "exc-20", "name": "N. Martens", "position": "lateral_der", "skill": 52, "age": 22, "height": 180, "mainPct": 90, "otherPositions": [ { "pos": "extremo_izq", "pct": 10 } ], "nationality": "🇧🇪 Bélgica", "foot": "DER", "number": 2, "avatar": "https://cdn.resfu.com/img_data/players/medium/902966.jpg?size=120x&lossy=1", "value": 1070000 },
-    { "id": "exc-21", "name": "Kasey Bos", "position": "lateral_izq", "skill": 55, "age": 22, "height": 186, "mainPct": 93, "otherPositions": [ { "pos": "extremo_izq", "pct": 7 } ], "nationality": "🇦🇺 Australia", "foot": "DER", "number": 12, "avatar": "https://cdn.resfu.com/img_data/players/medium/3429299.jpg?size=120x&lossy=1", "value": 770000 },
+    { "id": "exc-21", "name": "Kasey Bos", "position": "lateral_izq", "skill": 55, "age": 22, "height": 186, "mainPct": 93, "otherPositions": [ { "pos": "extremo_izq", "pct": 7 } ], "nationality": "🇦🇺 Australia", "foot": "DER", "number": 12, "avatar": "https://cdn.resfu.com/img_data/players/medium/3429299.jpg?size=120x&lossy=1", "value": 770000, "loanedFrom": "mainz-05", "loanedFromName": "Mainz 05", "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/2987.jpg?size=120x&lossy=1" },
     { "id": "exc-22", "name": "Jan Plug", "position": "defensa_central", "skill": 56, "age": 21, "height": 188, "mainPct": 87, "otherPositions": [ { "pos": "lateral_izq", "pct": 13 } ], "nationality": "🇳🇱 Países Bajos", "foot": "IZQ", "number": 4, "avatar": "https://cdn.resfu.com/img_data/players/medium/3194046.jpg?size=120x&lossy=1", "value": 768000, "loanedFrom": "feyenoord", "loanedFromName": "Feyenoord", "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/1135.jpg?size=120x&lossy=1" },
     { "id": "exc-23", "name": "Simon Janssen", "position": "lateral_izq", "skill": 56, "age": 25, "height": 179, "mainPct": 91, "otherPositions": [ { "pos": "mediocentro", "pct": 9 } ], "nationality": "🇳🇱 Países Bajos", "foot": "IZQ", "number": 5, "avatar": "https://cdn.resfu.com/img_data/players/medium/699024.jpg?size=120x&lossy=1", "value": 1160000 },
     { "id": "exc-24", "name": "Stan Henderikx", "position": "defensa_central", "skill": 61, "age": 23, "height": 188, "mainPct": 99, "otherPositions": [], "nationality": "🇳🇱 Países Bajos", "foot": "IZQ", "number": 13, "avatar": "https://cdn.resfu.com/img_data/players/medium/984310.jpg?size=120x&lossy=1", "value": 1570000 },
@@ -416,7 +416,7 @@ window.DB.netherlands = {
     { "id": "nec-6", "name": "Brian Linssen", "position": "delantero", "skill": 77, "age": 35, "height": 170, "mainPct": 83, "otherPositions": [ { "pos": "extremo_izq", "pct": 17 } ], "nationality": "🇳🇱 Países Bajos", "foot": "DER", "number": 30, "avatar": "https://cdn.resfu.com/img_data/players/medium/70036.jpg?size=120x&lossy=1", "value": 736000 },
     { "id": "nec-7", "name": "M. van de Wiel", "position": "medio_def", "skill": 43, "age": 20, "height": 180, "mainPct": 70, "otherPositions": [ { "pos": "defensa_central", "pct": 30 } ], "nationality": "🇳🇱 Países Bajos", "foot": "DER", "number": 37, "avatar": "https://cdn.resfu.com/img_data/players/medium/3400751.jpg?size=120x&lossy=1", "value": 13000 },
     { "id": "nec-8", "name": "Hansen-Aarøen", "position": "mediocentro", "skill": 51, "age": 22, "height": 173, "mainPct": 84, "otherPositions": [ { "pos": "medio_ofensivo", "pct": 16 } ], "nationality": "🇳🇴 Noruega", "foot": "DER", "number": 8, "avatar": "https://cdn.resfu.com/img_data/players/medium/920267.jpg?size=120x&lossy=1", "value": 1470000 },
-    { "id": "nec-9", "name": "Dennis Geiger", "position": "mediocentro", "skill": 56, "age": 28, "height": 173, "mainPct": 80, "otherPositions": [ { "pos": "medio_def", "pct": 20 } ], "nationality": "🇩🇪 Alemania", "foot": "DER", "number": 8, "avatar": "https://cdn.resfu.com/img_data/players/medium/219557.jpg?size=120x&lossy=1", "value": 3260000 },
+    { "id": "nec-9", "name": "Dennis Geiger", "position": "mediocentro", "skill": 56, "age": 28, "height": 173, "mainPct": 80, "otherPositions": [ { "pos": "medio_def", "pct": 20 } ], "nationality": "🇩🇪 Alemania", "foot": "DER", "number": 8, "avatar": "https://cdn.resfu.com/img_data/players/medium/219557.jpg?size=120x&lossy=1", "value": 3260000, "loanedFrom": "hoffenheim", "loanedFromName": "Hoffenheim", "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/2542.jpg?size=120x&lossy=1" },
     { "id": "nec-10", "name": "Adam Tahaui", "position": "medio_ofensivo", "skill": 59, "age": 21, "height": 184, "mainPct": 84, "otherPositions": [ { "pos": "mediocentro", "pct": 16 } ], "nationality": "🇲🇦 Marruecos", "foot": "DER", "number": 19, "avatar": "https://cdn.resfu.com/img_data/players/medium/3344931.jpg?size=120x&lossy=1", "value": 817000 },
     { "id": "nec-11", "name": "Noé Lebreton", "position": "medio_ofensivo", "skill": 61, "age": 22, "height": 178, "mainPct": 77, "otherPositions": [ { "pos": "mediocentro", "pct": 23 } ], "nationality": "🇫🇷 Francia", "foot": "DER", "number": 20, "avatar": "https://cdn.resfu.com/img_data/players/medium/3195710.jpg?size=120x&lossy=1", "value": 4490000 },
     { "id": "nec-12", "name": "V. Van Crooij", "position": "medio_ofensivo", "skill": 66, "age": 30, "height": 179, "mainPct": 82, "otherPositions": [ { "pos": "extremo_der", "pct": 18 } ], "nationality": "🇳🇱 Países Bajos", "foot": "DER", "number": 32, "avatar": "https://cdn.resfu.com/img_data/players/medium/241427.jpg?size=120x&lossy=1", "value": 4040000 },

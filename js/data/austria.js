@@ -5,18 +5,18 @@ window.DB.austria = {
     leagues: [
       { id: 'bl1', name: 'Bundesliga', logo: 'https://cdn.resfu.com/media/img/league_logos/bundesliga_austria.png?size=120x&lossy=1',
         teams: [
-          { id: 'salzburg', name: 'Red Bull Salzburg', rating: 82, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/3698.jpg?size=120x&lossy=1', budget: 20000000, palmares: [{ comp: 'Bundesliga Austria', count: 17, years: ['1993-94', '1994-95', '1996-97', '2006-07', '2008-09', '2009-10', '2011-12', '2013-14', '2014-15', '2015-16', '2016-17', '2017-18', '2018-19', '2019-20', '2020-21', '2021-22', '2022-23'] }, { comp: 'Copa de Austria', count: 11, years: ['1980', '1981', '2012', '2014', '2015', '2016', '2017', '2019', '2020', '2021', '2022'] }] },
-          { id: 'sturm-graz', name: 'Sturm Graz', rating: 75, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2432.jpg?size=120x&lossy=1', budget: 10000000, palmares: [{ comp: 'Bundesliga Austria', count: 5, years: ['2024-25', '2023-24', '2010-11', '1998-99', '1997-98'] }, { comp: 'Copa de Austria', count: 7, years: ['2024', '2023', '2018', '2010', '1999', '1997', '1996'] }, { comp: 'Segunda Austria', count: 1, years: ['1988-89'] }] },
-          { id: 'rapid-wien', name: 'Rapid Wien', rating: 74, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/9774.jpg?size=120x&lossy=1', budget: 6000000, palmares: [{ comp: 'Bundesliga Austria', count: 32, years: ['1911-12', '1912-13', '1915-16', '1916-17', '1918-19', '1919-20', '1920-21', '1922-23', '1928-29', '1929-30', '1934-35', '1937-38', '1939-40', '1940-41', '1950-51', '1951-52', '1953-54', '1955-56', '1956-57', '1963-64', '1966-67', '1967-68', '1981-82', '1982-83', '1986-87', '1987-88', '1995-96', '1996-97', '2004-05', '2007-08', '2008-09'] }, { comp: 'Copa de Austria', count: 14, years: ['1918-19', '1919-20', '1926-27', '1945-46', '1960-61', '1967-68', '1968-69', '1971-72', '1972-73', '1975-76', '1982-83', '1983-84', '1984-85', '1986-87'] }] },
-          { id: 'lask', name: 'LASK', rating: 72, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1524.jpg?size=120x&lossy=1', budget: 6500000, palmares: [{ comp: 'Bundesliga Austria', count: 2, years: ['2025-26', '1964-65'] }, { comp: 'Copa de Austria', count: 1, years: ['2025-26'] }, { comp: 'Segunda Austria', count: 3, years: ['2016-17', '2006-07', '1993-94'] }, { comp: 'Tercera Austria', count: 2, years: ['2013-14', '2012-13'] }] },
-          { id: 'austria-wien', name: 'Austria Wien', rating: 70, formation: '3-4-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/397.jpg?size=120x&lossy=1', budget: 4500000, palmares: [{ comp: 'Bundesliga Austria', count: 24, years: ['2012-13', '2005-06', '2002-03', '1992-93', '1991-92', '1990-91', '1985-86', '1984-85', '1983-84', '1980-81', '1979-80', '1978-79', '1977-78', '1975-76', '1969-70', '1968-69', '1962-63', '1961-62', '1960-61', '1952-53', '1949-50', '1948-49', '1925-26', '1923-24'] }, { comp: 'Copa de Austria', count: 27, years: ['2009', '2007', '2006', '2005', '2003', '1994', '1992', '1990', '1986', '1984', '1982', '1977', '1974', '1971', '1963', '1962', '1960', '1949', '1948', '1936', '1935', '1933', '1931', '1926', '1925', '1924', '1921'] }] },
-          { id: 'wolfsberger-ac', name: 'Wolfsberger AC', rating: 65, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/9777.jpg?size=120x&lossy=1', budget: 3500000, palmares: [{ comp: 'Copa de Austria', count: 1, years: ['2025'] }] },
-          { id: 'tsv-hartberg', name: 'TSV Hartberg', rating: 63, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/12367.jpg?size=120x&lossy=1', budget: 2000000, palmares: [{ comp: 'Tercera Austria', count: 3, years: ['2016-17', '2008-09', '2005-06'] }] },
-          { id: 'scr-altach', name: 'SCR Altach', rating: 62, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/193.jpg?size=120x&lossy=1', budget: 1800000, palmares: [{ comp: 'Segunda Austria', count: 2, years: ['2013-14', '2005-06'] }, { comp: 'Tercera Austria', count: 1, years: ['2003-04'] }] },
-          { id: 'grazer-ak', name: 'Grazer AK', rating: 61, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1254.jpg?size=120x&lossy=1', budget: 1500000, palmares: [{ comp: 'Bundesliga Austria', count: 1, years: ['2003-04'] }, { comp: 'Copa de Austria', count: 3, years: ['2004', '2002', '2000'] }, { comp: 'Segunda Austria', count: 4, years: ['2023-24', '1994-95', '1992-93', '1990-91'] }, { comp: 'Tercera Austria', count: 2, years: ['2018-19', '2011-12'] }, { comp: 'Cuarta Austria', count: 1, years: ['2017-18'] }] },
-          { id: 'sv-ried', name: 'SV Ried', rating: 60, formation: '3-4-2-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/9776.jpg?size=120x&lossy=1', budget: 1600000, palmares: [{ comp: 'Copa de Austria', count: 2, years: ['2011', '1998'] }, { comp: 'Segunda Austria', count: 3, years: ['2024-25', '2019-20', '2004-05'] }] },
-          { id: 'wsg-tirol', name: 'WSG Tirol', rating: 59, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/12423.jpg?size=120x&lossy=1', budget: 1400000, palmares: [{ comp: 'Segunda Austria', count: 1, years: ['2018-19'] }, { comp: 'Tercera Austria', count: 2, years: ['2015-16', '2011-12'] }] },
-          { id: 'austria-lustenau', name: 'Austria Lustenau', rating: 58, formation: '5-3-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2280.jpg?size=120x&lossy=1', budget: 1200000, palmares: [{ comp: 'Segunda Austria', count: 3, years: ['2025-26', '2021-22', '1996-97'] }] }
+          { id: 'salzburg', name: 'Red Bull Salzburg', rating: 82, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/3698.jpg?size=120x&lossy=1', budget: 45000000, palmares: [{ comp: 'Bundesliga Austria', count: 17, years: ['1993-94', '1994-95', '1996-97', '2006-07', '2008-09', '2009-10', '2011-12', '2013-14', '2014-15', '2015-16', '2016-17', '2017-18', '2018-19', '2019-20', '2020-21', '2021-22', '2022-23'] }, { comp: 'Copa de Austria', count: 11, years: ['1980', '1981', '2012', '2014', '2015', '2016', '2017', '2019', '2020', '2021', '2022'] }] },
+          { id: 'sturm-graz', name: 'Sturm Graz', rating: 75, formation: '4-2-3-1', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2432.jpg?size=120x&lossy=1', budget: 22000000, palmares: [{ comp: 'Bundesliga Austria', count: 5, years: ['2024-25', '2023-24', '2010-11', '1998-99', '1997-98'] }, { comp: 'Copa de Austria', count: 7, years: ['2024', '2023', '2018', '2010', '1999', '1997', '1996'] }, { comp: 'Segunda Austria', count: 1, years: ['1988-89'] }] },
+          { id: 'rapid-wien', name: 'Rapid Wien', rating: 74, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/9774.jpg?size=120x&lossy=1', budget: 14000000, palmares: [{ comp: 'Bundesliga Austria', count: 32, years: ['1911-12', '1912-13', '1915-16', '1916-17', '1918-19', '1919-20', '1920-21', '1922-23', '1928-29', '1929-30', '1934-35', '1937-38', '1939-40', '1940-41', '1950-51', '1951-52', '1953-54', '1955-56', '1956-57', '1963-64', '1966-67', '1967-68', '1981-82', '1982-83', '1986-87', '1987-88', '1995-96', '1996-97', '2004-05', '2007-08', '2008-09'] }, { comp: 'Copa de Austria', count: 14, years: ['1918-19', '1919-20', '1926-27', '1945-46', '1960-61', '1967-68', '1968-69', '1971-72', '1972-73', '1975-76', '1982-83', '1983-84', '1984-85', '1986-87'] }] },
+          { id: 'lask', name: 'LASK', rating: 72, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1524.jpg?size=120x&lossy=1', budget: 15000000, palmares: [{ comp: 'Bundesliga Austria', count: 2, years: ['2025-26', '1964-65'] }, { comp: 'Copa de Austria', count: 1, years: ['2025-26'] }, { comp: 'Segunda Austria', count: 3, years: ['2016-17', '2006-07', '1993-94'] }, { comp: 'Tercera Austria', count: 2, years: ['2013-14', '2012-13'] }] },
+          { id: 'austria-wien', name: 'Austria Wien', rating: 70, formation: '3-4-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/397.jpg?size=120x&lossy=1', budget: 10000000, palmares: [{ comp: 'Bundesliga Austria', count: 24, years: ['2012-13', '2005-06', '2002-03', '1992-93', '1991-92', '1990-91', '1985-86', '1984-85', '1983-84', '1980-81', '1979-80', '1978-79', '1977-78', '1975-76', '1969-70', '1968-69', '1962-63', '1961-62', '1960-61', '1952-53', '1949-50', '1948-49', '1925-26', '1923-24'] }, { comp: 'Copa de Austria', count: 27, years: ['2009', '2007', '2006', '2005', '2003', '1994', '1992', '1990', '1986', '1984', '1982', '1977', '1974', '1971', '1963', '1962', '1960', '1949', '1948', '1936', '1935', '1933', '1931', '1926', '1925', '1924', '1921'] }] },
+          { id: 'wolfsberger-ac', name: 'Wolfsberger AC', rating: 65, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/9777.jpg?size=120x&lossy=1', budget: 6500000, palmares: [{ comp: 'Copa de Austria', count: 1, years: ['2025'] }] },
+          { id: 'tsv-hartberg', name: 'TSV Hartberg', rating: 63, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/12367.jpg?size=120x&lossy=1', budget: 5500000, palmares: [{ comp: 'Tercera Austria', count: 3, years: ['2016-17', '2008-09', '2005-06'] }] },
+          { id: 'scr-altach', name: 'SCR Altach', rating: 62, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/193.jpg?size=120x&lossy=1', budget: 4000000, palmares: [{ comp: 'Segunda Austria', count: 2, years: ['2013-14', '2005-06'] }, { comp: 'Tercera Austria', count: 1, years: ['2003-04'] }] },
+          { id: 'grazer-ak', name: 'Grazer AK', rating: 61, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1254.jpg?size=120x&lossy=1', budget: 3800000, palmares: [{ comp: 'Bundesliga Austria', count: 1, years: ['2003-04'] }, { comp: 'Copa de Austria', count: 3, years: ['2004', '2002', '2000'] }, { comp: 'Segunda Austria', count: 4, years: ['2023-24', '1994-95', '1992-93', '1990-91'] }, { comp: 'Tercera Austria', count: 2, years: ['2018-19', '2011-12'] }, { comp: 'Cuarta Austria', count: 1, years: ['2017-18'] }] },
+          { id: 'sv-ried', name: 'SV Ried', rating: 60, formation: '3-4-2-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/9776.jpg?size=120x&lossy=1', budget: 4500000, palmares: [{ comp: 'Copa de Austria', count: 2, years: ['2011', '1998'] }, { comp: 'Segunda Austria', count: 3, years: ['2024-25', '2019-20', '2004-05'] }] },
+          { id: 'wsg-tirol', name: 'WSG Tirol', rating: 59, formation: '4-4-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/12423.jpg?size=120x&lossy=1', budget: 3000000, palmares: [{ comp: 'Segunda Austria', count: 1, years: ['2018-19'] }, { comp: 'Tercera Austria', count: 2, years: ['2015-16', '2011-12'] }] },
+          { id: 'austria-lustenau', name: 'Austria Lustenau', rating: 58, formation: '5-3-2', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2280.jpg?size=120x&lossy=1', budget: 3500000, palmares: [{ comp: 'Segunda Austria', count: 3, years: ['2025-26', '2021-22', '1996-97'] }] }
         ]
       }
     ]
@@ -24,7 +24,6 @@ window.DB.austria = {
   realSquads: {
     salzburg: [
       { id: 'sal-1', name: 'C. Zawieschitzky', position: 'POR', skill: 56, age: 19, height: 192, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'IZQ', number: 52, avatar: 'https://cdn.resfu.com/img_data/players/medium/3148069.jpg?size=120x&lossy=1', value: 1820000 },
-      { id: 'sal-2', name: 'Nikola \u0160ar\u010devi\u0107', position: 'POR', skill: 46, age: 19, height: 191, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 41, avatar: 'https://cdn.resfu.com/img_data/players/medium/973609.jpg?size=120x&lossy=1', value: 290000 },
       { id: 'sal-3', name: 'Christian Fr\u00fcchtl', position: 'POR', skill: 49, age: 26, height: 193, mainPct: 99, nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'IZQ', number: 1, avatar: 'https://cdn.resfu.com/img_data/players/medium/286258.jpg?size=120x&lossy=1', value: 1610000 },
       { id: 'sal-4', name: 'D. Schmid', position: 'lateral_izq', skill: 77, age: 28, height: 183, mainPct: 90, otherPositions: [{pos:'mediocentro',pct:10}], nationality: '\ud83c\udde8\ud83c\udded Suiza', foot: 'IZQ', number: 31, avatar: 'https://cdn.resfu.com/img_data/players/medium/301152.jpg?size=120x&lossy=1', value: 8100000 },
       { id: 'sal-5', name: 'Frans Kr\u00e4tzig', position: 'lateral_izq', skill: 74, age: 23, height: 177, mainPct: 90, otherPositions: [{pos:'medio_def',pct:10}], nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'IZQ', number: 13, avatar: 'https://cdn.resfu.com/img_data/players/medium/897582.jpg?size=120x&lossy=1', value: 9710000 },
@@ -44,8 +43,7 @@ window.DB.austria = {
       { id: 'sal-19', name: 'Soumaila Diabate', position: 'medio_def', skill: 67, age: 21, height: 168, mainPct: 80, otherPositions: [{pos:'mediocentro',pct:20}], nationality: '\ud83c\uddf2\ud83c\uddf1 Mal\u00ed', foot: 'DER', number: 5, avatar: 'https://cdn.resfu.com/img_data/players/medium/3368632.jpg?size=120x&lossy=1', value: 9350000 },
       { id: 'sal-20', name: 'Bartosz Mazurek', position: 'medio_ofensivo', skill: 55, age: 19, height: 180, mainPct: 76, otherPositions: [{pos:'mediocentro',pct:24}], nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', foot: 'DER', number: 15, avatar: 'https://cdn.resfu.com/img_data/players/medium/3245134.jpg?size=120x&lossy=1', value: 2690000 },
       { id: 'sal-21', name: 'Justin Omoregie', position: 'mediocentro', skill: 61, age: 22, height: 191, mainPct: 83, otherPositions: [{pos:'defensa_central',pct:17}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'IZQ', number: 28, avatar: 'https://cdn.resfu.com/img_data/players/medium/836195.jpg?size=120x&lossy=1', value: 2040000 },
-      { id: 'sal-22', name: 'Filip Matija\u0161evi\u0107', position: 'medio_ofensivo', skill: 57, age: 18, height: 182, mainPct: 81, otherPositions: [{pos:'mediocentro',pct:19}], nationality: '\ud83c\uddf7\ud83c\uddf8 Serbia', foot: 'DER', number: 35, avatar: 'https://cdn.resfu.com/img_data/players/medium/3422423.jpg?size=120x&lossy=1', value: 4060000 },
-      { id: 'sal-23', name: 'U. Tohumcu', position: 'mediocentro', skill: 58, age: 22, height: 175, mainPct: 84, otherPositions: [{pos:'medio_def',pct:16}], nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'DER', number: 20, avatar: 'https://cdn.resfu.com/img_data/players/medium/891440.jpg?size=120x&lossy=1', value: 4310000, loanedFrom: 'hoffenheim', loanedFromName: 'Hoffenheim', loanedFromLogo: 'https://cdn.resfu.com/img_data/escudos/medium/2542.jpg?size=120x&lossy=1' },
+      { id: 'sal-23', name: 'U. Tohumcu', position: 'mediocentro', skill: 58, age: 22, height: 175, mainPct: 84, otherPositions: [{pos:'medio_def',pct:16}], nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'DER', number: 20, avatar: 'https://cdn.resfu.com/img_data/players/medium/891440.jpg?size=120x&lossy=1', value: 4310000, loanedTo: 'hoffenheim', loanedToName: 'Hoffenheim', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/2542.jpg?size=120x&lossy=1' },
       { id: 'sal-24', name: 'Y. Vertessen', position: 'delantero', skill: 72, age: 25, height: 174, mainPct: 88, otherPositions: [{pos:'extremo_der',pct:12}], nationality: '\ud83c\udde7\ud83c\uddea B\u00e9lgica', foot: 'DER', number: 11, avatar: 'https://cdn.resfu.com/img_data/players/medium/474499.jpg?size=120x&lossy=1', value: 12480000 },
       { id: 'sal-25', name: 'H. Tabakovi\u0107', position: 'delantero', skill: 73, age: 32, height: 196, mainPct: 92, otherPositions: [{pos:'extremo_izq',pct:8}], nationality: '\ud83c\udde7\ud83c\udde6 Bosnia', foot: 'DER', number: 9, avatar: 'https://cdn.resfu.com/img_data/players/medium/191667.jpg?size=120x&lossy=1', value: 6360000 },
       { id: 'sal-26', name: 'G. Diakit\u00e9', position: 'delantero', skill: 67, age: 20, height: 182, mainPct: 86, otherPositions: [{pos:'medio_ofensivo',pct:14}], nationality: '\ud83c\uddf2\ud83c\uddf1 Mal\u00ed', foot: 'DER', number: 30, avatar: 'https://cdn.resfu.com/img_data/players/medium/3534963.jpg?size=120x&lossy=1', value: 4340000 },
@@ -55,7 +53,6 @@ window.DB.austria = {
       { id: 'sal-30', name: 'J. Moser', position: 'extremo_izq', skill: 52, age: 18, height: 179, mainPct: 82, otherPositions: [{pos:'mediocentro',pct:18}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 27, avatar: 'https://cdn.resfu.com/img_data/players/medium/3219501.jpg?size=120x&lossy=1', value: 1280000 },
       { id: 'sal-31', name: 'A. Camara', position: 'extremo_izq', skill: 52, age: 19, height: 174, mainPct: 75, otherPositions: [{pos:'delantero',pct:25}], nationality: '\ud83c\udde7\ud83c\uddeb Burkina Faso', foot: 'DER', number: 33, avatar: 'https://cdn.resfu.com/img_data/players/medium/3404568.jpg?size=120x&lossy=1', value: 483000 },
       { id: 'sal-32', name: 'E. Aguilar', position: 'delantero', skill: 51, age: 19, height: 186, mainPct: 85, otherPositions: [{pos:'mediocentro',pct:15}], nationality: '\ud83c\udde8\ud83c\udded Suiza', foot: 'DER', number: 43, avatar: 'https://cdn.resfu.com/img_data/players/medium/3321252.jpg?size=120x&lossy=1', value: 1550000 },
-      { id: 'sal-33', name: 'Y. Sulbar\u00e1n', position: 'extremo_der', skill: 42, age: 18, height: 177, mainPct: 86, otherPositions: [{pos:'extremo_izq',pct:14}], nationality: '\ud83c\uddfb\ud83c\uddea Venezuela', foot: 'IZQ', number: 29, avatar: 'https://cdn.resfu.com/img_data/players/medium/3584113.jpg?size=120x&lossy=1', value: 690000 },
       { id: 'sal-34', name: 'Tim Trummer', position: 'defensa_central', skill: 55, age: 20, height: 185, mainPct: 85, otherPositions: [{pos:'mediocentro',pct:15}], nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'DER', number: 36, avatar: 'https://cdn.resfu.com/img_data/players/medium/973464.jpg?size=120x&lossy=1', value: 500000, loanedTo: 'grazer-ak', loanedToName: 'Grazer AK', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/1254.jpg?size=120x&lossy=1' },
       { id: 'sal-35', name: 'O. Luki\u0107', position: 'mediocentro', skill: 55, age: 21, height: 180, mainPct: 83, otherPositions: [{pos:'medio_ofensivo',pct:17}], nationality: '\ud83c\uddf7\ud83c\uddf8 Serbia', foot: 'DER', number: 37, avatar: 'https://cdn.resfu.com/img_data/players/medium/990178.jpg?size=120x&lossy=1', value: 500000, loanedTo: 'tsv-hartberg', loanedToName: 'TSV Hartberg', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/12367.jpg?size=120x&lossy=1' },
       { id: 'sal-36', name: 'C. Bischoff', position: 'extremo_izq', skill: 55, age: 20, height: 178, mainPct: 82, otherPositions: [{pos:'medio_izq',pct:18}], nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'IZQ', number: 38, avatar: 'https://cdn.resfu.com/img_data/players/medium/3177125.jpg?size=120x&lossy=1', value: 500000, loanedTo: 'nec-nijmegen', loanedToName: 'NEC Nijmegen', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/1834.jpg?size=120x&lossy=1' }
@@ -101,13 +98,11 @@ window.DB.austria = {
       { id: 'aw-11', name: 'Matteo Schablas', position: 'lateral_izq', skill: 51, age: 21, height: 180, mainPct: 86, otherPositions: [{pos:'medio_izq',pct:14}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'IZQ', number: 21, avatar: 'https://cdn.resfu.com/img_data/players/medium/3190483.jpg?size=120x&lossy=1', value: 747000 },
       { id: 'aw-12', name: 'D. Nnodim', position: 'lateral_der', skill: 50, age: 18, height: 186, mainPct: 85, otherPositions: [{pos:'medio_der',pct:15}], nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'DER', number: 40, avatar: 'https://cdn.resfu.com/img_data/players/medium/3180024.jpg?size=120x&lossy=1', value: 323000 },
       { id: 'aw-13', name: 'V. Toifl', position: 'defensa_central', skill: 46, age: 21, height: 197, mainPct: 89, otherPositions: [{pos:'lateral_der',pct:11}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: null, avatar: 'https://cdn.resfu.com/img_data/players/medium/3481575.jpg?size=120x&lossy=1', value: 241000 },
-      { id: 'aw-14', name: 'M. \u00d6sterreicher', position: 'carrilero_der', skill: 48, age: 20, height: 180, mainPct: 90, otherPositions: [{pos:'medio_izq',pct:10}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: null, avatar: 'https://cdn.resfu.com/img_data/players/medium/976732.jpg?size=120x&lossy=1', value: 380000 },
       { id: 'aw-15', name: 'Jonas Feddersen', position: 'defensa_central', skill: 43, age: 19, height: 194, mainPct: 83, otherPositions: [{pos:'lateral_izq',pct:17}], nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'IZQ', number: 4, avatar: 'https://cdn.resfu.com/img_data/players/medium/3250662.jpg?size=120x&lossy=1', value: 44000 },
       { id: 'aw-16', name: 'M. Fischer', position: 'medio_ofensivo', skill: 73, age: 31, height: 179, mainPct: 83, otherPositions: [{pos:'mediocentro',pct:17}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 30, avatar: 'https://cdn.resfu.com/img_data/players/medium/287626.jpg?size=120x&lossy=1', value: 4810000 },
       { id: 'aw-17', name: 'Kang-Hee Lee', position: 'medio_def', skill: 60, age: 25, height: 191, mainPct: 83, otherPositions: [{pos:'defensa_central',pct:17}], nationality: '\ud83c\uddf0\ud83c\uddf7 Corea del Sur', foot: 'DER', number: 16, avatar: 'https://cdn.resfu.com/img_data/players/medium/937446.jpg?size=120x&lossy=1', value: 1310000 },
       { id: 'aw-18', name: 'Sanel \u0160alji\u0107', position: 'medio_ofensivo', skill: 59, age: 20, height: 177, mainPct: 86, otherPositions: [{pos:'medio_izq',pct:14}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'IZQ', number: 10, avatar: 'https://cdn.resfu.com/img_data/players/medium/973353.jpg?size=120x&lossy=1', value: 2980000 },
       { id: 'aw-19', name: 'P. Maybach', position: 'medio_def', skill: 53, age: 18, height: 182, mainPct: 82, otherPositions: [{pos:'mediocentro',pct:18}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 6, avatar: 'https://cdn.resfu.com/img_data/players/medium/3180019.jpg?size=120x&lossy=1', value: 1910000 },
-      { id: 'aw-20', name: 'R. M\u00f6rth', position: 'medio_ofensivo', skill: 53, age: 19, height: 184, mainPct: 84, otherPositions: [{pos:'delantero',pct:16}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'AMB', number: null, avatar: 'https://cdn.resfu.com/img_data/players/medium/976848.jpg?size=120x&lossy=1', value: 554000 },
       { id: 'aw-21', name: 'V. Markovic', position: 'medio_ofensivo', skill: 51, age: 18, height: 182, mainPct: 79, otherPositions: [{pos:'mediocentro',pct:21}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 7, avatar: 'https://cdn.resfu.com/img_data/players/medium/3309654.jpg?size=120x&lossy=1', value: 135000 },
       { id: 'aw-22', name: 'Florian Wustinger', position: 'medio_def', skill: 40, age: 23, height: 176, mainPct: 79, otherPositions: [{pos:'mediocentro',pct:21}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 22, avatar: 'https://cdn.resfu.com/img_data/players/medium/890450.jpg?size=120x&lossy=1', value: 216000 },
       { id: 'aw-23', name: 'J. Eggestein', position: 'delantero', skill: 71, age: 28, height: 183, mainPct: 90, otherPositions: [{pos:'medio_ofensivo',pct:10}], nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'DER', number: 19, avatar: 'https://cdn.resfu.com/img_data/players/medium/244272.jpg?size=120x&lossy=1', value: 7080000 },
@@ -148,7 +143,7 @@ window.DB.austria = {
       { id: 'gak-25', name: 'N. Ugo', position: 'mediocentro', skill: 39, age: 20, height: 185, mainPct: 99, nationality: '\ud83c\uddf3\ud83c\uddec Nigeria', foot: 'DER', number: 70, avatar: 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1', value: 7000 },
       { id: 'gak-26', name: 'Y. Oberleitner', position: 'defensa_central', skill: 64, age: 24, height: 191, mainPct: 90, otherPositions: [{pos:'medio_def',pct:10}], nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'IZQ', number: 27, avatar: 'https://cdn.resfu.com/img_data/players/medium/755151.jpg?size=120x&lossy=1', value: 1490000 },
       { id: 'gak-27', name: 'M. Gragger', position: 'lateral_izq', skill: 59, age: 24, height: 188, mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 48, avatar: 'https://cdn.resfu.com/img_data/players/medium/825978.jpg?size=120x&lossy=1', value: 554000 },
-      { id: 'gak-28', name: 'Juri Kirchmayr', position: 'POR', skill: 60, age: 20, height: 195, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 33, avatar: 'https://cdn.resfu.com/img_data/players/medium/973361.jpg?size=120x&lossy=1', value: 344000, loanedFrom: 'fac-wien', loanedFromName: 'FAC Wien', loanedFromLogo: 'https://cdn.resfu.com/img_data/equipos/12402.png?size=120x&lossy=1' }
+      { id: 'gak-28', name: 'Juri Kirchmayr', position: 'POR', skill: 60, age: 20, height: 195, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 33, avatar: 'https://cdn.resfu.com/img_data/players/medium/973361.jpg?size=120x&lossy=1', value: 344000, loanedTo: 'wacker-innsbruck', loanedToName: 'Wacker Innsbruck', loanedToLogo: 'https://cdn.resfu.com/img_data/equipos/2732.png?size=120x&lossy=1' }
     ],
     'lask': [
       { id: 'lask-1', name: 'Nael Kane', position: 'extremo_der', skill: 44, age: 20, height: 189, mainPct: 99, nationality: '\ud83c\udde8\ud83c\udde6 Canad\u00e1', foot: 'DER', number: 45, avatar: 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1', value: 45000 },
@@ -191,7 +186,6 @@ window.DB.austria = {
       { id: 'rwi-13', name: 'Amane Romeo', position: 'mediocentro', skill: 74, age: 23, height: 176, mainPct: 86, otherPositions: [{pos:'medio_def',pct:14}], nationality: '\ud83c\udde8\ud83c\uddee Costa de Marfil', foot: 'DER', number: 29, avatar: 'https://cdn.resfu.com/img_data/players/medium/3230630.jpg?size=120x&lossy=1', value: 11220000 },
       { id: 'rwi-14', name: 'T. Gulliksen', position: 'medio_ofensivo', skill: 77, age: 23, height: 177, mainPct: 82, otherPositions: [{pos:'extremo_izq',pct:18}], nationality: '\ud83c\uddf3\ud83c\uddf4 Noruega', foot: 'DER', number: 17, avatar: 'https://cdn.resfu.com/img_data/players/medium/845300.jpg?size=120x&lossy=1', value: 14340000 },
       { id: 'rwi-15', name: 'Matthias Seidl', position: 'mediocentro', skill: 78, age: 25, height: 175, mainPct: 90, otherPositions: [{pos:'medio_def',pct:10}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'AMB', number: 18, avatar: 'https://cdn.resfu.com/img_data/players/medium/781835.jpg?size=120x&lossy=1', value: 11800000 },
-      { id: 'rwi-16', name: 'A. Gr\u00f6ller', position: 'defensa_central', skill: 54, age: 21, height: 190, mainPct: 95, otherPositions: [{pos:'lateral_izq',pct:5}], nationality: '\ud83c\uddf9\ud83c\uddf3 T\u00fanez', foot: 'DER', number: 47, avatar: 'https://cdn.resfu.com/img_data/players/medium/3149502.jpg?size=120x&lossy=1', value: 931000 },
       { id: 'rwi-17', name: 'E. Roka', position: 'lateral_der', skill: 55, age: 18, height: 175, mainPct: 87, otherPositions: [{pos:'carrilero_der',pct:13}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 2, avatar: 'https://cdn.resfu.com/img_data/players/medium/3179915.jpg?size=120x&lossy=1', value: 1040000 },
       { id: 'rwi-18', name: 'Jakob Sch\u00f6ller', position: 'defensa_central', skill: 56, age: 20, height: 190, mainPct: 92, otherPositions: [{pos:'lateral_der',pct:8}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 4, avatar: 'https://cdn.resfu.com/img_data/players/medium/973512.jpg?size=120x&lossy=1', value: 2620000 },
       { id: 'rwi-19', name: 'Furkan Demir', position: 'lateral_der', skill: 63, age: 21, height: 170, mainPct: 90, otherPositions: [{pos:'mediocentro',pct:10}], nationality: '\ud83c\uddf9\ud83c\uddf7 Turqu\u00eda', foot: 'DER', number: 61, avatar: 'https://cdn.resfu.com/img_data/players/medium/3137127.jpg?size=120x&lossy=1', value: 4170000 },
@@ -238,7 +232,6 @@ window.DB.austria = {
     ],
     'sturm-graz': [
       { id: 'stg-1', name: 'Ammar Helac', position: 'POR', skill: 42, age: 28, height: 190, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 22, avatar: 'https://cdn.resfu.com/img_data/players/medium/391591.jpg?size=120x&lossy=1', value: 228000 },
-      { id: 'stg-2', name: 'E. Lorenz', position: 'POR', skill: 43, age: 20, height: 194, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 41, avatar: 'https://cdn.resfu.com/img_data/players/medium/976520.jpg?size=120x&lossy=1', value: 163000 },
       { id: 'stg-3', name: 'D. Khudyakov', position: 'POR', skill: 55, age: 22, height: 194, mainPct: 99, nationality: '\ud83c\uddf7\ud83c\uddfa Rusia', foot: 'DER', number: 53, avatar: 'https://cdn.resfu.com/img_data/players/medium/906903.jpg?size=120x&lossy=1', value: 1630000 },
       { id: 'stg-4', name: 'Lu\u00eds Balbo', position: 'lateral_izq', skill: 50, age: 20, height: 177, mainPct: 90, otherPositions: [{pos:'medio_izq',pct:10}], nationality: '\ud83c\uddfb\ud83c\uddea Venezuela', foot: 'DER', number: 27, avatar: 'https://cdn.resfu.com/img_data/players/medium/3203892.jpg?size=120x&lossy=1', value: 130000 },
       { id: 'stg-5', name: 'Emran Soglo', position: 'lateral_izq', skill: 52, age: 21, height: 178, mainPct: 85, otherPositions: [{pos:'medio_izq',pct:15}], nationality: '\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f Inglaterra', foot: 'DER', number: 18, avatar: 'https://cdn.resfu.com/img_data/players/medium/904662.jpg?size=120x&lossy=1', value: 966000 },
@@ -248,7 +241,6 @@ window.DB.austria = {
       { id: 'stg-9', name: 'A. Vallci', position: 'defensa_central', skill: 67, age: 31, height: 191, mainPct: 85, otherPositions: [{pos:'lateral_izq',pct:15}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 5, avatar: 'https://cdn.resfu.com/img_data/players/medium/289815.jpg?size=120x&lossy=1', value: 2560000 },
       { id: 'stg-10', name: 'P. Koller', position: 'defensa_central', skill: 72, age: 24, height: 186, mainPct: 92, otherPositions: [{pos:'lateral_der',pct:8}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'IZQ', number: 30, avatar: 'https://cdn.resfu.com/img_data/players/medium/810651.jpg?size=120x&lossy=1', value: 6700000 },
       { id: 'stg-11', name: 'Petar Petrovi\u0107', position: 'defensa_central', skill: 65, age: 21, height: 191, mainPct: 90, otherPositions: [{pos:'lateral_der',pct:10}], nationality: '\ud83c\uddf7\ud83c\uddf8 Serbia', foot: 'DER', number: 21, avatar: 'https://cdn.resfu.com/img_data/players/medium/3200493.jpg?size=120x&lossy=1', value: 2230000 },
-      { id: 'stg-12', name: 'Julian Halwachs', position: 'medio_def', skill: 45, age: 23, height: 188, mainPct: 82, otherPositions: [{pos:'mediocentro',pct:18}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 8, avatar: 'https://cdn.resfu.com/img_data/players/medium/836200.jpg?size=120x&lossy=1', value: 428000 },
       { id: 'stg-13', name: 'L. Weinhandl', position: 'mediocentro', skill: 50, age: 17, height: 190, mainPct: 83, otherPositions: [{pos:'medio_def',pct:17}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 39, avatar: 'https://cdn.resfu.com/img_data/players/medium/3331587.jpg?size=120x&lossy=1', value: 688000 },
       { id: 'stg-14', name: 'Filip R\u00f3zga', position: 'medio_ofensivo', skill: 61, age: 20, height: 176, mainPct: 82, otherPositions: [{pos:'extremo_der',pct:18}], nationality: '\ud83c\uddf5\ud83c\uddf1 Polonia', foot: 'IZQ', number: 18, avatar: 'https://cdn.resfu.com/img_data/players/medium/3380222.jpg?size=120x&lossy=1', value: 6440000 },
       { id: 'stg-15', name: 'V. Matoshi', position: 'mediocentro', skill: 66, age: 23, height: 184, mainPct: 87, otherPositions: [{pos:'medio_izq',pct:13}], nationality: '\ud83c\uddfd\ud83c\uddf0 Kosovo', foot: 'DER', number: 78, avatar: 'https://cdn.resfu.com/img_data/players/medium/890008.jpg?size=120x&lossy=1', value: 3950000 },
@@ -297,7 +289,7 @@ window.DB.austria = {
     ],
     'tsv-hartberg': [
       { id: 'har-1', name: 'Luka Mari\u0107', position: 'POR', skill: 42, age: 24, height: 184, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 21, avatar: 'https://cdn.resfu.com/img_data/players/medium/873146.jpg?size=120x&lossy=1', value: 507000 },
-      { id: 'har-2', name: '\u00c1rmin P\u00e9csi', position: 'POR', skill: 63, age: 21, height: 190, mainPct: 99, nationality: '\ud83c\udded\ud83c\uddfa Hungr\u00eda', foot: 'DER', number: 91, avatar: 'https://cdn.resfu.com/img_data/players/medium/3202828.jpg?size=120x&lossy=1', value: 992000, loanedFrom: 'liverpool', loanedFromName: 'Liverpool', loanedFromLogo: 'https://cdn.resfu.com/img_data/escudos/medium/3845.jpg?size=120x&lossy=1' },
+      { id: 'har-2', name: '\u00c1rmin P\u00e9csi', position: 'POR', skill: 63, age: 21, height: 190, mainPct: 99, nationality: '\ud83c\udded\ud83c\uddfa Hungr\u00eda', foot: 'DER', number: 91, avatar: 'https://cdn.resfu.com/img_data/players/medium/3202828.jpg?size=120x&lossy=1', value: 992000, loanedTo: 'liverpool', loanedToName: 'Liverpool', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/3845.jpg?size=120x&lossy=1' },
       { id: 'har-3', name: 'N. Feldhofer', position: 'medio_def', skill: 41, age: 19, height: null, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 95, avatar: 'https://cdn.resfu.com/img_data/players/medium/976535.jpg?size=120x&lossy=1', value: 22000 },
       { id: 'har-4', name: 'Jonas Karner', position: 'medio_ofensivo', skill: 52, age: 21, height: 182, mainPct: 84, otherPositions: [{pos:'mediocentro',pct:16}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 17, avatar: 'https://cdn.resfu.com/img_data/players/medium/989284.jpg?size=120x&lossy=1', value: 494000 },
       { id: 'har-5', name: 'O. Luki\u0107', position: 'mediocentro', skill: 54, age: 19, height: 188, mainPct: 83, otherPositions: [{pos:'medio_ofensivo',pct:17}], nationality: '\ud83c\udded\ud83c\uddf7 Croacia', foot: 'DER', number: 10, avatar: 'https://cdn.resfu.com/img_data/players/medium/990178.jpg?size=120x&lossy=1', value: 1700000, loanedFrom: 'salzburg', loanedFromName: 'Red Bull Salzburg', loanedFromLogo: 'https://cdn.resfu.com/img_data/escudos/medium/3698.jpg?size=120x&lossy=1' },
@@ -315,7 +307,7 @@ window.DB.austria = {
       { id: 'har-17', name: 'Paul Komposch', position: 'defensa_central', skill: 76, age: 25, height: 187, mainPct: 94, otherPositions: [{pos:'lateral_izq',pct:6}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 14, avatar: 'https://cdn.resfu.com/img_data/players/medium/825989.jpg?size=120x&lossy=1', value: 5160000 },
       { id: 'har-18', name: 'D. Korherr', position: 'delantero', skill: 43, age: 24, height: 180, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 77, avatar: 'https://cdn.resfu.com/img_data/players/medium/3350061.jpg?size=120x&lossy=1', value: 122000 },
       { id: 'har-19', name: 'Matthias Postl', position: 'delantero', skill: 44, age: 20, height: 185, mainPct: 50, otherPositions: [{pos:'extremo_izq',pct:50}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 8, avatar: 'https://cdn.resfu.com/img_data/players/medium/3434096.jpg?size=120x&lossy=1', value: 30000 },
-      { id: 'har-20', name: 'Chilohem Onuoha', position: 'delantero', skill: 45, age: 21, height: 188, mainPct: 84, otherPositions: [{pos:'medio_der',pct:16}], nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'DER', number: 70, avatar: 'https://cdn.resfu.com/img_data/players/medium/3178581.jpg?size=120x&lossy=1', value: 346000, loanedFrom: 'pt14', loanedFromName: 'Estrela da Amadora', loanedFromLogo: 'https://cdn.resfu.com/img_data/escudos/medium/138438.jpg?size=120x&lossy=1' },
+      { id: 'har-20', name: 'Chilohem Onuoha', position: 'delantero', skill: 45, age: 21, height: 188, mainPct: 84, otherPositions: [{pos:'medio_der',pct:16}], nationality: '\ud83c\udde9\ud83c\uddea Alemania', foot: 'DER', number: 70, avatar: 'https://cdn.resfu.com/img_data/players/medium/3178581.jpg?size=120x&lossy=1', value: 346000, loanedTo: 'pt14', loanedToName: 'Estrela da Amadora', loanedToLogo: 'https://cdn.resfu.com/img_data/escudos/medium/138438.jpg?size=120x&lossy=1' },
       { id: 'har-21', name: 'A. Urrutia', position: 'delantero', skill: 47, age: 22, height: 188, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf7 Argentina', foot: 'DER', number: 9, avatar: 'https://cdn.resfu.com/img_data/players/medium/3490215.jpg?size=120x&lossy=1', value: 59000 },
       { id: 'har-22', name: 'M. Hoffmann', position: 'delantero', skill: 60, age: 22, height: 188, mainPct: 94, otherPositions: [{pos:'extremo_der',pct:6}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 22, avatar: 'https://cdn.resfu.com/img_data/players/medium/3446904.jpg?size=120x&lossy=1', value: 865000 },
       { id: 'har-23', name: 'Lukas Fridrikas', position: 'delantero', skill: 65, age: 28, height: 180, mainPct: 84, otherPositions: [{pos:'extremo_izq',pct:16}], nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 30, avatar: 'https://cdn.resfu.com/img_data/players/medium/291915.jpg?size=120x&lossy=1', value: 3160000 },
@@ -376,8 +368,8 @@ window.DB.austria = {
       { id: 'wsg-22', name: 'M. Boras', position: 'defensa_central', skill: 68, age: 24, height: 199, mainPct: 96, otherPositions: [{pos:'lateral_der',pct:4}], nationality: '\ud83c\udded\ud83c\uddf7 Croacia', foot: 'DER', number: 23, avatar: 'https://cdn.resfu.com/img_data/players/medium/882776.jpg?size=120x&lossy=1', value: 2080000 },
       { id: 'wsg-23', name: 'A. Eckmayr', position: 'POR', skill: 35, age: 27, height: 186, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 13, avatar: 'https://cdn.resfu.com/img_data/players/medium/469125.jpg?size=120x&lossy=1', value: 152000 },
       { id: 'wsg-24', name: 'Salko Hamzi\u0107', position: 'POR', skill: 48, age: 19, height: 190, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'IZQ', number: 1, avatar: 'https://cdn.resfu.com/img_data/players/medium/976527.jpg?size=120x&lossy=1', value: 942000 },
-      { id: 'wsg-25', name: 'C. Huetz', position: 'medio_ofensivo', skill: 50, age: 20, height: 182, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 11, avatar: 'https://cdn.resfu.com/img_data/players/medium/976720.jpg?size=120x&lossy=1', value: 460000, loanedTo: 'austria-salzburg', loanedToName: 'Austria Salzburg', loanedToLogo: 'https://cdn.resfu.com/img_data/equipos/12421.png?size=120x&lossy=1' },
-      { id: 'wsg-26', name: 'L. Schweighofer', position: 'defensa_central', skill: 42, age: 19, height: 183, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 5, avatar: 'https://cdn.resfu.com/img_data/players/medium/3277730.jpg?size=120x&lossy=1', value: 123000, loanedTo: 'austria-salzburg', loanedToName: 'Austria Salzburg', loanedToLogo: 'https://cdn.resfu.com/img_data/equipos/12421.png?size=120x&lossy=1' }
+      { id: 'wsg-25', name: 'C. Huetz', position: 'medio_ofensivo', skill: 50, age: 20, height: 182, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 11, avatar: 'https://cdn.resfu.com/img_data/players/medium/976720.jpg?size=120x&lossy=1', value: 460000, loanedTo: 'sv-austria-salzburg', loanedToName: 'Austria Salzburg', loanedToLogo: 'https://cdn.resfu.com/img_data/equipos/12421.png?size=120x&lossy=1' },
+      { id: 'wsg-26', name: 'L. Schweighofer', position: 'defensa_central', skill: 42, age: 19, height: 183, mainPct: 99, nationality: '\ud83c\udde6\ud83c\uddf9 Austria', foot: 'DER', number: 5, avatar: 'https://cdn.resfu.com/img_data/players/medium/3277730.jpg?size=120x&lossy=1', value: 123000, loanedTo: 'sv-austria-salzburg', loanedToName: 'Austria Salzburg', loanedToLogo: 'https://cdn.resfu.com/img_data/equipos/12421.png?size=120x&lossy=1' }
     ]
   }
 };
@@ -395,7 +387,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-2-3-1",
    "gamePlan": "pesado",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/6362.jpg?size=120x&lossy=1",
-   "budget": 2500000,
+   "budget": 3500000,
    "palmares": [
     {"comp": "Bundesliga Austria", "count": 8, "years": ["1965-66", "1938-39", "1936-37", "1935-36", "1933-34", "1931-32", "1927-28", "1926-27"]},
     {"comp": "Copa de Austria", "count": 1, "years": ["1989"]},
@@ -409,7 +401,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-3-3",
    "gamePlan": "pesado",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/12421.jpg?size=120x&lossy=1",
-   "budget": 1200000,
+   "budget": 2200000,
    "palmares": [
     {"comp": "Tercera Austria", "count": 2, "years": ["2014-15", "2013-14"]},
     {"comp": "Cuarta Austria", "count": 1, "years": ["2009-10"]}
@@ -422,7 +414,7 @@ window.DB.austria.country.leagues.push({
    "formation": "3-4-3",
    "gamePlan": "pesado",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/12410.jpg?size=120x&lossy=1",
-   "budget": 1000000,
+   "budget": 1700000,
    "palmares": [
     {"comp": "Tercera Austria", "count": 1, "years": ["2004-05"]}
    ]
@@ -434,7 +426,7 @@ window.DB.austria.country.leagues.push({
    "formation": "3-4-2-1",
    "gamePlan": "suave",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/1046.jpg?size=120x&lossy=1",
-   "budget": 2800000,
+   "budget": 4500000,
    "palmares": [
     {"comp": "Segunda Austria", "count": 2, "years": ["2022-23", "2020-21"]},
     {"comp": "Tercera Austria", "count": 2, "years": ["2015-16", "2002-03"]}
@@ -447,7 +439,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-2-3-1",
    "gamePlan": "suave",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/12402.jpg?size=120x&lossy=1",
-   "budget": 1400000,
+   "budget": 2000000,
    "palmares": [
     {"comp": "Bundesliga Austria", "count": 1, "years": ["1917-18"]},
     {"comp": "Tercera Austria", "count": 1, "years": ["2013-14"]}
@@ -460,7 +452,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-4-2",
    "gamePlan": "suave",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/89432.jpg?size=120x&lossy=1",
-   "budget": 900000,
+   "budget": 1100000,
    "palmares": []
   },
   {
@@ -470,7 +462,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-3-3",
    "gamePlan": "pesado",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/12371.jpg?size=120x&lossy=1",
-   "budget": 1800000,
+   "budget": 2500000,
    "palmares": [
     {"comp": "DFB Pokal", "count": 1, "years": ["1943"]},
     {"comp": "Bundesliga Austria", "count": 6, "years": ["1954-55", "1943-44", "1942-43", "1941-42", "1932-33", "1930-31"]},
@@ -487,7 +479,7 @@ window.DB.austria.country.leagues.push({
    "formation": "5-3-2",
    "gamePlan": "suave",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/3972.jpg?size=120x&lossy=1",
-   "budget": 1100000,
+   "budget": 900000,
    "palmares": [
     {"comp": "Segunda Austria", "count": 1, "years": ["2007-08"]},
     {"comp": "Tercera Austria", "count": 1, "years": ["2001-02"]}
@@ -500,7 +492,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-2-3-1",
    "gamePlan": "extremo",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/12366.jpg?size=120x&lossy=1",
-   "budget": 3500000,
+   "budget": 4000000,
    "palmares": [
     {"comp": "Tercera Austria", "count": 1, "years": ["2012-13"]}
    ]
@@ -512,7 +504,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-2-3-1",
    "gamePlan": "pesado",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/12403.jpg?size=120x&lossy=1",
-   "budget": 1200000,
+   "budget": 1800000,
    "palmares": []
   },
   {
@@ -522,7 +514,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-3-3",
    "gamePlan": "pesado",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/2351.jpg?size=120x&lossy=1",
-   "budget": 2200000,
+   "budget": 3200000,
    "palmares": [
     {"comp": "Segunda Austria", "count": 1, "years": ["2015-16"]},
     {"comp": "Tercera Austria", "count": 1, "years": ["2007-08"]}
@@ -535,7 +527,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-4-2",
    "gamePlan": "suave",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/12409.jpg?size=120x&lossy=1",
-   "budget": 1000000,
+   "budget": 1300000,
    "palmares": [
     {"comp": "Cuarta Austria", "count": 1, "years": ["2010-11"]}
    ]
@@ -547,7 +539,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-3-3",
    "gamePlan": "extremo",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/12420.jpg?size=120x&lossy=1",
-   "budget": 1300000,
+   "budget": 1500000,
    "palmares": []
   },
   {
@@ -570,7 +562,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-2-3-1",
    "gamePlan": "suave",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/18103.jpg?size=120x&lossy=1",
-   "budget": 800000,
+   "budget": 1000000,
    "palmares": [
     {"comp": "Tercera Austria", "count": 1, "years": ["2025-26"]},
     {"comp": "Cuarta Austria", "count": 2, "years": ["2022-23", "2019-20"]}
@@ -583,7 +575,7 @@ window.DB.austria.country.leagues.push({
    "formation": "4-4-2",
    "gamePlan": "pesado",
    "logo": "https://cdn.resfu.com/img_data/escudos/medium/9775.jpg?size=120x&lossy=1",
-   "budget": 1500000,
+   "budget": 2800000,
    "palmares": [
     {"comp": "Bundesliga Austria", "count": 1, "years": ["1970-71"]},
     {"comp": "Copa de Austria", "count": 2, "years": ["1993", "1970"]},
@@ -3108,7 +3100,10 @@ window.DB.austria.realSquads = Object.assign(window.DB.austria.realSquads || {},
    "foot": "IZQ",
    "number": 29,
    "avatar": "https://cdn.resfu.com/img_data/players/medium/3193461.jpg?size=120x&lossy=1",
-   "value": 81000
+   "value": 81000,
+   "loanedFrom": "sv-ried",
+   "loanedFromName": "SV Ried",
+   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/9776.jpg?size=120x&lossy=1"
   },
   {
    "id": "her-13",
