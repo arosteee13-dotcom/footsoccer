@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#FFFFFF">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Footsoccer</title>
-  <link rel="stylesheet" href="css/styles.css?v=35">
+  <link rel="stylesheet" href="css/styles.css?v=104">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -100,7 +100,7 @@
     <!-- GAME SCREEN -->
     <div id="game-screen" class="hidden">
       <header id="app-header">
-        <div class="header-left" style="display:flex;align-items:center;gap:8px">
+        <div class="header-left" id="header-left">
           <button class="header-menu-btn" id="btn-header-menu">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <line x1="3" y1="6" x2="21" y2="6"/>
@@ -108,6 +108,16 @@
               <line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
+          <div class="header-team" id="header-team" style="display:none">
+            <img class="header-team-logo" id="header-team-logo" src="" alt="">
+            <span class="header-team-name" id="header-team-name"></span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="header-back-btn" id="btn-header-back" style="display:none">Volver</button>
+          <button class="header-continue-btn" id="btn-header-continue" style="display:none">CONTINUAR</button>
+          <button class="header-sim-btn" id="btn-header-sim" style="display:none">SIMULAR</button>
+          <button class="header-play-btn" id="btn-header-play" style="display:none">JUGAR</button>
         </div>
       </header>
 
@@ -222,6 +232,16 @@
           <div id="home-content"></div>
         </section>
 
+        <!-- PASO 1: PARTIDOS DE LA JORNADA -->
+        <section id="view-matchday" class="view hidden">
+          <div id="matchday-content"></div>
+        </section>
+
+        <!-- PASO 2: PREVIA Y ALINEACIONES -->
+        <section id="view-preview" class="view hidden">
+          <div id="preview-content"></div>
+        </section>
+
         <!-- PARTIDO EN VIVO -->
         <section id="live-match-screen" class="view hidden">
           <div class="lm-matchlabel" id="lm-matchlabel"></div>
@@ -241,14 +261,11 @@
           </div>
           <div class="lm-attendance" id="lm-attendance"></div>
           <div class="lm-events" id="lm-events"></div>
-          <div class="lm-tabs">
-            <button class="lm-tab-btn active" data-lmtab="user">Mi equipo</button>
-            <button class="lm-tab-btn" data-lmtab="rival">Rival</button>
-          </div>
           <div class="lm-ratings" id="lm-ratings"></div>
           <div class="lm-controls">
+            <button class="btn-secondary lm-ctrl" id="lm-tactics">T&aacute;ctica</button>
             <button class="btn-primary lm-ctrl" id="lm-pause">Pausar</button>
-            <button class="btn-secondary lm-ctrl" id="lm-tactics">T&aacute;ctica / Cambios (0/5)</button>
+            <button class="btn-primary lm-ctrl" id="lm-continue" style="display:none;position:relative;top:5px">Continuar</button>
           </div>
         </section>
 
@@ -281,11 +298,23 @@
           <div class="finance-card">
             <span class="finance-label">Balance Total</span>
             <span class="finance-balance" id="finance-balance">€5,000</span>
+            <span class="finance-sub">Cuenta del club</span>
           </div>
           <div class="finance-resumen" id="finance-resumen">
-            <div class="finance-rstat"><span class="finance-rstat-lbl">Ingresos</span><span class="finance-rstat-val positive" id="finance-ingresos">€0</span></div>
-            <div class="finance-rstat"><span class="finance-rstat-lbl">Gastos</span><span class="finance-rstat-val negative" id="finance-gastos">€0</span></div>
-            <div class="finance-rstat"><span class="finance-rstat-lbl">Semanal</span><span class="finance-rstat-val" id="finance-semanal">€0</span></div>
+            <div class="finance-rstat">
+              <span class="finance-rstat-icon up">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </span>
+              <span class="finance-rstat-lbl">Ingresos</span>
+              <span class="finance-rstat-val positive" id="finance-ingresos">€0</span>
+            </div>
+            <div class="finance-rstat">
+              <span class="finance-rstat-icon down">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+              </span>
+              <span class="finance-rstat-lbl">Gastos</span>
+              <span class="finance-rstat-val negative" id="finance-gastos">€0</span>
+            </div>
           </div>
           <div class="finance-section-title">MOVIMIENTOS</div>
           <div id="finance-history"></div>
@@ -304,22 +333,18 @@
       </main>
 
       <nav id="bottom-nav">
-        <button class="nav-item active" data-tab="club">
+        <button class="nav-item" data-tab="bandeja">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+            <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+          </svg>
+          <span class="nav-label">Bandeja</span>
+        </button>
+        <button class="nav-item" data-tab="club">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
           <span class="nav-label">Club</span>
-        </button>
-        <button class="nav-item" data-tab="league">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 7 7 9 7"/>
-            <path d="M18 9h1.5a2.5 2.5 0 000-5C17 4 17 7 15 7"/>
-            <line x1="4" y1="22" x2="14" y2="22"/>
-            <line x1="9" y1="14" x2="9" y2="22"/>
-            <line x1="14" y1="17" x2="14" y2="22"/>
-            <path d="M5 16a9 9 0 1114 0"/>
-          </svg>
-          <span class="nav-label">Competiciones</span>
         </button>
         <button class="nav-item" data-tab="home">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -328,20 +353,14 @@
           </svg>
           <span class="nav-label">General</span>
         </button>
-        <button class="nav-item" data-tab="market">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="9" cy="21" r="1"/>
-            <circle cx="20" cy="21" r="1"/>
-            <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+        <button class="nav-item" data-tab="plantilla">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
-          <span class="nav-label">Mercado</span>
-        </button>
-        <button class="nav-item" data-tab="finances">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="1" x2="12" y2="23"/>
-            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-          </svg>
-          <span class="nav-label">Economía</span>
+          <span class="nav-label">Plantilla</span>
         </button>
       </nav>
     </div>
@@ -683,18 +702,18 @@
     </div>
   </div>
 
-  <script src="js/data/spain.js?v=7"></script>
+  <script src="js/data/spain.js?v=8"></script>
   <script src="js/data/poland.js?v=5"></script>
   <script src="js/data/argentina.js"></script>
   <script src="js/data/brazil.js"></script>
   <script src="js/data/germany.js?v=5"></script>
   <script src="js/data/england.js?v=8"></script>
-  <script src="js/data/italy.js?v=6"></script>
-  <script src="js/data/portugal.js?v=4"></script>
+  <script src="js/data/italy.js?v=7"></script>
+  <script src="js/data/portugal.js?v=5"></script>
   <script src="js/data/austria.js?v=3"></script>
   <script src="js/data/belgium.js?v=3"></script>
   <script src="js/data/netherlands.js?v=18"></script>
-  <script src="js/matchEngine.js?v=5"></script>
-  <script src="js/app.js?v=57"></script>
+  <script src="js/matchEngine.js?v=6"></script>
+  <script src="js/app.js?v=144"></script>
 </body>
 </html>

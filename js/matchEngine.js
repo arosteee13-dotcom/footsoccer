@@ -209,6 +209,83 @@ var MatchEngine = (function () {
     return best
   }
 
+  function isGK(p) { return groupOf(p.position) === 'POR' }
+
+  /* Factor de "hombres en el campo": con 11 = plena potencia, cada
+     expulsado reduce un poco más el rendimiento (ventaja numérica). */
+  function menFactor(n) {
+    if (n >= 11) return 1.0
+    if (n <= 8) return 0.80
+    return 0.97 - (11 - n) * 0.06     /* 10→0.91, 9→0.85 */
+  }
+
+  /* Suplente que es portero (para reponer tras expulsión del portero) */
+  function benchGK(team, starters, effFn) {
+    var inIds = {}
+    for (var i = 0; i < starters.length; i++) inIds[starters[i].player.id] = true
+    var pool = (team.players || []).filter(function (p) {
+      return p && !inIds[p.id] && !p.injury && !p._suspended && isGK(p)
+    })
+    if (pool.length === 0) return null
+    var best = null, bestScore = -1
+    for (var j = 0; j < pool.length; j++) {
+      var s = effFn(pool[j], 'portero')
+      if (s > bestScore) { bestScore = s; best = pool[j] }
+    }
+    return best
+  }
+
+  /* Jugador de campo que se sacrifica al expulsar al portero:
+     primero un delantero/extremo, si no cualquiera que no sea portero. */
+  function pickSacrificed(starters) {
+    var del = [], field = []
+    for (var i = 0; i < starters.length; i++) {
+      var g = groupOf(starters[i].player.position)
+      if (g === 'DEL') del.push(starters[i])
+      else if (g !== 'POR') field.push(starters[i])
+    }
+    var pool = del.length ? del : (field.length ? field : null)
+    if (!pool) return null
+    pool.sort(function (a, b) { return (a.eff || 0) - (b.eff || 0) })
+    return pool[0]
+  }
+
+  /* Expulsa a un jugador. Si es el portero, entra el portero suplente del
+     banquillo y se sacrifica a un jugador de campo (normalmente un delantero):
+     el equipo se queda en 10 pero sin quedarse sin portero. Devuelve el evento. */
+  function expulsaJugador(starters, team, playerId, effFn, minute, side, events, secondYellow) {
+    var idx = -1
+    for (var i = 0; i < starters.length; i++) if (starters[i].player.id === playerId) { idx = i; break }
+    if (idx < 0) return null
+    var sentOff = starters[idx]
+    var ev = { minute: minute, side: side, type: 'red', player: sentOff.player }
+    if (secondYellow) ev.secondYellow = true
+    events.push(ev)
+    if (isGK(sentOff.player)) {
+      var gkSub = benchGK(team, starters, effFn)
+      if (gkSub) {
+        var sac = pickSacrificed(starters)
+        if (sac) {
+          var sacIdx = starters.indexOf(sac)
+          /* Se sacrifica un jugador de campo y su puesto lo ocupa el portero
+             suplente; después sale el portero expulsado → 10 con portero. */
+          starters[sacIdx] = { player: gkSub, role: 'portero', eff: effFn(gkSub, 'portero'), _start: minute }
+          starters.splice(idx, 1) /* quita al portero expulsado */
+          ev.gkReplaced = true
+          ev.sacrificed = sac.player
+          ev.replacement = gkSub
+          events.push({ minute: minute, side: side, type: 'sub_out', player: sac.player, reason: 'gkRed' })
+          events.push({ minute: minute, side: side, type: 'sub_in', player: gkSub, reason: 'gkRed' })
+          return ev
+        }
+      }
+      stripStarters(starters, sentOff.player.id)
+      return ev
+    }
+    stripStarters(starters, sentOff.player.id)
+    return ev
+  }
+
   function simularPartidoMotor(home, away, opts) {
     opts = opts || {}
     var effFn = opts.effectiveSkillFn || function (p) { return p.skill || 0 }
@@ -260,11 +337,10 @@ var MatchEngine = (function () {
         if (Math.random() < YELLOW_PROB && starters.length) {
           var yp = pickWeighted(starters, function (x) { return ovrOf(x.player) })
           if (yc[yp.player.id]) {
-            /* 2ª amarilla → expulsión (juega con 10) */
+            /* 2ª amarilla → expulsión (juega con 10; si es portero se repone) */
             delete yc[yp.player.id]
             minutesPlayed[yp.player.id] = Math.max(minutesPlayed[yp.player.id] || 0, (minute - 1) - (yp._start || 1))
-            stripStarters(starters, yp.player.id)
-            events.push({ minute: minute, side: isHomeSide ? 'home' : 'away', type: 'red', secondYellow: true, player: yp.player })
+            expulsaJugador(starters, team, yp.player.id, effFn, minute, isHomeSide ? 'home' : 'away', events, true)
           } else {
             yc[yp.player.id] = 1
             events.push({ minute: minute, side: isHomeSide ? 'home' : 'away', type: 'yellow', player: yp.player })
@@ -274,8 +350,7 @@ var MatchEngine = (function () {
           var rp = pickWeighted(starters, function (x) { return ovrOf(x.player) })
           delete yc[rp.player.id]
           minutesPlayed[rp.player.id] = Math.max(minutesPlayed[rp.player.id] || 0, (minute - 1) - (rp._start || 1))
-          stripStarters(starters, rp.player.id)
-          events.push({ minute: minute, side: isHomeSide ? 'home' : 'away', type: 'red', player: rp.player })
+          expulsaJugador(starters, team, rp.player.id, effFn, minute, isHomeSide ? 'home' : 'away', events, false)
         }
         /* --- Lesión por minuto (con auto-sustitución) --- */
         if (Math.random() < INJURY_PROB && starters.length > 1) {
@@ -296,9 +371,20 @@ var MatchEngine = (function () {
         }
       })
 
-      /* --- Penalti por minuto (1 tirada, lado decidido por homeChance) --- */
+      /* --- Recálculo de potencia por minuto (ventaja numérica) ---
+         Si un equipo ha perdido hombres (roja o lesión sin recambio),
+         su poder baja y el rival (con más jugadores) domina más. */
+      var homeMen = menFactor(homeStarters.length)
+      var awayMen = menFactor(awayStarters.length)
+      var homePowerNow = homeOv * hs.attack * 1.05 * homeMen
+      var awayPowerNow = awayOv * as.attack * awayMen
+      var totalPowerNow = homePowerNow + awayPowerNow
+      var homeChanceNow = totalPowerNow ? (homePowerNow / totalPowerNow) * 100 : 50
+      var eventRateNow = BASE_EVENT * ((hs.attack * homeMen + as.attack * awayMen) / 2)
+
+      /* --- Penalti por minuto (1 tirada, lado decidido por homeChanceNow) --- */
       if (Math.random() < PEN_PROB) {
-        var penIsHome = Math.random() * 100 < homeChance
+        var penIsHome = Math.random() * 100 < homeChanceNow
         var penStarters = penIsHome ? homeStarters : awayStarters
         var penTaker = pickScorer(penStarters)
         if (penTaker) {
@@ -317,15 +403,19 @@ var MatchEngine = (function () {
       }
 
       /* --- 1er nivel: ¿hay ocasión este minuto? --- */
-      if (Math.random() < eventRate) {
-        var isHome = Math.random() * 100 < homeChance
+      if (Math.random() < eventRateNow) {
+        var isHome = Math.random() * 100 < homeChanceNow
         var attackStarters = isHome ? homeStarters : awayStarters
         var attackStyle = isHome ? hs : as
         var defendStyle = isHome ? as : hs
         var scorerItem = pickScorer(attackStarters)
         if (scorerItem) {
-          /* --- 2º nivel: ¿la ocasión es gol? --- */
-          var conversion = BASE_GOAL * attackStyle.attack * defendStyle.concede
+          /* --- 2º nivel: ¿la ocasión es gol? ---
+             La conversión depende del factor de ataque y de lo mermada
+             que esté la defensa rival (más fácil marcar contra 10). */
+          var attackMen = isHome ? homeMen : awayMen
+          var defendMen = isHome ? awayMen : homeMen
+          var conversion = BASE_GOAL * attackStyle.attack * defendStyle.concede * attackMen * (2 - defendMen)
           if (Math.random() < conversion) {
             var scorer = scorerItem.player
             var assist = null
