@@ -13,24 +13,38 @@ var MatchEngine = (function () {
   var BASE_GOAL   = 0.35    // conversión base de una ocasión
   var ASSIST_PROB = 0.70    // probabilidad de que un gol tenga asistencia
   var YELLOW_PROB = 0.025   // amarilla por equipo y minuto
-  var RED_PROB    = 0.0015  // roja por equipo y minuto
+  var RED_PROB    = 0.0007  // roja por equipo y minuto
   var INJURY_PROB = 0.00035  // lesión por equipo y minuto (≈3% por partido y equipo)
   var PEN_PROB    = 0.00085  // penalti por equipo y minuto (~1 penalti cada 3 partidos)
   var PEN_CONV    = 0.78     // conversión base de un penalti
   var MAX_GOALS   = 12      // tope de seguridad por marcador
 
   /* --- Clasificación de roles por línea --- */
-  var ROL_GK = ['portero']
-  var ROL_DEF = ['defensa_central', 'lateral_izq', 'lateral_der', 'carrilero_izq', 'carrilero_der', 'medio_def']
-  var ROL_MID = ['mediocentro', 'medio_def', 'medio_ofensivo', 'medio_izq', 'medio_der']
-  var ROL_ATA = ['extremo_izq', 'extremo_der', 'delantero', 'medio_ofensivo']
+  var ROL_GK = ['POR']
+  var ROL_DEF = ['DFC', 'LI', 'LD', 'CAI', 'CAD', 'MCD']
+  var ROL_MID = ['MC', 'MCD', 'MCO', 'MI', 'MD']
+  var ROL_ATA = ['EI', 'ED', 'DC', 'MCO']
 
-  /* Sigla -> posición completa (acepta jugadores con position en formato abreviado) */
+  /* Clasificación canónica por línea (sin solapes) para seleccionar el XI:
+     cada jugador elige la línea de su posición principal y solo busca
+     cobertura secundaria dentro de esa misma línea. */
+  var SEL_DEF = ['POR', 'DFC', 'LI', 'LD', 'CAI', 'CAD']
+  var SEL_MED = ['MCD', 'MC', 'MCO', 'MI', 'MD']
+  var SEL_ATA = ['EI', 'ED', 'DC']
+
+  /* Normaliza cualquier clave de posición (código corto o nombre largo heredado)
+     a su código corto canónico. */
   var ABBR2FULL = {
-    POR: 'portero', DFC: 'defensa_central', LI: 'lateral_izq', LD: 'lateral_der',
-    CAI: 'carrilero_izq', CAD: 'carrilero_der', MCD: 'medio_def', MC: 'mediocentro',
-    MCO: 'medio_ofensivo', MI: 'medio_izq', MD: 'medio_der', EI: 'extremo_izq',
-    ED: 'extremo_der', DC: 'delantero', DEL: 'delantero',
+    POR: 'POR', DFC: 'DFC', LI: 'LI', LD: 'LD',
+    CAI: 'CAI', CAD: 'CAD', MCD: 'MCD', MC: 'MC',
+    MCO: 'MCO', MI: 'MI', MD: 'MD', EI: 'EI',
+    ED: 'ED', DC: 'DC', DEL: 'DC',
+    portero: 'POR', defensa_central: 'DFC', lateral_izq: 'LI', lateral_der: 'LD',
+    carrilero_izq: 'CAI', carrilero_der: 'CAD', medio_def: 'MCD', mediocentro: 'MC',
+    medio_ofensivo: 'MCO', medio_izq: 'MI', medio_der: 'MD', extremo_izq: 'EI',
+    extremo_der: 'ED', delantero: 'DC',
+    cierre: 'DFC', ala: 'MC', pivot: 'DC',
+    mediocentro_der: 'MD', mediocentro_izq: 'MI', mediocentro_def: 'MCD',
   }
 
   /* Estilo de juego del equipo -> multiplicadores { attack, concede }
@@ -45,7 +59,7 @@ var MatchEngine = (function () {
   /* Grupo posicional de un jugador: POR / DEF / MED / DEL */
   function groupOf(pos) {
     pos = ABBR2FULL[pos] || pos
-    if (pos === 'portero') return 'POR'
+    if (pos === 'POR') return 'POR'
     if (ROL_DEF.indexOf(pos) !== -1) return 'DEF'
     if (ROL_MID.indexOf(pos) !== -1) return 'MED'
     return 'DEL'
@@ -77,7 +91,24 @@ var MatchEngine = (function () {
     return arr[arr.length - 1]
   }
 
-  /* Selecciona el XI de un equipo CPU (greedy por rol, mejor skill efectivo) */
+  /* Posición natural normalizada de un jugador ("EI" -> "EI") */
+  function naturalPos(p) { return ABBR2FULL[p.position] || p.position }
+
+  /* Línea canónica (DEF/MED/ATA) a la que pertenece un rol */
+  function zonaDeRol(role) {
+    if (inList(SEL_DEF, role)) return 'DEF'
+    if (inList(SEL_MED, role)) return 'MED'
+    if (inList(SEL_ATA, role)) return 'ATA'
+    return null
+  }
+
+  /* Línea canónica de la posición principal de un jugador */
+  function zonaDeJugador(p) { return zonaDeRol(naturalPos(p)) }
+
+  /* Selecciona el XI de un equipo CPU priorizando la posición principal de cada
+     jugador y, si algún hueco queda libre, las posiciones secundarias
+     (otherPositions) para no forzar a los cracks fuera de su línea. Cada jugador
+     compite primero dentro de su propia línea (DEF/MED/ATA). */
   function seleccionarXI(players, formation, effFn, rolesMap) {
     if (!players || players.length === 0) return []
     var fRoles = FORMATIONS_FALLBACK(formation, rolesMap)
@@ -85,21 +116,96 @@ var MatchEngine = (function () {
       return p && !p.injury && !p._suspended && !(p.onLoan && p.loanTo)
     })
     if (pool.length === 0) return []
+
+    var zoneRoles = { DEF: SEL_DEF, MED: SEL_MED, ATA: SEL_ATA }
+    var zones = ['DEF', 'MED', 'ATA']
+    var zoneCount = { DEF: 0, MED: 0, ATA: 0 }
+    fRoles.forEach(function (r) { var z = zonaDeRol(r); if (z) zoneCount[z]++ })
+
     var used = {}
-    var xi = []
-    for (var i = 0; i < fRoles.length; i++) {
-      var role = fRoles[i]
+    var chosen = { DEF: [], MED: [], ATA: [] }
+
+    function bestEffAt(p, role) { return effFn(p, role) }
+
+    function bestSecondary(p, zone) {
+      var list = (p.otherPositions || []).filter(function (o) { return zonaDeRol(ABBR2FULL[o.pos] || o.pos) === zone })
       var best = null, bestScore = -1
-      for (var j = 0; j < pool.length; j++) {
-        var p = pool[j]
-        if (used[p.id]) continue
-        var s = effFn(p, role)
-        if (s > bestScore) { bestScore = s; best = p }
+      for (var i = 0; i < list.length; i++) {
+        var pos = ABBR2FULL[list[i].pos] || list[i].pos
+        var s = bestEffAt(p, pos)
+        if (s > bestScore) { bestScore = s; best = pos }
       }
-      if (!best) break
-      used[best.id] = true
-      xi.push({ player: best, role: role, eff: bestScore })
+      return best ? { pos: best, eff: bestScore } : null
     }
+
+    function bestRoleInZone(p, zone) {
+      var roles = zoneRoles[zone], best = null, bestScore = -1
+      for (var i = 0; i < roles.length; i++) {
+        var s = bestEffAt(p, roles[i])
+        if (s > bestScore) { bestScore = s; best = roles[i] }
+      }
+      return { pos: best, eff: bestScore }
+    }
+
+    /* Portero: primero portero natural; si no hay, el que mejor rinda en la portería */
+    var gk = null, gkScore = -1
+    for (var g = 0; g < pool.length; g++) {
+      var s = bestEffAt(pool[g], 'POR')
+      if (naturalPos(pool[g]) === 'POR' && s > gkScore) { gkScore = s; gk = pool[g] }
+    }
+    if (!gk) {
+      gkScore = -1
+      for (var g2 = 0; g2 < pool.length; g2++) {
+        var s2 = bestEffAt(pool[g2], 'POR')
+        if (s2 > gkScore) { gkScore = s2; gk = pool[g2] }
+      }
+    }
+    if (gk) { used[gk.id] = true; chosen.DEF.push({ player: gk, role: 'POR', eff: gkScore }) }
+
+    /* Rellenar una línea con una fase concreta: 1=posición principal, 2=secundaria, 3=último recurso */
+    function fillZoneStage(zone, stage) {
+      var slots = zoneCount[zone] - chosen[zone].length
+      if (slots <= 0) return
+      var avail = pool.filter(function (p) { return !used[p.id] })
+      var cands = []
+      if (stage === 1) {
+        cands = avail.filter(function (p) { return zonaDeJugador(p) === zone && naturalPos(p) !== 'POR' })
+        cands.sort(function (a, b) { return bestEffAt(b, naturalPos(b)) - bestEffAt(a, naturalPos(a)) })
+      } else if (stage === 2) {
+        cands = avail.filter(function (p) { return naturalPos(p) !== 'POR' && bestSecondary(p, zone) })
+        cands.sort(function (a, b) { return bestSecondary(b, zone).eff - bestSecondary(a, zone).eff })
+      } else {
+        cands = avail.slice()
+        cands.sort(function (a, b) { return bestRoleInZone(b, zone).eff - bestRoleInZone(a, zone).eff })
+      }
+      for (var k = 0; k < cands.length && slots > 0; k++) {
+        var p = cands[k]
+        if (used[p.id]) continue
+        var role = null, eff = -1
+        if (stage === 1) { role = naturalPos(p); eff = bestEffAt(p, role) }
+        else if (stage === 2) { var sec = bestSecondary(p, zone); role = sec.pos; eff = sec.eff }
+        else { var br = bestRoleInZone(p, zone); role = br.pos; eff = br.eff }
+        used[p.id] = true
+        chosen[zone].push({ player: p, role: role, eff: eff })
+        slots--
+      }
+    }
+
+    /* Primero las posiciones principales de todas las líneas, después las secundarias */
+    var stages = [1, 2, 3]
+    stages.forEach(function (stage) {
+      zones.forEach(function (z) { fillZoneStage(z, stage) })
+    })
+
+    /* Ensamblar el XI en el mismo orden de roles de la formación */
+    var xi = []
+    fRoles.forEach(function (r) {
+      var z = zonaDeRol(r)
+      if (!z) return
+      var item = chosen[z].shift()
+      if (!item) return
+      xi.push({ player: item.player, role: r, eff: bestEffAt(item.player, r) })
+    })
     return xi
   }
 
@@ -107,7 +213,7 @@ var MatchEngine = (function () {
     var roles = null
     if (rolesMap) roles = rolesMap[formation] || rolesMap['4-3-3']
     if (!roles && typeof window !== 'undefined' && window.SLOT_ROLES) roles = window.SLOT_ROLES[formation] || window.SLOT_ROLES['4-3-3']
-    if (!roles) roles = ['portero', 'lateral_izq', 'defensa_central', 'defensa_central', 'lateral_der', 'mediocentro', 'medio_def', 'mediocentro', 'extremo_izq', 'delantero', 'extremo_der']
+    if (!roles) roles = ['POR', 'LI', 'DFC', 'DFC', 'LD', 'MC', 'MCD', 'MC', 'EI', 'DC', 'ED']
     return roles
   }
 
@@ -202,7 +308,7 @@ var MatchEngine = (function () {
     var best = null, bestScore = -1
     for (var j = 0; j < pool.length; j++) {
       var p = pool[j]
-      if (p.position === 'portero' || p.position === 'POR') continue
+      if (p.position === 'POR' || p.position === 'POR') continue
       var s = effFn(p, role)
       if (s > bestScore) { bestScore = s; best = p }
     }
@@ -229,7 +335,7 @@ var MatchEngine = (function () {
     if (pool.length === 0) return null
     var best = null, bestScore = -1
     for (var j = 0; j < pool.length; j++) {
-      var s = effFn(pool[j], 'portero')
+      var s = effFn(pool[j], 'POR')
       if (s > bestScore) { bestScore = s; best = pool[j] }
     }
     return best
@@ -269,7 +375,7 @@ var MatchEngine = (function () {
           var sacIdx = starters.indexOf(sac)
           /* Se sacrifica un jugador de campo y su puesto lo ocupa el portero
              suplente; después sale el portero expulsado → 10 con portero. */
-          starters[sacIdx] = { player: gkSub, role: 'portero', eff: effFn(gkSub, 'portero'), _start: minute }
+          starters[sacIdx] = { player: gkSub, role: 'POR', eff: effFn(gkSub, 'POR'), _start: minute }
           starters.splice(idx, 1) /* quita al portero expulsado */
           ev.gkReplaced = true
           ev.sacrificed = sac.player
@@ -328,6 +434,7 @@ var MatchEngine = (function () {
     var homeGoals = 0, awayGoals = 0
     var events = [], goalsHome = [], goalsAway = []
     var yc = {}   // amarillas por jugador en este partido (2ª amarilla = expulsión)
+    var reds = 0  // rojas en este partido (máximo 1 para reducir rojas dobles)
 
     for (var minute = 1; minute <= 90; minute++) {
       /* --- Tarjetas por minuto (por equipo) --- */
@@ -338,19 +445,23 @@ var MatchEngine = (function () {
           var yp = pickWeighted(starters, function (x) { return ovrOf(x.player) })
           if (yc[yp.player.id]) {
             /* 2ª amarilla → expulsión (juega con 10; si es portero se repone) */
-            delete yc[yp.player.id]
-            minutesPlayed[yp.player.id] = Math.max(minutesPlayed[yp.player.id] || 0, (minute - 1) - (yp._start || 1))
-            expulsaJugador(starters, team, yp.player.id, effFn, minute, isHomeSide ? 'home' : 'away', events, true)
+            if (reds < 1) {
+              delete yc[yp.player.id]
+              minutesPlayed[yp.player.id] = Math.max(minutesPlayed[yp.player.id] || 0, (minute - 1) - (yp._start || 1))
+              expulsaJugador(starters, team, yp.player.id, effFn, minute, isHomeSide ? 'home' : 'away', events, true)
+              reds++
+            }
           } else {
             yc[yp.player.id] = 1
             events.push({ minute: minute, side: isHomeSide ? 'home' : 'away', type: 'yellow', player: yp.player })
           }
         }
-        if (Math.random() < RED_PROB && starters.length) {
+        if (Math.random() < RED_PROB && starters.length && reds < 1) {
           var rp = pickWeighted(starters, function (x) { return ovrOf(x.player) })
           delete yc[rp.player.id]
           minutesPlayed[rp.player.id] = Math.max(minutesPlayed[rp.player.id] || 0, (minute - 1) - (rp._start || 1))
           expulsaJugador(starters, team, rp.player.id, effFn, minute, isHomeSide ? 'home' : 'away', events, false)
+          reds++
         }
         /* --- Lesión por minuto (con auto-sustitución) --- */
         if (Math.random() < INJURY_PROB && starters.length > 1) {

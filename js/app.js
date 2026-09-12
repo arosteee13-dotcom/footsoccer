@@ -7,27 +7,10 @@
    matchEngine.js se mantiene como archivo separado.
    ============================================================ */
 
-/* ============ TEMA (claro/oscuro) ============ */
+/* ============ TEMA (oscuro único) ============ */
 (function() {
-  const THEME_KEY = 'footsoccer-theme'
-  function getSavedTheme() {
-    try { var t = localStorage.getItem(THEME_KEY); return (t === 'dark' || t === 'light') ? t : null } catch(e) { return null }
-  }
-  function setThemeAttr(theme) {
-    document.documentElement.setAttribute('data-theme', theme)
-  }
-  /* Aplicar tema guardado lo antes posible (evita destello) */
-  var saved = getSavedTheme()
-  if (saved) setThemeAttr(saved)
-  window.__theme = {
-    apply: function(theme) {
-      setThemeAttr(theme)
-      try { localStorage.setItem(THEME_KEY, theme) } catch(e) {}
-      var meta = document.querySelector('meta[name="theme-color"]')
-      if (meta) meta.setAttribute('content', theme === 'dark' ? '#0F172A' : '#FFFFFF')
-    },
-    current: function() { return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light' }
-  }
+  try { localStorage.removeItem('footsoccer-theme') } catch(e) {}
+  document.documentElement.removeAttribute('data-theme')
 })();
 
 /* ============================================================
@@ -645,6 +628,7 @@
    ============================================================ */
 
 var ZC_MAX_LEVEL = 15
+var ZC_ENTRENAMIENTO_MAX = 20
 var ZC_MAX_ZONA_LEVEL = 15
 var ZC_PRECIO_MIN = 5
 var ZC_PRECIO_MAX = 60
@@ -657,16 +641,16 @@ entrenamiento: {
     icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="3" height="8" rx="1.5"/><rect x="7" y="10" width="2" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><rect x="15" y="10" width="2" height="4" rx="1"/><rect x="18" y="8" width="3" height="8" rx="1.5"/></svg>',
     descCorta: 'Velocidad de desarrollo de los jugadores jóvenes.',
     efecto: 'Aumenta la velocidad de desarrollo de los jugadores jóvenes (hasta +14 puntos en la progresión de fin de temporada).',
-    niveles: [500000, 800000, 1200000, 1700000, 2200000, 2800000, 3500000, 4300000, 5200000, 6200000, 7300000, 8500000, 9800000, 11200000],
-    semanas: [3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7]
+    niveles: [500000, 800000, 1200000, 1700000, 2200000, 2800000, 3500000, 4300000, 5200000, 6200000, 7300000, 8500000, 9800000, 11200000, 12800000, 14500000, 16400000, 18500000, 20800000, 23400000],
+    semanas: [3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9]
   },
   cantera: {
     nombre: 'Instalaciones de Cantera',
     icono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg>',
     descCorta: 'Mejora la media y el potencial del Sub-18.',
     efecto: 'Mejora la media y el potencial de los jugadores del Sub-18 (los nuevos canteranos entran con hasta +14 puntos de media).',
-    niveles: [400000, 650000, 900000, 1250000, 1700000, 2200000, 2800000, 3500000, 4300000, 5200000, 6200000, 7300000, 8500000, 9800000],
-    semanas: [3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7]
+    niveles: [400000, 650000, 900000, 1250000, 1700000, 2200000, 2800000, 3500000, 4300000, 5200000, 6200000, 7300000, 8500000, 9800000, 11200000, 12800000, 14500000, 16400000, 18500000, 20800000],
+    semanas: [3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9]
   }
 }
 
@@ -1214,9 +1198,9 @@ function initZonaClub() {
     : ((typeof state.team === 'string' && state.team) ? 'Estadio Municipal de ' + state.team : 'Estadio Municipal')
   var capacidad = cfg ? cfg.capacidad : legacyCapacidadZonas(zonas)
   state.zonaClub = {
-    entrenamiento: zcClamp(cfg ? cfg.entrenamiento : 1, 1, ZC_MAX_LEVEL),
-    cantera: zcClamp(cfg ? cfg.cantera : 1, 1, ZC_MAX_LEVEL),
-    estadio: { nombre: nombre, precioEntrada: getPrecioPerfecto(), capacidad: capacidad, zonas: zonas, zonasSeats: repartirCapacidadZonas(zonas, capacidad) },
+    entrenamiento: zcClamp(cfg ? cfg.entrenamiento : 1, 1, ZC_ENTRENAMIENTO_MAX),
+    cantera: zcClamp(cfg ? cfg.cantera : 1, 1, ZC_ENTRENAMIENTO_MAX),
+    estadio: { nombre: nombre, precioEntrada: getPrecioMedioClub(), capacidad: capacidad, zonas: zonas, zonasSeats: repartirCapacidadZonas(zonas, capacidad) },
     obraEnCurso: null
   }
   return state.zonaClub
@@ -1228,7 +1212,7 @@ function getZonaClub() {
   if (!state.zonaClub.estadio) {
     var zonas = {}
     ZC_ZONAS_BASE.forEach(function(z) { zonas[z.id] = 0 })
-    state.zonaClub.estadio = { nombre: '', precioEntrada: 15, zonas: zonas }
+    state.zonaClub.estadio = { nombre: '', precioEntrada: getPrecioMedioClub(), zonas: zonas }
   }
   if (!state.zonaClub.estadio.zonas) {
     state.zonaClub.estadio.zonas = {}
@@ -1248,19 +1232,28 @@ function getZonaClub() {
   }
   if (state.zonaClub.entrenamiento == null) state.zonaClub.entrenamiento = 1
   if (state.zonaClub.cantera == null) state.zonaClub.cantera = 1
-  state.zonaClub.entrenamiento = zcClamp(state.zonaClub.entrenamiento, 1, ZC_MAX_LEVEL)
-  state.zonaClub.cantera = zcClamp(state.zonaClub.cantera, 1, ZC_MAX_LEVEL)
+  state.zonaClub.entrenamiento = zcClamp(state.zonaClub.entrenamiento, 1, ZC_ENTRENAMIENTO_MAX)
+  state.zonaClub.cantera = zcClamp(state.zonaClub.cantera, 1, ZC_ENTRENAMIENTO_MAX)
   if (state.zonaClub.obraEnCurso == null) state.zonaClub.obraEnCurso = null
+  /* Recalibración única de la curva de precios: centra el precio de referencia. */
+  if (state.zonaClub._precioCurvaV !== 2) {
+    state.zonaClub.estadio.precioEntrada = getPrecioMedioClub()
+    state.zonaClub._precioCurvaV = 2
+  }
   return state.zonaClub
 }
 
 /* ---------- Costes, plazos y capacidades ---------- */
 
+function getInstalacionMax(clave) {
+  return (clave === 'entrenamiento' || clave === 'cantera') ? ZC_ENTRENAMIENTO_MAX : ZC_MAX_LEVEL
+}
+
 function getCosteMejoraInstalacion(clave) {
   var zc = getZonaClub()
   if (!zc || !ZC_INSTALACIONES_CONFIG[clave]) return null
   var nivel = zc[clave] || 1
-  if (nivel >= ZC_MAX_LEVEL) return null
+  if (nivel >= getInstalacionMax(clave)) return null
   return ZC_INSTALACIONES_CONFIG[clave].niveles[nivel - 1]
 }
 
@@ -1326,6 +1319,12 @@ function getPrecioMaxClub() {
   return (cfg && cfg.precioMax) || ZC_PRECIO_MAX
 }
 
+/* Precio "de referencia": el punto medio del rango del club. Es donde la barra
+   queda centrada por defecto y donde el estadio se llena ~82%. */
+function getPrecioMedioClub() {
+  return Math.round((getPrecioMinClub() + getPrecioMaxClub()) / 2)
+}
+
 /* 'Precio perfecto': precio del rango que maximiza ingreso esperado
    (asistencia × precio) dentro del tramo elástico de la curva, es decir
    hasta donde la ocupación aún desciende (ignora el tramo donde ya está
@@ -1344,21 +1343,32 @@ function getPrecioPerfecto(min, max) {
   return mejor
 }
 
-/* Curva de demanda: la ocupación cae al subir el precio.
-   precio 5€ ≈ 97% · 15€ ≈ 90% · 30€ ≈ 72% · 45€ ≈ 54% · 60€ ≈ 36% */
-function getFactorOcupacion(precio) {
+/* Curva de demanda relativa al rango del club:
+   - Precio mínimo    → ~99% de ocupación (casi lleno).
+   - Precio medio     → ~82% (lo normal).
+   - Precio máximo    → ~45% (caro, baja la asistencia).
+   El tramo de subida es más suave y el de subida de precio más agresivo. */
+function getFactorOcupacion(precio, min, max) {
   var p = precio == null ? getPrecioEntrada() : precio
-  var f = 1.08 - (p * 0.012)
-  return Math.max(0.28, Math.min(0.97, f))
+  var lo = (min != null) ? min : getPrecioMinClub()
+  var hi = (max != null) ? max : getPrecioMaxClub()
+  var span = Math.max(1, hi - lo)
+  var t = (p - lo) / span
+  if (t < 0) t = 0
+  if (t > 1) t = 1
+  var f
+  if (t <= 0.5) f = 0.99 + t * ((0.82 - 0.99) / 0.5)
+  else f = 0.82 + (t - 0.5) * ((0.45 - 0.82) / 0.5)
+  return Math.max(0.28, Math.min(0.99, f))
 }
 
-function getAsistenciaPartido(precio) {
-  return Math.round(getCapacidadEstadio() * getFactorOcupacion(precio))
+function getAsistenciaPartido(precio, min, max) {
+  return Math.round(getCapacidadEstadio() * getFactorOcupacion(precio, min, max))
 }
 
 /* Asistencia estimada de un partido con cierto margen aleatorio (±10%) */
-function getAsistenciaPartidoConVariacion(capacidad, precio) {
-  var base = Math.round(capacidad * getFactorOcupacion(precio))
+function getAsistenciaPartidoConVariacion(capacidad, precio, min, max) {
+  var base = Math.round(capacidad * getFactorOcupacion(precio, min, max))
   var v = base * (0.9 + Math.random() * 0.2)
   return Math.max(0, Math.round(v))
 }
@@ -1367,7 +1377,7 @@ function getAsistenciaPartidoConVariacion(capacidad, precio) {
 function getAsistenciaPartidoDe(teamId) {
   var m = getZonaClubDe(teamId)
   if (!m) return 0
-  return getAsistenciaPartidoConVariacion(getCapacidadEstadioDe(m), m.estadio.precioEntrada)
+  return getAsistenciaPartidoConVariacion(getCapacidadEstadioDe(m), m.estadio.precioEntrada, m.estadio.precioMin, m.estadio.precioMax)
 }
 
 function getIngresosEstimadosPartido(precio) {
@@ -1481,7 +1491,7 @@ function procesarObrasClub() {
   var ob = zc.obraEnCurso
   zc.obraEnCurso = null
   if (ob.tipo === 'instalacion') {
-    zc[ob.clave] = Math.min(ZC_MAX_LEVEL, (zc[ob.clave] || 1) + 1)
+    zc[ob.clave] = Math.min(getInstalacionMax(ob.clave), (zc[ob.clave] || 1) + 1)
   } else if (zc.estadio.zonas[ob.clave] !== undefined) {
     zc.estadio.zonas[ob.clave] = Math.min(ZC_MAX_ZONA_LEVEL, (zc.estadio.zonas[ob.clave] || 0) + 1)
     var tipoZona = ZC_ZONAS_BASE.filter(function(x) { return x.id === ob.clave })[0]
@@ -1517,13 +1527,17 @@ function renderZonaClubScreen() {
   var screen = state.zcScreen
   var inner = ''
   if (screen === 'estadio' && typeof renderEstadioScreen === 'function') inner = renderEstadioScreen()
-  else if ((screen === 'entrenamiento' || screen === 'cantera') && typeof renderInstalacionesScreen === 'function') inner = renderInstalacionesScreen(screen)
+  else if (screen === 'entrenamiento' && typeof renderEntrenamientoScreen === 'function') inner = renderEntrenamientoScreen()
+  else if (screen === 'cantera' && typeof renderCanteraScreen === 'function') inner = renderCanteraScreen()
   else if (screen === 'patrocinadores' && typeof renderPatrocinadoresScreen === 'function') inner = renderPatrocinadoresScreen()
   if (!inner) return ''
-  var nav = '<div class="db-qa-nav">' +
-    '<button class="db-qa-tab active" onclick="state.zcScreen=null;state.clubSubTab=\'club-info\';renderTab(\'club\')">General</button>' +
-    '<button class="db-qa-tab" onclick="state.zcScreen=null;state.clubSubTab=\'palmares\';renderTab(\'club\')">Historial</button>' +
-    '</div>'
+  var nav = ''
+  if (screen !== 'patrocinadores' && screen !== 'entrenamiento' && screen !== 'estadio' && screen !== 'cantera') {
+    nav = '<div class="db-qa-nav">' +
+      '<button class="db-qa-tab active" onclick="state.zcScreen=null;state.clubSubTab=\'club-info\';renderTab(\'club\')">General</button>' +
+      '<button class="db-qa-tab" onclick="state.zcScreen=null;state.clubSubTab=\'palmares\';renderTab(\'club\')">Historial</button>' +
+      '</div>'
+  }
   return nav + '<div style="padding:0 14px">' + inner + '</div>'
 }
 
@@ -1611,14 +1625,14 @@ function renderZonaPreviewModal(zonaId) {
   if (zc.obraEnCurso) {
     acciones = '<div class="zc-preview-lock">' + getMensajeObraEnCurso() + '</div>' +
       '<span class="zc-btn zc-btn-off zc-btn-block">Confirmar mejora</span>' +
-      '<span class="zc-btn zc-btn-ghost zc-btn-block" onclick="closeZonaClubModals()">Volver</span>'
+      '<span class="zc-btn zc-btn-ghost zc-btn-block" style="background:var(--danger);color:#F9F9F9;border-color:var(--danger)" onclick="closeZonaClubModals()">Volver</span>'
   } else if (!state.finances || state.finances.balance < coste) {
     acciones = '<div class="zc-preview-lock">Presupuesto insuficiente: te faltan ' + formatMoney(coste - (state.finances ? state.finances.balance : 0)) + '</div>' +
       '<span class="zc-btn zc-btn-off zc-btn-block">Confirmar mejora</span>' +
-      '<span class="zc-btn zc-btn-ghost zc-btn-block" onclick="closeZonaClubModals()">Volver</span>'
+      '<span class="zc-btn zc-btn-ghost zc-btn-block" style="background:var(--danger);color:#F9F9F9;border-color:var(--danger)" onclick="closeZonaClubModals()">Volver</span>'
   } else {
     acciones = '<span class="zc-btn zc-btn-on zc-btn-block" onclick="iniciarObra(\'estadio\',\'' + zonaId + '\')">Confirmar mejora</span>' +
-      '<span class="zc-btn zc-btn-ghost zc-btn-block" onclick="closeZonaClubModals()">Volver</span>'
+      '<span class="zc-btn zc-btn-ghost zc-btn-block" style="background:var(--danger);color:#F9F9F9;border-color:var(--danger)" onclick="closeZonaClubModals()">Volver</span>'
   }
 
   var overlay = crearModalZonaClub()
@@ -1651,7 +1665,7 @@ function getZonaClubDe(teamId) {
       capacidad: capacidad,
       precioMin: pMin,
       precioMax: pMax,
-      precioEntrada: getPrecioPerfecto(pMin, pMax),
+      precioEntrada: Math.round((pMin + pMax) / 2),
       zonas: zonas,
       zonasSeats: repartirCapacidadZonas(zonas, capacidad)
     },
@@ -1704,14 +1718,14 @@ function renderZonaClubSectionDe(teamId) {
     ZC_INSTALACIONES_CONFIG.entrenamiento.icono,
     'Instalaciones de Entrenamiento',
     ZC_INSTALACIONES_CONFIG.entrenamiento.descCorta,
-    'Nivel ' + modelo.entrenamiento + '/' + ZC_MAX_LEVEL,
+    'Nivel ' + modelo.entrenamiento + '/' + getInstalacionMax('entrenamiento'),
     'openZonaClubViewDe(\'' + teamId + '\',\'entrenamiento\')'
   )
   html += zcCardMini(
     ZC_INSTALACIONES_CONFIG.cantera.icono,
     'Instalaciones de Cantera',
     ZC_INSTALACIONES_CONFIG.cantera.descCorta,
-    'Nivel ' + modelo.cantera + '/' + ZC_MAX_LEVEL,
+    'Nivel ' + modelo.cantera + '/' + getInstalacionMax('cantera'),
     'openZonaClubViewDe(\'' + teamId + '\',\'cantera\')'
   )
   var capDe = getCapacidadEstadioDe(modelo)
@@ -1739,6 +1753,7 @@ function renderInstalacionesScreenDe(teamId, clave) {
   var cfg = ZC_INSTALACIONES_CONFIG[clave]
   if (!modelo || !cfg) return ''
   var nivel = modelo[clave] || 1
+  var maxNivel = getInstalacionMax(clave)
   var beneficio = clave === 'entrenamiento'
     ? 'Jugadores \u2264 23 a\u00f1os reciben hasta +' + getBonusEntrenamiento(nivel) + ' en su progresi\u00f3n de fin de temporada.'
     : 'Los canteranos del Sub-18 se generan con +' + getBonusCantera(nivel) + ' puntos de media y potencial.'
@@ -1746,10 +1761,10 @@ function renderInstalacionesScreenDe(teamId, clave) {
   html += zcScreenHeadDe(cfg.nombre, cfg.efecto, teamId)
   html += '<div class="zc-panel">' +
     '<div class="zc-panel-nivel">' +
-      '<div class="zc-inst-level">Nivel ' + nivel + '/' + ZC_MAX_LEVEL + '</div>' +
+      '<div class="zc-inst-level">Nivel ' + nivel + '/' + maxNivel + '</div>' +
     '</div>' +
     '<div class="zc-panel-fila"><span>Beneficio actual</span><b>' + beneficio + '</b></div>' +
-    '<div class="zc-panel-fila"><span>Nivel m\u00e1ximo</span><b>' + ZC_MAX_LEVEL + '</b></div>' +
+    '<div class="zc-panel-fila"><span>Nivel m\u00e1ximo</span><b>' + maxNivel + '</b></div>' +
   '</div>'
   return html
 }
@@ -1808,7 +1823,7 @@ function renderZonaClubCards() {
     ZC_INSTALACIONES_CONFIG.entrenamiento.icono,
     'Instalaciones de Entrenamiento',
     ZC_INSTALACIONES_CONFIG.entrenamiento.descCorta,
-    'Nivel ' + (zc.entrenamiento || 1) + '/' + ZC_MAX_LEVEL,
+    'Nivel ' + (zc.entrenamiento || 1) + '/' + getInstalacionMax('entrenamiento'),
     'openZonaClubView(\'entrenamiento\')'
   )
 
@@ -1816,7 +1831,7 @@ function renderZonaClubCards() {
     ZC_INSTALACIONES_CONFIG.cantera.icono,
     'Instalaciones de Cantera',
     ZC_INSTALACIONES_CONFIG.cantera.descCorta,
-    'Nivel ' + (zc.cantera || 1) + '/' + ZC_MAX_LEVEL,
+    'Nivel ' + (zc.cantera || 1) + '/' + getInstalacionMax('cantera'),
     'openZonaClubView(\'cantera\')'
   )
 
@@ -1858,6 +1873,26 @@ function zcCardMini(icono, titulo, descripcion, meta, handlersJson) {
   '</div>'
 }
 
+/* Listado de la Zona del Club (para el dashboard): nombre + nivel/meta */
+function renderZonaClubList() {
+  var zc = getZonaClub()
+  if (!zc) return ''
+  var cap = getCapacidadEstadio()
+  var slots = (state.sponsors && state.sponsors.slots) ? state.sponsors.slots : {}
+  var firmados = Object.keys(slots).filter(function(k) { return slots[k] }).length
+  var estNombre = zc.estadio.nombre || 'Estadio Municipal'
+  function row(name, meta, onclick) {
+    return '<div class="zc-list-row" style="cursor:pointer" onclick="' + onclick + '"><span class="zc-list-name">' + name + '</span><span class="zc-list-meta">' + meta + '</span></div>'
+  }
+  var html = '<div class="zc-list">'
+  html += row('Instalaciones de Entrenamiento', 'Nivel ' + (zc.entrenamiento || 1) + '/' + getInstalacionMax('entrenamiento'), 'openZonaClubView(\'entrenamiento\')')
+  html += row('Instalaciones de Cantera', 'Nivel ' + (zc.cantera || 1) + '/' + getInstalacionMax('cantera'), 'openZonaClubView(\'cantera\')')
+  html += row(estNombre, 'Capacidad ' + cap.toLocaleString('es-ES'), 'openZonaClubView(\'estadio\')')
+  html += row('Patrocinadores', firmados > 0 ? firmados + '/4 slots' : 'Pendiente de firma', 'openZonaClubView(\'patrocinadores\')')
+  html += '</div>'
+  return html
+}
+
 /* Pantalla dedicada de Patrocinadores (4 slots). */
 function renderPatrocinadoresScreen() {
   var zc = getZonaClub()
@@ -1870,8 +1905,55 @@ function renderPatrocinadoresScreen() {
     html += zcPatrocinioSlot(cat, cfg, contrato, zc)
   })
   html += '</div>'
-  html += '<div class="zc-hint" style="margin:10px 14px 16px;font-size:12px;color:var(--text-muted)">Revisa la bandeja de entrada para firmar o rechazar las ofertas de cada categor\u00eda.</div>'
   return html
+}
+
+function openSponsorOffersModal(cat) {
+  var notif = (state.inbox || []).find(function(n) {
+    return n && n.type === 'sponsor' && n.sponsor && (n.sponsor.categoriaPatrocinio === cat || n.sponsor.catid === cat)
+  })
+  var ofertas = notif && notif.sponsor ? (notif.sponsor.ofertas || []) : []
+  var label = (SPONSOR_SLOTS[cat] && SPONSOR_SLOTS[cat].label) || cat
+  var body = ''
+  if (ofertas.length === 0) {
+    body = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">No hay ofertas disponibles en este momento.</div>'
+  } else {
+    body = sponsorOfferCardsHtml(ofertas, function(o, oi) {
+      return '<div class="sponsor-offer-btn" onclick="firmarPatrocinioFromModal(\'' + cat + '\',' + oi + ')">Firmar contrato</div>'
+    })
+    body += '<div style="margin-top:12px;padding:12px;background:#DC2626;border-radius:10px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer" onclick="rechazarPatrocinioFromModal(\'' + cat + '\')">Rechazar todas</div>'
+  }
+  var overlay = crearModalZonaClub()
+  overlay.innerHTML = zcModalShell('Ofertas de ' + escHtml(label), body)
+}
+
+function firmarPatrocinioFromModal(cat, oi) {
+  var notif = (state.inbox || []).find(function(n) {
+    return n && n.type === 'sponsor' && n.sponsor && (n.sponsor.categoriaPatrocinio === cat || n.sponsor.catid === cat)
+  })
+  var ofertas = notif && notif.sponsor ? (notif.sponsor.ofertas || []) : []
+  var oferta = ofertas[oi]
+  if (!oferta) return
+  firmarPatrocinio(cat, oferta)
+  clearSponsorNotif(cat)
+  closeZonaClubModals()
+  if (typeof showTeamInfo === 'function') showTeamInfo(state.teamId)
+}
+
+function rechazarPatrocinioFromModal(cat) {
+  rechazarPatrocinio(cat)
+  clearSponsorNotif(cat)
+  closeZonaClubModals()
+  if (typeof showTeamInfo === 'function') showTeamInfo(state.teamId)
+}
+
+function clearSponsorNotif(catId) {
+  ;(state.inbox || []).forEach(function(n) {
+    if (n.type === 'sponsor' && n.sponsor) {
+      var c = n.sponsor.categoriaPatrocinio || n.sponsor.catid
+      if (c === catId) n.sponsor = null
+    }
+  })
 }
 
 function zcPatrocinioSlot(cat, cfg, contrato, zc) {
@@ -1886,11 +1968,14 @@ function zcPatrocinioSlot(cat, cfg, contrato, zc) {
     cuerpo += '<div class="sponsor-brand"><span class="sponsor-brand-name">' + escHtml(contrato.brand) + '</span></div>'
     cuerpo += '<div class="sponsor-line"><span>Fijo anual</span><strong>' + formatMoney(contrato.anual) + '</strong></div>'
     cuerpo += '<div class="sponsor-line"><span>Duraci\u00f3n</span><strong>' + contrato.anios + ' a\u00f1os</strong></div>'
+    cuerpo += '<div class="sponsor-line"><span>Pago</span><strong>' + patrocinioFrecuenciaLabel(contrato.frecuencia) + '</strong></div>'
     if (contrato.bonusObjetivo > 0) cuerpo += '<div class="sponsor-line"><span>Bonus</span><strong>' + formatMoney(contrato.bonusObjetivo) + '</strong></div>' +
       '<div class="sponsor-bonus-desc">Se paga al final de temporada si: ' + escHtml(contrato.descBonus || '') + '</div>'
     cuerpo += '</div>'
+  } else if (slotTieneOfertaPendiente(cat)) {
+    cuerpo += '<div class="sponsor-sign-btn" onclick="openSponsorOffersModal(\'' + cat + '\')">Ver ofertas</div>'
   } else {
-    cuerpo += '<div class="sponsor-empty">Pendiente de firma</div>'
+    cuerpo += '<div class="sponsor-empty">Sin patrocinador</div>'
   }
   cuerpo += '</div>'
   html += cuerpo
@@ -1914,8 +1999,9 @@ function renderInstalacionesScreen(clave) {
   var nivel = zc[clave] || 1
   var coste = getCosteMejoraInstalacion(clave)
   var semanas = getSemanasMejoraInstalacion(clave)
-  var nivelNuevo = Math.min(ZC_MAX_LEVEL, nivel + 1)
-  var nivelMax = nivel >= ZC_MAX_LEVEL
+  var maxNivel = getInstalacionMax(clave)
+  var nivelNuevo = Math.min(maxNivel, nivel + 1)
+  var nivelMax = nivel >= maxNivel
 
   var beneficioActual = ''
   var beneficioSiguiente = ''
@@ -1933,12 +2019,12 @@ function renderInstalacionesScreen(clave) {
 
   html += '<div class="zc-panel">' +
     '<div class="zc-panel-nivel">' +
-      '<div class="zc-inst-level">Nivel ' + nivel + '/' + ZC_MAX_LEVEL + '</div>' +
+      '<div class="zc-inst-level">Nivel ' + nivel + '/' + maxNivel + '</div>' +
     '</div>' +
     '<div class="zc-panel-fila"><span>Beneficio actual</span><b>' + beneficioActual + '</b></div>' +
     (nivelMax
       ? '<div class="zc-panel-fila"><span>Beneficio m\u00e1ximo alcanzado</span><b>\u2713</b></div>'
-      : '<div class="zc-panel-fila zc-panel-fila-add"><span>Pr\u00f3ximo nivel (' + nivelNuevo + '/' + ZC_MAX_LEVEL + ')</span><b>' + beneficioSiguiente + '</b></div>') +
+      : '<div class="zc-panel-fila zc-panel-fila-add"><span>Pr\u00f3ximo nivel (' + nivelNuevo + '/' + maxNivel + ')</span><b>' + beneficioSiguiente + '</b></div>') +
   '</div>'
 
   /* Botón de mejora */
@@ -1965,6 +2051,228 @@ function renderInstalacionesScreen(clave) {
 
   return html
 }
+
+/* ============================================================
+   ZONA DEL CLUB — Pantalla de Entrenamiento (estilo World Soccer Champs)
+   Muestra el nivel de la instalación (1-20) con barra de 5 estrellas
+   y la tabla de la plantilla con Valoración / Tendencia / Potencial.
+   ============================================================ */
+
+function barrasEntrenamiento(nivel) {
+  var full = Math.floor(nivel / 4)
+  var remainder = nivel % 4
+  var html = ''
+  for (var i = 0; i < 5; i++) {
+    if (i < full) html += '<span class="tr-star filled">\u2605</span>'
+    else if (i === full && remainder >= 2) html += '<span class="tr-star half">\u2605</span>'
+    else html += '<span class="tr-star">\u2605</span>'
+  }
+  return html
+}
+
+/* Tendencia del jugador: > puede crecer, = se mantiene, < baja.
+   Es un dato fijo por jugador; el ritmo de crecimiento de GRL lo marcan el
+   nivel de entrenamiento y el resto de factores de crecimiento. */
+function tendenciaValueToRank(s) {
+  s = String(s || '').trim()
+  if (s.indexOf('<') >= 0) return -1
+  if (s === '=' || s === '-') return 0
+  return 1
+}
+
+/* Rango de tendencia. Regla: 33 años o más → siempre "<" (baja).
+   Si no, se usa el campo `tendencia` del jugador (`>`, `=`, `<`) y, si
+   no existe, se deduce de skill vs potencial. */
+function tendenciaRank(p) {
+  if (p == null) return 0
+  if ((p.age || 0) >= 33) return -1
+  if (p.tendencia != null) return tendenciaValueToRank(p.tendencia)
+  ensurePlayerPotencial(p)
+  if (p.potencial != null && p.skill != null) {
+    if (p.potencial > p.skill) return 1
+    if (p.potencial < p.skill) return -1
+  }
+  return 0
+}
+
+/* Tendencia del jugador: una sola flecha: < baja (rojo), = se mantiene (azul), > crece (verde). */
+function tendenciaJugador(p) {
+  var r = tendenciaRank(p)
+  /* Declive → rojo */
+  if (r < 0) return '<span class="tr-arrows down">\u2039</span>'   /* < */
+  /* Crecimiento → verde */
+  if (r > 0) return '<span class="tr-arrows up">\u203a</span>'     /* > */
+  /* Estable → azul */
+  return '<span class="tr-arrows blue">\u003d</span>'              /* = */
+}
+
+function renderEntrenamientoScreen() {
+  var zc = getZonaClub()
+  if (!zc) return ''
+  var nivel = Math.min(ZC_ENTRENAMIENTO_MAX, zc.entrenamiento || 1)
+  var coste = getCosteMejoraInstalacion('entrenamiento')
+  var semanas = getSemanasMejoraInstalacion('entrenamiento')
+  var nivelMax = nivel >= ZC_ENTRENAMIENTO_MAX
+
+  /* Orden de la plantilla: por tendencia (desc) y luego por potencial (desc).
+     Los cedidos a otros clubes no se muestran: entrenan en su club de destino. */
+  var squad = (state.players || []).filter(function(p) { return !(p.onLoan && p.loanTo) }).sort(function(a, b) {
+    var ta = tendenciaRank(a)
+    var tb = tendenciaRank(b)
+    if (tb !== ta) return tb - ta
+    ensurePlayerPotencial(a); ensurePlayerPotencial(b)
+    var pa = a.potencial != null ? a.potencial : (a.skill || 0)
+    var pb = b.potencial != null ? b.potencial : (b.skill || 0)
+    return pb - pa
+  })
+
+  var html = ''
+  html += zcObraBannerHtml(zc)
+
+  /* Botón MEJORAR compacto (columna derecha) */
+  var btn
+  var btnHint
+  if (nivelMax) {
+    btn = '<span class="tr-btn tr-btn-off">MEJORAR</span>'
+    btnHint = '<span class="tr-btn-hint">Nivel m\u00e1ximo</span>'
+  } else if (zc.obraEnCurso) {
+    btn = '<span class="tr-btn tr-btn-off" title="' + getMensajeObraEnCurso() + '">MEJORAR</span>'
+    btnHint = '<span class="tr-btn-hint">' + getMensajeObraEnCurso() + '</span>'
+  } else if (!state.finances || state.finances.balance < coste) {
+    btn = '<span class="tr-btn tr-btn-off">MEJORAR</span>'
+    btnHint = '<span class="tr-btn-hint">Te faltan ' + formatMoney(coste - (state.finances ? state.finances.balance : 0)) + '</span>'
+  } else {
+    btn = '<span class="tr-btn tr-btn-on" onclick="iniciarObra(\'instalacion\',\'entrenamiento\')">MEJORAR</span>'
+    btnHint = '<span class="tr-btn-hint">' + formatMoney(coste) + ' \u00b7 ' + semanas + ' sem</span>'
+  }
+
+  html += '<div class="zc-panel tr-panel">' +
+    '<div class="tr-header">' +
+      '<div class="tr-info">' +
+        '<div class="tr-title">Nivel de Entrenamiento</div>' +
+        '<div class="tr-stars-row">' +
+          '<span class="tr-stars">' + barrasEntrenamiento(nivel) + '</span>' +
+          '<span class="tr-level-num">' + nivel + '/' + ZC_ENTRENAMIENTO_MAX + '</span>' +
+        '</div>' +
+        '<div class="tr-hint">Cuanto m\u00e1s alto sea el nivel, m\u00e1s r\u00e1pido mejorar\u00e1n tus jugadores.</div>' +
+      '</div>' +
+      '<div class="tr-action">' + btn + btnHint + '</div>' +
+    '</div>' +
+  '</div>'
+
+  /* Tabla de plantilla */
+  html += '<div class="tr-squad">'
+  html += '<div class="tp-table-header" style="padding:6px 14px">' +
+    '<span class="tp-th-pos">POS</span><span style="flex:1;text-align:left;min-width:0">JUGADOR</span>' +
+    '<span class="tp-th-value" style="width:64px">VALORACI\u00d3N</span>' +
+    '<span class="tp-th-age">EDAD</span><span style="width:54px;text-align:center">TENDENCIA</span>' +
+    '<span style="width:68px;text-align:center">POTENCIAL</span>' +
+  '</div>'
+  html += '<div class="tp-list">'
+  html += squad.map(function(p) {
+    var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#71717A'
+    ensurePlayerPotencial(p)
+    var potencial = p.potencial != null ? p.potencial : (p.skill || 0)
+    return '<div class="tp-row" style="cursor:pointer" data-player-id="' + p.id + '" onclick="openPlayerDetail(state.players.find(function(x){return x.id===\'' + p.id + '\'}))">' +
+      '<span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span>' +
+      '<div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-head">' + playerFlagHtml(p.nationality) + '<span class="tp-cell-name">' + p.name + '</span></span></div></div>' +
+      '<span class="tr-grl"><b style="color:' + skillColor(p.skill || 0) + '">' + (p.skill || 0) + '</b></span>' +
+      '<span class="tp-cell-age">' + (p.age || '-') + '</span>' +
+      '<span style="width:54px;text-align:center">' + tendenciaJugador(p) + '</span>' +
+      '<span style="width:68px;text-align:center;font-size:11px;font-weight:700;color:var(--text)">' + potencial + '</span>' +
+    '</div>'
+  }).join('')
+  html += '</div>'
+  html += '</div>'
+  return html
+}
+
+/* Mismo diseño que la pantalla de Entrenamiento, aplicado a la Cantera:
+   panel de nivel con estrellas, botón MEJORAR y la plantilla del Sub-18. */
+function renderCanteraScreen() {
+  var zc = getZonaClub()
+  if (!zc) return ''
+  var maxNivel = getInstalacionMax('cantera')
+  var nivel = Math.min(maxNivel, zc.cantera || 1)
+  var coste = getCosteMejoraInstalacion('cantera')
+  var semanas = getSemanasMejoraInstalacion('cantera')
+  var nivelMax = nivel >= maxNivel
+
+  /* Orden de la plantilla del Sub-18: por tendencia (desc) y luego potencial (desc). */
+  var squad = (state.filial2Squad || []).slice().sort(function(a, b) {
+    var ta = tendenciaRank(a)
+    var tb = tendenciaRank(b)
+    if (tb !== ta) return tb - ta
+    ensurePlayerPotencial(a); ensurePlayerPotencial(b)
+    var pa = a.potencial != null ? a.potencial : (a.skill || 0)
+    var pb = b.potencial != null ? b.potencial : (b.skill || 0)
+    return pb - pa
+  })
+
+  var html = ''
+  html += zcObraBannerHtml(zc)
+
+  /* Botón MEJORAR compacto (columna derecha) */
+  var btn
+  var btnHint
+  if (nivelMax) {
+    btn = '<span class="tr-btn tr-btn-off">MEJORAR</span>'
+    btnHint = '<span class="tr-btn-hint">Nivel m\u00e1ximo</span>'
+  } else if (zc.obraEnCurso) {
+    btn = '<span class="tr-btn tr-btn-off" title="' + getMensajeObraEnCurso() + '">MEJORAR</span>'
+    btnHint = '<span class="tr-btn-hint">' + getMensajeObraEnCurso() + '</span>'
+  } else if (!state.finances || state.finances.balance < coste) {
+    btn = '<span class="tr-btn tr-btn-off">MEJORAR</span>'
+    btnHint = '<span class="tr-btn-hint">Te faltan ' + formatMoney(coste - (state.finances ? state.finances.balance : 0)) + '</span>'
+  } else {
+    btn = '<span class="tr-btn tr-btn-on" onclick="iniciarObra(\'instalacion\',\'cantera\')">MEJORAR</span>'
+    btnHint = '<span class="tr-btn-hint">' + formatMoney(coste) + ' \u00b7 ' + semanas + ' sem</span>'
+  }
+
+  html += '<div class="zc-panel tr-panel">' +
+    '<div class="tr-header">' +
+      '<div class="tr-info">' +
+        '<div class="tr-title">Nivel de Cantera</div>' +
+        '<div class="tr-stars-row">' +
+          '<span class="tr-stars">' + barrasEntrenamiento(nivel) + '</span>' +
+          '<span class="tr-level-num">' + nivel + '/' + maxNivel + '</span>' +
+        '</div>' +
+        '<div class="tr-hint">Cuanto m\u00e1s alto sea el nivel, mejores canteranos saldr\u00e1n en el Sub-18.</div>' +
+      '</div>' +
+      '<div class="tr-action">' + btn + btnHint + '</div>' +
+    '</div>' +
+  '</div>'
+
+  /* Tabla de la plantilla del Sub-18 */
+  html += '<div class="tr-squad">'
+  html += '<div class="tp-table-header" style="padding:6px 14px">' +
+    '<span class="tp-th-pos">POS</span><span style="flex:1;text-align:left;min-width:0">JUGADOR</span>' +
+    '<span class="tp-th-value" style="width:64px">VALORACI\u00d3N</span>' +
+    '<span class="tp-th-age">EDAD</span><span style="width:54px;text-align:center">TENDENCIA</span>' +
+    '<span style="width:68px;text-align:center">POTENCIAL</span>' +
+  '</div>'
+  html += '<div class="tp-list">'
+  if (squad.length === 0) {
+    html += '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Todav\u00eda no hay canteranos en el Sub-18.</div>'
+  } else {
+    html += squad.map(function(p) {
+      var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#71717A'
+      ensurePlayerPotencial(p)
+      var potencial = p.potencial != null ? p.potencial : (p.skill || 0)
+      return '<div class="tp-row" style="cursor:pointer" data-player-id="' + p.id + '" onclick="openPlayerDetail(state.filial2Squad.find(function(x){return x.id===\'' + p.id + '\'}))">' +
+        '<span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span>' +
+        '<div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-head">' + playerFlagHtml(p.nationality) + '<span class="tp-cell-name">' + p.name + '</span></span></div></div>' +
+        '<span class="tr-grl"><b style="color:' + skillColor(p.skill || 0) + '">' + (p.skill || 0) + '</b></span>' +
+        '<span class="tp-cell-age">' + (p.age || '-') + '</span>' +
+        '<span style="width:54px;text-align:center">' + tendenciaJugador(p) + '</span>' +
+        '<span style="width:68px;text-align:center;font-size:11px;font-weight:700;color:var(--text)">' + potencial + '</span>' +
+      '</div>'
+    }).join('')
+  }
+  html += '</div>'
+  html += '</div>'
+  return html
+}
 ;
 /* ============================================================
    ZONA DEL CLUB — Pantalla dedicada del Estadio
@@ -1981,15 +2289,34 @@ function renderEstadioScreen() {
   var cap = getCapacidadEstadio()
   var nombre = zc.estadio.nombre || 'Estadio Municipal'
 
+  /* Nivel medio de las zonas (0-15) para la barra de estrellas */
+  var sumaZonas = 0
+  ZC_ZONAS_BASE.forEach(function(z) { sumaZonas += (zc.estadio.zonas[z.id] || 0) })
+  var media = Math.round(sumaZonas / ZC_ZONAS_BASE.length)
+  var mediaEscalada = Math.round(media * (ZC_ENTRENAMIENTO_MAX / ZC_MAX_ZONA_LEVEL))
+
   var html = ''
-  html += zcScreenHead('Estadio', nombre)
   html += zcObraBannerHtml(zc)
 
+  html += '<div class="zc-panel tr-panel">' +
+    '<div class="tr-header">' +
+      '<div class="tr-info">' +
+        '<div class="tr-title">Estadio</div>' +
+        '<div class="tr-stars-row">' +
+          '<span class="tr-stars">' + barrasEntrenamiento(mediaEscalada) + '</span>' +
+          '<span class="tr-level-num">Nivel medio ' + media + '/' + ZC_MAX_ZONA_LEVEL + '</span>' +
+        '</div>' +
+        '<div class="tr-hint">' + nombre + ' \u00b7 Aforo ' + cap.toLocaleString('es-ES') + ' \u00b7 Asistencia <span id="zc-asistencia-val">' + getAsistenciaPartido().toLocaleString('es-ES') + ' (' + Math.round(getFactorOcupacion() * 100) + '%)</span></div>' +
+      '</div>' +
+      '<div class="tr-action">' +
+        '<span class="tr-btn tr-btn-off" id="zc-ingresos-val">' + formatMoney(getIngresosEstimadosPartido()) + '</span>' +
+        '<span class="tr-btn-hint">Ingresos por partido</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>'
+
+  /* Precio de entrada (en directo) */
   html += '<div class="zc-panel">' +
-    '<div class="zc-row zc-row-strong"><span class="zc-row-label">Nombre</span><span class="zc-row-value">' + nombre + '</span></div>' +
-    '<div class="zc-row"><span class="zc-row-label">Capacidad total</span><span class="zc-row-value">' + cap.toLocaleString('es-ES') + '</span></div>' +
-    '<div class="zc-row"><span class="zc-row-label">Asistencia media estimada</span><span class="zc-row-value" id="zc-asistencia-val">' + getAsistenciaPartido().toLocaleString('es-ES') + ' (' + Math.round(getFactorOcupacion() * 100) + '%)</span></div>' +
-    '<div class="zc-row zc-row-strong"><span class="zc-row-label">Ingresos por partido de local</span><span class="zc-income-val" id="zc-ingresos-val">' + formatMoney(getIngresosEstimadosPartido()) + '</span></div>' +
     '<div class="zc-slider-row">' +
       '<span class="zc-muted">Precio de entrada</span>' +
       '<input class="zc-slider" id="zc-precio-slider" type="range" min="' + getPrecioMinClub() + '" max="' + getPrecioMaxClub() + '" step="1" value="' + precio + '" oninput="actualizarPrecioEntrada(this.value)">' +
@@ -2023,7 +2350,7 @@ function actualizarPrecioEntrada(valor) {
   var zc = getZonaClub()
   if (!zc) return
   var p = parseInt(valor, 10)
-  if (isNaN(p)) p = getPrecioPerfecto()
+  if (isNaN(p)) p = getPrecioMedioClub()
   p = Math.max(getPrecioMinClub(), Math.min(getPrecioMaxClub(), p))
   zc.estadio.precioEntrada = p
 
@@ -2049,60 +2376,98 @@ function actualizarPrecioEntrada(valor) {
 
 /* ============ DATA ============ */
 const POSITIONS = {
-  portero:         { label: 'POR', color: '#9B59B6' },
-  lateral_der:     { label: 'LD',  color: '#E74C3C' },
-  lateral_izq:     { label: 'LI',  color: '#E74C3C' },
-  carrilero_der:   { label: 'CAD', color: '#E74C3C' },
-  carrilero_izq:   { label: 'CAI', color: '#E74C3C' },
-  defensa_central: { label: 'DFC', color: '#E74C3C' },
-  medio_def:       { label: 'MCD', color: '#F39C12' },
-  mediocentro:     { label: 'MC',  color: '#F39C12' },
-  medio_ofensivo:  { label: 'MCO', color: '#F39C12' },
-  medio_der:       { label: 'MD',  color: '#F39C12' },
-  medio_izq:       { label: 'MI',  color: '#F39C12' },
-  extremo_der:     { label: 'ED',  color: '#2ECC71' },
-  extremo_izq:     { label: 'EI',  color: '#2ECC71' },
-  delantero:       { label: 'DC',  color: '#2ECC71' },
+  POR: { label: 'POR', color: '#9B59B6' },
+  LD:  { label: 'LD',  color: '#E74C3C' },
+  LI:  { label: 'LI',  color: '#E74C3C' },
+  CAD: { label: 'CAD', color: '#E74C3C' },
+  CAI: { label: 'CAI', color: '#E74C3C' },
+  DFC: { label: 'DFC', color: '#E74C3C' },
+  MCD: { label: 'MCD', color: '#F39C12' },
+  MC:  { label: 'MC',  color: '#F39C12' },
+  MCO: { label: 'MCO', color: '#F39C12' },
+  MD:  { label: 'MD',  color: '#F39C12' },
+  MI:  { label: 'MI',  color: '#F39C12' },
+  ED:  { label: 'ED',  color: '#2ECC71' },
+  EI:  { label: 'EI',  color: '#2ECC71' },
+  DC:  { label: 'DC',  color: '#2ECC71' },
 }
 
-const POS_ORDER = ['portero', 'cierre', 'ala', 'pivot', 'defensa_central', 'lateral_izq', 'lateral_der', 'carrilero_izq', 'carrilero_der', 'medio_def', 'mediocentro', 'medio_ofensivo', 'medio_izq', 'medio_der', 'extremo_izq', 'extremo_der', 'delantero']
+const POS_ORDER = ['POR', 'DFC', 'LI', 'LD', 'CAI', 'CAD', 'MCD', 'MC', 'MCO', 'MI', 'MD', 'EI', 'ED', 'DC']
 
 const FORMATIONS = {
-  '4-3-3': { label: '4-3-3', roles: ['portero', 'lateral_izq', 'defensa_central', 'defensa_central', 'lateral_der', 'mediocentro', 'medio_def', 'mediocentro', 'extremo_izq', 'delantero', 'extremo_der'], multiplier: 1.0 },
-  '4-4-2': { label: '4-4-2', roles: ['portero', 'lateral_izq', 'defensa_central', 'defensa_central', 'lateral_der', 'medio_izq', 'mediocentro', 'mediocentro', 'medio_der', 'delantero', 'delantero'], multiplier: 0.95 },
-  '4-2-3-1': { label: '4-2-3-1', roles: ['portero', 'lateral_izq', 'defensa_central', 'defensa_central', 'lateral_der', 'medio_def', 'medio_def', 'extremo_izq', 'medio_ofensivo', 'extremo_der', 'delantero'], multiplier: 1.05 },
-  '3-5-2': { label: '3-5-2', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_izq', 'mediocentro', 'medio_ofensivo', 'mediocentro', 'carrilero_der', 'delantero', 'delantero'], multiplier: 0.9 },
-  '4-1-4-1': { label: '4-1-4-1', roles: ['portero', 'lateral_izq', 'defensa_central', 'defensa_central', 'lateral_der', 'medio_izq', 'mediocentro', 'medio_def', 'mediocentro', 'medio_der', 'delantero'], multiplier: 0.95 },
-  '3-4-3': { label: '3-4-3', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_izq', 'medio_def', 'medio_def', 'carrilero_der', 'extremo_izq', 'delantero', 'extremo_der'], multiplier: 0.95 },
-  '3-4-2-1': { label: '3-4-2-1', roles: ['portero', 'defensa_central', 'defensa_central', 'defensa_central', 'carrilero_izq', 'medio_def', 'medio_def', 'carrilero_der', 'medio_ofensivo', 'medio_ofensivo', 'delantero'], multiplier: 1.0 },
+  '4-3-3': { label: '4-3-3', roles: ['POR', 'LI', 'DFC', 'DFC', 'LD', 'MC', 'MCD', 'MC', 'EI', 'DC', 'ED'], multiplier: 1.0 },
+  '4-4-2': { label: '4-4-2', roles: ['POR', 'LI', 'DFC', 'DFC', 'LD', 'MI', 'MC', 'MC', 'MD', 'DC', 'DC'], multiplier: 0.95 },
+  '4-2-3-1': { label: '4-2-3-1', roles: ['POR', 'LI', 'DFC', 'DFC', 'LD', 'MCD', 'MCD', 'MI', 'MCO', 'MD', 'DC'], multiplier: 1.05 },
+  '4-2-1-3': { label: '4-2-1-3', roles: ['POR', 'LI', 'DFC', 'DFC', 'LD', 'MCD', 'MCD', 'EI', 'MCO', 'ED', 'DC'], multiplier: 1.05 },
+  '3-5-2': { label: '3-5-2', roles: ['POR', 'DFC', 'DFC', 'DFC', 'CAI', 'MC', 'MCO', 'MC', 'CAD', 'DC', 'DC'], multiplier: 0.9 },
+  '3-1-4-2': { label: '3-1-4-2', roles: ['POR', 'DFC', 'DFC', 'DFC', 'MCD', 'MC', 'MC', 'MI', 'MD', 'DC', 'DC'], multiplier: 1.05 },
+  '4-1-4-1': { label: '4-1-4-1', roles: ['POR', 'LI', 'DFC', 'DFC', 'LD', 'MI', 'MC', 'MCD', 'MC', 'MD', 'DC'], multiplier: 0.95 },
+  '3-4-3': { label: '3-4-3', roles: ['POR', 'DFC', 'DFC', 'DFC', 'CAI', 'MCD', 'MCD', 'CAD', 'EI', 'DC', 'ED'], multiplier: 0.95 },
+  '3-4-2-1': { label: '3-4-2-1', roles: ['POR', 'DFC', 'DFC', 'DFC', 'CAI', 'MCD', 'MCD', 'CAD', 'MCO', 'MCO', 'DC'], multiplier: 1.0 },
+  '4-1-2-1-2': { label: '4-1-2-1-2', roles: ['POR', 'LI', 'DFC', 'DFC', 'LD', 'MCD', 'MC', 'MC', 'MCO', 'DC', 'DC'], multiplier: 1.0 },
 }
 
-const POS_ABBR = { portero: 'POR', cierre: 'DFC', ala: 'MC', pivot: 'DC', lateral_der: 'LD', lateral_izq: 'LI', carrilero_der: 'CAD', carrilero_izq: 'CAI', defensa_central: 'DFC', medio_def: 'MCD', mediocentro: 'MC', medio_ofensivo: 'MCO', medio_der: 'MD', medio_izq: 'MI', extremo_der: 'ED', extremo_izq: 'EI', delantero: 'DC' }
-
-const SIGLA_TO_POS = Object.fromEntries(Object.entries(POS_ABBR).map(([k, v]) => [v, k]))
-
-/* Normaliza claves de posición no estándar (artefactos de scraping/partidas viejas) */
-const POS_KEY_ALIAS = { mediocentro_der: 'medio_der', mediocentro_izq: 'medio_izq', mediocentro_def: 'medio_def' }
+/* Códigos de posición canónicos (POR, DFC, LI, LD, CAI, CAD, MCD, MC, MCO, MI,
+   MD, EI, ED, DC). POS_ABBR/SIGLA_TO_POS/POS_KEY_ALIAS normalizan cualquier
+   clave —código corto o nombre largo heredado— a su código corto. */
+const POS_ABBR = {
+  POR: 'POR', DFC: 'DFC', LI: 'LI', LD: 'LD', CAI: 'CAI', CAD: 'CAD',
+  MCD: 'MCD', MC: 'MC', MCO: 'MCO', MI: 'MI', MD: 'MD', EI: 'EI', ED: 'ED', DC: 'DC',
+  /* nombres largos heredados */
+  portero: 'POR', defensa_central: 'DFC', lateral_izq: 'LI', lateral_der: 'LD',
+  carrilero_izq: 'CAI', carrilero_der: 'CAD', medio_def: 'MCD', mediocentro: 'MC',
+  medio_ofensivo: 'MCO', medio_izq: 'MI', medio_der: 'MD', extremo_izq: 'EI',
+  extremo_der: 'ED', delantero: 'DC',
+  /* alias antiguos */
+  cierre: 'DFC', ala: 'MC', pivot: 'DC', DEL: 'DC',
+  mediocentro_der: 'MD', mediocentro_izq: 'MI', mediocentro_def: 'MCD',
+}
+const SIGLA_TO_POS = POS_ABBR
+const POS_KEY_ALIAS = POS_ABBR
 function normalizePosKey(k) { return POS_KEY_ALIAS[k] || k }
+
+/* Normaliza recursivamente las posiciones de una partida guardada (claves largas
+   heredadas -> códigos cortos). Se ejecuta una vez al cargar para que las
+   comparaciones directas (p.position === 'POR', etc.) sigan funcionando. */
+function normalizePositionsDeep(obj, seen) {
+  if (!obj || typeof obj !== 'object') return
+  seen = seen || (typeof WeakSet !== 'undefined' ? new WeakSet() : null)
+  if (seen) { if (seen.has(obj)) return; seen.add(obj) }
+  if (Array.isArray(obj)) {
+    for (var i = 0; i < obj.length; i++) normalizePositionsDeep(obj[i], seen)
+    return
+  }
+  if (typeof obj.position === 'string' && POS_KEY_ALIAS[obj.position]) obj.position = POS_KEY_ALIAS[obj.position]
+  if (Array.isArray(obj.otherPositions)) {
+    obj.otherPositions.forEach(function(o) {
+      if (o && typeof o === 'object' && typeof o.pos === 'string' && POS_KEY_ALIAS[o.pos]) o.pos = POS_KEY_ALIAS[o.pos]
+    })
+  }
+  for (var k in obj) {
+    if (k === 'position' || k === 'otherPositions') continue
+    var v = obj[k]
+    if (v && typeof v === 'object') normalizePositionsDeep(v, seen)
+  }
+}
 
 function getGoalWeight(position, playerSkill) {
   var base = 2
-  if (position === 'delantero') base = 10
-  else if (position === 'extremo_der' || position === 'extremo_izq') base = 8
-  else if (position === 'medio_ofensivo') base = 6
-  else if (position === 'mediocentro' || position === 'medio_der' || position === 'medio_izq') base = 4
-  else if (position === 'medio_def') base = 3
+  if (position === 'DC') base = 10
+  else if (position === 'ED' || position === 'EI') base = 8
+  else if (position === 'MCO') base = 6
+  else if (position === 'MC' || position === 'MD' || position === 'MI') base = 4
+  else if (position === 'MCD') base = 3
   var skillFactor = (playerSkill || 50) / 50
   return Math.round(base * skillFactor)
 }
 
 function getCardProb(position, gamePlan) {
-  var defs = ['defensa_central', 'lateral_der', 'lateral_izq', 'carrilero_der', 'carrilero_izq']
-  var mids = ['mediocentro', 'medio_def', 'medio_ofensivo', 'medio_der', 'medio_izq']
+  var defs = ['DFC', 'LD', 'LI', 'CAD', 'CAI']
+  var mids = ['MC', 'MCD', 'MCO', 'MD', 'MI']
   var yellowBase = 0.10, redBase = 0.01
-  if (defs.indexOf(position) >= 0) { yellowBase = 0.12; redBase = 0.015 }
-  else if (mids.indexOf(position) >= 0) { yellowBase = 0.10; redBase = 0.01 }
-  else { yellowBase = 0.08; redBase = 0.005 }
+  if (defs.indexOf(position) >= 0) { yellowBase = 0.12; redBase = 0.007 }
+  else if (mids.indexOf(position) >= 0) { yellowBase = 0.10; redBase = 0.005 }
+  else { yellowBase = 0.08; redBase = 0.0025 }
   if (gamePlan === 'pesado') { yellowBase += 0.03; redBase += 0.005 }
   else if (gamePlan === 'suave') { yellowBase -= 0.02; redBase -= 0.003 }
   return { yellow: Math.max(0.01, yellowBase), red: Math.max(0.003, redBase) }
@@ -2151,6 +2516,12 @@ function pickWeightedRandom(arr, weightFn) {
 
 function getPowerBadgeStyle(skill) {
   return 'background:' + skillColor(skill) + ';color:#fff'
+}
+
+/* Media de valoración de los partidos jugados (null si no tiene). */
+function playerAvgRating(p) {
+  var rated = (p.matchHistory || []).filter(function(m) { return m.rating })
+  return rated.length ? (rated.reduce(function(s, m) { return s + m.rating }, 0) / rated.length) : null
 }
 
 const TRANSFER_WINDOW_SUMMER_START = 1
@@ -2496,6 +2867,9 @@ function isPlayerFromMyParent(player) {
 const NOPHOTO = 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
 const NIR_NORTHERN_IRELAND_FLAG = 'https://i.redd.it/n32kgopqgwr51.png'
 const NAT_IMAGE_FLAGS = { 'Irlanda del Norte': NIR_NORTHERN_IRELAND_FLAG }
+/* Banderas con emoji de secuencia (no dos letras regionales): Inglaterra/Reino Unido */
+const ENGLAND_FLAG = '\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f'
+const NAT_FLAG_ZONES = { 'Inglaterra': ENGLAND_FLAG, 'Reino Unido': ENGLAND_FLAG, 'England': ENGLAND_FLAG, 'UK': ENGLAND_FLAG }
 function natFlagHtml(nationality) {
   var name = String(nationality || '').trim()
   for (var key in NAT_IMAGE_FLAGS) {
@@ -2503,13 +2877,46 @@ function natFlagHtml(nationality) {
       return '<img src="' + NAT_IMAGE_FLAGS[key] + '" style="width:18px;height:18px;border-radius:2px;object-fit:contain;vertical-align:middle" onerror="this.src=\'' + NOPHOTO + '\'">'
     }
   }
+  for (var nz in NAT_FLAG_ZONES) {
+    if (name.indexOf(nz) !== -1) return NAT_FLAG_ZONES[nz]
+  }
   return (name.split(' ')[0] || '')
 }
-const NAME_POOLS = {
-  portero: ['Álex Ruiz', 'David Molina', 'Jesús Serrano', 'Manuel Blanco', 'Pablo Morales', 'Raúl Gil', 'Sergio Ramos', 'Víctor Navarro'],
-  cierre: ['Alberto Torres', 'Carlos Domínguez', 'Daniel Vázquez', 'Fernando Romero', 'Jorge Álvarez', 'Juan Díaz', 'Luis Moreno', 'Miguel Jiménez'],
-  ala: ['Adrián Sánchez', 'Alejandro Ramírez', 'Álvaro Hernández', 'Andrés Pérez', 'Antonio López', 'Diego González', 'Francisco Martínez', 'Iván Rodríguez', 'Javier García', 'José Sánchez', 'Marcos López', 'Pedro González', 'Rafael Hernández', 'Rubén Pérez'],
-  pivot: ['Alfredo Martínez', 'Emilio Rodríguez', 'Enrique García', 'Gonzalo López', 'Hugo Sánchez', 'Ismael Pérez', 'Marc González', 'Pau Rodríguez', 'Vicente López'],
+/* Bandera (emoji o imagen) del jugador, o icono si no hay. */
+function playerFlagHtml(nationality) {
+  var name = String(nationality || '').trim()
+  for (var key in NAT_IMAGE_FLAGS) {
+    if (name.indexOf(key) !== -1) {
+      return '<span class="tp-cell-flag"><img src="' + NAT_IMAGE_FLAGS[key] + '" alt="" onerror="this.style.display=\'none\'"></span>'
+    }
+  }
+  for (var nz in NAT_FLAG_ZONES) {
+    if (name.indexOf(nz) !== -1) {
+      return '<span class="tp-cell-flag">' + NAT_FLAG_ZONES[nz] + '</span>'
+    }
+  }
+  var first = name.split(' ')[0] || ''
+  /* Emoji de bandera = dos letras regionales (U+1F1E6–U+1F1FF) */
+  if (/^[\u{1F1E6}-\u{1F1FF}]{2}/u.test(first)) {
+    return '<span class="tp-cell-flag">' + first + '</span>'
+  }
+  /* Bandera de secuencia (p. ej. 🏴…): devolver el token tal cual */
+  if (/^\u{1F3F4}/u.test(first)) {
+    return '<span class="tp-cell-flag">' + first + '</span>'
+  }
+  return '<span class="tp-cell-flag tp-cell-flag-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>'
+}
+function loanFromTagHtml(p) {
+  if (!p || !(p.onLoan && p.loanFromName)) return ''
+  var logo = p.loanFromLogo
+    ? '<img src="' + p.loanFromLogo + '" style="width:12px;height:12px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:3px" onerror="this.style.display=\'none\'">'
+    : ''
+  return ' <span style="font-size:10px;color:var(--text-muted)">' + logo + '\u2190 ' + escHtml(p.loanFromName) + '</span>'
+}
+const NAME_POOLS = {  POR: ['Álex Ruiz', 'David Molina', 'Jesús Serrano', 'Manuel Blanco', 'Pablo Morales', 'Raúl Gil', 'Sergio Ramos', 'Víctor Navarro'],
+  DFC: ['Alberto Torres', 'Carlos Domínguez', 'Daniel Vázquez', 'Fernando Romero', 'Jorge Álvarez', 'Juan Díaz', 'Luis Moreno', 'Miguel Jiménez'],
+  MC: ['Adrián Sánchez', 'Alejandro Ramírez', 'Álvaro Hernández', 'Andrés Pérez', 'Antonio López', 'Diego González', 'Francisco Martínez', 'Iván Rodríguez', 'Javier García', 'José Sánchez', 'Marcos López', 'Pedro González', 'Rafael Hernández', 'Rubén Pérez'],
+  DC: ['Alfredo Martínez', 'Emilio Rodríguez', 'Enrique García', 'Gonzalo López', 'Hugo Sánchez', 'Ismael Pérez', 'Marc González', 'Pau Rodríguez', 'Vicente López'],
 }
 
 const SURNAMES = ['García', 'Rodríguez', 'Martínez', 'López', 'González', 'Hernández', 'Pérez', 'Sánchez', 'Ramírez', 'Moreno', 'Jiménez', 'Ruiz', 'Díaz', 'Álvarez', 'Romero', 'Navarro', 'Torres', 'Domínguez', 'Vázquez', 'Ramos', 'Gil', 'Serrano', 'Blanco', 'Molina', 'Morales']
@@ -2609,6 +3016,12 @@ const NATIONALITIES = {
   ci: { flag: '🇨🇮', name: 'Costa de Marfil', label: '🇨🇮 Costa de Marfil' },
   fi: { flag: '🇫🇮', name: 'Finlandia', label: '🇫🇮 Finlandia' },
   is: { flag: '🇮🇸', name: 'Islandia', label: '🇮🇸 Islandia' },
+  /* Inglaterra / Reino Unido: bandera de secuencia (no dos letras regionales) */
+  england:         { flag: ENGLAND_FLAG, name: 'Inglaterra', label: ENGLAND_FLAG + ' Inglaterra' },
+  en:              { flag: ENGLAND_FLAG, name: 'Inglaterra', label: ENGLAND_FLAG + ' Inglaterra' },
+  gb:              { flag: ENGLAND_FLAG, name: 'Inglaterra', label: ENGLAND_FLAG + ' Inglaterra' },
+  uk:              { flag: ENGLAND_FLAG, name: 'Inglaterra', label: ENGLAND_FLAG + ' Inglaterra' },
+  'united-kingdom': { flag: ENGLAND_FLAG, name: 'Inglaterra', label: ENGLAND_FLAG + ' Inglaterra' },
 }
 
 function pickRandom(arr) {
@@ -2621,12 +3034,12 @@ function randInt(min, max) {
 
 function calcValue(skill, age, position) {
   var base = Math.round(Math.pow(1.14, skill - 18) * 10000)
-  var pm = { 'portero': 0.7,
-    'defensa_central': 0.75, 'lateral_der': 0.78, 'lateral_izq': 0.78,
-    'carrilero_der': 0.8, 'carrilero_izq': 0.8,
-    'medio_def': 0.85, 'mediocentro': 0.88, 'medio_der': 0.85, 'medio_izq': 0.85,
-    'medio_ofensivo': 0.9,
-    'extremo_der': 1.0, 'extremo_izq': 1.0, 'delantero': 1.0 }
+  var pm = { 'POR': 0.7,
+    'DFC': 0.75, 'LD': 0.78, 'LI': 0.78,
+    'CAD': 0.8, 'CAI': 0.8,
+    'MCD': 0.85, 'MC': 0.88, 'MD': 0.85, 'MI': 0.85,
+    'MCO': 0.9,
+    'ED': 1.0, 'EI': 1.0, 'DC': 1.0 }
   var am = age <= 18 ? 0.5 : age <= 21 ? 0.75 : age <= 28 ? 1.0 : age <= 32 ? 0.85 : age <= 35 ? 0.65 : 0.4
   return Math.round(base * (pm[position] || 0.8) * am)
 }
@@ -2683,8 +3096,22 @@ function procesarFichajesIniciales() {
 }
 
 function teamRating() {
-  const lt = state.leagueTeams.find(t => t.teamId === state.teamId)
-  return lt ? lt.rating : 50
+  var lt = (state.leagueTeams || []).find(function(t) { return t.teamId === state.teamId })
+  if (lt && lt.rating) return lt.rating
+  /* El equipo del usuario no está en leagueTeams: buscamos su GRL en los datos. */
+  for (var cid in window.DB) {
+    var data = window.DB[cid]
+    if (!data || !data.country) continue
+    var leagues = data.country.leagues || []
+    for (var li = 0; li < leagues.length; li++) {
+      var teams = leagues[li].teams || []
+      for (var ti = 0; ti < teams.length; ti++) {
+        if (teams[ti].id === state.teamId) return teams[ti].rating || 50
+      }
+    }
+  }
+  try { var bd = getBaseDato(state.teamId); if (bd && bd.rating) return bd.rating } catch (e) {}
+  return 50
 }
 
 function rebuildGlobalPlayerPool() {
@@ -2698,10 +3125,17 @@ function rebuildGlobalPlayerPool() {
         const teamObj = getTeamObj(t.id)
         if (!teamObj || !teamObj.players) continue
         for (const p of teamObj.players) {
-          if (p.onLoan && (p.loanFrom || p.loanTo)) continue
+          if (p.loanFrom || p.loanedFrom) continue
           if (state.boughtPlayerIds && state.boughtPlayerIds.indexOf(p.id) >= 0) continue
+          var entry = { ...p }
+          if (entry.loanedTo) {
+            entry.onLoan = true
+            entry.loanTo = entry.loanedTo
+            entry.loanToName = entry.loanedToName
+            entry.loanToLogo = entry.loanedToLogo
+          }
           state.globalPlayers.push({
-            ...p, teamName: teamObj.name, teamId: teamObj.teamId,
+            ...entry, teamName: teamObj.name, teamId: teamObj.teamId,
             countryFlag: countryFlag, leagueId: l.id,
           })
         }
@@ -2719,7 +3153,7 @@ function generateCpuSquad(teamId, countryId, teamRating) {
   const surPool = SURNAMES_BY_COUNTRY[cid] || SURNAMES_BY_COUNTRY.es
   const players = []
   let pid = 1
-  const countPerPos = { portero: 3, lateral_der: 2, lateral_izq: 2, carrilero_der: 1, carrilero_izq: 1, defensa_central: 4, medio_def: 2, mediocentro: 3, medio_ofensivo: 2, medio_der: 2, medio_izq: 2, extremo_der: 2, extremo_izq: 2, delantero: 3 }
+  const countPerPos = { POR: 3, LD: 2, LI: 2, CAD: 1, CAI: 1, DFC: 4, MCD: 2, MC: 3, MCO: 2, MD: 2, MI: 2, ED: 2, EI: 2, DC: 3 }
   for (const pos of POS_ORDER) {
     const count = countPerPos[pos]
     for (let i = 0; i < count; i++) {
@@ -2745,6 +3179,28 @@ function generateCpuSquad(teamId, countryId, teamRating) {
   }
   players.forEach(function(p) { ensurePlayerPotencial(p) })
   return players
+}
+
+/* Asigna dorsales libres (1-99) a los jugadores que no tienen uno válido.
+ * Respeta los dorsales reales ya definidos y evita duplicados. */
+function assignFreeNumbers(players) {
+  if (!Array.isArray(players) || players.length === 0) return
+  var taken = {}
+  var seen = {}
+  players.forEach(function(p) {
+    var n = p.number
+    if (n > 0 && n <= 99) {
+      if (seen[n]) { p.number = 0 }
+      else { seen[n] = true; taken[n] = true }
+    } else {
+      p.number = 0
+    }
+  })
+  var free = []
+  for (var i = 1; i <= 99; i++) { if (!taken[i]) free.push(i) }
+  players.forEach(function(p) {
+    if (!p.number) p.number = free.length ? free.shift() : 0
+  })
 }
 
 const COUNTRIES = [
@@ -2836,7 +3292,6 @@ function createDummyTeam(name, id, countryId) {
       nationality: natCode,
       matches: 0, goals: 0, assists: 0, injured: false, injuryWeeks: 0,
       enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100,
-      mainPct: pos === 'POR' ? 100 : pos.startsWith('D') ? 90 : pos.startsWith('M') ? 85 : 80,
       otherPositions: {}, foot: Math.random() < 0.5 ? 'Diestro' : 'Zurdo',
     })
   }
@@ -2864,8 +3319,35 @@ function ensureCountryLeagues(countryId) {
   }
 }
 
+/* La posición principal siempre es 100%, por mucho que venga con otro valor. */
+/* Índice de jugadores cedidos por club destino (los que llegan cedidos desde otro club). */
+function rebuildLoanIndex() {
+  var idx = {}
+  for (var cid in window.DB) {
+    var data = window.DB[cid]
+    if (!data || !data.realSquads) continue
+    for (var tid in data.realSquads) {
+      var arr = data.realSquads[tid]
+      if (!arr) continue
+      for (var i = 0; i < arr.length; i++) {
+        var p = arr[i]
+        if (p && p.loanedTo) {
+          if (!idx[p.loanedTo]) idx[p.loanedTo] = []
+          idx[p.loanedTo].push({ player: p, ownerId: tid })
+        }
+      }
+    }
+  }
+  window._LOAN_IN_INDEX = idx
+}
+
+function finalizeCountryData(d, cb) {
+  rebuildLoanIndex()
+  cb(d)
+}
+
 function loadCountryData(countryId, callback) {
-  if (window.DB[countryId]) { callback(window.DB[countryId]); return }
+  if (window.DB[countryId]) { finalizeCountryData(window.DB[countryId], callback); return }
   function executeAndVerify(code) {
     try { new Function(code)() } catch(e) { console.error('[CACHE] Execute error:', e); return false }
     var d = window.DB[countryId]
@@ -2883,9 +3365,9 @@ function loadCountryData(countryId, callback) {
     var script = document.createElement('script')
     script.src = url
     script.onload = function() {
-      if (window.DB[countryId]) { callback(window.DB[countryId]); return }
+      if (window.DB[countryId]) { finalizeCountryData(window.DB[countryId], callback); return }
       var interval = setInterval(function() {
-        if (window.DB[countryId]) { clearInterval(interval); callback(window.DB[countryId]); return }
+        if (window.DB[countryId]) { clearInterval(interval); finalizeCountryData(window.DB[countryId], callback); return }
       }, 50)
       setTimeout(function() { clearInterval(interval); callback(null) }, 5000)
     }
@@ -2899,7 +3381,7 @@ function loadCountryData(countryId, callback) {
   function loadWithBust(attempt) {
     var url = 'js/data/' + countryId + '.js?_=' + Date.now() + (attempt ? '_r' + attempt : '')
     fetch(url, { cache: 'no-store' }).then(function(r) { return r.text() }).then(function(code) {
-      if (executeAndVerify(code)) { callback(window.DB[countryId]); return }
+      if (executeAndVerify(code)) { finalizeCountryData(window.DB[countryId], callback); return }
       if (attempt < 2) { loadWithBust(attempt + 1); return }
       loadViaScript()
     }).catch(function() {
@@ -2988,6 +3470,8 @@ const state = {
   soundEnabled: true,
   _popupShownMatchday: null,
   _popupSuppressed: false,
+  _pendingIncidencias: null,
+  _sellOffersSeenIds: {},
   filialSquad: [],
   filial2Squad: [],
   leagueViewCountry: '',
@@ -3087,16 +3571,66 @@ var SPONSOR_BRANDS = {
   ],
 }
 
-/* Multiplicador de prestigio según la división y presupuesto del club. */
+/* Multiplicador de prestigio según la división, el país y el GRL del equipo.
+   Escala de forma amplia: un club de 3ª división cobra mucho menos que uno de
+   Primera, y las grandes ligas pagan más que las modestas. */
 function getPatrocinioPrestigio() {
-  var base = (typeof getDivisionBaseBudget === 'function') ? getDivisionBaseBudget(state.leagueId) : 10000000
+  var base = (typeof getDivisionBaseBudget === 'function') ? getDivisionBaseBudget(state.leagueId) : 1000000
   var mult = (typeof getCountryBudgetMult === 'function') ? getCountryBudgetMult(state.countryId) : 1.0
-  return Math.max(1, (base * mult) / 8000000)
+  var teamFactor = (typeof teamRating === 'function' ? teamRating() : 50) / 50
+  return Math.max(0.02, (base * mult * teamFactor) / 8000000)
+}
+
+function patrocinioFrecuenciaLabel(f) {
+  if (f === 'anual' || f === 'temporada') return 'Anual'
+  if (f === 'mensual') return 'Mensual'
+  return 'Semanal'
+}
+
+/* Importe compacto en español: 2.240.000 → "2,24 M€". */
+function spMoney(v) {
+  return formatMoneyShort(v).replace('.', ',').replace('M \u20ac', ' M\u20ac').replace('k \u20ac', ' k\u20ac')
+}
+
+/* Cuota y total (por temporada) de una oferta/contrato según su frecuencia. */
+function getPatrocinioCuota(o) {
+  var semanas = Math.max(1, state.totalMatchdays || 34)
+  if (o.frecuencia === 'mensual') {
+    var grupos = Math.max(1, Math.round(semanas / 4))
+    var cuota = Math.round(o.anual / grupos)
+    return { cuota: cuota, etiqueta: 'mensual', total: cuota * grupos }
+  }
+  if (o.frecuencia === 'anual' || o.frecuencia === 'temporada') {
+    return { cuota: o.anual, etiqueta: 'anual', total: o.anual }
+  }
+  var cuotaSem = Math.round(o.anual / semanas)
+  return { cuota: cuotaSem, etiqueta: 'semanal', total: cuotaSem * semanas }
+}
+
+/* Tarjetas verticales de las 3 ofertas, en una sola fila (sin scroll).
+   btnFn(oferta, idx) devuelve el HTML del botón de firmar. */
+function sponsorOfferCardsHtml(ofertas, btnFn, rowClass) {
+  var html = '<div class="sponsor-offers-row' + (rowClass ? ' ' + rowClass : '') + '">'
+  ;(ofertas || []).forEach(function(o, oi) {
+    var dur = o.anios + (o.anios === 1 ? ' temporada' : ' temporadas')
+    var c = getPatrocinioCuota(o)
+    var titulo = o.descBonus ? ('Bonus por objetivos: ' + formatMoney(o.bonusObjetivo || 0) + ' \u00b7 ' + o.descBonus) : ''
+    html += '<div class="sponsor-offer-card"' + (titulo ? ' title="' + escHtml(titulo) + '"' : '') + '>' +
+      '<div class="sponsor-offer-brand">' + escHtml(o.brand) + '</div>' +
+      '<div class="sponsor-offer-meta">' +
+        '<div class="sponsor-offer-kv"><span>Duraci\u00f3n</span><b>' + dur + '</b></div>' +
+        '<div class="sponsor-offer-kv"><span>Cuota</span><b>' + spMoney(c.cuota) + ' ' + c.etiqueta + '</b></div>' +
+        '<div class="sponsor-offer-kv"><span>Total</span><b>' + spMoney(c.total) + '</b></div>' +
+      '</div>' +
+      (btnFn ? btnFn(o, oi) : '') +
+    '</div>'
+  })
+  html += '</div>'
+  return html
 }
 
 /* Rango de importe anual (€) por categoría, escalado al prestigio. */
-function getRangoPatrocinio(cat) {
-  var p = getPatrocinioPrestigio()
+function getRangoPatrocinio(cat) {  var p = getPatrocinioPrestigio()
   var rangos = {
     principal: [Math.round(2500000 * p), Math.round(9000000 * p)],
     tecnico:   [Math.round(800000 * p), Math.round(2500000 * p)],
@@ -3125,7 +3659,7 @@ function generarOfertaPatrocinio(cat) {
     bonusObjetivo = Math.round(anual * (0.15 + Math.random() * 0.25))
     descBonus = 'Ganar la Copa Nacional'
   }
-  return { brand: brand.name, logo: brand.logo, anual: anual, anios: anios, bonusObjetivo: bonusObjetivo, descBonus: descBonus }
+  return { brand: brand.name, logo: brand.logo, anual: anual, anios: anios, bonusObjetivo: bonusObjetivo, descBonus: descBonus, frecuencia: Math.random() < 0.5 ? 'mensual' : 'anual' }
 }
 
 /* Genera las 4 ofertas iniciales de patrocinio (una por categoría). */
@@ -3145,6 +3679,7 @@ function firmarPatrocinio(catid, oferta) {
   state.sponsors.slots[catid] = {
     brand: oferta.brand, logo: oferta.logo, anual: oferta.anual, anios: oferta.anios,
     bonusObjetivo: oferta.bonusObjetivo, descBonus: oferta.descBonus,
+    frecuencia: oferta.frecuencia || 'semanal',
     temporadaFirma: tempo, expiraTemporada: tempo + (oferta.anios || 1),
     firmadoEn: state.currentMatchday || 1,
   }
@@ -3211,7 +3746,8 @@ function emitirOfertaPatrocinioCat(cat) {
 }
 
 function rechazarPatrocinio(catid) {
-  /* Deja el slot pendiente (vacío). Solo notifica. */
+  /* Deja el slot sin patrocinador y retira las ofertas pendientes de esa categoría. */
+  if (typeof clearSponsorNotif === 'function') clearSponsorNotif(catid)
   addNotification('general', 'Oferta de ' + (SPONSOR_SLOTS[catid] ? SPONSOR_SLOTS[catid].label : catid) + ' rechazada', 'Puedes buscar otros patrocinadores m\u00e1s adelante.')
 }
 
@@ -3222,7 +3758,17 @@ function procesarIngresosPatrocinio() {
     var c = state.sponsors.slots[cat]
     if (!c || !c.anual) return
     var semanas = Math.max(1, (state.totalMatchdays || 34))
-    var ingreso = Math.round(c.anual / semanas)
+    var ingreso
+    if (c.frecuencia === 'anual' || c.frecuencia === 'temporada') return /* se paga entero al final de temporada */
+    if (c.frecuencia === 'mensual') {
+      /* Pago cada 4 semanas: se cobra en jornadas múltiplo de 4. */
+      var jornada = state.currentMatchday || 0
+      if (jornada < 1 || (jornada % 4) !== 0) return
+      var grupos = Math.max(1, Math.round(semanas / 4))
+      ingreso = Math.round(c.anual / grupos)
+    } else {
+      ingreso = Math.round(c.anual / semanas)
+    }
     if (ingreso > 0) {
       state.finances.balance += ingreso
       state.finances.history.push({ reason: 'Patrocinio: ' + c.brand, amount: ingreso })
@@ -3233,6 +3779,16 @@ function procesarIngresosPatrocinio() {
 /* Verifica y paga el bonus por objetivos al final de temporada. */
 function procesarBonusPatrocinioFinTemporada() {
   if (!state.sponsors || !state.sponsors.slots) return
+  var tempo = state.seasonNumber || 1
+  /* Cuota "por temporada": se abona entera al cerrar la temporada. */
+  Object.keys(state.sponsors.slots).forEach(function(cat) {
+    var c = state.sponsors.slots[cat]
+    if (!c || !c.anual || (c.frecuencia !== 'anual' && c.frecuencia !== 'temporada')) return
+    if (c._ultimoPagoTemporada === tempo) return
+    state.finances.balance += c.anual
+    state.finances.history.push({ reason: 'Patrocinio (anual): ' + c.brand, amount: c.anual })
+    c._ultimoPagoTemporada = tempo
+  })
   var pos = null
   try {
     var standings = updateLeagueStandings()
@@ -4600,6 +5156,21 @@ function formatShort(val) {
   return String(val)
 }
 
+/* Importe compacto con símbolo €: 83.95M € / 412k € */
+function formatMoneyShort(amount) {
+  var val = Math.abs(amount || 0)
+  var suffix = ''
+  if (val >= 1000000000) { val = val / 1000000000; suffix = 'B' }
+  else if (val >= 1000000) { val = val / 1000000; suffix = 'M' }
+  else if (val >= 1000) { val = val / 1000; suffix = 'k' }
+  if (suffix) {
+    var s = suffix === 'k' ? String(Math.round(val)) : val.toFixed(2)
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '')
+    return s + suffix + ' €'
+  }
+  return String(Math.round(val)) + ' €'
+}
+
 function formatTimestamp(isoString) {
   if (!isoString) return ''
   const d = new Date(isoString)
@@ -4707,7 +5278,7 @@ function getTeamKeyPlayers(list) {
   var squad = (list || []).filter(function(p) { return !(p.onLoan && p.loanTo) })
   var captain = null, key = null
   if (squad.length > 0) {
-    var outfield = squad.filter(function(p) { return p.position !== 'POR' && p.position !== 'portero' })
+    var outfield = squad.filter(function(p) { return p.position !== 'POR' && p.position !== 'POR' })
     captain = outfield.length > 0 ? outfield.reduce(function(a, b) { return b.skill > a.skill ? b : a }) : squad.reduce(function(a, b) { return b.skill > a.skill ? b : a })
     key = squad.reduce(function(a, b) { return b.skill > a.skill ? b : a })
     if (key && captain && key.id === captain.id) {
@@ -4718,37 +5289,31 @@ function getTeamKeyPlayers(list) {
   return { captain: captain, key: key }
 }
 
+/* Mejor jugador por línea: portería, defensa, medular y delantera. */
+var LINE_POS = {
+  portero:   ['POR', 'POR'],
+  defensa:   ['LD', 'LI', 'CAD', 'CAI', 'DFC'],
+  medio:     ['MCD', 'MC', 'MCO', 'MD', 'MI', 'ala', 'pivot'],
+  delantero: ['ED', 'EI', 'DC'],
+}
+function getBestByLine(list) {
+  var squad = (list || []).filter(function(p) { return !(p.onLoan && p.loanTo) })
+  var res = { portero: null, defensa: null, medio: null, delantero: null }
+  squad.forEach(function(p) {
+    var pos = SIGLA_TO_POS[p.position] || p.position
+    var line = null
+    Object.keys(LINE_POS).forEach(function(k) {
+      if (LINE_POS[k].indexOf(pos) !== -1) line = k
+    })
+    if (line && (!res[line] || (p.skill || 0) > (res[line].skill || 0))) res[line] = p
+  })
+  return res
+}
+
 /* Convierte el GRL del club a una valoración de estrellas (0.5 - 5.0).
    Escala exacta:
    GRL <  50 => 0.5 | 50-55 => 1.0 | 56-60 => 1.5 | 61-65 => 2.0 | 66-70 => 2.5
    71-74 => 3.0 | 75-78 => 3.5 | 79-82 => 4.0 | 83-86 => 4.5 | >=87 => 5.0 */
-function starsFromGrl(grl) {
-  grl = Number(grl) || 0
-  let value
-  if (grl < 50) value = 0.5
-  else if (grl <= 55) value = 1.0
-  else if (grl <= 60) value = 1.5
-  else if (grl <= 65) value = 2.0
-  else if (grl <= 70) value = 2.5
-  else if (grl <= 74) value = 3.0
-  else if (grl <= 78) value = 3.5
-  else if (grl <= 82) value = 4.0
-  else if (grl <= 86) value = 4.5
-  else value = 5.0
-  let html = ''
-  for (let i = 1; i <= 5; i++) {
-    const pos = value - (i - 1)
-    if (pos >= 1) {
-      html += '<span class="star filled">★</span>'
-    } else if (pos >= 0.5) {
-      html += '<span class="star half">★</span>'
-    } else {
-      html += '<span class="star">★</span>'
-    }
-  }
-  return html
-}
-
 function getTop11EnergyFactor(players) {
   if (!players || players.length === 0) return 1
   const top = [...players].sort((a, b) => (b.skill || 0) - (a.skill || 0)).slice(0, 11)
@@ -4785,7 +5350,6 @@ window.SaveSystem = {
         try {
           if (!p || typeof p !== 'object') return {}
           const { enPista, minutosEnPista, convocado, titular, _yellowThisMatch, _redThisMatch, _goalsInMatch, _assistThisMatch, ...rest } = p
-          if (rest.positionExperience) rest.positionExperience = Object.assign({}, rest.positionExperience)
           return rest
         } catch(ce) { console.warn('[SAVE] Cleanup error for player:', ce); return { name: '?', skill: 1 } }
       }
@@ -4855,6 +5419,8 @@ window.SaveSystem = {
         absoluteFinal: state.absoluteFinal,
         historialTraspasosGlobal: state.historialTraspasosGlobal || [],
         mercadoSimuladoSemana: state.mercadoSimuladoSemana || 0,
+        sellOffers: (state.sellOffers || []),
+        sellOffersSeenIds: state._sellOffersSeenIds || {},
       }
       if (idx >= 0) saves[idx] = data; else saves.unshift(data)
       var saveOk = setSaves(saves)
@@ -4961,6 +5527,11 @@ function generateFixtures(teamIds) {
   const rounds = n % 2 === 0 ? n - 1 : n
   const fixtures = []
   const ids = [...teamIds]
+  /* Calendario distinto en cada carrera y en cada temporada. */
+  for (let s = ids.length - 1; s > 0; s--) {
+    const j = Math.floor(Math.random() * (s + 1))
+    const tmp = ids[s]; ids[s] = ids[j]; ids[j] = tmp
+  }
   if (n % 2 !== 0) ids.push(null)
   const m = ids.length
   for (let r = 0; r < rounds; r++) {
@@ -5049,6 +5620,29 @@ function getTeamFormation(id) {
 }
 
 function getTeamObj(id) {
+  var team = getTeamObjRaw(id)
+  if (team && (!team.palmares || team.palmares.length === 0)) {
+    var pal = findTeamPalmaresById(id)
+    if (pal && pal.length) team.palmares = pal
+  }
+  return team
+}
+
+/* Busca el palmarés real de un equipo en los datos de todos los países. */
+function findTeamPalmaresById(id) {
+  if (!id) return null
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data || !data.country) continue
+    for (const l of data.country.leagues || []) {
+      const t = l.teams.find(x => x.id === id)
+      if (t && t.palmares) return t.palmares
+    }
+  }
+  return null
+}
+
+function getTeamObjRaw(id) {
   if (id === state.teamId) {
     var palmares = state.myPalmares || null
     if (!palmares) {
@@ -5115,7 +5709,7 @@ function getTeamObj(id) {
 }
 
 /* Selecciona los 11 titulares de un equipo CPU: mejor POR + top 10 campo por skill efectivo */
-function esPortero(p) { return !!(p && (p.position === 'POR' || p.position === 'portero')) }
+function esPortero(p) { return !!(p && (p.position === 'POR' || p.position === 'POR')) }
 
 /* Recuperación automática de porteros entre jornadas: vuelven al 100% */
 function recuperarPorterosAl100() {
@@ -5192,7 +5786,7 @@ function aplicarDesgastePartido(p, gamePlan, isGk) {
   } else {
     drain = getBaseDrain(gamePlan) * getMatchMinutesFactor(p) * getPlayerStaminaFactor(p)
   }
-  p.energy = Math.max(5, (p.energy != null ? p.energy : 80) - drain)
+  p.energy = Math.round(Math.max(5, (p.energy != null ? p.energy : 80) - drain))
 }
 
 /* Aplica la recuperación diaria al avanzar de jornada. En semana normal la
@@ -5207,8 +5801,8 @@ function aplicarRecuperacionDiaria(justPlayedFixture) {
   var recovery = getDailyRecovery() * days
   ;(state.players || []).forEach(function(p) {
     if (!p || p.injury) return
-    if (esPortero(p)) { p.energy = Math.min(100, (p.energy != null ? p.energy : 80) + recovery) }
-    else p.energy = Math.min(maxAfter, (p.energy != null ? p.energy : 80) + recovery)
+    if (esPortero(p)) { p.energy = Math.round(Math.min(100, (p.energy != null ? p.energy : 80) + recovery)) }
+    else p.energy = Math.round(Math.min(maxAfter, (p.energy != null ? p.energy : 80) + recovery))
   })
 }
 
@@ -5248,8 +5842,8 @@ function gestionarLesionPortero(startingIds) {
 
   /* Desgaste: el portero lesionado solo pierde 3-5%; el suplente también */
   var gd = desgastePortero()
-  gk.energy = Math.max(10, (gk.energy != null ? gk.energy : 80) - gd)
-  sub.energy = Math.max(10, (sub.energy != null ? sub.energy : 80) - desgastePortero())
+  gk.energy = Math.round(Math.max(10, (gk.energy != null ? gk.energy : 80) - gd))
+  sub.energy = Math.round(Math.max(10, (sub.energy != null ? sub.energy : 80) - desgastePortero()))
   if (emergency) sub._emergencyGK = true
 
   if (backup) {
@@ -5289,14 +5883,14 @@ function aplicarFatigaEquipo(team, gamePlan) {
     if (esPortero(p)) {
       drain = desgastePortero() * getPlayerStaminaFactor(p)
       if (!ids[p.id]) p.energy = 100
-      else p.energy = Math.max(5, e - drain)
+      else p.energy = Math.round(Math.max(5, e - drain))
     } else if (ids[p.id]) {
       drain = getBaseDrain(gamePlan) * getPlayerStaminaFactor(p)
-      p.energy = Math.max(5, e - drain)
+      p.energy = Math.round(Math.max(5, e - drain))
     } else {
-      p.energy = e + getDailyRecovery() * 2
+      p.energy = Math.round(e + getDailyRecovery() * 2)
     }
-    p.energy = Math.min(100, p.energy)
+    p.energy = Math.round(Math.min(100, p.energy))
   })
 }
 
@@ -5363,7 +5957,7 @@ function poderEfectivoCPU(players) {
 function buildFallbackGoals(team, count, isUserTeam) {
   var players = (team && team.players) || []
   if (isUserTeam) players = state.players || []
-  var field = players.filter(function(p) { return p && !p.injury && p.position !== 'POR' && p.position !== 'portero' })
+  var field = players.filter(function(p) { return p && !p.injury && p.position !== 'POR' && p.position !== 'POR' })
   var out = []
   for (var i = 0; i < count; i++) {
     if (field.length === 0) break
@@ -5460,8 +6054,8 @@ function autoSimulateOtherMatch(homeId, awayId, comp) {
     var teamScore = idx === 0 ? homeScore : awayScore
     var rivalScore = idx === 0 ? awayScore : homeScore
     var rivalName = idx === 0 ? getTeamName(awayId) : getTeamName(homeId)
-    var gkPool = team.players.filter(function(p) { return (p.position === 'POR' || p.position === 'portero') && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
-    var fieldPlayers = team.players.filter(function(p) { return p.position !== 'POR' && p.position !== 'portero' && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
+    var gkPool = team.players.filter(function(p) { return (p.position === 'POR' || p.position === 'POR') && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
+    var fieldPlayers = team.players.filter(function(p) { return p.position !== 'POR' && p.position !== 'POR' && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
     gkPool.sort(function(a, b) {
       var aEff = (a.skill || 0) * Math.min(1, (a.energy != null ? a.energy : 80) / 100)
       var bEff = (b.skill || 0) * Math.min(1, (b.energy != null ? b.energy : 80) / 100)
@@ -5490,7 +6084,7 @@ function autoSimulateOtherMatch(homeId, awayId, comp) {
       var redPen = matchRC > 0 ? -2.0 : 0
       var cleanBonus = (matchYC === 0 && matchRC === 0) ? 0.2 : 0
       var csBonus = 0
-      if (rivalScore === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) csBonus = 0.5
+      if (rivalScore === 0 && (p.position === 'POR' || p.position === 'DFC' || p.position === 'LD' || p.position === 'LI')) csBonus = 0.5
       var randomFactor = (Math.random() - 0.5) * 0.6
       var rating = Math.min(10, Math.max(1, 6.2 + winBonus + goalBonus + yellowPen + redPen + cleanBonus + csBonus + randomFactor))
       if (!p.matchHistory) p.matchHistory = []
@@ -5534,50 +6128,6 @@ function assignAIStats(players, goals, formation, gamePlan) {
   })
   var matchPlayers = gkPool.slice(0, 1).concat(fieldPlayers.slice(0, 10))
   matchPlayers.forEach(function(p) { p.matches = (p.matches || 0) + 1 })
-
-  /* Track position experience for AI players */
-  if (formation && FORMATIONS[formation]) {
-    var roles = FORMATIONS[formation].roles.filter(function(r) { return r !== 'portero' })
-    var assigned = []
-    var used = new Set()
-    for (var ri = 0; ri < roles.length; ri++) {
-      var role = roles[ri]
-      var best = null, bestScore = -1
-      for (var pi = 0; pi < fieldPlayers.length; pi++) {
-        var p = fieldPlayers[pi]
-        if (used.has(p.id)) continue
-        var naturalKey = SIGLA_TO_POS[p.position] || p.position
-        var mult
-        if (naturalKey === role) mult = 1.0
-        else if (p.otherPositions && p.otherPositions.some(function(o) { return normalizePosKey(o.pos) === role })) mult = 0.85
-        else mult = 0.6
-        var score = p.skill * mult
-        if (score > bestScore) { bestScore = score; best = p }
-      }
-      if (best) {
-        used.add(best.id)
-        assigned.push({ player: best, role: role })
-      }
-    }
-    for (var ai = 0; ai < assigned.length; ai++) {
-      var a = assigned[ai]
-      var nKey = SIGLA_TO_POS[a.player.position] || a.player.position
-      if (!a.player.positionExperience) a.player.positionExperience = {}
-      if (nKey === a.role) {
-        if (a.player.mainPct == null) a.player.mainPct = 99
-        if (a.player.mainPct < 100) {
-          a.player.mainPct = Math.min(100, a.player.mainPct + 0.25)
-        }
-      } else {
-        a.player.positionExperience[a.role] = (a.player.positionExperience[a.role] || 0) + 1
-        if (!a.player.otherPositions) a.player.otherPositions = []
-        var existing = a.player.otherPositions.find(function(o) { return o.pos === a.role })
-        var newPct = Math.min(100, a.player.positionExperience[a.role] * 3)
-        if (!existing) a.player.otherPositions.push({ pos: a.role, pct: newPct })
-        else existing.pct = Math.max(existing.pct, newPct)
-      }
-    }
-  }
 
   var scored = 0
   while (scored < goals) {
@@ -6065,8 +6615,8 @@ function simularPartidoPorRating(homeId, awayId, comp) {
     var teamScore = idx === 0 ? homeScore : awayScore
     var rivalScore = idx === 0 ? awayScore : homeScore
     var rivalName = idx === 0 ? getTeamName(awayId) : getTeamName(homeId)
-    var gkPool = team.players.filter(function(p) { return (p.position === 'POR' || p.position === 'portero') && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
-    var fieldPlayers = team.players.filter(function(p) { return p.position !== 'POR' && p.position !== 'portero' && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
+    var gkPool = team.players.filter(function(p) { return (p.position === 'POR' || p.position === 'POR') && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
+    var fieldPlayers = team.players.filter(function(p) { return p.position !== 'POR' && p.position !== 'POR' && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
     gkPool.sort(function(a, b) {
       var aEff = (a.skill || 0) * Math.min(1, (a.energy != null ? a.energy : 80) / 100)
       var bEff = (b.skill || 0) * Math.min(1, (b.energy != null ? b.energy : 80) / 100)
@@ -6094,7 +6644,7 @@ function simularPartidoPorRating(homeId, awayId, comp) {
       var redPen = matchRC > 0 ? -2.0 : 0
       var cleanBonus = (matchYC === 0 && matchRC === 0) ? 0.2 : 0
       var csBonus = 0
-      if (rivalScore === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) csBonus = 0.5
+      if (rivalScore === 0 && (p.position === 'POR' || p.position === 'DFC' || p.position === 'LD' || p.position === 'LI')) csBonus = 0.5
       var randomFactor = (Math.random() - 0.5) * 0.6
       var rating = Math.min(10, Math.max(1, 6.2 + winBonus + goalBonus + yellowPen + redPen + cleanBonus + csBonus + randomFactor))
       if (!p.matchHistory) p.matchHistory = []
@@ -6294,17 +6844,24 @@ function initAllLeagueData() {
 function buildTeamEntry(l, teamId, name, formation, gamePlan, logo, palmares) {
   var squad = getRealSquad(teamId)
   var _cid = l.country ? l.country.id : 'es'
+  var baseTeam = l.teams ? l.teams.find(function(x) { return x.id === teamId }) : null
   var players
   if (squad) {
-    players = squad.map(function(p) { return { ...p } })
+    players = squad.map(function(p) {
+      var pp = { ...p }
+      if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo }
+      if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo }
+      return pp
+    })
   } else {
     var rating = (function() { var t = l.teams.find(function(x) { return x.id === teamId }); return t && t.rating ? t.rating : (getBaseDato(teamId) ? getBaseDato(teamId).rating : null) || 70 })()
     players = generateCpuSquad(teamId, _cid, rating)
   }
-  return { teamId: teamId, name: name, players: players, formation: formation, gamePlan: gamePlan, logo: logo, palmares: palmares }
+  return { teamId: teamId, name: name, players: players, formation: formation, gamePlan: gamePlan, logo: logo, palmares: palmares, rating: baseTeam ? baseTeam.rating : null, budget: baseTeam ? baseTeam.budget : null }
 }
 
 function buildLeagueData(l) {
+  rebuildLoanIndex()
   var teamIds = l.teams.map(function(t) { return t.id })
   var leagueTeams = l.teams.map(function(t) {
     return buildTeamEntry(l, t.id, t.name, t.formation, t.gamePlan, t.logo, t.palmares)
@@ -6314,17 +6871,88 @@ function buildLeagueData(l) {
 }
 
 /* ============ CLUB VIEW ============ */
+/* Línea DEF/MED/ATA con el estilo de la tarjeta: etiqueta gris, número verde. */
+function teamLinesHtml(lines) {
+  if (!lines || lines.DEF == null) return ''
+  function it(lbl, val) {
+    return '<span class="vtl-item"><span class="vtl-lbl">' + lbl + '</span><span class="vtl-val" style="color:' + skillColor(val) + '">' + val + '</span></span>'
+  }
+  return it('ATA', lines.ATA) + it('CEN', lines.MED) + it('DEF', lines.DEF)
+}
+
+/* Etiqueta del/los filial(es) de un club (equipo B / C), mostrando su nombre real. */
+function filialLabelHtml(teamId, clickFn) {
+  var f1 = getFilialId(teamId)
+  var f2 = f1 ? getFilialId(f1) : null
+  function chip(id, fallback) {
+    if (!id || id === teamId) return ''
+    var n = getTeamName(id) || ''
+    var label = (n && n !== id) ? n : fallback
+    var click = clickFn ? ' onclick="' + clickFn + '(\'' + id + '\')"' : ''
+    return '<span class="vtl-filial"' + click + '>' + escHtml(label) + '</span>'
+  }
+  var html = chip(f1, 'Equipo B') + chip(f2, 'Equipo C')
+  return html ? '<div class="vtl-filial-wrap">' + html + '</div>' : ''
+}
+
+/* Salario semanal del jugador: si no viene en los datos, 15% del valor anual / 52. */
+function playerSalary(p) {
+  if (!p) return 0
+  if (p.salario != null) return p.salario
+  if (p.salary != null) return p.salary
+  var v = p.value || calcValue(p.skill, p.age, p.position)
+  /* Sin salario en los datos: 15% del valor anual, repartido por semana (~52). */
+  return Math.round(v * 0.15 / 52)
+}
+
+/* Tarjeta rectangular de jugador para las listas de plantilla. */
+function playerCardHtml(p, opts) {
+  opts = opts || {}
+  var posKey = SIGLA_TO_POS[p.position] || p.position
+  var mainAbbr = POS_ABBR[posKey] || p.position
+  var possHtml = '<span class="pl-pos-main">' + mainAbbr + '</span>'
+  ;(p.otherPositions || []).forEach(function(alt) {
+    var ap = normalizePosKey(alt && alt.pos ? alt.pos : alt)
+    var ak = SIGLA_TO_POS[ap] || ap
+    var ab = POS_ABBR[ak] || ap
+    if (ab) possHtml += '<span class="pl-pos-sec">' + ab + '</span>'
+  })
+  var nat = String(p.nationality || '')
+  var countryName = nat.replace(/^[^\s]+\s/, '') || nat
+  var pot = p.potencial != null ? p.potencial : p.skill
+  var value = p.value != null ? p.value : calcValue(p.skill, p.age, p.position)
+  var salary = playerSalary(p)
+  var extra = opts.extra || ''
+  return '<div class="pl-card' + (opts.className ? ' ' + opts.className : '') + '" data-player-id="' + p.id + '">' +
+      '<div class="pl-top">' +
+        '<img class="pl-avatar" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'">' +
+        '<div class="pl-main">' +
+          '<span class="pl-name">' + p.name + (p.onLoan ? ' <span class="pl-ced-badge">CED</span>' : '') + (extra ? ' ' + extra : '') + '</span>' +
+          '<span class="pl-sub"><span class="pl-age">' + (p.age || '-') + ' a</span>' + possHtml + '</span>' +
+          '<span class="pl-money"><span class="pl-money-item">\u20AC' + formatShort(value) + '</span><span class="pl-money-item">\u20AC' + formatShort(salary) + '</span></span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="pl-side">' +
+        '<div class="pl-ratings">' +
+          '<span class="pl-rating"><span class="pl-rating-val" style="color:' + skillColor(p.skill) + '">' + (p.skill != null ? p.skill : '-') + '</span><span class="pl-rating-lbl">GRL</span></span>' +
+          '<span class="pl-rating"><span class="pl-rating-val" style="color:' + skillColor(pot) + '">' + (pot != null ? pot : '-') + '</span><span class="pl-rating-lbl">POT</span></span>' +
+        '</div>' +
+        '<span class="pl-country">' + playerFlagHtml(p.nationality) + '<span class="pl-country-name">' + countryName + '</span></span>' +
+      '</div>' +
+    '</div>'
+}
+
 function renderSquad(players) {
   const container = document.getElementById('club-squad-content')
   if (!container) return
   if (!state.squadView) state.squadView = 'info'
   let html = `<div class="sq-toggle">
-    <button class="sq-tab${state.squadView === 'info' ? ' active' : ''}" data-sq="info">Info</button>
-    <button class="sq-tab${state.squadView === 'performance' ? ' active' : ''}" data-sq="performance">Rendimiento</button>
+    <button class="sq-tab${state.squadView === 'info' ? ' active' : ''}" data-sq="info">Plantilla</button>
+    <button class="sq-tab${state.squadView === 'cedidos' ? ' active' : ''}" data-sq="cedidos">Cedidos</button>
   </div>`
   container.innerHTML = html
-  if (state.squadView === 'info') renderSquadInfo(players)
-  else renderPerformance(players)
+  if (state.squadView === 'cedidos') renderSquadCedidos(players)
+  else renderSquadInfo(players)
   container.querySelectorAll('.sq-tab').forEach(btn => {
     btn.onclick = () => {
       state.squadView = btn.dataset.sq
@@ -6337,7 +6965,6 @@ function renderSquadInfo(players) {
   const container = document.getElementById('club-squad-content')
   if (!container) return
   const active = players.filter(p => !(p.onLoan && p.loanTo))
-  const loanedOut = players.filter(p => p.onLoan && p.loanTo)
   const ordered = [...active].sort((a, b) => {
     const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
     const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
@@ -6346,66 +6973,50 @@ function renderSquadInfo(players) {
   document.getElementById('club-player-count').textContent = `${players.length}/${MAX_SQUAD} jugadores`
   let html = ''
   container.innerHTML += html
-  html = `<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (${active.length})</div>
-    <div class="tp-table-header" style="padding:6px 14px">
-      <span class="tp-th-pos">Pos</span>
-      <span class="tp-th-name">Nombre</span>
-      <span class="tp-th-age">Edad</span>
-      <span class="tp-th-value">Valor</span>
-      <span class="tp-th-power">Pod</span>
-    </div>
-    <div class="tp-list">`
+  html = `<div class="tactics-subsection-label">PLANTILLA (${active.length})</div>
+    <div class="pl-list">`
   html += ordered.map(p => {
-    const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')
-    const valShort = formatShort(p.value || calcValue(p.skill, p.age, p.position))
-    return `<div class="tp-row" data-player-id="${p.id}">
-      <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
-      <div class="tp-cell">
-        <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
-        <div class="tp-cell-info">
-          <span class="tp-cell-name">${p.name}</span>
-          <span class="tp-cell-value">${p.nationality || ''} ${p._suspended ? '<span class="player-badge badge-lt" style="font-size:8px;background:#DC2626;color:#fff">🟥' + p._suspended + '</span>' : ''} ${p.onLoan && p.loanFrom ? '<span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CED</span>' : ''} ${p.transferListed ? '<span class="player-badge badge-lt" style="font-size:8px">TR</span>' : ''}${p.loanListed ? '<span class="player-badge badge-lc" style="font-size:8px">CED</span>' : ''}${p.onLoan && p.loanFromName ? ' <span style="font-size:10px;color:var(--text-muted)">(' + p.loanFromName + ')</span>' : ''}</span>
-        </div>
-      </div>
-      <span class="tp-cell-age">${p.age || '-'}</span>
-      <span class="tp-cell-market">${valShort}</span>
-      <span class="tp-cell-power" style="background:${skillColor(p.skill)};color:#fff">${p.skill}</span>
-    </div>`
+    const badges = (p._suspended ? '<span class="player-badge badge-lt" style="font-size:8px;background:#DC2626;color:#fff">🟥' + p._suspended + '</span>' : '') +
+      (p.transferListed ? '<span class="player-badge badge-lt" style="font-size:8px">TR</span>' : '') +
+      (p.loanListed ? '<span class="player-badge badge-lc" style="font-size:8px">CED</span>' : '')
+    return playerCardHtml(p, { extra: badges })
   }).join('')
   html += '</div>'
-  if (loanedOut.length > 0) {
-    html += `<div class="tactics-subsection-label" style="margin-top:12px">CEDIDOS A OTROS CLUBES (${loanedOut.length})</div>
-      <div class="tp-table-header" style="padding:6px 14px">
-        <span class="tp-th-pos">Pos</span>
-        <span class="tp-th-name">Nombre</span>
-        <span class="tp-th-age">Edad</span>
-        <span class="tp-th-value">Valor</span>
-        <span class="tp-th-power">Pod</span>
-      </div>
-      <div class="tp-list">`
+  container.innerHTML += html
+  container.querySelectorAll('.pl-card').forEach(row => {
+    row.onclick = () => {
+      const pid = row.dataset.playerId
+      const player = state.players.find(p => p.id === pid)
+      if (player) openPlayerDetail(player)
+    }
+  })
+
+  updateTeamStatusBar()
+}
+
+function renderSquadCedidos(players) {
+  const container = document.getElementById('club-squad-content')
+  if (!container) return
+  const loanedOut = players.filter(p => p.onLoan && p.loanTo).sort((a, b) => {
+    const posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
+    const posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
+    return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
+  })
+  const countEl = document.getElementById('club-player-count')
+  if (countEl) countEl.textContent = `${loanedOut.length}/${MAX_SQUAD} cedidos`
+  let html = ''
+  if (loanedOut.length === 0) {
+    html += '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">No hay jugadores cedidos a otros clubes</div>'
+  } else {
+    html += `<div class="tactics-subsection-label">CEDIDOS A OTROS CLUBES (${loanedOut.length})</div>
+      <div class="pl-list">`
     loanedOut.forEach(p => {
-      const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')
-      const valShort = formatShort(p.value || calcValue(p.skill, p.age, p.position))
-      const destTeam = p.loanToName || p.loanTo || 'Otro club'
-      const destLogo = getTeamLogo(p.loanTo) || p.loanToLogo
-      html += `<div class="tp-row" data-player-id="${p.id}" style="opacity:0.6">
-        <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
-        <div class="tp-cell">
-          <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
-          <div class="tp-cell-info">
-            <span class="tp-cell-name">${p.name}</span>
-            <span class="tp-cell-value">${destLogo ? '<img src="' + destLogo + '" style="width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-right:3px" onerror="this.style.display=\'none\'">' : ''}→ ${destTeam}</span>
-          </div>
-        </div>
-        <span class="tp-cell-age">${p.age || '-'}</span>
-        <span class="tp-cell-market">${valShort}</span>
-        <span class="tp-cell-power" style="background:${skillColor(p.skill)};color:#fff">${p.skill}</span>
-      </div>`
+      html += playerCardHtml(p, { className: 'pl-card-loan' })
     })
     html += '</div>'
   }
   container.innerHTML += html
-  container.querySelectorAll('.tp-row').forEach(row => {
+  container.querySelectorAll('.pl-card').forEach(row => {
     row.onclick = () => {
       const pid = row.dataset.playerId
       const player = state.players.find(p => p.id === pid)
@@ -6435,15 +7046,17 @@ function renderPerformance(players) {
       <span style="width:38px;text-align:center">👟</span>
       <span style="width:30px;text-align:center">🟨</span>
       <span style="width:28px;text-align:center">🟥</span>
+      <span style="width:36px;text-align:center">⭐</span>
     </div>
     <div class="tp-list">`
   html += ordered.map(p => {
-    const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')
+    const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#71717A')
+    const avg = playerAvgRating(p)
     return `<div class="tp-row" data-player-id="${p.id}">
       <div class="tp-cell">
         <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
         <div class="tp-cell-info">
-          <span class="tp-cell-name">${p.name} ${p.onLoan && p.loanFrom ? '<span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CED</span>' : ''}</span>${p.onLoan && p.loanFromName ? ' <span style="font-size:10px;color:var(--text-muted)">(' + p.loanFromName + ')</span>' : ''}
+          <span class="tp-cell-name">${p.name} ${p.onLoan && p.loanFrom ? '<span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CED</span>' : ''}</span>${loanFromTagHtml(p)}
           <span class="tp-cell-value">${p.nationality || ''}</span>
         </div>
       </div>
@@ -6453,6 +7066,7 @@ function renderPerformance(players) {
       <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.assists || 0}</span>
       <span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">${p.yellowCards || 0}</span>
       <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">${p.redCards || 0}</span>
+      <span style="width:36px;text-align:center;font-size:12px;font-weight:700;color:${avg != null ? '#16803C' : 'var(--text-muted)'}">${avg != null ? avg.toFixed(1) : '—'}</span>
     </div>`
   }).join('')
   html += '</div>'
@@ -6469,7 +7083,7 @@ function renderPerformance(players) {
       </div>
       <div class="tp-list">`
     loanedOut.forEach(p => {
-      const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280')
+      const posColor = ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#71717A')
       const destTeam = p.loanToName || p.loanTo || 'Otro club'
       const destLogo = getTeamLogo(p.loanTo) || p.loanToLogo
       html += `<div class="tp-row" data-player-id="${p.id}" style="opacity:0.6">
@@ -6502,11 +7116,14 @@ function renderPerformance(players) {
 
 /* ============ TACTICS ============ */
 const formationRoles = {
-  '4-3-3': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_def', label: 'MCD' }, { role: 'mediocentro', label: 'MC' }, { role: 'extremo_der', label: 'ED' }, { role: 'delantero', label: 'DC' }, { role: 'extremo_izq', label: 'EI' }],
-  '4-4-2': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_der', label: 'MD' }, { role: 'mediocentro', label: 'MC' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_izq', label: 'MI' }, { role: 'delantero', label: 'DC' }, { role: 'delantero', label: 'DC' }],
-  '4-2-3-1': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_def', label: 'MCD' }, { role: 'medio_def', label: 'MCD' }, { role: 'extremo_der', label: 'ED' }, { role: 'medio_ofensivo', label: 'MCO' }, { role: 'extremo_izq', label: 'EI' }, { role: 'delantero', label: 'DC' }],
-  '3-5-2': [{ role: 'portero', label: 'POR' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'carrilero_der', label: 'CAD' }, { role: 'medio_der', label: 'MD' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_ofensivo', label: 'MCO' }, { role: 'medio_izq', label: 'MI' }, { role: 'delantero', label: 'DC' }, { role: 'delantero', label: 'DC' }],
-  '4-1-4-1': [{ role: 'portero', label: 'POR' }, { role: 'lateral_der', label: 'LD' }, { role: 'defensa_central', label: 'DFC' }, { role: 'defensa_central', label: 'DFC' }, { role: 'lateral_izq', label: 'LI' }, { role: 'medio_def', label: 'MCD' }, { role: 'extremo_der', label: 'ED' }, { role: 'mediocentro', label: 'MC' }, { role: 'medio_ofensivo', label: 'MCO' }, { role: 'extremo_izq', label: 'EI' }, { role: 'delantero', label: 'DC' }],
+  '4-3-3': [{ role: 'POR', label: 'POR' }, { role: 'LD', label: 'LD' }, { role: 'DFC', label: 'DFC' }, { role: 'DFC', label: 'DFC' }, { role: 'LI', label: 'LI' }, { role: 'MC', label: 'MC' }, { role: 'MCD', label: 'MCD' }, { role: 'MC', label: 'MC' }, { role: 'ED', label: 'ED' }, { role: 'DC', label: 'DC' }, { role: 'EI', label: 'EI' }],
+  '4-4-2': [{ role: 'POR', label: 'POR' }, { role: 'LD', label: 'LD' }, { role: 'DFC', label: 'DFC' }, { role: 'DFC', label: 'DFC' }, { role: 'LI', label: 'LI' }, { role: 'MD', label: 'MD' }, { role: 'MC', label: 'MC' }, { role: 'MC', label: 'MC' }, { role: 'MI', label: 'MI' }, { role: 'DC', label: 'DC' }, { role: 'DC', label: 'DC' }],
+  '4-2-3-1': [{ role: 'POR', label: 'POR' }, { role: 'LD', label: 'LD' }, { role: 'DFC', label: 'DFC' }, { role: 'DFC', label: 'DFC' }, { role: 'LI', label: 'LI' }, { role: 'MCD', label: 'MCD' }, { role: 'MCD', label: 'MCD' }, { role: 'MD', label: 'MD' }, { role: 'MCO', label: 'MCO' }, { role: 'MI', label: 'MI' }, { role: 'DC', label: 'DC' }],
+  '4-2-1-3': [{ role: 'POR', label: 'POR' }, { role: 'LD', label: 'LD' }, { role: 'DFC', label: 'DFC' }, { role: 'DFC', label: 'DFC' }, { role: 'LI', label: 'LI' }, { role: 'MCD', label: 'MCD' }, { role: 'MCD', label: 'MCD' }, { role: 'ED', label: 'ED' }, { role: 'MCO', label: 'MCO' }, { role: 'EI', label: 'EI' }, { role: 'DC', label: 'DC' }],
+  '3-5-2': [{ role: 'POR', label: 'POR' }, { role: 'DFC', label: 'DFC' }, { role: 'DFC', label: 'DFC' }, { role: 'DFC', label: 'DFC' }, { role: 'CAD', label: 'CAD' }, { role: 'MD', label: 'MD' }, { role: 'MC', label: 'MC' }, { role: 'MCO', label: 'MCO' }, { role: 'MI', label: 'MI' }, { role: 'DC', label: 'DC' }, { role: 'DC', label: 'DC' }],
+  '3-1-4-2': [{ role: 'POR', label: 'POR' }, { role: 'DFC', label: 'DFC' }, { role: 'DFC', label: 'DFC' }, { role: 'DFC', label: 'DFC' }, { role: 'MCD', label: 'MCD' }, { role: 'MC', label: 'MC' }, { role: 'MC', label: 'MC' }, { role: 'MI', label: 'MI' }, { role: 'MD', label: 'MD' }, { role: 'DC', label: 'DC' }, { role: 'DC', label: 'DC' }],
+  '4-1-4-1': [{ role: 'POR', label: 'POR' }, { role: 'LD', label: 'LD' }, { role: 'DFC', label: 'DFC' }, { role: 'DFC', label: 'DFC' }, { role: 'LI', label: 'LI' }, { role: 'MCD', label: 'MCD' }, { role: 'ED', label: 'ED' }, { role: 'MC', label: 'MC' }, { role: 'MCO', label: 'MCO' }, { role: 'EI', label: 'EI' }, { role: 'DC', label: 'DC' }],
+  '4-1-2-1-2': [{ role: 'POR', label: 'POR' }, { role: 'LD', label: 'LD' }, { role: 'DFC', label: 'DFC' }, { role: 'DFC', label: 'DFC' }, { role: 'LI', label: 'LI' }, { role: 'MCD', label: 'MCD' }, { role: 'MC', label: 'MC' }, { role: 'MC', label: 'MC' }, { role: 'MCO', label: 'MCO' }, { role: 'DC', label: 'DC' }, { role: 'DC', label: 'DC' }],
 }
 
 /* Obtiene los jugadores (plantilla) de un equipo por su id para la vista de casa. */
@@ -6518,12 +7135,12 @@ function getTeamSquadForHome(id) {
 
 /* Promedio DEF/MED/ATA de una lista de jugadores. */
 function getLineAverages(players) {
-  const ROL_DEF = ['defensa_central', 'lateral_izq', 'lateral_der', 'carrilero_izq', 'carrilero_der', 'medio_def']
-  const ROL_MID = ['mediocentro', 'medio_izq', 'medio_der', 'medio_ofensivo']
-  const ROL_ATA = ['extremo_izq', 'extremo_der', 'delantero']
+  const ROL_DEF = ['POR', 'DFC', 'LI', 'LD', 'CAI', 'CAD']
+  const ROL_MID = ['MCD', 'MC', 'MI', 'MD', 'MCO']
+  const ROL_ATA = ['EI', 'ED', 'DC']
   const sum = { DEF: 0, MED: 0, ATA: 0 }, cnt = { DEF: 0, MED: 0, ATA: 0 }
   ;(players || []).forEach(function(p) {
-    const pos = p.position || ''
+    const pos = SIGLA_TO_POS[p.position] || p.position || ''
     let zone = null
     if (ROL_DEF.indexOf(pos) >= 0) zone = 'DEF'
     else if (ROL_MID.indexOf(pos) >= 0) zone = 'MED'
@@ -6556,9 +7173,127 @@ function getRivalForm(teamId) {
 
 /* Poder por línea (DEF/MED/ATA) según la formación: obtiene el XI por compatible
    y agrupa por zona, devolviendo suma y media para cada línea. */
-function getLinePowerByFormation(teamObj, formation, xiOverride) {
+/* XI «ideal» para mostrar la potencia del equipo: por cada rol de la formación
+   se elige SIEMPRE al jugador compatible con el mayor GRL (primero posición exacta,
+   luego misma línea, y como último recurso cualquiera libre). No usa favores de
+   estado de forma/energía: refleja el mejor once por GRL. */
+/* Once inicial prefijado en datos para un equipo (campo defaultXI), si lo tiene. */
+function getTeamDefaultXI(teamId) {
+  if (!teamId) return null
+  for (var cid in window.DB) {
+    var data = window.DB[cid]
+    if (!data || !data.country || !data.country.leagues) continue
+    for (var li = 0; li < data.country.leagues.length; li++) {
+      var teams = data.country.leagues[li].teams || []
+      for (var ti = 0; ti < teams.length; ti++) {
+        if (teams[ti].id === teamId) return teams[ti].defaultXI || null
+      }
+    }
+  }
+  return null
+}
+
+function buildBestXIBySkill(teamObj, formation) {
+  var roles = SLOT_ROLES[formation] || SLOT_ROLES['4-3-3']
+  var players = (teamObj.players || []).filter(function(p) {
+    return p && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) && !p.loanedTo
+  }).slice()
+  var used = {}
+  var xi = []
+  /* Si el club tiene un once prefijado en datos, ese es su mejor once. */
+  var dxi = (teamObj && teamObj.defaultXI) || (teamObj && teamObj.teamId ? getTeamDefaultXI(teamObj.teamId) : null)
+  if (dxi && dxi.length === roles.length) {
+    var xi0 = [], ok = true
+    for (var di = 0; di < roles.length; di++) {
+      var dp = players.find(function(x) { return x.id === dxi[di] })
+      if (!dp || used[dp.id]) { ok = false; break }
+      used[dp.id] = true
+      xi0.push({ player: dp, role: roles[di] })
+    }
+    if (ok && xi0.length === roles.length) return xi0
+    used = {}
+  }
+  function fitsRole(pos, roleKey) {
+    if (roleKey === 'POR') return pos === 'POR'
+    return pos === roleKey
+  }
+  roles.forEach(function(role) {
+    var roleKey = normalizePosKey(role)
+    var roleGroup = POS_GROUP[roleKey]
+    var natural = [], secondary = [], sameGroup = []
+    players.forEach(function(p) {
+      if (used[p.id]) return
+      var nat = SIGLA_TO_POS[normalizePosKey(p.position)] || normalizePosKey(p.position) || p.position
+      var isNatural = fitsRole(nat, roleKey)
+      var isSameGroup = roleKey !== 'POR' && POS_GROUP[nat] === roleGroup
+      var isSecondary = false
+      if (!isNatural && roleKey !== 'POR' && p.otherPositions) {
+        isSecondary = p.otherPositions.some(function(o) {
+          return fitsRole(SIGLA_TO_POS[normalizePosKey(o.pos)] || normalizePosKey(o.pos) || o.pos, roleKey)
+        })
+      }
+      if (isNatural) natural.push(p)
+      if (isSameGroup) sameGroup.push(p)
+      if (isSecondary) secondary.push(p)
+    })
+    function pickHighest(list) {
+      var best = null, bestS = -1
+      list.forEach(function(p) { var s = p.skill || 0; if (s > bestS) { bestS = s; best = p } })
+      return best
+    }
+    var chosen = pickHighest(natural) || pickHighest(sameGroup) || pickHighest(secondary) || pickHighest(players.filter(function(p) { return !used[p.id] }))
+    if (chosen) { used[chosen.id] = true; xi.push({ player: chosen, role: role }) }
+  })
+  return xi
+}
+
+/* Profundidad de cada rol (para repartir los roles en líneas DEF/MED/ATA). */
+var ROLE_DEPTH = { POR: 0, DFC: 1, LI: 1, LD: 1, CAI: 1.5, CAD: 1.5, MCD: 2, MC: 2.5, MI: 3, MD: 3, MCO: 3.5, EI: 4, ED: 4, DC: 5 }
+
+/* Reparte los roles de una formación en líneas DEF (con portero) / MID / ATA
+   según la propia forma de la formación. Ej.: 4-2-3-1 -> DEF 5 (POR+4), MID 5, ATA 1;
+   4-3-3 -> DEF 5, MID 3, ATA 3; 3-4-2-1 -> DEF 4, MID 6, ATA 1. */
+function getFormationZoneByRole(formation) {
+  var roles = SLOT_ROLES[formation] || SLOT_ROLES['4-3-3']
+  var nums = String(formation || '').split('-').map(function(x) { return parseInt(x, 10) }).filter(function(n) { return !isNaN(n) && n > 0 })
+  if (nums.length < 2) nums = [4, 3, 3]
+  var defCount = 1 + nums[0]
+  var ataCount = nums[nums.length - 1]
+  if (defCount + ataCount > 11) { defCount = 4; ataCount = 3 }
+  var midCount = 11 - defCount - ataCount
+  var sorted = roles.map(function(r, i) { return { r: r, i: i, d: (ROLE_DEPTH[r] != null ? ROLE_DEPTH[r] : 2.5) } })
+  sorted.sort(function(a, b) { return a.d !== b.d ? a.d - b.d : a.i - b.i })
+  var byRole = {}
+  sorted.forEach(function(o, pos) {
+    var z = pos < defCount ? 'DEF' : (pos < defCount + midCount ? 'MED' : 'ATA')
+    if (!byRole[o.r]) byRole[o.r] = z
+  })
+  return byRole
+}
+
+/* Once actual del usuario como override para el cálculo de líneas: mantiene a
+   los sancionados/lesionados (que siguen en su hueco), por lo que el GRL de
+   DEF/MED/ATA no baja al acabar un partido si la plantilla no cambia. */
+function getOwnXIOverride(formation) {
+  formation = formation || (state.tactic && state.tactic.formation) || '4-3-3'
+  var roles = SLOT_ROLES[formation] || SLOT_ROLES['4-3-3']
+  var slots = state.tacticsSlots || []
+  var xi = []
+  for (var i = 0; i < roles.length; i++) {
+    var pid = slots[i]
+    if (!pid) continue
+    var p = state.players.find(function(x) { return x.id === pid })
+    if (p) xi.push({ player: p, role: roles[i] })
+  }
+  return xi.length ? xi : null
+}
+
+function getLinePowerByFormation(teamObj, formation, xiOverride, bestBySkill) {
   var roles = SLOT_ROLES[formation] || SLOT_ROLES['4-3-3']
   var xi = xiOverride || null
+  if (!xi && bestBySkill) {
+    xi = buildBestXIBySkill(teamObj, formation)
+  }
   if (!xi && typeof window.MatchEngine !== 'undefined' && window.MatchEngine && typeof window.MatchEngine.calcularPoderNeto === 'function') {
     try {
       var net = window.MatchEngine.calcularPoderNeto(teamObj, { effectiveSkillFn: calcularMediaEnPosicion, formationRoles: SLOT_ROLES, isHome: false })
@@ -6566,22 +7301,29 @@ function getLinePowerByFormation(teamObj, formation, xiOverride) {
     } catch (e) { xi = null }
   }
   if (!xi) {
-    /* Fallback: tomar los 11 mejores del equipo y asignar los roles en orden */
-    var sorted = (teamObj.players || []).slice().sort(function(a, b) { return (b.skill || 0) - (a.skill || 0) })
-    xi = roles.map(function(role, i) { return { player: sorted[i], role: role } })
+    /* Fallback: seleccionar el XI por prioridad posicional (o top-11 si no hay motor) */
+    if (typeof window.MatchEngine !== 'undefined' && window.MatchEngine && typeof window.MatchEngine.seleccionarXI === 'function' && window.MatchEngine.seleccionarXI) {
+      xi = window.MatchEngine.seleccionarXI(teamObj.players || [], formation, calcularMediaEnPosicion, SLOT_ROLES)
+    } else {
+      var sorted = (teamObj.players || []).slice().sort(function(a, b) { return (b.skill || 0) - (a.skill || 0) })
+      xi = roles.map(function(role, i) { return { player: sorted[i], role: role } })
+    }
   }
-  var ROL_DEF = ['defensa_central', 'lateral_izq', 'lateral_der', 'carrilero_izq', 'carrilero_der', 'medio_def']
-  var ROL_MID = ['mediocentro', 'medio_izq', 'medio_der', 'medio_ofensivo']
-  var ROL_ATA = ['extremo_izq', 'extremo_der', 'delantero']
+  var ROL_DEF = ['POR', 'DFC', 'LI', 'LD', 'CAI', 'CAD']
+  var ROL_MID = ['MCD', 'MC', 'MI', 'MD', 'MCO']
+  var ROL_ATA = ['EI', 'ED', 'DC']
+  var zoneByRole = getFormationZoneByRole(formation)
   var out = { DEF: { sum: 0, cnt: 0 }, MED: { sum: 0, cnt: 0 }, ATA: { sum: 0, cnt: 0 } }
   xi.forEach(function(item) {
     var p = item && item.player
     if (!p) return
-    var role = item.role || ''
-    var zone = null
-    if (ROL_DEF.indexOf(role) >= 0) zone = 'DEF'
-    else if (ROL_MID.indexOf(role) >= 0) zone = 'MED'
-    else if (ROL_ATA.indexOf(role) >= 0) zone = 'ATA'
+    var role = normalizePosKey(item.role || '')
+    var zone = zoneByRole[role] || null
+    if (!zone) {
+      if (ROL_DEF.indexOf(role) >= 0) zone = 'DEF'
+      else if (ROL_MID.indexOf(role) >= 0) zone = 'MED'
+      else if (ROL_ATA.indexOf(role) >= 0) zone = 'ATA'
+    }
     if (!zone) return
     out[zone].sum += (p.skill || 0)
     out[zone].cnt++
@@ -6590,6 +7332,21 @@ function getLinePowerByFormation(teamObj, formation, xiOverride) {
     out[z].avg = out[z].cnt ? Math.round(out[z].sum / out[z].cnt) : 0
   })
   return out
+}
+
+/* Media DEF/MED/ATA de un equipo según la formación que usa (XI por compatibilidad posicional).
+   Devuelve { DEF, MED, ATA } como números. Si no se puede, usa la media de toda la plantilla. */
+function calcTeamLinesByFormation(teamInfo) {
+  try {
+    var formation = teamInfo.formation || getTeamFormation(teamInfo.teamId) || '4-3-3'
+    var obj = { name: teamInfo.name || '', players: teamInfo.players || [], formation: formation, gamePlan: teamInfo.gamePlan || 'pesado', teamId: teamInfo.teamId }
+    /* Para el equipo del usuario, usar su once actual (mantiene no disponibles). */
+    var ownXI = (teamInfo.teamId && teamInfo.teamId === state.teamId) ? getOwnXIOverride(formation) : null
+    var power = getLinePowerByFormation(obj, formation, ownXI, !ownXI)
+    return { DEF: power.DEF.avg, MED: power.MED.avg, ATA: power.ATA.avg }
+  } catch (e) {
+    return getLineAverages(teamInfo.players || [])
+  }
 }
 
 /* Cabecera superior: logo + nombre del equipo y botón CONTINUAR */
@@ -6659,6 +7416,14 @@ function updateHeaderTeam() {
     if (nameEl) nameEl.textContent = comp.name || ''
     return
   }
+  /* Viendo la información de otro club: mostrar ese club en el encabezado */
+  if (id === 'view-team' && state._viewingTeamId && state._viewingTeamId !== state.teamId) {
+    var other = getTeamObj(state._viewingTeamId)
+    teamEl.style.display = ''
+    if (logoEl) logoEl.src = getTeamLogo(state._viewingTeamId) || NOPHOTO
+    if (nameEl) nameEl.textContent = (other && other.name) || state.team
+    return
+  }
   teamEl.style.display = ''
   if (logoEl) logoEl.src = state.teamLogo || NOPHOTO
   if (nameEl) nameEl.textContent = state.team || ''
@@ -6675,18 +7440,94 @@ function updateHeaderContinueVisibility() {
   var id = activeView ? activeView.id : ''
   var inFlow = id === 'view-matchday' || id === 'view-preview'
   /* La previa (alineaciones) muestra SIMULAR y JUGAR en vez de Volver/Continuar */
-  var showContinue = id === 'view-home' || id === 'view-matchday'
-  if (btn) btn.style.display = showContinue ? '' : 'none'
-  if (id === 'view-preview') {
+  var leagueClassif = id === 'view-league' && state.matchdayScreen === 'clasificacion'
+  var showContinue = id === 'view-home' || id === 'view-matchday' || leagueClassif
+  /* Pantallas post-partido: solo CONTINUAR (sin Volver) */
+  var postMatch = (id === 'view-matchday' && (state.matchdayScreen === 'resultados' || state.matchdayScreen === 'clasificacion')) || leagueClassif
+  var marketActive = id === 'view-market' && state.marketSubTab === 'active'
+  if (btn) btn.style.display = (showContinue || marketActive) ? '' : 'none'
+  if (id === 'view-market-results' || id === 'view-market-sell') {
+    /* Resultados/Ventas: solo Volver (vuelve al mercado) */
+    if (back) back.style.display = ''
+    if (simBtn) simBtn.style.display = 'none'
+    if (playBtn) playBtn.style.display = 'none'
+  } else if (id === 'view-market') {
+    /* Mercado: se muestran Volver (izq.) y CONTINUAR (buscar) */
+    if (back) back.style.display = ''
+    if (simBtn) simBtn.style.display = 'none'
+    if (playBtn) playBtn.style.display = 'none'
+  } else if (id === 'view-preview') {
     if (back) back.style.display = 'none'
     if (simBtn) simBtn.style.display = ''
     if (playBtn) playBtn.style.display = ''
   } else {
-    if (back) back.style.display = showContinue ? (inFlow ? '' : 'none') : ''
+    if (back) back.style.display = postMatch ? 'none' : (showContinue ? (inFlow ? '' : 'none') : '')
     if (simBtn) simBtn.style.display = 'none'
     if (playBtn) playBtn.style.display = 'none'
   }
   if (typeof updateHeaderTeam === 'function') updateHeaderTeam()
+}
+
+/* Devuelve los jugadores del once que no pueden jugar (sancionados/lesionados). */
+function getUnavailableInXI() {
+  var out = []
+  ;(state.tacticsSlots || []).forEach(function(pid) {
+    if (!pid) return
+    var p = state.players.find(function(x) { return x.id === pid })
+    if (!p) return
+    if (p._suspended) out.push({ type: 'susp', name: p.name, detail: 'sancionado \u00b7 ' + p._suspended + ' partido' + (p._suspended > 1 ? 's' : '') })
+    else if (p.injury) out.push({ type: 'injury', name: p.name, detail: 'lesionado \u00b7 ' + (p.injury.remaining || '?') + ' jornada' + ((p.injury.remaining || 0) > 1 ? 's' : '') + ' de baja' })
+  })
+  return out
+}
+
+/* Modal genérico de incidencias (lesiones/sanciones). */
+function showIncidenciasModal(opts) {
+  opts = opts || {}
+  var list = opts.list || []
+  if (list.length === 0) { if (opts.onClose) opts.onClose(); return }
+  var overlay = document.createElement('div')
+  overlay.className = 'modal-overlay popup-prioridad'
+  overlay.style.cssText = 'display:flex;align-items:center;justify-content:center;z-index:2200;opacity:1;visibility:visible'
+  var rows = list.map(function(it) {
+    var icon = it.type === 'injury' ? '\ud83e\ude79' : '\ud83d\udfe5'
+    return '<div class="pp-line">' + icon + ' <strong>' + escHtml(it.name) + '</strong> \u00b7 ' + escHtml(it.detail) + '</div>'
+  }).join('')
+  var actions = ''
+  if (opts.tacticsAction) actions += '<div id="inc-tactics" class="pp-btn pp-primary">Revisar alineaci\u00f3n</div>'
+  actions += '<div id="inc-close" class="pp-btn ' + (opts.tacticsAction ? 'pp-close' : 'pp-primary') + '">' + escHtml(opts.closeLabel || 'Cerrar') + '</div>'
+  overlay.innerHTML =
+    '<div class="modal-content pp-modal" style="max-width:420px;width:90%">' +
+      '<div class="pp-title">' + (opts.title || 'Aviso') + '</div>' +
+      '<div class="pp-body"><div class="pp-block"><div class="pp-block-list">' + rows + '</div></div></div>' +
+      '<div class="pp-actions">' + actions + '</div>' +
+    '</div>'
+  document.body.appendChild(overlay)
+  var close = function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay) }
+  document.getElementById('inc-close').onclick = function() { close(); if (opts.onClose) opts.onClose() }
+  if (opts.tacticsAction) {
+    document.getElementById('inc-tactics').onclick = function() {
+      close()
+      state.zcScreen = null
+      state.clubSubTab = 'tactics'
+      try { renderTab('club') } catch (e) {}
+    }
+  }
+}
+
+/* Aviso antes de continuar: sancionados/lesionados en el once. */
+function showAlineacionAviso(list) {
+  if (!list || list.length === 0) return false
+  showIncidenciasModal({ title: '\u26a0\ufe0f Jugadores no disponibles en el once', list: list, tacticsAction: true })
+  return true
+}
+
+/* Muestra (una sola vez) las incidencias del último partido al llegar al menú. */
+function mostrarIncidenciasPendientes() {
+  var list = state._pendingIncidencias
+  if (!list || list.length === 0) return
+  state._pendingIncidencias = null
+  showIncidenciasModal({ title: '\ud83e\ude7a Parte m\u00e9dico y sanciones', list: list, closeLabel: 'Continuar' })
 }
 
 function bindHeaderContinue(matchFixture) {
@@ -6694,10 +7535,25 @@ function bindHeaderContinue(matchFixture) {
   if (!btn || btn._bBound) return
   btn._bBound = true
   btn.onclick = function() {
-    if (!matchFixture) { alert('\u26a0\ufe0f No hay un partido disponible ahora mismo.'); return }
     var activeView = document.querySelector('.view.active')
     var id = activeView ? activeView.id : ''
-    if (id === 'view-matchday') { openMatchPreview(); return }
+    /* En el mercado, CONTINUAR abre el apartado de resultados */
+    if (id === 'view-market') { openMarketResults(); return }
+    /* Clasificación post-partido (pestaña de competiciones) → avanzar jornada */
+    if (id === 'view-league') {
+      if (state.matchdayScreen === 'clasificacion') { advancePostMatch(); return }
+      return
+    }
+    if (id === 'view-matchday') {
+      /* Flujo post-partido: Resultados → Clasificaciones → siguiente jornada */
+      if (state.matchdayScreen === 'resultados' || state.matchdayScreen === 'clasificacion') { advancePostMatch(); return }
+      if (!matchFixture) { alert('\u26a0\ufe0f No hay un partido disponible ahora mismo.'); return }
+      if (showAlineacionAviso(getUnavailableInXI())) return
+      openMatchPreview(); return
+    }
+    if (!matchFixture) { alert('\u26a0\ufe0f No hay un partido disponible ahora mismo.'); return }
+    if (showAlineacionAviso(getUnavailableInXI())) return
+    state.matchdayScreen = 'partidos'
     openMatchdayOverview()
   }
 }
@@ -6709,9 +7565,57 @@ function bindHeaderBack() {
   back.onclick = function() {
     var activeView = document.querySelector('.view.active')
     var id = activeView ? activeView.id : ''
+    if (id === 'view-market-results') { renderTab('market'); return }
+    if (id === 'view-market-sell') { state.zcScreen = null; ZC_VISTA = null; scrollAppToTop(); renderTab('home'); return }
     if (id === 'view-matchday' || id === 'view-preview') { if (typeof goBackToHome === 'function') goBackToHome(); return }
+    /* Desde Palmarés / Historial de liga del club: volver a la información del club */
+    if (id === 'view-club' && state.clubSubTab === 'palmares') {
+      state.clubSubTab = 'club-info'
+      renderClub()
+      return
+    }
+    /* Desde el palmarés/historial de un equipo: volver a la info general de ese equipo */
+    if (id === 'view-team' && state._teamHistOnly) {
+      state._teamHistOnly = false
+      if (state._viewingTeamId) { window._openTeamTab = 'general'; showTeamInfo(state._viewingTeamId); return }
+      return
+    }
+    /* Desde la ficha de un equipo abierta en la clasificación: volver a esa clasificación */
+    if (id === 'view-team' && state._teamInfoFrom === 'league' && state._leagueReturnLid) {
+      state._teamInfoFrom = null
+      state.zcScreen = null
+      ZC_VISTA = null
+      state.currentTab = 'league'
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
+      const lv = document.getElementById('view-league')
+      if (lv) lv.classList.add('active')
+      renderLeague(state._leagueReturnLid)
+      updateHeaderContinueVisibility()
+      scrollAppToTop()
+      return
+    }
+    state.zcScreen = null
+    ZC_VISTA = null
     scrollAppToTop(); renderTab('home')
   }
+}
+
+/* ¿Hay ofertas de venta/cesión sin revisar desde la última visita? */
+function hasNewSellOffers() {
+  var offers = state.sellOffers || []
+  if (offers.length === 0) return false
+  var seen = state._sellOffersSeenIds || {}
+  for (var i = 0; i < offers.length; i++) {
+    if (!offers[i] || !seen[offers[i].id]) return true
+  }
+  return false
+}
+
+/* Marca las ofertas actuales como revisadas (se llama al entrar en Ventas). */
+function markSellOffersSeen() {
+  var seen = state._sellOffersSeenIds || {}
+  ;(state.sellOffers || []).forEach(function(o) { if (o) seen[o.id] = true })
+  state._sellOffersSeenIds = seen
 }
 
 function renderHome() {
@@ -6805,8 +7709,7 @@ function renderHome() {
     var mStadiumCfg = localTeamId === state.teamId ? (getZonaClub() || null) : (getZonaClubDe(localTeamId) || null)
     mStadium = mStadiumCfg && mStadiumCfg.estadio && mStadiumCfg.estadio.nombre ? mStadiumCfg.estadio.nombre : ('Estadio ' + (localTeamId === state.teamId ? state.team : getTeamName(localTeamId)))
     var mRivalTeamObj = getTeamObj(mRivalId) || rivalFallback(mRivalId)
-    var pow = getLinePowerByFormation(mRivalTeamObj, (mRivalTeamObj.formation) || getTeamFormation(mRivalId))
-    var rivalRepStars = starsFromGrl(getTop11Average(getTeamSquadForHome(mRivalId)))
+    var pow = getLinePowerByFormation(mRivalTeamObj, (mRivalTeamObj.formation) || getTeamFormation(mRivalId), null, true)
     var locTag = mIsHome ? '(L)' : '(V)'
     matchHtml = '<div class="db-card db-next-card">' +
       '<div class="db-card-head"><span class="db-card-title">PR\u00d3XIMO PARTIDO</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
@@ -6819,7 +7722,6 @@ function renderHome() {
             '<span class="db-next-chip">MED: ' + pow.MED.avg + '</span>' +
             '<span class="db-next-chip">ATA: ' + pow.ATA.avg + '</span>' +
           '</div>' +
-          '<div class="db-next-stars">' + rivalRepStars + '</div>' +
         '</div>' +
         '<div class="db-next-crest">' +
           '<img class="db-next-logo" src="' + mRivalLogo + '" alt="" style="cursor:pointer" onclick="showTeamInfo(\'' + mRivalId + '\')">' +
@@ -6829,7 +7731,11 @@ function renderHome() {
   }
 
   /* Card 2 — Gestión del equipo */
-  var ownAvgs = getLineAverages(state.players)
+  /* ATA/CEN/DEF con el ONCE ACTUAL (mantiene sancionados/lesionados): no baja
+     por una lesión/sanción si la plantilla es la misma. */
+  var ownXI = getOwnXIOverride(state.tactic && state.tactic.formation)
+  var ownPow = getLinePowerByFormation({ players: state.players, teamId: state.teamId }, state.tactic.formation, ownXI, !ownXI)
+  var ownAvgs = { DEF: ownPow.DEF.avg, MED: ownPow.MED.avg, ATA: ownPow.ATA.avg }
   var energyPct = Math.round((getTop11EnergyFactor(state.players) - 0.5) / 0.5 * 100)
   var formStr = state.tactic && state.tactic.formation ? state.tactic.formation : getTeamFormation(state.teamId)
 
@@ -6851,7 +7757,7 @@ function renderHome() {
     var isCopaRow = cupActive && cupNext === f
     var isoGridLogo = isCopaRow ? getCupLogo(state.countryId) : (getLeagueFromId(state.leagueId) ? getLeagueFromId(state.leagueId).logo : '')
     calHtml += '<div class="db-cal-row" style="cursor:pointer" onclick="openHomeCalendar()">' +
-      '<span class="db-cal-week">Sem ' + (f.matchday || '-') + '</span>' +
+      '<span class="db-cal-week">S' + (f.matchday || '-') + '</span>' +
       '<img class="db-cal-logo" src="' + getTeamLogo(rId) + '" alt="" style="cursor:pointer" onclick="event.stopPropagation();openHomeTeam(\'' + rId + '\')">' +
       '<span class="db-cal-name" onclick="event.stopPropagation();openHomeTeam(\'' + rId + '\')">' + getTeamName(rId) + '</span>' +
       '<span class="db-cal-loc ' + (isH ? 'is-home' : 'is-away') + '">' + (isH ? 'L' : 'F') + '</span>' +
@@ -6879,11 +7785,10 @@ function renderHome() {
     compLogo = _lg ? _lg.logo : ''
     var _standRow = function(s) {
       var i = standings.indexOf(s)
-      var medal = i === 0 ? '\ud83e\udd47' : i === 1 ? '\ud83e\udd48' : i === 2 ? '\ud83e\udd49' : ''
       var _zone = getLeagueBarClass(state.leagueId, i, standings.length, s)
       return '<div class="db-stand-row' + (s.teamId === state.teamId ? ' is-me' : '') + '" style="cursor:pointer" onclick="openHomeTeam(\'' + s.teamId + '\')">' +
         '<span class="db-stand-zone"><span class="legend-bar ' + _zone + '"></span></span>' +
-        '<span class="db-stand-pos">' + (medal || (i + 1)) + '</span>' +
+        '<span class="db-stand-pos">' + (i + 1) + '</span>' +
         '<img class="db-stand-logo" src="' + getTeamLogo(s.teamId) + '" alt="">' +
         '<span class="db-stand-name">' + getTeamName(s.teamId) + '</span>' +
         '<span class="db-stand-pts">' + s.pts + '</span>' +
@@ -6907,8 +7812,8 @@ function renderHome() {
   var topScorer = null, topAssist = null, bestRated = null
   var _statsPlayers = (state.players || []).filter(function(p) { return !(p.onLoan && p.loanTo) })
   _statsPlayers.forEach(function(p) {
-    if (!topScorer || (p.goals || 0) > (topScorer.goals || 0)) topScorer = p
-    if (!topAssist || (p.assists || 0) > (topAssist.assists || 0)) topAssist = p
+    if ((p.goals || 0) > 0 && (!topScorer || (p.goals || 0) > (topScorer.goals || 0))) topScorer = p
+    if ((p.assists || 0) > 0 && (!topAssist || (p.assists || 0) > (topAssist.assists || 0))) topAssist = p
     var rated = (p.matchHistory || []).filter(function(m) { return m.rating })
     p._avgRating = rated.length ? rated.reduce(function(s, m) { return s + m.rating }, 0) / rated.length : null
     if (p._avgRating != null && (!bestRated || p._avgRating > bestRated._avgRating)) bestRated = p
@@ -6931,35 +7836,51 @@ function renderHome() {
     '</div>'
 
   /* Grid 2 columnas — MERCADO + ECONOMÍA */
-  var sigArrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>'
-  var selArrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
+  var arrowLeft = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>'
+  var arrowRight = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
   var _transfers = state.historialTraspasosGlobal || []
-  var _fichajes = _transfers.filter(function(m) { return m.destinoId === state.teamId || (m.equipoDestino && m.equipoDestino === state.team) })
-  var _ventas = _transfers.filter(function(m) { return m.origenId === state.teamId || (m.equipoOrigen && m.equipoOrigen === state.team) })
-  var fichajesHtml = _fichajes.slice(0, 3).map(function(m) {
-    return '<div class="db-market-row">' +
-      '<span class="db-market-name">' + m.jugadorNombre + '</span>' +
-      '<span class="db-market-pos">' + (m.jugadorPosicion || '') + '</span>' +
-      '<span class="db-market-club">' + (m.equipoOrigen || '') + '</span>' +
-      '<span class="db-market-price">' + formatShort(m.precio || 0) + '\u20ac</span>' +
+  var _ultimo = _transfers.length > 0 ? _transfers[0] : null
+  var _fmtPrecio = function(v) {
+    if (_ultimo && _ultimo.esCesion) return 'Cesi\u00f3n'
+    if (!v) return '0 \u20ac'
+    if (v >= 1000000000) return (v / 1000000000).toFixed(2) + ' B\u20ac'
+    if (v >= 1000000) return (v / 1000000).toFixed(2) + ' M\u20ac'
+    if (v >= 1000) return (v / 1000).toFixed(1) + ' K\u20ac'
+    return String(v) + ' \u20ac'
+  }
+  var historialHtml = _ultimo
+    ? '<div class="db-th-item">' +
+        '<img class="db-th-avatar" src="' + (_ultimo.jugadorAvatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'">' +
+        '<div class="db-th-info">' +
+          '<div class="db-th-name">' + escHtml(_ultimo.jugadorNombre) + '</div>' +
+          '<div class="db-th-week">' + (_ultimo.semana ? 'Semana ' + _ultimo.semana : '') + '</div>' +
+        '</div>' +
+        '<div class="db-th-clubs">' +
+          (_ultimo.origenLogo ? '<img class="db-th-logo" src="' + _ultimo.origenLogo + '" alt="" onerror="this.style.display=\'none\'">' : '') +
+          '<span class="db-th-arrow">\u2192</span>' +
+          (_ultimo.destinoLogo ? '<img class="db-th-logo" src="' + _ultimo.destinoLogo + '" alt="" onerror="this.style.display=\'none\'">' : '') +
+        '</div>' +
+        '<span class="db-th-price">' + _fmtPrecio(_ultimo.precio) + '</span>' +
       '</div>'
-  }).join('') || '<div class="db-empty">Sin fichajes</div>'
-  var ventasHtml = _ventas.slice(0, 3).map(function(m) {
-    return '<div class="db-market-row">' +
-      '<span class="db-market-name">' + m.jugadorNombre + '</span>' +
-      '<span class="db-market-pos">' + (m.jugadorPosicion || '') + '</span>' +
-      '<span class="db-market-club">' + (m.equipoDestino || '') + '</span>' +
-      '<span class="db-market-price">' + formatShort(m.precio || 0) + '\u20ac</span>' +
-      '</div>'
-  }).join('') || '<div class="db-empty">Sin ventas</div>'
+    : '<div class="db-empty">Sin traspasos</div>'
+  var sellOffersCount = (state.sellOffers || []).length
+  var sellOffersNew = hasNewSellOffers()
   var marketHtml =
-    '<div class="db-market-sec">' +
-      '<div class="db-market-title">' + sigArrow + ' Fichajes</div>' +
-      fichajesHtml +
-    '</div>' +
-    '<div class="db-market-sec">' +
-      '<div class="db-market-title db-market-title-sel">' + selArrow + ' Ventas</div>' +
-      ventasHtml +
+    '<div class="db-card db-market-wrap">' +
+      '<div class="db-market-actions">' +
+        '<div class="db-market-tile" style="cursor:pointer" onclick="openHomeMarket()">' +
+          '<div class="db-mkt-head"><span class="db-mkt-head-label">MERCADO</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
+          '<div class="db-mkt-inline"><span class="db-mkt-label" style="color:#10B981">Fichajes</span><span class="db-mkt-arrow" style="color:#10B981">' + arrowLeft + '</span></div>' +
+        '</div>' +
+        '<div class="db-market-tile' + (sellOffersNew ? ' db-mkt-new' : '') + '" style="cursor:pointer" onclick="openMarketSell()">' +
+          '<div class="db-mkt-head"><span class="db-mkt-head-label">MERCADO</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
+          '<div class="db-mkt-inline"><span class="db-mkt-label" style="color:#EF4444">Ventas</span><span class="db-mkt-arrow" style="color:#EF4444">' + arrowRight + '</span>' + (sellOffersCount > 0 ? '<span class="db-mkt-count">' + sellOffersCount + '</span>' : '') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="db-market-history">' +
+        '<div class="db-mkt-head" style="cursor:pointer" onclick="state.marketSubTab=\'history\';renderTab(\'market\')"><span class="db-mkt-head-label">Historial de traspasos</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
+        '<div class="db-mkt-body">' + historialHtml + '</div>' +
+      '</div>' +
     '</div>'
 
   var recentFinances = (state.finances.history || []).slice(-10)
@@ -6979,48 +7900,61 @@ function renderHome() {
       '<div class="db-eco-exp"><span>Gastos</span><b class="negative">' + fmtCompact(expWeek) + '\u20ac</b></div>' +
     '</div>'
 
+  /* Card Zona del Club — instalaciones (listado) */
+  var zonaClubHtml = (typeof renderZonaClubList === 'function' ? renderZonaClubList() : '')
+  var zonaCardHtml =
+    '<div class="db-card db-zona-card" style="cursor:pointer" onclick="state.clubSubTab=\'club-info\';renderTab(\'club\')">' +
+      '<div class="db-card-head"><span class="db-card-title">ZONA DEL CLUB</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
+      zonaClubHtml +
+    '</div>'
+
   container.innerHTML =
-    matchHtml +
-    '<div class="db-card db-mgmt-card" style="cursor:pointer" onclick="openHomeTactics()">' +
-      '<div class="db-card-head"><span class="db-card-title">GESTI\u00d3N DEL EQUIPO</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
-      '<div class="db-mgmt-body">' +
-        '<div class="db-mgmt-info">' +
-          '<div class="db-mgmt-bar"><div class="db-mgmt-bar-fill" style="width:' + energyPct + '%"></div></div>' +
-          '<div class="db-mgmt-line2">' + formStr + ' - Energ\u00eda: ' + energyPct + '%</div>' +
-          '<div class="db-next-badges">' +
-            '<span class="db-next-chip">DEF: ' + ownAvgs.DEF + '</span>' +
-            '<span class="db-next-chip">MED: ' + ownAvgs.MED + '</span>' +
-            '<span class="db-next-chip">ATA: ' + ownAvgs.ATA + '</span>' +
+    '<div class="db-scroll-cols">' +
+      matchHtml +
+      '<div class="db-card">' +
+        '<div class="db-card-head" style="cursor:pointer" onclick="openHomeCalendar()"><span class="db-card-title">CALENDARIO</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
+        calHtml +
+      '</div>' +
+      '<div class="db-card db-mgmt-card" style="cursor:pointer" onclick="openHomeTactics()">' +
+        '<div class="db-card-head"><span class="db-card-title">GESTI\u00d3N DEL EQUIPO</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
+        '<div class="db-mgmt-body">' +
+          '<div class="db-mgmt-info">' +
+            '<div class="db-mgmt-bar"><div class="db-mgmt-bar-fill" style="width:' + energyPct + '%"></div></div>' +
+            '<div class="db-mgmt-line2">' + formStr + ' - Energ\u00eda: ' + energyPct + '%</div>' +
+            '<div class="db-next-badges">' +
+              '<span class="db-next-chip">DEF: ' + ownAvgs.DEF + '</span>' +
+              '<span class="db-next-chip">MED: ' + ownAvgs.MED + '</span>' +
+              '<span class="db-next-chip">ATA: ' + ownAvgs.ATA + '</span>' +
+            '</div>' +
+            '<div class="db-mgmt-footline">' +
+              '<span class="db-mgmt-form">' + ((last5.length ? last5 : []).map(function(r) { var g = r === 'V' ? 'G' : r === 'E' ? 'E' : 'P'; var cls = r === 'V' ? 'db-form-v' : r === 'E' ? 'db-form-e' : 'db-form-d'; return '<span class="db-form-dot ' + cls + '">' + g + '</span>' }).join('') || '<span class="db-form-dot db-form-e">-</span>') + '</span>' +
+            '</div>' +
           '</div>' +
-          '<div class="db-mgmt-footline">' +
-            '<span class="db-next-stars">' + starsFromGrl(getTop11Average(state.players)) + '</span>' +
-            '<span class="db-mgmt-form">' + ((last5.length ? last5 : []).map(function(r) { var g = r === 'V' ? 'G' : r === 'E' ? 'E' : 'P'; var cls = r === 'V' ? 'db-form-v' : r === 'E' ? 'db-form-e' : 'db-form-d'; return '<span class="db-form-dot ' + cls + '">' + g + '</span>' }).join('') || '<span class="db-form-dot db-form-e">-</span>') + '</span>' +
+          '<div class="db-mgmt-art">' +
+            '<img class="db-mgmt-crest" src="' + (state.teamLogo || '') + '" alt="" onclick="event.stopPropagation();openHomeTeam(\'' + state.teamId + '\')">' +
           '</div>' +
-        '</div>' +
-        '<div class="db-mgmt-art">' +
-          '<img class="db-mgmt-crest" src="' + (state.teamLogo || '') + '" alt="" onclick="event.stopPropagation();openHomeTeam(\'' + state.teamId + '\')">' +
         '</div>' +
       '</div>' +
-    '</div>' +
-    '<div class="db-card">' +
-      '<div class="db-card-head" style="cursor:pointer" onclick="openHomeCalendar()"><span class="db-card-title">CALENDARIO</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
-      calHtml +
-    '</div>' +
-    '<div class="db-card">' +
-      '<div class="db-card-head" style="cursor:pointer" onclick="openHomeCompetition()"><span class="db-card-head-inline">' + (compLogo ? '<img class="db-comp-logo-head" src="' + compLogo + '" alt="">' : '') + '<span class="db-card-title">' + compTitle + '</span></span><span class="db-card-arrow">&gt;&gt;</span></div>' +
-      compsHtml +
-    '</div>' +
-    '<div class="db-card">' +
-      '<div class="db-card-head" style="cursor:pointer" onclick="openHomePlayerStats()"><span class="db-card-title">ESTAD\u00cdSTICAS JUGADORES</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
-      statsHtml +
-    '</div>' +
-    '<div class="db-grid db-grid-sq">' +
-      '<div class="db-card db-col"><div class="db-card-head" style="cursor:pointer" onclick="openHomeMarket()"><span class="db-card-title">MERCADO</span><span class="db-card-arrow">&gt;&gt;</span></div>' + marketHtml + '</div>' +
-      '<div class="db-card db-col"><div class="db-card-head" style="cursor:pointer" onclick="openHomeFinances()"><span class="db-card-title">ECONOM\u00cdA</span><span class="db-card-arrow">&gt;&gt;</span></div>' + ecoHtml + '</div>' +
+      marketHtml +
+      '<div class="db-card">' +
+        '<div class="db-card-head" style="cursor:pointer" onclick="openHomeCompetition()"><span class="db-card-head-inline">' + (compLogo ? '<img class="db-comp-logo-head" src="' + compLogo + '" alt="">' : '') + '<span class="db-card-title">' + compTitle + '</span></span><span class="db-card-arrow">&gt;&gt;</span></div>' +
+        compsHtml +
+      '</div>' +
+      '<div class="db-card db-stats-card">' +
+        '<div class="db-card-head" style="cursor:pointer" onclick="openHomePlayerStats()"><span class="db-card-title">ESTAD\u00cdSTICAS JUGADORES</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
+        statsHtml +
+      '</div>' +
+      zonaCardHtml +
+      '<div class="db-card"><div class="db-card-head" style="cursor:pointer" onclick="openHomeFinances()"><span class="db-card-title">ECONOM\u00cdA</span><span class="db-card-arrow">&gt;&gt;</span></div>' + ecoHtml + '</div>' +
     '</div>'
+
+  container.querySelectorAll('.db-zona-card .zc-list-row').forEach(function(c) {
+    c.addEventListener('click', function(e) { e.stopPropagation() })
+  })
 
   bindHeaderContinue(matchFixture)
   updateHeaderContinueVisibility()
+  if (typeof updateInboxBadge === 'function') updateInboxBadge()
 
   /* Season-end fallback: show modal when no matches left */
   if (!matchFixture && state.totalMatchdays > 0 && !state.playoffs && !state.absoluteFinal && (state.currentMatchday >= state.totalMatchdays || !!state.lastSeasonProgressionData)) {
@@ -7032,6 +7966,9 @@ function renderHome() {
       showSeasonEndFallback()
     }
   }
+
+  /* Aviso de lesiones/sanciones del último partido al volver al menú. */
+  mostrarIncidenciasPendientes()
 }
 function renderClub() {
   scrollAppToTop()
@@ -7043,7 +7980,6 @@ function renderClub() {
   }
   /* Team stats panel */
   const displayPower = getTop11Average(state.players)
-  const stars = starsFromGrl(displayPower)
   const countryFlag = window.DB[state.countryId]?.country.flag || ''
   const totalVal = state.players.reduce((s, p) => s + (p.value || 0), 0)
   var leagueName = getTeamLeagueName(state.teamId)
@@ -7071,12 +8007,10 @@ function renderClub() {
   document.getElementById('club-team-info').innerHTML = `
     <div class="db-qa-nav">
       <button class="db-qa-tab${state.clubSubTab === 'club-info' ? ' active' : ''}" onclick="state.clubSubTab='club-info';renderClub()">General</button>
-      <button class="db-qa-tab${state.clubSubTab === 'palmares' ? ' active' : ''}" onclick="state.clubSubTab='palmares';renderClub()">Historial</button>
     </div>
     ${state.clubSubTab === 'palmares' ? '' : `
     <div class="tp-stats" style="margin-bottom:6px">
       <div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">${posDisplay}</span></div>
-      <div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">${stars}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">${countryFlag}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">${displayPower}</span></div>
       <div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC${formatShort(totalVal)}</span></div>
@@ -7096,13 +8030,15 @@ function renderClub() {
   document.getElementById('club-palmares-content').classList.add('hidden')
   var isHamburgerView = state.clubSubTab === 'inbox' || state.clubSubTab === 'calendar'
   var isClubInfo = state.clubSubTab === 'club-info' || state.clubSubTab === 'palmares'
+  /* Táctica: solo se muestra el pitch + suplentes/reservas, sin cabecera del club ni tabs */
+  var noChrome = isHamburgerView || isClubInfo || state.clubSubTab === 'tactics'
   var teamInfo = document.getElementById('club-team-info')
   var subTabs = document.querySelector('#view-club .sub-tabs')
-  if (teamInfo) teamInfo.style.display = isClubInfo ? '' : 'none'
-  if (subTabs) subTabs.style.display = (isHamburgerView || isClubInfo) ? 'none' : ''
-  /* En la bandeja de entrada no se muestra el nombre ni el logo del club. */
+  if (teamInfo) teamInfo.style.display = (isClubInfo && state.clubSubTab !== 'palmares') ? '' : 'none'
+  if (subTabs) subTabs.style.display = noChrome ? 'none' : ''
+  /* En la bandeja, la táctica y el calendario no se muestra el nombre ni el logo del club. */
   var clubHeader = document.querySelector('#view-club .view-header')
-  if (clubHeader) clubHeader.style.display = (state.clubSubTab === 'inbox') ? 'none' : ''
+  if (clubHeader) clubHeader.style.display = (state.clubSubTab === 'inbox' || state.clubSubTab === 'tactics' || state.clubSubTab === 'calendar') ? 'none' : ''
   document.querySelectorAll('#view-club .sub-tab').forEach(b => b.classList.toggle('active', b.dataset.subtab === state.clubSubTab))
   if (state.clubSubTab === 'squad') {
     document.getElementById('club-squad-content').classList.remove('hidden')
@@ -7132,14 +8068,14 @@ function renderBenchCard(player, extraClass) {
         <span class="bc-name">${player.name}</span>
         <span class="bc-pos" style="background:${pos.color}">${pos.label}</span>
       </div>
-      <div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${getEneVal(player.energy)}</div><div class="stat-circle" style="background:#9CA3AF">${player.skill}</div></div>
+      <div class="stat-row"><div class="stat-circle" style="background:${getEneColor(player.energy)}">${getEneVal(player.energy)}</div><div class="stat-circle" style="background:${skillColor(player.skill)}">${player.skill}</div></div>
     </div>
   </div>`
 }
 
 /* ============ TÁCTICA + CONVOCATORIA ============ */
 function getEneVal(energy) {
-  return energy != null && !Number.isNaN(energy) ? energy : 80
+  return energy != null && !Number.isNaN(energy) ? Math.round(energy) : 80
 }
 
 function getEneColor(energy) {
@@ -7150,30 +8086,33 @@ function getEneColor(energy) {
 }
 
 const POS_MULTIPLIER = {
-  portero:         { portero: 1.0, lateral_der: 0.2, lateral_izq: 0.2, carrilero_der: 0.2, carrilero_izq: 0.2, defensa_central: 0.3, medio_def: 0.2, mediocentro: 0.2, medio_ofensivo: 0.2, medio_der: 0.2, medio_izq: 0.2, extremo_der: 0.1, extremo_izq: 0.1, delantero: 0.2 },
-  lateral_der:     { portero: 0.2, lateral_der: 1.0, lateral_izq: 0.5, carrilero_der: 0.7, carrilero_izq: 0.4, defensa_central: 0.6, medio_def: 0.4, mediocentro: 0.3, medio_ofensivo: 0.3, medio_der: 0.5, medio_izq: 0.3, extremo_der: 0.4, extremo_izq: 0.3, delantero: 0.3 },
-  lateral_izq:     { portero: 0.2, lateral_der: 0.5, lateral_izq: 1.0, carrilero_der: 0.4, carrilero_izq: 0.7, defensa_central: 0.6, medio_def: 0.4, mediocentro: 0.3, medio_ofensivo: 0.3, medio_der: 0.3, medio_izq: 0.5, extremo_der: 0.3, extremo_izq: 0.4, delantero: 0.3 },
-  carrilero_der:   { portero: 0.1, lateral_der: 0.6, lateral_izq: 0.3, carrilero_der: 1.0, carrilero_izq: 0.3, defensa_central: 0.4, medio_def: 0.4, mediocentro: 0.4, medio_ofensivo: 0.4, medio_der: 0.6, medio_izq: 0.3, extremo_der: 0.5, extremo_izq: 0.3, delantero: 0.3 },
-  carrilero_izq:   { portero: 0.1, lateral_der: 0.3, lateral_izq: 0.6, carrilero_der: 0.3, carrilero_izq: 1.0, defensa_central: 0.4, medio_def: 0.4, mediocentro: 0.4, medio_ofensivo: 0.4, medio_der: 0.3, medio_izq: 0.6, extremo_der: 0.3, extremo_izq: 0.5, delantero: 0.3 },
-  defensa_central: { portero: 0.3, lateral_der: 0.5, lateral_izq: 0.5, carrilero_der: 0.3, carrilero_izq: 0.3, defensa_central: 1.0, medio_def: 0.5, mediocentro: 0.3, medio_ofensivo: 0.2, medio_der: 0.3, medio_izq: 0.3, extremo_der: 0.2, extremo_izq: 0.2, delantero: 0.2 },
-  medio_def:       { portero: 0.2, lateral_der: 0.4, lateral_izq: 0.4, carrilero_der: 0.4, carrilero_izq: 0.4, defensa_central: 0.5, medio_def: 1.0, mediocentro: 0.7, medio_ofensivo: 0.5, medio_der: 0.5, medio_izq: 0.5, extremo_der: 0.3, extremo_izq: 0.3, delantero: 0.4 },
-  mediocentro:     { portero: 0.1, lateral_der: 0.3, lateral_izq: 0.3, carrilero_der: 0.3, carrilero_izq: 0.3, defensa_central: 0.3, medio_def: 0.6, mediocentro: 1.0, medio_ofensivo: 0.7, medio_der: 0.6, medio_izq: 0.6, extremo_der: 0.4, extremo_izq: 0.4, delantero: 0.5 },
-  medio_ofensivo:  { portero: 0.1, lateral_der: 0.3, lateral_izq: 0.3, carrilero_der: 0.3, carrilero_izq: 0.3, defensa_central: 0.2, medio_def: 0.4, mediocentro: 0.6, medio_ofensivo: 1.0, medio_der: 0.5, medio_izq: 0.5, extremo_der: 0.6, extremo_izq: 0.6, delantero: 0.6 },
-  medio_der:       { portero: 0.1, lateral_der: 0.5, lateral_izq: 0.3, carrilero_der: 0.5, carrilero_izq: 0.3, defensa_central: 0.3, medio_def: 0.4, mediocentro: 0.6, medio_ofensivo: 0.5, medio_der: 1.0, medio_izq: 0.4, extremo_der: 0.6, extremo_izq: 0.3, delantero: 0.4 },
-  medio_izq:       { portero: 0.1, lateral_der: 0.3, lateral_izq: 0.5, carrilero_der: 0.3, carrilero_izq: 0.5, defensa_central: 0.3, medio_def: 0.4, mediocentro: 0.6, medio_ofensivo: 0.5, medio_der: 0.4, medio_izq: 1.0, extremo_der: 0.3, extremo_izq: 0.6, delantero: 0.4 },
-  extremo_der:     { portero: 0.1, lateral_der: 0.4, lateral_izq: 0.2, carrilero_der: 0.4, carrilero_izq: 0.2, defensa_central: 0.2, medio_def: 0.2, mediocentro: 0.3, medio_ofensivo: 0.5, medio_der: 0.5, medio_izq: 0.2, extremo_der: 1.0, extremo_izq: 0.3, delantero: 0.6 },
-  extremo_izq:     { portero: 0.1, lateral_der: 0.2, lateral_izq: 0.4, carrilero_der: 0.2, carrilero_izq: 0.4, defensa_central: 0.2, medio_def: 0.2, mediocentro: 0.3, medio_ofensivo: 0.5, medio_der: 0.2, medio_izq: 0.5, extremo_der: 0.3, extremo_izq: 1.0, delantero: 0.6 },
-  delantero:       { portero: 0.1, lateral_der: 0.2, lateral_izq: 0.2, carrilero_der: 0.2, carrilero_izq: 0.2, defensa_central: 0.2, medio_def: 0.3, mediocentro: 0.4, medio_ofensivo: 0.5, medio_der: 0.3, medio_izq: 0.3, extremo_der: 0.5, extremo_izq: 0.5, delantero: 1.0 },
+  POR:         { POR: 1.0, LD: 0.2, LI: 0.2, CAD: 0.2, CAI: 0.2, DFC: 0.3, MCD: 0.2, MC: 0.2, MCO: 0.2, MD: 0.2, MI: 0.2, ED: 0.1, EI: 0.1, DC: 0.2 },
+  LD:     { POR: 0.2, LD: 1.0, LI: 0.5, CAD: 0.7, CAI: 0.4, DFC: 0.6, MCD: 0.4, MC: 0.3, MCO: 0.3, MD: 0.5, MI: 0.3, ED: 0.4, EI: 0.3, DC: 0.3 },
+  LI:     { POR: 0.2, LD: 0.5, LI: 1.0, CAD: 0.4, CAI: 0.7, DFC: 0.6, MCD: 0.4, MC: 0.3, MCO: 0.3, MD: 0.3, MI: 0.5, ED: 0.3, EI: 0.4, DC: 0.3 },
+  CAD:   { POR: 0.1, LD: 0.6, LI: 0.3, CAD: 1.0, CAI: 0.3, DFC: 0.4, MCD: 0.4, MC: 0.4, MCO: 0.4, MD: 0.6, MI: 0.3, ED: 0.5, EI: 0.3, DC: 0.3 },
+  CAI:   { POR: 0.1, LD: 0.3, LI: 0.6, CAD: 0.3, CAI: 1.0, DFC: 0.4, MCD: 0.4, MC: 0.4, MCO: 0.4, MD: 0.3, MI: 0.6, ED: 0.3, EI: 0.5, DC: 0.3 },
+  DFC: { POR: 0.3, LD: 0.5, LI: 0.5, CAD: 0.3, CAI: 0.3, DFC: 1.0, MCD: 0.5, MC: 0.3, MCO: 0.2, MD: 0.3, MI: 0.3, ED: 0.2, EI: 0.2, DC: 0.2 },
+  MCD:       { POR: 0.2, LD: 0.4, LI: 0.4, CAD: 0.4, CAI: 0.4, DFC: 0.5, MCD: 1.0, MC: 0.7, MCO: 0.5, MD: 0.5, MI: 0.5, ED: 0.3, EI: 0.3, DC: 0.4 },
+  MC:     { POR: 0.1, LD: 0.3, LI: 0.3, CAD: 0.3, CAI: 0.3, DFC: 0.3, MCD: 0.6, MC: 1.0, MCO: 0.7, MD: 0.6, MI: 0.6, ED: 0.4, EI: 0.4, DC: 0.5 },
+  MCO:  { POR: 0.1, LD: 0.3, LI: 0.3, CAD: 0.3, CAI: 0.3, DFC: 0.2, MCD: 0.4, MC: 0.6, MCO: 1.0, MD: 0.5, MI: 0.5, ED: 0.6, EI: 0.6, DC: 0.6 },
+  MD:       { POR: 0.1, LD: 0.5, LI: 0.3, CAD: 0.5, CAI: 0.3, DFC: 0.3, MCD: 0.4, MC: 0.6, MCO: 0.5, MD: 1.0, MI: 0.4, ED: 0.6, EI: 0.3, DC: 0.4 },
+  MI:       { POR: 0.1, LD: 0.3, LI: 0.5, CAD: 0.3, CAI: 0.5, DFC: 0.3, MCD: 0.4, MC: 0.6, MCO: 0.5, MD: 0.4, MI: 1.0, ED: 0.3, EI: 0.6, DC: 0.4 },
+  ED:     { POR: 0.1, LD: 0.4, LI: 0.2, CAD: 0.4, CAI: 0.2, DFC: 0.2, MCD: 0.2, MC: 0.3, MCO: 0.5, MD: 0.5, MI: 0.2, ED: 1.0, EI: 0.3, DC: 0.6 },
+  EI:     { POR: 0.1, LD: 0.2, LI: 0.4, CAD: 0.2, CAI: 0.4, DFC: 0.2, MCD: 0.2, MC: 0.3, MCO: 0.5, MD: 0.2, MI: 0.5, ED: 0.3, EI: 1.0, DC: 0.6 },
+  DC:       { POR: 0.1, LD: 0.2, LI: 0.2, CAD: 0.2, CAI: 0.2, DFC: 0.2, MCD: 0.3, MC: 0.4, MCO: 0.5, MD: 0.3, MI: 0.3, ED: 0.5, EI: 0.5, DC: 1.0 },
 }
 
 const SLOT_ROLES = {
   '4-3-3': FORMATIONS['4-3-3'].roles,
   '4-4-2': FORMATIONS['4-4-2'].roles,
   '4-2-3-1': FORMATIONS['4-2-3-1'].roles,
+  '4-2-1-3': FORMATIONS['4-2-1-3'].roles,
   '3-5-2': FORMATIONS['3-5-2'].roles,
+  '3-1-4-2': FORMATIONS['3-1-4-2'].roles,
   '4-1-4-1': FORMATIONS['4-1-4-1'].roles,
   '3-4-3': FORMATIONS['3-4-3'].roles,
   '3-4-2-1': FORMATIONS['3-4-2-1'].roles,
+  '4-1-2-1-2': FORMATIONS['4-1-2-1-2'].roles,
 }
 
 function getPositionMultiplier(naturalPosition, assignedRole) {
@@ -7211,33 +8150,45 @@ function buildPitchField(roles, formation, nodeBuilder, cssCls) {
       var offset = spread * (sameCount - (totalAbbr - 1) / 2)
       left = Math.max(5, Math.min(95, left + offset))
     }
-    if (role === 'mediocentro' && sameCount === 0 && formation === '4-3-3') { left = 27; bottom = 38 }
-    if (role === 'mediocentro' && sameCount === 1 && formation === '4-3-3') { left = 73; bottom = 38 }
-    if (role === 'mediocentro' && sameCount === 0 && formation === '4-4-2') { left = 40; bottom = 38 }
-    if (role === 'mediocentro' && sameCount === 1 && formation === '4-4-2') { left = 60; bottom = 38 }
-    if (role === 'medio_izq' && formation === '4-4-2') { left = 18; bottom = 38 }
-    if (role === 'medio_der' && formation === '4-4-2') { left = 82; bottom = 38 }
-    if (role === 'mediocentro' && sameCount === 0 && formation === '4-1-4-1') { left = 36; bottom = 38 }
-    if (role === 'mediocentro' && sameCount === 1 && formation === '4-1-4-1') { left = 64; bottom = 38 }
-    if (role === 'medio_izq' && formation === '4-1-4-1') { left = 16; bottom = 38 }
-    if (role === 'medio_der' && formation === '4-1-4-1') { left = 84; bottom = 38 }
-    if (role === 'medio_def') { bottom = 50 }
-    if (role === 'medio_ofensivo' && formation === '4-2-3-1') { bottom = 31 }
-    if (role === 'medio_ofensivo' && sameCount === 0 && formation === '3-4-2-1') { left = 35; bottom = 22 }
-    if (role === 'medio_ofensivo' && sameCount === 1 && formation === '3-4-2-1') { left = 65; bottom = 22 }
-    if (role === 'carrilero_izq' && formation === '3-4-2-1') { left = 12 }
-    if (role === 'carrilero_der' && formation === '3-4-2-1') { left = 88 }
-    if (role === 'carrilero_izq' && formation === '3-4-3') { left = 12 }
-    if (role === 'carrilero_der' && formation === '3-4-3') { left = 88 }
-    if (role === 'carrilero_izq' && formation === '3-5-2') { left = 12 }
-    if (role === 'carrilero_der' && formation === '3-5-2') { left = 88 }
-    if (role === 'delantero') { bottom = 12 }
-    if (role === 'portero') { bottom = 87 }
-    if (role === 'lateral_izq') { left = 17 }
-    if (role === 'lateral_der') { left = 83 }
-    html += '<div class="tp-pitch-player" style="left:' + left + '%;top:' + bottom + '%">' +
-      nodeBuilder(i, role, abbr) +
-    '</div>'
+    if (role === 'MC' && sameCount === 0 && formation === '4-3-3') { left = 27; bottom = 38 }
+    if (role === 'MC' && sameCount === 1 && formation === '4-3-3') { left = 73; bottom = 38 }
+    if (role === 'MC' && sameCount === 0 && formation === '4-4-2') { left = 40; bottom = 38 }
+    if (role === 'MC' && sameCount === 1 && formation === '4-4-2') { left = 60; bottom = 38 }
+    if (role === 'MI' && formation === '4-4-2') { left = 18; bottom = 38 }
+    if (role === 'MD' && formation === '4-4-2') { left = 82; bottom = 38 }
+    if (role === 'MC' && sameCount === 0 && formation === '4-1-4-1') { left = 36; bottom = 38 }
+    if (role === 'MC' && sameCount === 1 && formation === '4-1-4-1') { left = 64; bottom = 38 }
+    if (role === 'MI' && formation === '4-1-4-1') { left = 16; bottom = 38 }
+    if (role === 'MD' && formation === '4-1-4-1') { left = 84; bottom = 38 }
+    if (role === 'MCD') { bottom = 50 }
+    if (role === 'MCO' && formation === '4-2-3-1') { bottom = 31 }
+    if (role === 'MI' && formation === '4-2-3-1') { left = 20; bottom = 31 }
+    if (role === 'MD' && formation === '4-2-3-1') { left = 80; bottom = 31 }
+    if (role === 'MCO' && formation === '4-2-1-3') { bottom = 31 }
+    if (role === 'EI' && formation === '4-2-1-3') { left = 20; bottom = 13 }
+    if (role === 'ED' && formation === '4-2-1-3') { left = 80; bottom = 13 }
+    if (role === 'MCO' && sameCount === 0 && formation === '3-4-2-1') { left = 35; bottom = 22 }
+    if (role === 'MCO' && sameCount === 1 && formation === '3-4-2-1') { left = 65; bottom = 22 }
+    if (role === 'CAI' && formation === '3-4-2-1') { left = 12 }
+    if (role === 'CAD' && formation === '3-4-2-1') { left = 88 }
+    if (role === 'CAI' && formation === '3-4-3') { left = 12 }
+    if (role === 'CAD' && formation === '3-4-3') { left = 88 }
+    if (role === 'CAI' && formation === '3-5-2') { left = 12 }
+if (role === 'CAD' && formation === '3-5-2') { left = 88 }
+    /* 3-1-4-2: línea de 4 (MI · MC · MC · MD) por delante del MCD */
+    if (role === 'MC' && sameCount === 0 && formation === '3-1-4-2') { left = 37; bottom = 38 }
+    if (role === 'MC' && sameCount === 1 && formation === '3-1-4-2') { left = 63; bottom = 38 }
+    if (role === 'MI' && formation === '3-1-4-2') { left = 15; bottom = 38 }
+    if (role === 'MD' && formation === '3-1-4-2') { left = 85; bottom = 38 }
+      if (role === 'DC') { bottom = 12 }
+      if (role === 'POR') { bottom = 87 }
+      if (role === 'LI') { left = 17 }
+      if (role === 'LD') { left = 83 }
+      /* Centrales 3px más abajo en las formaciones de doble central y línea de 4 */
+      var downPx = (role === 'DFC' && (formation === '4-3-3' || formation === '4-4-2' || formation === '4-1-4-1' || formation === '4-2-3-1' || formation === '4-2-1-3')) ? 5 : 0
+      html += '<div class="tp-pitch-player" style="left:' + left + '%;top:' + (downPx ? 'calc(' + bottom + '% + 5px)' : bottom + '%') + '">' +
+        nodeBuilder(i, role, abbr) +
+      '</div>'
   }
   html += '</div></div>'
   return html
@@ -7261,12 +8212,13 @@ function renderTactics(tactic) {
   }
 
   var slots = state.tacticsSlots
-  /* Un jugador cedido a otro club no puede jugar: se libera su slot. Los
-     sancionados/lesionados tampoco son convocables: se liberan del XI. */
+  /* Un jugador cedido a otro club no puede jugar: se libera su slot.
+     Sancionados y lesionados SE MANTIENEN en su hueco para que el usuario los
+     vea; al continuar se le avisa para que revise la alineación. */
   state.tacticsSlots = slots.map(function(pid) {
     if (!pid) return null
     var pl = state.players.find(function(p) { return p.id === pid })
-    return (pl && (pl.onLoan && pl.loanTo)) || (pl && (pl._suspended || pl.injury)) ? null : pid
+    return (pl && pl.onLoan && pl.loanTo) ? null : pid
   })
   slots = state.tacticsSlots
   var assignedIds = slots.filter(Boolean)
@@ -7277,38 +8229,45 @@ function renderTactics(tactic) {
     return !assignedIds.includes(p.id) && !(p.onLoan && p.loanTo) && !p._suspended && !p.injury
   })
 
-  state.benchIds = state.benchIds.filter(function(id) { var pl = state.players.find(function(p) { return p.id === id }); return pl && !(pl.onLoan && pl.loanTo) && !pl._suspended && !pl.injury })
+  /* El banquillo conserva a los sancionados/lesionados que el usuario coloque
+     ahí (como cualquier jugador); solo se liberan los cedidos a otro club. */
+  state.benchIds = state.benchIds.filter(function(id) { var pl = state.players.find(function(p) { return p.id === id }); return pl && !(pl.onLoan && pl.loanTo) })
   var maxBench = getEffectiveMaxBench()
   if (state.benchIds.length > maxBench) state.benchIds = state.benchIds.slice(0, maxBench)
   var bench = state.benchIds.map(function(id) { return state.players.find(function(p) { return p.id === id }) }).filter(Boolean)
   var restPool = available.filter(function(p) { return !state.benchIds.includes(p.id) })
-  /* Auto-fill empty bench slots with available players */
-  while (state.benchIds.length < maxBench && restPool.length > 0) {
-    var fillPlayer = restPool.shift()
-    state.benchIds.push(fillPlayer.id)
-    bench.push(fillPlayer)
+  /* Auto-fill empty bench slots with position-aware picks (never a pure
+     defender in the forward line) */
+  if (state.benchIds.length < maxBench) {
+    state.benchIds = fillRemainingBench(state.benchIds, available, maxBench)
+    bench = state.benchIds.map(function(id) { return state.players.find(function(p) { return p.id === id }) }).filter(Boolean)
+    restPool = available.filter(function(p) { return !state.benchIds.includes(p.id) })
   }
   var rest = restPool
 
-  /* No disponibles (sancionados/lesionados) siempre en reservas, nunca en XI/banquillo */
-  var unavailSquad = notAvailable.filter(function(p) { return !(p.onLoan && p.loanTo) && state.tacticsSlots.indexOf(p.id) < 0 })
+  /* No disponibles (sancionados/lesionados) que NO estén en el XI ni en el
+     banquillo van a reservas; si el usuario los pone en el banquillo, ahí se
+     quedan (no se mueven solos). */
+  var unavailSquad = notAvailable.filter(function(p) { return !(p.onLoan && p.loanTo) && state.tacticsSlots.indexOf(p.id) < 0 && state.benchIds.indexOf(p.id) < 0 })
 
   var complete = slots.every(Boolean)
-  var hasGK = slots.some(function(id) { if (!id) return false; var pp = state.players.find(function(x) { return x.id === id }); return pp && pp.position === 'portero' })
+  var hasGK = slots.some(function(id) { if (!id) return false; var pp = state.players.find(function(x) { return x.id === id }); return pp && pp.position === 'POR' })
   var enoughAvailable = available.length >= 11
 
-  function renderPlayerCard(player, dataset, dataVal, posColorOverride, roleAbbrOverride, effectiveSkill, fullRole) {
+  function renderPlayerCard(player, dataset, dataVal, posColorOverride, roleAbbrOverride, effectiveSkill, fullRole, outOfPosition) {
     var posKey = SIGLA_TO_POS[player.position] || player.position
     var pos = POSITIONS[posKey]
-    if (!pos) { pos = POS_ABBR[posKey] ? { label: POS_ABBR[posKey], color: '#6B7280' } : { label: '?', color: '#6B7280' } }
+    if (!pos) { pos = POS_ABBR[posKey] ? { label: POS_ABBR[posKey], color: '#71717A' } : { label: '?', color: '#71717A' } }
     var posAbbr = roleAbbrOverride || (POS_ABBR[posKey] || player.position)
     return buildPlayerNode(player, roleAbbrOverride || null, {
       mode: 'tactics',
       captainId: state.captainId,
-      cls: 'tp-player-card pp-slot',
+      cls: 'tp-player-card pp-slot' + (outOfPosition ? ' pp-oop-card' : ''),
       posAbbr: posAbbr,
       labelOverride: roleAbbrOverride,
       roleColor: fullRole,
+      skillOverride: (effectiveSkill != null ? effectiveSkill : null),
+      outOfPosition: !!outOfPosition,
       dataAttr: 'data-' + dataset + '="' + dataVal + '"'
     })
   }
@@ -7329,22 +8288,30 @@ function renderTactics(tactic) {
     var captainId = state.captainId || slots[0]
     var captain = state.players.find(function(p) { return p.id === captainId })
     var gpLabel = GAME_PLANS[tactic.gamePlan] ? GAME_PLANS[tactic.gamePlan].label : tactic.gamePlan
+    html += '<div class="tc-layout"><div class="tc-left">'
+
+    /* 1. Pitch */
+    html += buildPitchField(roles, tactic.formation, function(i, role, abbr) {
+      var pid = slots[i]
+      var player = pid ? state.players.find(function(x) { return x.id === pid }) : null
+      if (player) {
+        /* Si no domina la posición (ni principal ni secundaria), se le baja el
+           GRL mostrado y se marca con un aviso. */
+        var fitPct = getPositionFitPct(player, role)
+        var known = fitPct >= 100
+        var effSkill = known ? (player.skill || 0) : Math.round((player.skill || 0) * fitPct / 100)
+        return renderPlayerCard(player, 'slot', String(i), (POSITIONS[role] || {}).color, POS_ABBR[role] || role, effSkill, role, !known)
+      }
+      return emptyCard('slot', String(i), abbr)
+    })
+    html += '</div><div class="tc-right">'
+
+    /* 2. Instrucciones (Capitán, Presión, Formación) sobre los suplentes */
     html += '<div class="tc-top-cards">' +
       '<div class="tc-card" id="tc-captain-btn" style="cursor:pointer"><span class="tc-card-label">Capit\u00e1n</span><span class="tc-card-value">' + (captain ? captain.name.split(' ').slice(-1)[0] : '---') + '</span></div>' +
       '<div class="tc-card" id="tc-pressure-btn" style="cursor:pointer"><span class="tc-card-label">Presi\u00f3n</span><span class="tc-card-value tc-accent">' + gpLabel + '</span></div>' +
       '<div class="tc-card" id="tc-formation-btn" style="cursor:pointer"><span class="tc-card-label">Formaci\u00f3n</span><span class="tc-card-value tc-accent">' + tactic.formation + '</span></div>' +
     '</div>'
-
-    /* 2. Pitch */
-    html += buildPitchField(roles, tactic.formation, function(i, role, abbr) {
-      var pid = slots[i]
-      var player = pid ? state.players.find(function(x) { return x.id === pid }) : null
-      if (player) {
-        var effSkill = calcularMediaEnPosicion(player, role)
-        return renderPlayerCard(player, 'slot', String(i), (POSITIONS[role] || {}).color, POS_ABBR[role] || role, effSkill, role)
-      }
-      return emptyCard('slot', String(i), abbr)
-    })
 
     /* 3. Subs section */
     html += '<div class="tc-section-label">SUSTITUTOS (' + bench.length + '/' + maxBench + ')</div>' +
@@ -7362,6 +8329,7 @@ function renderTactics(tactic) {
 
     /* 4. Reserves — mismas tarjetas y grid que el apartado de sustitutos */
     var reservePlayers = unavailSquad.concat(rest.filter(function(p) { return !(p._suspended || p.injury) }))
+      .sort(cmpBenchPos)
     var reserveSlots = Math.max(maxBench, reservePlayers.length)
     html += '<div class="tc-section-label">RESERVAS</div>' +
       '<div class="tc-subs-grid">'
@@ -7374,6 +8342,7 @@ function renderTactics(tactic) {
       }
     }
     html += '</div>'
+    html += '</div></div>'
 
     container.innerHTML = html
 
@@ -7466,68 +8435,183 @@ function elegirCapitan(ids) {
   return mejor
 }
 
+/* Orden fino de las fichas del banquillo/reservas: de la portería al ataque. */
+const BENCH_POS_ORDER = ['POR', 'LI', 'DFC', 'LD', 'CAI', 'CAD', 'MCD', 'MC', 'MI', 'MD', 'MCO', 'EI', 'DC', 'ED']
+function posOrderRank(posKey) {
+  var i = BENCH_POS_ORDER.indexOf(posKey)
+  return i < 0 ? BENCH_POS_ORDER.length : i
+}
+function cmpBenchPos(a, b) {
+  var ra = posOrderRank(SIGLA_TO_POS[a && a.position] || (a ? a.position : ''))
+  var rb = posOrderRank(SIGLA_TO_POS[b && b.position] || (b ? b.position : ''))
+  return ra - rb || (b && b.skill || 0) - (a && a.skill || 0)
+}
+
+/* Convocatoria equilibrada: 2 POR + LI + 2 DC + LD + pivote(MCD o MC) + MCO + EI + DC + ED,
+   en ese orden, y por GRL dentro de cada puesto. */
+function selectBalancedBench(maxBench, xiIds, allPlayers) {
+  var avail = allPlayers.filter(function(p) {
+    return xiIds.indexOf(p.id) < 0 && !(p.onLoan && p.loanTo) && !p._suspended && !p.injury
+  })
+  var used = []
+  var bench = []
+  var ATTACK_POS = { EI: true, DC: true, ED: true }
+  function bestAt(pos) {
+    var isAttack = ATTACK_POS[pos]
+    var passes = isAttack ? [true, false] : [false]
+    for (var pi = 0; pi < passes.length; pi++) {
+      var prefMidAtt = passes[pi]
+      var cand = null, candScore = -1
+      for (var a = 0; a < avail.length; a++) {
+        var p = avail[a]
+        if (used.indexOf(p.id) >= 0) continue
+        if ((p.onLoan && p.loanTo)) continue
+        if (prefMidAtt) {
+          var natKey = SIGLA_TO_POS[p.position] || normalizePosKey(p.position)
+          var grp = POS_GROUP[natKey] != null ? POS_GROUP[natKey] : 2
+          if (grp < 2) continue
+        }
+        var score = fitForSlot(p, pos)
+        if (score == null) continue
+        if (score > candScore || (score === candScore && (p.skill || 0) > (cand ? cand.skill : -1))) {
+          candScore = score; cand = p
+        }
+      }
+      if (cand) {
+        used.push(cand.id); bench.push(cand.id)
+        return cand
+      }
+    }
+    return null
+  }
+  var slots = ['POR', 'POR', 'LI', 'DFC', 'DFC', 'LD', 'MCD', 'MC', 'MCO', 'EI', 'DC', 'ED']
+  var n = Math.min(maxBench, slots.length)
+  for (var i = 0; i < n; i++) {
+    if (bench.length >= maxBench) break
+    var pos = slots[i]
+    if (pos === 'MCD') {
+      if (!bestAt('MCD')) bestAt('MC')
+    } else {
+      bestAt(pos)
+    }
+  }
+  /* Si la plantilla es corta y aún quedan huecos, seguir por orden de puesto */
+  for (var pass = 0; pass < 20 && bench.length < maxBench; pass++) {
+    var added = false
+    for (var j = 0; j < BENCH_POS_ORDER.length && bench.length < maxBench; j++) {
+      if (bestAt(BENCH_POS_ORDER[j])) added = true
+    }
+    if (!added) break
+  }
+  return bench
+}
+
+/* Rellena huecos libres del banquillo de forma equilibrada (posición consciente),
+   conservando los jugadores ya elegidos. Evita meter un defensor puro en la delantera. */
+function fillRemainingBench(existingIds, pool, maxBench) {
+  var result = (existingIds || []).slice()
+  if (result.length >= maxBench || !pool || !pool.length) return result
+  var used = {}
+  result.forEach(function (id) { used[id] = true })
+  var available = pool.filter(function (p) { return p && !used[p.id] && !(p.onLoan && p.loanTo) && !p._suspended && !p.injury })
+  if (!available.length) return result
+  var posOf = function (p) { return SIGLA_TO_POS[p.position] || normalizePosKey(p.position) }
+  function pick(pos, preferGroupMin) {
+    var cand = null, candScore = -1
+    for (var a = 0; a < available.length; a++) {
+      var p = available[a]
+      if (preferGroupMin != null) {
+        var natKey2 = posOf(p)
+        var g2 = POS_GROUP[natKey2] != null ? POS_GROUP[natKey2] : 2
+        if (g2 < preferGroupMin) continue
+      }
+      var score = fitForSlot(p, pos)
+      if (score == null) continue
+      if (score > candScore || (score === candScore && (p.skill || 0) > (cand ? cand.skill : -1))) {
+        candScore = score; cand = p
+      }
+    }
+    return cand
+  }
+  var slots = ['POR', 'POR', 'LI', 'DFC', 'DFC', 'LD', 'MCD', 'MC', 'MCO', 'EI', 'DC', 'ED']
+  var guard = 0
+  while (result.length < maxBench && available.length && guard++ < 12) {
+    var added = false
+    for (var j = 0; j < slots.length && result.length < maxBench; j++) {
+      var pos = slots[j]
+      var isAttack = pos === 'EI' || pos === 'DC' || pos === 'ED'
+      var cand = isAttack ? (pick(pos, 2) || pick(pos, 0)) : pick(pos, 0)
+      if (!cand) continue
+      used[cand.id] = true
+      available = available.filter(function (x) { return x.id !== cand.id })
+      result.push(cand.id)
+      added = true
+    }
+    if (!added) break
+  }
+  if (result.length < maxBench && available.length) {
+    available.sort(cmpBenchPos)
+    for (var r = 0; r < available.length && result.length < maxBench; r++) {
+      if (!used[available[r].id]) result.push(available[r].id)
+    }
+  }
+  return result.slice(0, maxBench)
+}
+
 function autoAssignSquad() {
   const roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
   const assigned = []
   const allPlayers = state.players
 
-  /* Once inicial: posici\u00f3n exacta primero, luego mejor ajuste */
-  state.tacticsSlots = roles.map(function(role) {
-    var candidates = allPlayers.filter(function(p) { return !assigned.includes(p.id) && !p._suspended && !(p.onLoan && p.loanTo) && !(state.countryId === 'belgium' && window.BelgiumCopa && typeof window.BelgiumCopa.isCupSuspended === 'function' && window.BelgiumCopa.isCupSuspended(p)) })
-    candidates = candidates.filter(function(p) {
-      var pKey = SIGLA_TO_POS[p.position] || p.position
-      if (role === 'portero') return pKey === 'portero'
-      return pKey !== 'portero'
-    })
-    var exact = candidates.filter(function(p) { return (SIGLA_TO_POS[p.position] || p.position) === role })
-    var pool = exact.length > 0 ? exact : candidates
-    var best = pool.sort(function(a, b) {
-      var multA = getPositionMultiplier(a.position, role)
-      var multB = getPositionMultiplier(b.position, role)
-      if (multB !== multA) return multB - multA
-      return b.skill - a.skill
-    })[0]
-    if (best) assigned.push(best.id)
-    return best ? best.id : null
+  /* Once inicial: mejor XI con la formación del club (mismo criterio que el
+     ATA/CEN/DEF que se muestra en fichas y previa). */
+  var bestXI = buildBestXIBySkill({ players: allPlayers, teamId: state.teamId }, state.tactic.formation)
+  state.tacticsSlots = roles.map(function(role, i) {
+    var it = bestXI[i]
+    if (!it || !it.player) return null
+    var p = it.player
+    if (state.countryId === 'belgium' && window.BelgiumCopa && typeof window.BelgiumCopa.isCupSuspended === 'function' && window.BelgiumCopa.isCupSuspended(p)) return null
+    assigned.push(p.id)
+    return p.id
   })
 
-  /* Banquillo: por grupos posicionales */
+  /* Banquillo: convocatoria equilibrada ordenada por puesto */
   var maxBench = getEffectiveMaxBench()
-  var bench = []
-  var benchRoleGroups = {
-    portero: ['portero'],
-    defensas: ['defensa_central', 'lateral_izq', 'lateral_der', 'carrilero_der', 'carrilero_izq'],
-    medios: ['mediocentro', 'medio_def', 'medio_ofensivo', 'medio_der', 'medio_izq'],
-    delanteros: ['delantero', 'extremo_der', 'extremo_izq'],
-  }
-  var benchOrder = ['portero', 'defensas', 'medios', 'delanteros']
-  var benchCounts = { portero: 2, defensas: 4, medios: 3, delanteros: 3 }
-
-  for (var g = 0; g < benchOrder.length && bench.length < maxBench; g++) {
-    var group = benchOrder[g]
-    var groupRoles = benchRoleGroups[group]
-    var groupPlayers = allPlayers.filter(function(p) {
-      return !assigned.includes(p.id) && !bench.includes(p.id) && !(p.onLoan && p.loanTo) && groupRoles.indexOf(SIGLA_TO_POS[p.position] || p.position) >= 0
-    }).sort(function(a, b) { return b.skill - a.skill })
-    var needed = benchCounts[group]
-    for (var j = 0; j < Math.min(needed, groupPlayers.length) && bench.length < maxBench; j++) {
-      bench.push(groupPlayers[j].id)
-    }
-  }
-
-  /* Rellenar slots vac\u00edos con mejores skills */
-  var rest = allPlayers.filter(function(p) { return !assigned.includes(p.id) && !bench.includes(p.id) && !(p.onLoan && p.loanTo) })
-    .sort(function(a, b) { return b.skill - a.skill })
-  while (bench.length < maxBench && rest.length > 0) {
-    bench.push(rest.shift().id)
-  }
-  state.benchIds = bench.slice(0, maxBench)
+  /* exh: el XI ya se asignó en `assigned`/`slots`; playeres disponibles = los que no están en el XI */
+  state.benchIds = selectBalancedBench(maxBench, assigned.filter(Boolean), allPlayers)
   assigned.push.apply(assigned, state.benchIds)
 
+  /* Reservas ordenadas por posición (POR → DEF → MED → ATT) */
   var reservePool = allPlayers.filter(function(p) { return !assigned.includes(p.id) && !(p.onLoan && p.loanTo) })
+    .sort(cmpBenchPos)
   state.reserveIds = reservePool.slice(0, MAX_RESERVES).map(function(p) { return p.id })
   var _capActual = state.captainId ? state.players.find(function(p) { return p.id === state.captainId }) : null
   if (!state.captainId || (_capActual && _capActual.onLoan && _capActual.loanTo)) {
+    state.captainId = elegirCapitan(state.tacticsSlots)
+  }
+}
+
+/* Aplica el once inicial prefijado del equipo (campo defaultXI). */
+function applyDefaultXI(ids) {
+  autoAssignSquad()
+  var roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
+  var xi = roles.map(function(role, i) {
+    var id = ids[i]
+    if (!id) return null
+    var p = state.players.find(function(x) { return x.id === id })
+    return p && !p._suspended && !(p.onLoan && p.loanTo) ? id : null
+  })
+  if (xi.some(function(id) { return id == null })) return
+  state.tacticsSlots = xi
+  state.benchIds = selectBalancedBench(getEffectiveMaxBench(), state.tacticsSlots.filter(Boolean), state.players)
+  state.reserveIds = state.reserveIds.filter(function(id) { return state.tacticsSlots.indexOf(id) < 0 && state.benchIds.indexOf(id) < 0 })
+    .sort(function(a, b) {
+      var pa = state.players.find(function(p) { return p.id === a })
+      var pb = state.players.find(function(p) { return p.id === b })
+      return cmpBenchPos(pa, pb)
+    })
+  var _capD = state.captainId ? state.players.find(function(p) { return p.id === state.captainId }) : null
+  if (!state.captainId || (_capD && _capD.onLoan && _capD.loanTo)) {
     state.captainId = elegirCapitan(state.tacticsSlots)
   }
 }
@@ -7583,14 +8667,15 @@ function reorderSquadToFormation() {
   var byId = {}
   state.players.forEach(function (p) { byId[p.id] = p })
 
-  /* Pool = once actual (sin suspendidos/lesionados), rellenando con los
-     mejores disponibles si faltaran. */
+  /* Pool = once actual, conservando aunque estén sancionados/lesionados
+     (se mantienen en el XI y se avisa al continuar); se libera solo a los
+     cedidos a otro club. Se rellena con los mejores disponibles si faltaran. */
   var seen = {}
   var poolIds = []
   ;(state.tacticsSlots || []).forEach(function (id) {
     if (!id || seen[id]) return
     seen[id] = true
-    if (byId[id] && !byId[id]._suspended && !byId[id].injury && !(byId[id].onLoan && byId[id].loanTo)) poolIds.push(id)
+    if (byId[id] && !(byId[id].onLoan && byId[id].loanTo)) poolIds.push(id)
   })
   var extras = state.players
     .filter(function (p) { return !(p.onLoan && p.loanTo) && !seen[p.id] && !p._suspended && !p.injury })
@@ -7604,19 +8689,21 @@ function reorderSquadToFormation() {
   var players = poolIds.map(function (id) { return byId[id] }).filter(Boolean)
   var n = players.length, m = roles.length
 
-  /* Coste = 1 - encaje por posición (0 = perfecto). */
+  /* Coste = 1 - encaje por posición (0 = perfecto). Se ueden cubrir huecos con
+     la posición secundaria (otherPositions); quien no sabe jugarlo peor coste. */
   var cost = []
   for (var i = 0; i < n; i++) {
     cost.push([])
     for (var j = 0; j < m; j++) {
-      cost[i].push(1.0 - getPositionMultiplier(players[i].position, roles[j]))
+      var fit = fitForSlot(players[i], roles[j])
+      cost[i].push(fit == null ? 1.0 : (1 - fit / 100))
     }
   }
   /* El portero real va sí o sí al rol de portero. */
-  var porteroIdx = roles.indexOf('portero')
+  var porteroIdx = roles.indexOf('POR')
   var gkIdx = -1
   for (var g = 0; g < n; g++) {
-    if ((SIGLA_TO_POS[players[g].position] || players[g].position) === 'portero') { gkIdx = g; break }
+    if ((SIGLA_TO_POS[players[g].position] || players[g].position) === 'POR') { gkIdx = g; break }
   }
   if (gkIdx >= 0 && porteroIdx >= 0) {
     for (var fi = 0; fi < n; fi++) if (fi !== gkIdx) cost[fi][porteroIdx] = 1e6
@@ -7640,12 +8727,9 @@ function reorderSquadToFormation() {
   })
   var benchSeen = {}
   bench.forEach(function (id) { benchSeen[id] = true })
-  var fill = state.players
-    .filter(function (p) { return !inXI[p.id] && !benchSeen[p.id] && !p._suspended && !p.injury })
-    .sort(function (a, b) { return b.skill - a.skill })
-  for (var b2 = 0; b2 < fill.length && bench.length < maxBench; b2++) {
-    if (!inXI[fill[b2].id]) { bench.push(fill[b2].id); benchSeen[fill[b2].id] = true }
-  }
+  var fillPool = state.players
+    .filter(function (p) { return !inXI[p.id] && !benchSeen[p.id] && !(p.onLoan && p.loanTo) && !p._suspended && !p.injury })
+  bench = fillRemainingBench(bench, fillPool, maxBench)
   state.benchIds = bench.slice(0, maxBench)
   var inBench = {}
   state.benchIds.forEach(function (id) { inBench[id] = true })
@@ -7692,11 +8776,8 @@ function handleSlotClick(el, tactic) {
     targetArray = 'reserveIds'
   }
 
-  /* Un jugador suspendido no puede colocarse en el once, pero sí puede
-     retirarse o ser sustituido (seleccionarlo para moverlo al banquillo/reserva,
-     o intercambiarlo por un jugador del banquillo). */
-  var selPlayer = state.selectedPlayerId ? state.players.find(function(x) { return x.id === state.selectedPlayerId }) : null
-  if (selPlayer && selPlayer._suspended && targetArray === 'tacticsSlots') return
+  /* Sancionados y lesionados se mueven como cualquier jugador (el aviso al
+     continuar ya advierte si están en el once). */
 
   if (!state.selectedPlayerId) {
     if (isFilled && currentPid) {
@@ -7753,10 +8834,10 @@ function handleSlotClick(el, tactic) {
   state.selectedPlayerId = null
 }
 var POS_GROUP = {
-  portero: 0,
-  defensa_central: 1, lateral_der: 1, lateral_izq: 1, carrilero_der: 1, carrilero_izq: 1,
-  medio_def: 2, mediocentro: 2, medio_ofensivo: 2, medio_der: 2, medio_izq: 2,
-  extremo_der: 3, extremo_izq: 3, delantero: 3,
+  POR: 0,
+  DFC: 1, LD: 1, LI: 1, CAD: 1, CAI: 1,
+  MCD: 2, MC: 2, MCO: 2, MD: 2, MI: 2,
+  ED: 3, EI: 3, DC: 3,
 }
 
 /* Modificador suave de stamina (0.85–1.0): 100% de energía = 100% del rendimiento nominal */
@@ -7767,49 +8848,61 @@ function staminaMod(energy) {
 
 function calcularMediaEnPosicion(jugador, posicionActual) {
   if (!posicionActual) return Math.round(jugador.skill * staminaMod(jugador.energy))
-  var naturalKey = SIGLA_TO_POS[jugador.position] || jugador.position
-  var currentKey = SIGLA_TO_POS[posicionActual] || posicionActual
+  var naturalKey = SIGLA_TO_POS[jugador.position] || normalizePosKey(jugador.position)
+  var currentKey = SIGLA_TO_POS[posicionActual] || normalizePosKey(posicionActual)
   var base = Math.round(jugador.skill * staminaMod(jugador.energy))
 
-  if (naturalKey === currentKey) {
-    /* Posición principal: mainPct sube gradualmente con cada partido */
-    var basePct = jugador.mainPct !== undefined ? jugador.mainPct : 99
-    if (basePct < 100 && (jugador.positionExperience && jugador.positionExperience[currentKey] > 0)) {
-      basePct = Math.min(100, basePct + jugador.positionExperience[currentKey] * 0.25)
-      jugador.mainPct = basePct
-    }
-    var exp = jugador.positionExperience ? (jugador.positionExperience[currentKey] || 0) : 0
-    var expPct = Math.min(100, exp * 2)
-    var finalPct = Math.min(100, Math.max(basePct, expPct))
-    return Math.round(base * finalPct / 100)
-  }
+  /* Posición natural o posición secundaria que el jugador sabe jugar: sin penalización. */
+  if (naturalKey === currentKey) return base
+  if (jugador.otherPositions && jugador.otherPositions.some(function(o) {
+    return (SIGLA_TO_POS[normalizePosKey(o.pos)] || normalizePosKey(o.pos)) === currentKey
+  })) return base
 
-  /* Conocimiento del jugador (otherPositions + experiencia) */
-  var staticPct = 0
-  if (jugador.otherPositions) {
-    var alt = jugador.otherPositions.find(function(o) { return (SIGLA_TO_POS[normalizePosKey(o.pos)] || normalizePosKey(o.pos)) === currentKey })
-    if (alt) staticPct = alt.pct
-  }
-  var expMatches = jugador.positionExperience ? (jugador.positionExperience[currentKey] || 0) : 0
-  var expPct = Math.min(100, expMatches * 2)
-  var knownPct = Math.max(staticPct, expPct, 0)
-
-  /* Penalizaci\u00f3n base por grupos */
+  /* Posición que no sabe jugar: penalización según la distancia entre líneas. */
   var groupA = POS_GROUP[naturalKey] !== undefined ? POS_GROUP[naturalKey] : 2
   var groupB = POS_GROUP[currentKey] !== undefined ? POS_GROUP[currentKey] : 2
   var dist = Math.abs(groupA - groupB)
-  if (naturalKey === 'portero' || currentKey === 'portero') dist = 2
+  if (naturalKey === 'POR' || currentKey === 'POR') dist = 2
   var basePct = dist === 0 ? 96 : dist === 1 ? 90 : 75
-  /* M\u00e1xima penalizaci\u00f3n: un jugador de campo puesto en la porter\u00eda */
-  if (currentKey === 'portero' && naturalKey !== 'portero') basePct = 55
+  /* Máxima penalización: un jugador de campo puesto en la portería */
+  if (currentKey === 'POR' && naturalKey !== 'POR') basePct = 55
+  return Math.round(base * basePct / 100)
+}
 
-  /* Reducir penalizaci\u00f3n con el conocimiento */
-  var pct = basePct + (100 - basePct) * knownPct / 100
-  return Math.round(base * pct / 100)
+/* Encaje de un jugador en un rol: 100 si es su posición principal o una
+   secundaria que conoce; si no, el % de rendimiento por distancia de líneas
+   (96/90/75, y 55 si un jugador de campo va a la portería). Sin stamina. */
+function getPositionFitPct(player, role) {
+  if (!player || !role) return 100
+  var natKey = SIGLA_TO_POS[player.position] || normalizePosKey(player.position)
+  var roleKey = SIGLA_TO_POS[role] || normalizePosKey(role)
+  if (natKey === roleKey) return 100
+  if (player.otherPositions && player.otherPositions.some(function(o) {
+    return (SIGLA_TO_POS[normalizePosKey(o.pos)] || normalizePosKey(o.pos)) === roleKey
+  })) return 100
+  var groupA = POS_GROUP[natKey] !== undefined ? POS_GROUP[natKey] : 2
+  var groupB = POS_GROUP[roleKey] !== undefined ? POS_GROUP[roleKey] : 2
+  var dist = Math.abs(groupA - groupB)
+  if (natKey === 'POR' || roleKey === 'POR') dist = 2
+  var basePct = dist === 0 ? 96 : dist === 1 ? 90 : 75
+  if (roleKey === 'POR' && natKey !== 'POR') basePct = 55
+  return basePct
+}
+
+/* Aptitud de un jugador para un hueco/rol: posici\u00f3n principal o secundaria
+   (otherPositions). Devuelve la media efectiva en ese rol, o null si no lo juega. */
+function fitForSlot(p, pos) {
+  var key = SIGLA_TO_POS[pos] || normalizePosKey(pos)
+  var naturalKey = SIGLA_TO_POS[p.position] || normalizePosKey(p.position)
+  if (naturalKey === key) return calcularMediaEnPosicion(p, pos)
+  if (p.otherPositions && p.otherPositions.some(function(o) {
+    return (SIGLA_TO_POS[normalizePosKey(o.pos)] || normalizePosKey(o.pos)) === key
+  })) return calcularMediaEnPosicion(p, pos)
+  return null
 }
 
 function findSustituto(banquillo, posicion, enPistaIds) {
-  const similares = { portero: ['portero'], cierre: ['cierre', 'ala'], ala: ['ala', 'cierre'], pivot: ['pivot', 'ala'] }
+  const similares = { POR: ['POR'], DFC: ['DFC', 'MC'], MC: ['MC', 'DFC'], DC: ['DC', 'MC'] }
   const validas = similares[posicion] || [posicion]
   return banquillo
     .filter(p => validas.includes(p.position) && p.energy >= 60 && !enPistaIds.includes(p.id))
@@ -7966,251 +9059,7 @@ function getLeagueBarClass(displayLid, i, totalTeams, s) {
   return barClass
 }
 
-function renderLeague(viewedLeagueId) {
-  const tableWrap = document.getElementById('league-table-wrap')
-  const resultsWrap = document.getElementById('league-results-wrap')
-
-  resultsWrap.classList.add('hidden')
-
-  try { initAllLeagueData() } catch (e) { console.warn('[LEAGUE] initAllLeagueData error:', e) }
-
-  /* --- Country / competition selector (dropdown button + modal) --- */
-  const activeCountryId = state.leagueViewCountry || state.countryId
-  const continentalView = !!state.leagueViewContinental
-  initLeagueViewScope()
-  renderCountrySelectorButton()
-  renderCountrySelectorList()
-
-  /* --- Get leagues for active country --- */
-  ensureCountryLeagues(activeCountryId)
-  const countryData = window.DB[activeCountryId]
-  const leagues = countryData ? (countryData.country.leagues || []) : []
-
-  /* --- Determine which league to display --- */
-  const isOwnCountry = activeCountryId === state.countryId
-  const CONTINENTAL_IDS = ['champions', 'europa_league', 'conference_league', 'supercopa_europa', 'mundial_clubes']
-  let displayLid
-  if (continentalView) {
-    displayLid = (viewedLeagueId && CONTINENTAL_IDS.indexOf(viewedLeagueId) >= 0) ? viewedLeagueId : 'champions'
-  } else if (viewedLeagueId) {
-    displayLid = CONTINENTAL_IDS.indexOf(viewedLeagueId) >= 0 ? (leagues.length > 0 ? leagues[0].id : '') : viewedLeagueId
-  } else if (isOwnCountry) {
-    displayLid = state.leagueId
-  } else if (leagues.length > 0) {
-    displayLid = leagues[0].id
-  } else {
-    displayLid = ''
-  }
-
-  /* --- League logos strip (merge grouped leagues like lpl4g, l3sg) --- */
-  var groupedFilter = function(l) { return l.id && isGroupedLeague(l.id) }
-  var groupedLogos = leagues.filter(groupedFilter)
-  var otherLogos = leagues.filter(function(l) { return !l.id || !isGroupedLeague(l.id) })
-  var CONTINENTAL_LOGOS = [
-    { id: 'champions', name: 'Champions League', logo: 'https://cdn.resfu.com/media/img/league_logos/champions.png?size=120x&lossy=1' },
-    { id: 'europa_league', name: 'Europa League', logo: 'https://cdn.resfu.com/media/img/league_logos/europa-league.png?size=120x&lossy=1' },
-    { id: 'conference_league', name: 'Conference League', logo: 'https://cdn.resfu.com/media/img/league_logos/conf-league.png?size=120x&lossy=1' },
-    { id: 'supercopa_europa', name: 'Supercopa de Europa', logo: 'https://cdn.resfu.com/media/img/league_logos/supercopa_europa.png?size=120x&lossy=1' },
-    { id: 'mundial_clubes', name: 'Mundial de Clubes', logo: 'https://cdn.resfu.com/media/img/league_logos/mundial-clubes.png?size=120x&lossy=1' }
-  ]
-  var displayLogos = []
-  if (continentalView) {
-    displayLogos = CONTINENTAL_LOGOS.slice()
-  } else {
-    for (var gli = 0; gli < groupedLogos.length; gli++) {
-      var gConfig = getGroupedConfig(groupedLogos[gli].id)
-      if (gConfig) {
-        var gKey = ''
-        for (var kk in GROUPED_LEAGUES) { if (groupedLogos[gli].id.startsWith(kk)) { gKey = kk; break } }
-        var existingVid = displayLogos.findIndex(function(d) { return d.vid === gConfig.name })
-        if (existingVid < 0) {
-          var allG = leagues.filter(function(l) { return l.id && isGroupedLeague(l.id) && getGroupedConfig(l.id) === gConfig })
-          for (var gm = 0; gm < allG.length; gm++) allG[gm].teams = allG[gm].teams || []
-          displayLogos.push({ id: gKey, vid: gConfig.name, name: gConfig.name, logo: groupedLogos[gli].logo, _groups: allG })
-        }
-      }
-    }
-    displayLogos = otherLogos.concat(displayLogos)
-    /* Añadir copa nacional */
-    var countryHasCup = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria' || activeCountryId === 'belgium' || activeCountryId === 'netherlands'
-    var countryHasSupercopa = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'belgium' || activeCountryId === 'netherlands'
-    if (countryHasCup) {
-      displayLogos.push({ id: 'copa_del_rey', name: getCupCompName(activeCountryId), logo: getCupLogo(activeCountryId) })
-    }
-    /* Añadir supercopa nacional */
-    if (countryHasSupercopa) {
-      displayLogos.push({ id: 'supercopa', name: getSupercopaCompName(activeCountryId), logo: getSupercopaLogo(activeCountryId) })
-    }
-    /* Añadir Copa de la Liga Portugal */
-    if (activeCountryId === 'portugal') {
-      displayLogos.push({ id: 'taca_da_liga', name: getTacaDaLigaCompName(), logo: getTacaDaLigaLogo() })
-    }
-    /* Añadir EFL Cup (Inglaterra) */
-    if (activeCountryId === 'england') {
-      displayLogos.push({ id: 'efl_cup', name: getEflCupCompName(), logo: getEflCupLogo() })
-    }
-  }
-  const logosContainer = document.getElementById('league-logos')
-  logosContainer.innerHTML = displayLogos.map(function(l) {
-    var virtualId = l.vid ? l.id : null
-    var activeLid = state.leagueLogoSelected || displayLid
-    var isActive = (l.id === 'copa_del_rey' || l.id === 'supercopa') && (activeLid === 'copa_del_rey' || activeLid === 'supercopa') && l.id === activeLid
-    if (!isActive) isActive = (virtualId && activeLid && isGroupedLeague(activeLid) && activeLid.startsWith(l.id)) || l.id === activeLid
-    return '<div class="ng-league-item' + (isActive ? ' active' : '') + '" data-lid="' + (virtualId || l.id) + '" title="' + l.name + '">' +
-      (l.logo ? '<img class="ng-league-logo" src="' + l.logo + '" alt="' + l.name + '">' : '<span>' + l.name + '</span>') +
-      '</div>'
-  }).join('')
-  logosContainer.querySelectorAll('.ng-league-item').forEach(function(el) {
-    var lid = el.dataset.lid
-    if (lid === 'copa_del_rey' || lid === 'supercopa' || lid === 'taca_da_liga' || lid === 'efl_cup') {
-      el.onclick = function() {
-        state.leagueLogoSelected = lid
-        setLeagueLogoActive(lid)
-        if (lid === 'taca_da_liga') {
-          renderCopaView('tacaDaLiga')
-        } else if (lid === 'efl_cup') {
-          renderCopaView('eflCup')
-        } else if (activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria' || activeCountryId === 'belgium' || activeCountryId === 'netherlands') {
-          renderCopaView(lid === 'copa_del_rey' ? 'copa' : 'supercopa')
-        } else {
-          var tableWrap = document.getElementById('league-table-wrap')
-          var resultsWrap = document.getElementById('league-results-wrap')
-          resultsWrap.classList.add('hidden')
-          var entry = displayLogos.find(function(c) { return c.id === lid })
-          var name = entry ? entry.name : lid
-          var _cupComp = lid === 'copa_del_rey' ? 'cup' : 'supercopa'
-          tableWrap.innerHTML = '<div style="text-align:center;padding:20px 20px 8px"><img src="' + (entry ? entry.logo : '') + '" style="width:56px;height:56px;object-fit:contain;margin-bottom:8px"><div style="font-size:18px;font-weight:600;color:var(--text)">' + name + '</div></div>' + buildCompStatsCardsHtml(_cupComp, null)
-        }
-      }
-    } else if (lid === 'champions' || lid === 'europa_league' || lid === 'conference_league' || lid === 'supercopa_europa' || lid === 'mundial_clubes') {
-      el.onclick = function() {
-        state.leagueLogoSelected = lid
-        setLeagueLogoActive(lid)
-        var tableWrap = document.getElementById('league-table-wrap')
-        var resultsWrap = document.getElementById('league-results-wrap')
-        resultsWrap.classList.add('hidden')
-        var entry = CONTINENTAL_LOGOS.find(function(c) { return c.id === lid })
-        var name = entry ? entry.name : lid
-        tableWrap.innerHTML = '<div style="text-align:center;padding:20px 20px 8px"><img src="' + (entry ? entry.logo : '') + '" style="width:56px;height:56px;object-fit:contain;margin-bottom:8px"><div style="font-size:18px;font-weight:600;color:var(--text)">' + name + '</div></div>' + buildCompStatsCardsHtml(lid, null)
-      }
-    } else if (isGroupedLeague(lid)) {
-      el.onclick = function() {
-        state.leagueLogoSelected = null
-        var firstGroup = leagues.find(function(l) { return l.id && isGroupedLeague(l.id) })
-        renderLeague(displayLid && isGroupedLeague(displayLid) ? displayLid : (firstGroup ? firstGroup.id : displayLid))
-      }
-    } else {
-      el.onclick = function() {
-        state.leagueLogoSelected = null
-        renderLeague(lid)
-      }
-    }
-  })
-
-  /* --- Group selector for grouped leagues (lpl4g, l3sg) --- */
-  var groupSelectorHtml = ''
-  var activeGroupConfig = getGroupedConfig(displayLid)
-  if (activeGroupConfig) {
-    groupSelectorHtml = '<div class="lpl4-group-selector">'
-    for (var gsi = 0; gsi < activeGroupConfig.groups.length; gsi++) {
-      var isActive = displayLid === activeGroupConfig.groups[gsi]
-      groupSelectorHtml += '<button class="lpl4-group-btn' + (isActive ? ' active' : '') + '" data-gid="' + activeGroupConfig.groups[gsi] + '">' + activeGroupConfig.groupNames[gsi] + '</button>'
-    }
-    groupSelectorHtml += '</div>'
-  }
-
-  /* --- Austria Bundesliga: selector de Fase (Temporada Regular / Meistergruppe / Qualifikationsgruppe) --- */
-  var austriaPhaseHtml = ''
-  if (displayLid === 'bl1') {
-    var f2Ready = state.fase2Built
-    var userPhase = state.leaguePhase || 'regular'
-    var phaseItems = [
-      { key: 'regular', label: 'Temporada Regular' },
-      { key: 'campeonato', label: 'Ronda Campeonato (1\u00ba-6\u00ba)' },
-      { key: 'descenso', label: 'Ronda Descenso (7\u00ba-12\u00ba)' },
-    ]
-    austriaPhaseHtml = '<div class="phase-tabs">'
-    for (var pi = 0; pi < phaseItems.length; pi++) {
-      var locked = phaseItems[pi].key !== 'regular' && !f2Ready
-      var active = userPhase === phaseItems[pi].key || (phaseItems[pi].key === 'regular' && !f2Ready)
-      austriaPhaseHtml += '<button class="phase-tab' + (active ? ' active' : '') + (locked ? ' locked' : '') + '" data-phase="' + phaseItems[pi].key + '"' + (locked ? ' disabled' : '') + '>' + phaseItems[pi].label + '</button>'
-    }
-    austriaPhaseHtml += '</div>'
-  }
-
-  /* --- Table --- */
-  const isOwnLeague = displayLid === state.leagueId && isOwnCountry
-  const standings = isOwnLeague
-    ? updateLeagueStandings()
-    : state.allLeagueData && state.allLeagueData[displayLid]
-      ? computeStandings(state.allLeagueData[displayLid].fixtures,
-          getLeagueTeams(displayLid).map(t => t.id))
-      : getLeagueTeams(displayLid).map(t => ({
-          teamId: t.id, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, pts: 0,
-          name: t.name, logo: t.logo
-        }))
-
-  /* --- Austria Bundesliga: la tabla mostrada depende de la fase activa --- */
-  var tableStandings = standings
-  if (displayLid === 'bl1') {
-    var activePhase = state.leaguePhase || 'regular'
-    if (activePhase === 'campeonato') {
-      tableStandings = standings.slice(0, 6).map(function(s, idx) { return Object.assign({}, s, { _phasePos: idx + 1, _globalPos: idx }) })
-    } else if (activePhase === 'descenso') {
-      tableStandings = standings.slice(6, 12).map(function(s, idx) { return Object.assign({}, s, { _phasePos: idx + 1, _globalPos: idx + 6 }) })
-    }
-  }
-
-  /* --- Top scorers & assisters (of the league being viewed) --- */
-  var statsHtml = buildCompStatsCardsHtml('league', displayLid)
-
-  /* --- Modal for top 10 --- */
-  if (typeof window.showTopStatsModal !== 'function') {
-    window.showTopStatsModal = function(type) {
-      var existing = document.getElementById('top-stats-modal')
-      if (existing) existing.remove()
-      var _ac = window._activeStatsComp || { competition: 'league', leagueId: null }
-      var stats = getCompStats(_ac.competition, 10, _ac.leagueId)
-      var list = type === 'goals' ? stats.goals : stats.assists
-      var title = type === 'goals' ? '\u26bd M\u00e1ximos goleadores' : '\ud83d\udc5f M\u00e1ximos asistentes'
-      var unit = type === 'goals' ? 'goles' : 'asistencias'
-      var overlay = document.createElement('div')
-      overlay.id = 'top-stats-modal'
-      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999'
-      var rowsHtml = ''
-      list.forEach(function(s, idx) {
-        var _flag = natFlagHtml(s.nationality)
-        var _avatarSrc = s.avatar || NOPHOTO
-        var _teamLogoSrc = s.teamLogo || NOPHOTO
-        var total = type === 'goals' ? s.goals : s.assists
-        var _icon = type === 'goals' ? '\u26bd' : '\ud83d\udc5f'
-        rowsHtml += '<div style="display:flex;align-items:center;gap:4px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="width:18px;text-align:center;font-weight:700;font-size:10px;color:var(--text-muted)">' + (idx + 1) + '\u00ba</span><img src="' + _avatarSrc + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:1px solid var(--text-muted)" onerror="this.src=\'' + NOPHOTO + '\'"><span style="font-size:10px;margin:0 2px">' + _flag + '</span><span style="font-size:11px;font-weight:600;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + s.name + '</span><div style="text-align:right;flex-shrink:0"><div style="display:flex;align-items:center;gap:3px;justify-content:flex-end"><img src="' + _teamLogoSrc + '" style="width:14px;height:14px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'"><span style="font-size:12px;font-weight:700;color:var(--accent)">' + _icon + total + '</span></div><div style="font-size:9px;color:var(--text-muted)">' + s.team + '</div></div></div>'
-      })
-      overlay.innerHTML = '<div style="background:var(--bg-surface);border-radius:14px;padding:24px;max-width:420px;width:90%;box-shadow:0 4px 24px rgba(0,0,0,0.15);color:var(--text)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-size:16px;font-weight:700">' + title + '</span><div onclick="document.getElementById(\'top-stats-modal\').remove()" style="background:var(--bg);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text-muted)">\u2716 Cerrar</div></div>' + rowsHtml + '</div>'
-      document.body.appendChild(overlay)
-    }
-  }
-
-  var tableHtml = statsHtml + (austriaPhaseHtml || groupSelectorHtml) + '<table class="league-table"><tr><th>#</th><th>Equipo</th><th>Pts</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th></tr>'
-  var totalTeams = tableStandings.length
-  tableStandings.forEach((s, i) => {
-    const isUser = isOwnLeague && s.teamId === state.teamId
-    const totalTeams = standings.length
-    var barClass = getLeagueBarClass(displayLid, i, totalTeams, s)
-    const logo = s.logo || getTeamLogo(s.teamId)
-    const name = s.name || getTeamName(s.teamId)
-    const dg = s.gf - s.ga
-    tableHtml += `<tr class="${isUser ? 'league-row-user' : ''}" data-team-id="${s.teamId}" style="${!isUser ? 'cursor:pointer' : ''}">
-      <td class="pos-bar ${barClass}"><span class="league-pos ${i < 3 ? 'p' + (i+1) : ''}">${s._phasePos || (i + 1)}</span></td>
-      <td>${logo ? `<img class="team-logo" src="${logo}" style="width:18px;height:18px;vertical-align:middle;margin-right:6px">` : ''}${name}</td>
-      <td><strong>${s.pts}</strong></td>
-      <td>${s.played}</td><td>${s.won}</td><td>${s.drawn}</td><td>${s.lost}</td>
-      <td>${s.gf}</td><td>${s.ga}</td><td>${dg}</td>
-    </tr>`
-  })
-  tableHtml += '</table>'
-
-  /* Legend */
+function buildLeagueLegendItems(displayLid) {
   var legendItems = []
   if (displayLid === 'l1fr') {
     legendItems = [
@@ -8371,7 +9220,89 @@ function renderLeague(viewedLeagueId) {
       { cls: 'bar-permanencia', label: 'Permanencia' },
       { cls: 'bar-descenso', label: 'Descenso' },
     ]
+  }  return legendItems
+}
+
+/* Construye la tabla de clasificación con el mismo diseño que la pestaña de
+   competiciones (barras de posición + leyenda). */
+function buildLeagueStandingsTableHtml(displayLid, includeSelectors) {
+  var activeCountryId = state.leagueViewCountry || state.countryId
+  var isOwnCountry = activeCountryId === state.countryId
+  var groupSelectorHtml = ''
+  var austriaPhaseHtml = ''
+  if (includeSelectors) {
+  /* --- Group selector for grouped leagues (lpl4g, l3sg) --- */
+  var activeGroupConfig = getGroupedConfig(displayLid)
+  if (activeGroupConfig) {
+    groupSelectorHtml = '<div class="lpl4-group-selector">'
+    for (var gsi = 0; gsi < activeGroupConfig.groups.length; gsi++) {
+      var isActive = displayLid === activeGroupConfig.groups[gsi]
+      groupSelectorHtml += '<button class="lpl4-group-btn' + (isActive ? ' active' : '') + '" data-gid="' + activeGroupConfig.groups[gsi] + '">' + activeGroupConfig.groupNames[gsi] + '</button>'
+    }
+    groupSelectorHtml += '</div>'
   }
+
+  /* --- Austria Bundesliga: selector de Fase (Temporada Regular / Meistergruppe / Qualifikationsgruppe) --- */
+  if (displayLid === 'bl1') {
+    var f2Ready = state.fase2Built
+    var userPhase = state.leaguePhase || 'regular'
+    var phaseItems = [
+      { key: 'regular', label: 'Temporada Regular' },
+      { key: 'campeonato', label: 'Ronda Campeonato (1\u00ba-6\u00ba)' },
+      { key: 'descenso', label: 'Ronda Descenso (7\u00ba-12\u00ba)' },
+    ]
+    austriaPhaseHtml = '<div class="phase-tabs">'
+    for (var pi = 0; pi < phaseItems.length; pi++) {
+      var locked = phaseItems[pi].key !== 'regular' && !f2Ready
+      var active = userPhase === phaseItems[pi].key || (phaseItems[pi].key === 'regular' && !f2Ready)
+      austriaPhaseHtml += '<button class="phase-tab' + (active ? ' active' : '') + (locked ? ' locked' : '') + '" data-phase="' + phaseItems[pi].key + '"' + (locked ? ' disabled' : '') + '>' + phaseItems[pi].label + '</button>'
+    }
+    austriaPhaseHtml += '</div>'
+  }
+
+  }
+  const isOwnLeague = displayLid === state.leagueId && isOwnCountry
+  const standings = isOwnLeague
+    ? updateLeagueStandings()
+    : state.allLeagueData && state.allLeagueData[displayLid]
+      ? computeStandings(state.allLeagueData[displayLid].fixtures,
+          getLeagueTeams(displayLid).map(t => t.id))
+      : getLeagueTeams(displayLid).map(t => ({
+          teamId: t.id, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, pts: 0,
+          name: t.name, logo: t.logo
+        }))
+
+  /* --- Austria Bundesliga: la tabla mostrada depende de la fase activa --- */
+  var tableStandings = standings
+  if (displayLid === 'bl1') {
+    var activePhase = state.leaguePhase || 'regular'
+    if (activePhase === 'campeonato') {
+      tableStandings = standings.slice(0, 6).map(function(s, idx) { return Object.assign({}, s, { _phasePos: idx + 1, _globalPos: idx }) })
+    } else if (activePhase === 'descenso') {
+      tableStandings = standings.slice(6, 12).map(function(s, idx) { return Object.assign({}, s, { _phasePos: idx + 1, _globalPos: idx + 6 }) })
+    }
+  }
+
+  var tableHtml = (austriaPhaseHtml || groupSelectorHtml) + '<div class="league-table-scroll"><table class="league-table"><tr><th>#</th><th>Equipo</th><th>Pts</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th></tr>'
+  var totalTeams = tableStandings.length
+  tableStandings.forEach((s, i) => {
+    const isUser = isOwnLeague && s.teamId === state.teamId
+    const totalTeams = standings.length
+    var barClass = getLeagueBarClass(displayLid, i, totalTeams, s)
+    const logo = s.logo || getTeamLogo(s.teamId)
+    const name = s.name || getTeamName(s.teamId)
+    const dg = s.gf - s.ga
+    tableHtml += `<tr class="${isUser ? 'league-row-user' : ''}" data-team-id="${s.teamId}" style="${!isUser ? 'cursor:pointer' : ''}">
+      <td class="pos-bar ${barClass}"><span class="league-pos ${i < 3 ? 'p' + (i+1) : ''}">${s._phasePos || (i + 1)}</span></td>
+      <td>${logo ? `<img class="team-logo" src="${logo}" style="width:18px;height:18px;vertical-align:middle;margin-right:6px">` : ''}${name}</td>
+      <td><strong>${s.pts}</strong></td>
+      <td>${s.played}</td><td>${s.won}</td><td>${s.drawn}</td><td>${s.lost}</td>
+      <td>${s.gf}</td><td>${s.ga}</td><td>${dg}</td>
+    </tr>`
+  })
+  tableHtml += '</table></div>'
+
+  var legendItems = buildLeagueLegendItems(displayLid)
   if (legendItems.length > 0) {
     tableHtml += '<div class="table-legend">'
     legendItems.forEach(function(item) {
@@ -8380,9 +9311,194 @@ function renderLeague(viewedLeagueId) {
     tableHtml += '</div>'
   }
 
+  return tableHtml
+}
+
+function renderLeague(viewedLeagueId) {
+  const tableWrap = document.getElementById('league-table-wrap')
+  const resultsWrap = document.getElementById('league-results-wrap')
+
+  resultsWrap.classList.add('hidden')
+
+  try { initAllLeagueData() } catch (e) { console.warn('[LEAGUE] initAllLeagueData error:', e) }
+
+  /* --- Country / competition selector (dropdown button + modal) --- */
+  const activeCountryId = state.leagueViewCountry || state.countryId
+  const continentalView = !!state.leagueViewContinental
+  initLeagueViewScope()
+  renderCountrySelectorButton()
+  renderCountrySelectorList()
+
+  /* --- Get leagues for active country --- */
+  ensureCountryLeagues(activeCountryId)
+  const countryData = window.DB[activeCountryId]
+  const leagues = countryData ? (countryData.country.leagues || []) : []
+
+  /* --- Determine which league to display --- */
+  const isOwnCountry = activeCountryId === state.countryId
+  const CONTINENTAL_IDS = ['champions', 'europa_league', 'conference_league', 'supercopa_europa', 'mundial_clubes']
+  let displayLid
+  if (continentalView) {
+    displayLid = (viewedLeagueId && CONTINENTAL_IDS.indexOf(viewedLeagueId) >= 0) ? viewedLeagueId : 'champions'
+  } else if (viewedLeagueId) {
+    displayLid = CONTINENTAL_IDS.indexOf(viewedLeagueId) >= 0 ? (leagues.length > 0 ? leagues[0].id : '') : viewedLeagueId
+  } else if (isOwnCountry) {
+    displayLid = state.leagueId
+  } else if (leagues.length > 0) {
+    displayLid = leagues[0].id
+  } else {
+    displayLid = ''
+  }
+
+  /* Recordar qué clasificación se está viendo para volver desde la ficha de un equipo */
+  state._leagueReturnLid = displayLid
+
+  /* --- League logos strip (merge grouped leagues like lpl4g, l3sg) --- */
+  var groupedFilter = function(l) { return l.id && isGroupedLeague(l.id) }
+  var groupedLogos = leagues.filter(groupedFilter)
+  var otherLogos = leagues.filter(function(l) { return !l.id || !isGroupedLeague(l.id) })
+  var CONTINENTAL_LOGOS = [
+    { id: 'champions', name: 'Champions League', logo: 'https://cdn.resfu.com/media/img/league_logos/champions.png?size=120x&lossy=1' },
+    { id: 'europa_league', name: 'Europa League', logo: 'https://cdn.resfu.com/media/img/league_logos/europa-league.png?size=120x&lossy=1' },
+    { id: 'conference_league', name: 'Conference League', logo: 'https://cdn.resfu.com/media/img/league_logos/conf-league.png?size=120x&lossy=1' },
+    { id: 'supercopa_europa', name: 'Supercopa de Europa', logo: 'https://cdn.resfu.com/media/img/league_logos/supercopa_europa.png?size=120x&lossy=1' },
+    { id: 'mundial_clubes', name: 'Mundial de Clubes', logo: 'https://cdn.resfu.com/media/img/league_logos/mundial-clubes.png?size=120x&lossy=1' }
+  ]
+  var displayLogos = []
+  if (continentalView) {
+    displayLogos = CONTINENTAL_LOGOS.slice()
+  } else {
+    for (var gli = 0; gli < groupedLogos.length; gli++) {
+      var gConfig = getGroupedConfig(groupedLogos[gli].id)
+      if (gConfig) {
+        var gKey = ''
+        for (var kk in GROUPED_LEAGUES) { if (groupedLogos[gli].id.startsWith(kk)) { gKey = kk; break } }
+        var existingVid = displayLogos.findIndex(function(d) { return d.vid === gConfig.name })
+        if (existingVid < 0) {
+          var allG = leagues.filter(function(l) { return l.id && isGroupedLeague(l.id) && getGroupedConfig(l.id) === gConfig })
+          for (var gm = 0; gm < allG.length; gm++) allG[gm].teams = allG[gm].teams || []
+          displayLogos.push({ id: gKey, vid: gConfig.name, name: gConfig.name, logo: groupedLogos[gli].logo, _groups: allG })
+        }
+      }
+    }
+    displayLogos = otherLogos.concat(displayLogos)
+    /* Añadir copa nacional */
+    var countryHasCup = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria' || activeCountryId === 'belgium' || activeCountryId === 'netherlands'
+    var countryHasSupercopa = activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'belgium' || activeCountryId === 'netherlands'
+    if (countryHasCup) {
+      displayLogos.push({ id: 'copa_del_rey', name: getCupCompName(activeCountryId), logo: getCupLogo(activeCountryId) })
+    }
+    /* Añadir supercopa nacional */
+    if (countryHasSupercopa) {
+      displayLogos.push({ id: 'supercopa', name: getSupercopaCompName(activeCountryId), logo: getSupercopaLogo(activeCountryId) })
+    }
+    /* Añadir Copa de la Liga Portugal */
+    if (activeCountryId === 'portugal') {
+      displayLogos.push({ id: 'taca_da_liga', name: getTacaDaLigaCompName(), logo: getTacaDaLigaLogo() })
+    }
+    /* Añadir EFL Cup (Inglaterra) */
+    if (activeCountryId === 'england') {
+      displayLogos.push({ id: 'efl_cup', name: getEflCupCompName(), logo: getEflCupLogo() })
+    }
+  }
+  const logosContainer = document.getElementById('league-logos')
+  logosContainer.innerHTML = displayLogos.map(function(l) {
+    var virtualId = l.vid ? l.id : null
+    var activeLid = state.leagueLogoSelected || displayLid
+    var isActive = (l.id === 'copa_del_rey' || l.id === 'supercopa') && (activeLid === 'copa_del_rey' || activeLid === 'supercopa') && l.id === activeLid
+    if (!isActive) isActive = (virtualId && activeLid && isGroupedLeague(activeLid) && activeLid.startsWith(l.id)) || l.id === activeLid
+    return '<div class="ng-league-item' + (isActive ? ' active' : '') + '" data-lid="' + (virtualId || l.id) + '" title="' + l.name + '">' +
+      (l.logo ? '<img class="ng-league-logo" src="' + l.logo + '" alt="' + l.name + '">' : '') +
+      '<span class="ng-league-name">' + l.name + '</span>' +
+      '</div>'
+  }).join('')
+  logosContainer.querySelectorAll('.ng-league-item').forEach(function(el) {
+    var lid = el.dataset.lid
+    if (lid === 'copa_del_rey' || lid === 'supercopa' || lid === 'taca_da_liga' || lid === 'efl_cup') {
+      el.onclick = function() {
+        state.leagueLogoSelected = lid
+        setLeagueLogoActive(lid)
+        if (lid === 'taca_da_liga') {
+          renderCopaView('tacaDaLiga')
+        } else if (lid === 'efl_cup') {
+          renderCopaView('eflCup')
+        } else if (activeCountryId === 'spain' || activeCountryId === 'portugal' || activeCountryId === 'poland' || activeCountryId === 'france' || activeCountryId === 'italy' || activeCountryId === 'germany' || activeCountryId === 'england' || activeCountryId === 'austria' || activeCountryId === 'belgium' || activeCountryId === 'netherlands') {
+          renderCopaView(lid === 'copa_del_rey' ? 'copa' : 'supercopa')
+        } else {
+          var tableWrap = document.getElementById('league-table-wrap')
+          var statsWrap = document.getElementById('league-stats-wrap')
+          var resultsWrap = document.getElementById('league-results-wrap')
+          resultsWrap.classList.add('hidden')
+          var entry = displayLogos.find(function(c) { return c.id === lid })
+          var name = entry ? entry.name : lid
+          var _cupComp = lid === 'copa_del_rey' ? 'cup' : 'supercopa'
+          tableWrap.innerHTML = '<div style="text-align:center;padding:20px 20px 8px"><img src="' + (entry ? entry.logo : '') + '" style="width:56px;height:56px;object-fit:contain;margin-bottom:8px"><div style="font-size:18px;font-weight:600;color:var(--text)">' + name + '</div></div>'
+          if (statsWrap) statsWrap.innerHTML = buildCompStatsCardsHtml(_cupComp, null)
+        }
+      }
+    } else if (lid === 'champions' || lid === 'europa_league' || lid === 'conference_league' || lid === 'supercopa_europa' || lid === 'mundial_clubes') {
+      el.onclick = function() {
+        state.leagueLogoSelected = lid
+        setLeagueLogoActive(lid)
+        var tableWrap = document.getElementById('league-table-wrap')
+        var statsWrap = document.getElementById('league-stats-wrap')
+        var resultsWrap = document.getElementById('league-results-wrap')
+        resultsWrap.classList.add('hidden')
+        var entry = CONTINENTAL_LOGOS.find(function(c) { return c.id === lid })
+        var name = entry ? entry.name : lid
+        tableWrap.innerHTML = '<div style="text-align:center;padding:20px 20px 8px"><img src="' + (entry ? entry.logo : '') + '" style="width:56px;height:56px;object-fit:contain;margin-bottom:8px"><div style="font-size:18px;font-weight:600;color:var(--text)">' + name + '</div></div>'
+        if (statsWrap) statsWrap.innerHTML = buildCompStatsCardsHtml(lid, null)
+      }
+    } else if (isGroupedLeague(lid)) {
+      el.onclick = function() {
+        state.leagueLogoSelected = null
+        var firstGroup = leagues.find(function(l) { return l.id && isGroupedLeague(l.id) })
+        renderLeague(displayLid && isGroupedLeague(displayLid) ? displayLid : (firstGroup ? firstGroup.id : displayLid))
+      }
+    } else {
+      el.onclick = function() {
+        state.leagueLogoSelected = null
+        renderLeague(lid)
+      }
+    }
+  })
+
+  /* --- Top scorers & assisters (of the league being viewed) --- */
+  var statsHtml = buildCompStatsCardsHtml('league', displayLid)
+  var statsWrap = document.getElementById('league-stats-wrap')
+  if (statsWrap) statsWrap.innerHTML = statsHtml
+
+  /* --- Modal for top 10 --- */
+  if (typeof window.showTopStatsModal !== 'function') {
+    window.showTopStatsModal = function(type) {
+      var existing = document.getElementById('top-stats-modal')
+      if (existing) existing.remove()
+      var _ac = window._activeStatsComp || { competition: 'league', leagueId: null }
+      var stats = getCompStats(_ac.competition, 10, _ac.leagueId)
+      var list = type === 'goals' ? stats.goals : stats.assists
+      var title = type === 'goals' ? '\u26bd M\u00e1ximos goleadores' : '\ud83d\udc5f M\u00e1ximos asistentes'
+      var unit = type === 'goals' ? 'goles' : 'asistencias'
+      var overlay = document.createElement('div')
+      overlay.id = 'top-stats-modal'
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999'
+      var rowsHtml = ''
+      list.forEach(function(s, idx) {
+        var _flag = natFlagHtml(s.nationality)
+        var _avatarSrc = s.avatar || NOPHOTO
+        var _teamLogoSrc = s.teamLogo || NOPHOTO
+        var total = type === 'goals' ? s.goals : s.assists
+        var _icon = type === 'goals' ? '\u26bd' : '\ud83d\udc5f'
+        rowsHtml += '<div style="display:flex;align-items:center;gap:4px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="width:18px;text-align:center;font-weight:700;font-size:10px;color:var(--text-muted)">' + (idx + 1) + '\u00ba</span><img src="' + _avatarSrc + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:1px solid var(--text-muted)" onerror="this.src=\'' + NOPHOTO + '\'"><span style="font-size:10px;margin:0 2px">' + _flag + '</span><span style="font-size:11px;font-weight:600;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + s.name + '</span><div style="text-align:right;flex-shrink:0"><div style="display:flex;align-items:center;gap:3px;justify-content:flex-end"><img src="' + _teamLogoSrc + '" style="width:14px;height:14px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'"><span style="font-size:12px;font-weight:700;color:var(--accent)">' + _icon + total + '</span></div><div style="font-size:9px;color:var(--text-muted)">' + s.team + '</div></div></div>'
+      })
+      overlay.innerHTML = '<div style="background:var(--bg-surface);border-radius:14px;padding:24px;max-width:420px;width:90%;box-shadow:0 4px 24px rgba(0,0,0,0.15);color:var(--text)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-size:16px;font-weight:700">' + title + '</span><div onclick="document.getElementById(\'top-stats-modal\').remove()" style="background:var(--bg);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text-muted)">\u2716 Cerrar</div></div>' + rowsHtml + '</div>'
+      document.body.appendChild(overlay)
+    }
+  }
+
+  var tableHtml = buildLeagueStandingsTableHtml(displayLid, true)
   tableWrap.innerHTML = tableHtml
   tableWrap.querySelectorAll('tr[data-team-id]').forEach(row => {
-    row.onclick = () => showTeamInfo(row.dataset.teamId)
+    row.onclick = () => showTeamInfo(row.dataset.teamId, 'league')
   })
   /* Bind group selector events */
   tableWrap.querySelectorAll('.lpl4-group-btn').forEach(function(btn) {
@@ -8501,14 +9617,6 @@ function selectLeagueViewScope(el) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  /* Theme toggle from start menu */
-  var themeBtn = document.getElementById('theme-toggle')
-  if (themeBtn && window.__theme) {
-    window.__theme.apply(window.__theme.current())
-    themeBtn.onclick = function() {
-      window.__theme.apply(window.__theme.current() === 'dark' ? 'light' : 'dark')
-    }
-  }
   var selBtn = document.getElementById('league-country-selector')
   if (selBtn) selBtn.onclick = function() { showCountrySelectorModal() }
   var csClose = document.getElementById('country-selector-close')
@@ -8700,9 +9808,12 @@ function abrirTacticasModal() {
     reservesEL.innerHTML = rHTML
   }
 
-  /* Bench (dynamic limit) */
+  /* Bench (dynamic limit) — keep already-chosen bench players and fill
+     remaining slots position-aware (never a pure defender on the forward line) */
   const maxBench = getEffectiveMaxBench()
-  const benchPlayers = available.slice(0, maxBench)
+  const benchExistentes = (state.benchIds || []).filter(id => available.some(p => p.id === id))
+  const benchIds = fillRemainingBench(benchExistentes, available, maxBench)
+  const benchPlayers = benchIds.map(id => available.find(p => p.id === id)).filter(Boolean)
   document.getElementById('tm-bench-label').textContent = 'BANQUILLO (' + benchPlayers.length + ')'
 
   if (benchPlayers.length === 0) {
@@ -8861,7 +9972,7 @@ function finishMatch(isHome, fixture, rival) {
     var assistBonus = (p._assistThisMatch || 0) * 0.4
     var randomFactor = (Math.random() - 0.5) * 1.0
     var csBonus = 0
-    if (them === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) csBonus = 0.5
+    if (them === 0 && (p.position === 'POR' || p.position === 'DFC' || p.position === 'LD' || p.position === 'LI')) csBonus = 0.5
     var rating = Math.min(10, Math.max(1, baseRating + winBonus + yellowPenalty + redPenalty + goalBonus + assistBonus + randomFactor + csBonus))
     p.matchHistory.push({
       matchday: state.currentMatchday,
@@ -9238,8 +10349,6 @@ function procesarEconomiaSemanal() {
     generarOfertasCanteranos()
     detectarExcedentesCantera()
   }
-  /* Pop-up prioritario una vez por avance de semana (anti-spam). */
-  try { mostrarPopupPrioridad() } catch (e) { console.warn('[POPUP] Error al mostrar popup prioridad:', e) }
 }
 
 function procesarLesiones() {
@@ -9307,14 +10416,15 @@ function procesarSuspensiones() {
     if (p._redType === 'directGrave') p._suspended = 2 + Math.floor(Math.random() * 2)
     else p._suspended = 1
     var motivo = p._redType === 'doubleYellow' ? 'doble amarilla' : p._redType === 'directGrave' ? 'roja grave' : 'roja leve'
-    bajas.push(p.name + ' (' + motivo + ')')
+    bajas.push({ name: p.name, detail: motivo + ' \u00b7 ' + p._suspended + ' partido' + (p._suspended > 1 ? 's' : '') })
   })
   state.players.filter(function(p) { return (p.yellowCards || 0) >= 5 && !p._suspended }).forEach(function(p) {
     p._suspended = 1
     p.yellowCards = 0
-    bajas.push(p.name + ' (5 amarillas)')
+    bajas.push({ name: p.name, detail: '5 amarillas \u00b7 1 partido' })
   })
-  if (bajas.length > 0) addNotification('match', '\ud83d\udfe5 Suspensiones', 'Sancionados: ' + bajas.join(', '))
+  if (bajas.length > 0) addNotification('match', '\ud83d\udfe5 Suspensiones', 'Sancionados: ' + bajas.map(function(b) { return b.name }).join(', '))
+  return bajas
 }
 
 function liberarSuspensiones() {
@@ -9428,11 +10538,21 @@ function procesarVentasCPU() {
   const transferibles = state.players.filter(p => p.transferListed && p.transferPrice > 0)
   for (const p of transferibles) {
     if (Math.random() > 0.15) continue
+    var buyer = selectBuyerClub(p, p.transferPrice)
+    if (!buyer) continue
     state.finances.balance += p.transferPrice
     state.finances.history.push({ reason: `💰 Venta: ${p.name}`, amount: p.transferPrice })
     const idx = state.players.indexOf(p)
     if (idx >= 0) state.players.splice(idx, 1)
-    addNotification('transfer', `💰 Vendido: ${p.name}`, `${formatMoney(p.transferPrice)} · Traspasado a un equipo de la liga`)
+    addPlayerToClub(buyer.teamId, p)
+    registrarTraspasoEnHistorial({
+      playerName: p.name, playerSkill: p.skill, playerPosition: p.position, playerAge: p.age,
+      playerAvatar: p.avatar || '',
+      fromTeam: state.team + ' (Tú)', fromTeamId: state.teamId, fromLogo: state.teamLogo || '',
+      toTeam: buyer.name, toTeamId: buyer.teamId, toLogo: buyer.logo || '',
+      price: p.transferPrice, isLoan: false, isUserRelated: true
+    })
+    addNotification('transfer', `💰 Vendido: ${p.name}`, `${formatMoney(p.transferPrice)} · ${buyer.name}`)
   }
 }
 
@@ -9520,25 +10640,95 @@ function procesarVentanaTransferencias() {
   procesarCesionesCPU()
   /* Run the new SimuladorMercadoIA (3-8 global operations per call) */
   var mktResult = simularMercadoIA()
-  /* Generate offers to the human player */
+  /* Generate offers to the human player (van a Mercado » Ventas » Ofertas recibidas) */
   var userOffers = generarOfertaAlUsuario(state.players)
   if (userOffers && userOffers.length > 0) {
     for (var oi = 0; oi < userOffers.length; oi++) {
-      var o = userOffers[oi]
-      addNotification('transfer', 'Oferta por ' + o.playerName,
-        o.teamName + ' ofrece ' + formatMoney(o.amount), o)
+      registrarOfertaVenta(userOffers[oi])
     }
   }
   return mktResult
 }
 
-function getReputacion(team) {
-  return team ? (team.rating || 50) : 50
+/* Presupuesto de un club CPU según su GRL: modelo económico propio que permite
+   a los grandes clubes afrontar ventas de 20M–70M+ (y divisiones bajas, poco). */
+function getBudgetByRating(r) {
+  if (r >= 92) return 260000000
+  if (r >= 88) return 200000000
+  if (r >= 85) return 160000000
+  if (r >= 82) return 120000000
+  if (r >= 79) return 90000000
+  if (r >= 76) return 70000000
+  if (r >= 73) return 52000000
+  if (r >= 70) return 38000000
+  if (r >= 67) return 26000000
+  if (r >= 64) return 18000000
+  if (r >= 61) return 12000000
+  if (r >= 58) return 8000000
+  return 5000000
 }
 
 function getTeamBudget(team) {
-  var r = team.rating || 50
-  return Math.round(r * 150000)
+  var r = (team && team.rating) || 0
+  if (!r) {
+    try { var bd = getBaseDato(team && (team.teamId || team.id)); if (bd && bd.rating) r = bd.rating } catch (e) { }
+  }
+  r = r || 50
+  return Math.round(getBudgetByRating(r) * (getCountryBudgetMult(state.countryId) || 1))
+}
+
+/* Devuelve una lista de todos los equipos CPU que pueden comprar, de cualquier liga,
+ * con su presupuesto (el mayor entre el fijado en datos y el modelo por GRL/pais).
+ * Excluye al equipo del usuario y sus filiales. */
+function getAllBuyerTeams() {
+  var map = {}
+  function addTeam(t, leagueId, countryId) {
+    if (!t || !t.id) return
+    var rating = t.rating || 50
+    if (!t.rating) {
+      try { var bd = getBaseDato(t.id); if (bd && bd.rating) rating = bd.rating } catch (e) { }
+    }
+    var explicit = (typeof t.budget === 'number' && t.budget > 0) ? t.budget : 0
+    var model = Math.round(getBudgetByRating(rating) * (getCountryBudgetMult(countryId) || 1))
+    map[t.id] = {
+      teamId: t.id,
+      name: t.name || getTeamName(t.id) || 'Club',
+      logo: t.logo || '',
+      rating: rating,
+      budget: Math.max(explicit, model),
+      countryId: countryId || '',
+      leagueId: leagueId || '',
+    }
+  }
+  for (var cid in window.DB) {
+    var data = window.DB[cid]
+    if (!data || !data.country) continue
+    var leagues = data.country.leagues || []
+    for (var li = 0; li < leagues.length; li++) {
+      var teams = leagues[li].teams || []
+      for (var ti = 0; ti < teams.length; ti++) addTeam(teams[ti], leagues[li].id, cid)
+    }
+  }
+  for (var lid in (state.allLeagueData || {})) {
+    var d = state.allLeagueData[lid]
+    if (!d || !d.teams) continue
+    for (var di = 0; di < d.teams.length; di++) addTeam(d.teams[di], lid, state.countryId)
+  }
+  ;(state.leagueTeams || []).forEach(function(t) {
+    if (!t || !t.teamId) return
+    addTeam({
+      id: t.teamId, name: t.name, logo: t.logo || '', rating: t.rating, budget: t.budget
+    }, state.leagueId, state.countryId)
+  })
+  /* Excluimos al equipo del usuario y sus filiales */
+  delete map[state.teamId]
+  var filialId = getFilialId(state.teamId)
+  if (filialId) delete map[filialId]
+  var u18Id = filialId ? getFilialId(filialId) : null
+  if (u18Id) delete map[u18Id]
+  var out = []
+  for (var id in map) out.push(map[id])
+  return out
 }
 
 function registrarTraspasoEnHistorial(data) {
@@ -9574,7 +10764,7 @@ function registrarTraspasoEnHistorial(data) {
    SISTEMA DE MERCADO Y FICHAJES DE LA IA (SimuladorMercadoIA)
    ============================================================
    Mejora respecto al sistema anterior:
-   - Jerarquía por reputación (derivada del rating)
+   - Jerarquía por rating
    - Detección inteligente de necesidades por posición
    - Sistema de cesiones priorizado
    - Ofertas al usuario basadas en rendimiento
@@ -9635,7 +10825,7 @@ function simularMercadoIA() {
     if (buyer.players.length >= MAX_SQUAD) continue
 
     /* ---- PHASE 1: Mark excess players ---- */
-    var ALL_POS = ['portero','defensa_central','lateral_der','lateral_izq','mediocentro','medio_def','medio_ofensivo','extremo_der','extremo_izq','delantero']
+    var ALL_POS = ['POR','DFC','LD','LI','MC','MCD','MCO','ED','EI','DC']
     for (var pi = 0; pi < ALL_POS.length; pi++) {
       var posL = ALL_POS[pi]
       var inPos = buyer.players.filter(function(x) { return x.position === posL && !x.onLoan })
@@ -9832,11 +11022,12 @@ function generarOfertaAlUsuario(equipoUsuario) {
       if (p.skill < targetSkill - 12) continue
       var prob = p.transferListed ? 0.6 : 0.12
       if (Math.random() > prob) continue
-      var basePrice = p.transferListed && p.transferPrice ? p.transferPrice : Math.round(p.value * 0.7)
-      var offer = Math.round(p.value * (0.8 + Math.random() * 0.5))
+      var basePrice = p.transferListed && p.transferPrice ? p.transferPrice : Math.round(p.value * 1.05)
+      var offer = Math.round(p.value * (1.03 + Math.random() * 0.35))
       if (offer < basePrice) offer = basePrice
+      if (offer < p.value) offer = Math.round(p.value)
       if (offer > budget * 0.4) continue
-      if (getReputacion(team) < 50 && p.skill > 75) continue
+      if (((team && team.rating) || 50) < 50 && p.skill > 75) continue
       offers.push({
         playerId: p.id, teamId: team.teamId, amount: offer, teamName: team.name,
         playerName: p.name, playerValue: p.value, playerPosition: p.position,
@@ -9890,21 +11081,21 @@ function procesarIAFichajes(team) {
   for (const p of players) {
     posCount[p.position] = (posCount[p.position] || 0) + 1
   }
-  const defs = ['defensa_central', 'lateral_der', 'lateral_izq']
-  const mids = ['mediocentro', 'medio_def', 'medio_ofensivo', 'medio_der', 'medio_izq']
-  const fwds = ['delantero', 'extremo_der', 'extremo_izq']
-  if ((posCount['portero'] || 0) < 2) posNeeded.push('portero')
+  const defs = ['DFC', 'LD', 'LI']
+  const mids = ['MC', 'MCD', 'MCO', 'MD', 'MI']
+  const fwds = ['DC', 'ED', 'EI']
+  if ((posCount['POR'] || 0) < 2) posNeeded.push('POR')
   for (const pos of defs) {
     if ((posCount[pos] || 0) < 2) { posNeeded.push(pos); break }
   }
   for (const pos of mids) {
-    if ((posCount[pos] || 0) < 2) { posNeeded.push('mediocentro'); break }
+    if ((posCount[pos] || 0) < 2) { posNeeded.push('MC'); break }
   }
   for (const pos of fwds) {
-    if ((posCount[pos] || 0) < 2) { posNeeded.push('delantero'); break }
+    if ((posCount[pos] || 0) < 2) { posNeeded.push('DC'); break }
   }
   if (players.length < MIN_SQUAD_SIZE && posNeeded.length === 0) {
-    posNeeded.push(pickRandom([...defs, ...mids, ...fwds, 'portero']))
+    posNeeded.push(pickRandom([...defs, ...mids, ...fwds, 'POR']))
   }
   for (const neededPos of posNeeded) {
     const candidates = state.globalPlayers.filter(p => {
@@ -9921,7 +11112,7 @@ function procesarIAFichajes(team) {
     const pick = candidates[0]
     const sourceTeam = state.leagueTeams.find(t => t.teamId === pick.teamId)
     if (!sourceTeam) continue
-    const price = Math.round(pick.value * (0.7 + Math.random() * 0.3))
+    const price = Math.min(Math.round(pick.value * (0.95 + Math.random() * 0.3)), Math.round(budget * 0.3))
     if (price > budget * 0.3) continue
     const sourcePlayer = sourceTeam.players.find(p => p.id === pick.id)
     if (!sourcePlayer) continue
@@ -9936,22 +11127,26 @@ function procesarIAFichajes(team) {
 function procesarIAOfertasAlUsuario() {
   if (!state.transferWindowOpen) return
   const userPlayers = state.players.filter(p => !p.onLoan)
+  /* Ofertas de cualquier liga (no solo la actual) */
+  const buyers = getAllBuyerTeams()
   /* Higher probability for transfer-listed players */
-  for (const team of state.leagueTeams) {
-    if (team.players.length >= MAX_SQUAD) continue
-    const budget = getTeamBudget(team)
+  for (const team of buyers) {
+    var budget = (typeof team.budget === 'number' && team.budget > 0) ? team.budget : getTeamBudget({ rating: team.rating })
     const targetSkill = (team.rating || 50) + randInt(-5, 10)
     var offersMade = 0
     for (const p of userPlayers) {
       if (offersMade >= 3) break
       if (p.skill < targetSkill - 10) continue
+      if (p.skill >= 85 && (team.rating || 50) < p.skill - 6) continue
       var prob = p.transferListed ? 0.5 : 0.1
       if (Math.random() > prob) continue
-      var minPrice = p.transferListed && p.transferPrice ? p.transferPrice : Math.round(p.value * 0.7)
-      var offer = Math.round(p.value * (0.8 + Math.random() * 0.5))
-      if (offer < minPrice) offer = minPrice
-      if (offer > budget * 0.4) continue
-      addNotification('transfer', 'Oferta por ' + p.name, team.name + ' ofrece ' + formatMoney(offer), {
+      var basePrice = p.transferListed && p.transferPrice ? p.transferPrice : Math.round(p.value * 1.05)
+      var offer = Math.round(p.value * (1.03 + Math.random() * 0.35))
+      if (offer < basePrice) offer = basePrice
+      if (offer < p.value) offer = Math.round(p.value)
+      var spendCap = p.skill >= 85 ? 0.8 : 0.4
+      if (offer > budget * spendCap) continue
+      registrarOfertaVenta({
         playerId: p.id, teamId: team.teamId, amount: offer, teamName: team.name,
         playerName: p.name, playerValue: p.value, playerPosition: p.position,
         playerSkill: p.skill, playerAge: p.age, playerAvatar: p.avatar || '',
@@ -10017,20 +11212,20 @@ function generarOfertasParaJugador(player, opts) {
     var targetSkill = (team.rating || 50) + randInt(-5, 10)
     if (player.skill < targetSkill - 12) continue
     if (Math.random() > prob) continue
-    var basePrice = player.transferPrice || Math.round(player.value * 0.7)
-    var offer = Math.max(basePrice, Math.round(player.value * (0.7 + Math.random() * 0.6)))
+    var basePrice = player.transferPrice || Math.round(player.value * 1.05)
+    var offer = Math.max(basePrice, Math.round(player.value * (1.03 + Math.random() * 0.35)))
+    if (offer < player.value) offer = Math.round(player.value)
     if (offer > getTeamBudget(team) * 0.4) continue
     ofertas.push({ team: team, offer: offer })
   }
   if (ofertas.length === 0) return
   ofertas.forEach(function(o, idx) {
     setTimeout(function() {
-      addNotification('transfer', 'Oferta por ' + player.name, o.team.name + ' ofrece ' + formatMoney(o.offer), {
+      registrarOfertaVenta({
         playerId: player.id, teamId: o.team.teamId, amount: o.offer, teamName: o.team.name,
         playerName: player.name, playerValue: player.value, playerPosition: player.position,
         playerSkill: player.skill, playerAge: player.age, playerAvatar: player.avatar || '',
-        teamLogo: o.team.logo || '', categoriaEquipo: cat,
-        recomendacion: recomendarSalida(player, o.offer)
+        teamLogo: o.team.logo || '', categoriaEquipo: cat
       })
     }, idx * 600)
   })
@@ -10070,12 +11265,7 @@ function detectarExcedentesCantera() {
     var maxAge = getCategoryMaxAge(item.category)
     addNotification('transfer', '\u26a0 Excedente de edad: ' + p.name,
       p.name + ' (' + p.age + ' a\u00f1os) supera la m\u00e1xima del ' + catName + ' (' + maxAge + '). Promuevelo o v\u00e9ndelo.',
-      { playerId: p.id, teamId: null, amount: 0, teamName: catName,
-        playerName: p.name, playerValue: p.value || 0, playerPosition: p.position,
-        playerSkill: p.skill, playerAge: p.age, playerAvatar: p.avatar || '',
-        teamLogo: '', categoriaEquipo: item.category,
-        recomendacion: recomendarSalida(p, p.value || 0)
-      })
+      { playerId: null, categoriaEquipo: item.category })
     /* Generar ofertas automáticas para el excedente */
     generarOfertasParaJugador(p, { forzada: true, categoriaEquipo: item.category })
   })
@@ -10109,9 +11299,11 @@ function procesarCesionesCPU() {
   }
 }
 
-function procesarSolicitudCesion(player, team, seasons, resEl) {
+function procesarSolicitudCesion(player, team, seasons, resEl, cost) {
   if (state.players.length >= MAX_SQUAD) { alert('Plantilla completa'); return }
   if (state.boughtPlayerIds.indexOf(player.id) >= 0) { alert('Este jugador ya no est\u00e1 disponible'); document.getElementById('player-detail-modal').classList.remove('open'); return }
+  var loanCost = Math.max(0, Math.round(cost || 0))
+  if (loanCost > 0 && state.finances.balance < loanCost) { alert('Fondos insuficientes para la cesi\u00f3n. Necesitas ' + formatMoney(loanCost)); return }
   const result = evaluarCesion(player)
   if (result.type === 'accepted') {
     var sn = state.seasonNumber || 1
@@ -10137,6 +11329,12 @@ function procesarSolicitudCesion(player, team, seasons, resEl) {
     var newPlayer = { ...player, id: 'loan-' + Date.now(), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, onLoan: true, loanFrom: player.teamId, loanUntil: loanUntil, loanTo: null, loanToName: null, loanToLogo: null }
     state.players.push(newPlayer)
     state.boughtPlayerIds.push(player.id)
+    var duracionLabel = seasons === 0.5 ? 'media temporada' : seasons === 1 ? '1 temporada' : '2 temporadas'
+    if (loanCost > 0) {
+      state.finances.balance -= loanCost
+      var _posLoan = POS_ABBR[player.position] || player.position || '?'
+      state.finances.history.push({ reason: 'Cesión (fichaje): ' + player.name + ' (' + _posLoan + ') · ' + duracionLabel + ' · ' + formatMoney(loanCost), amount: -loanCost })
+    }
     registrarTraspasoEnHistorial({
       playerName: player.name, playerSkill: player.skill,
       playerPosition: player.position, playerAge: player.age,
@@ -10146,10 +11344,9 @@ function procesarSolicitudCesion(player, team, seasons, resEl) {
       price: 'Cesión', isLoan: true, isUserRelated: true
     })
     rebuildGlobalPlayerPool()
-    var duracionLabel = seasons === 0.5 ? 'media temporada' : seasons === 1 ? '1 temporada' : '2 temporadas'
     showTransferConfirmModal({
       type: 'Cesión',
-      price: 0,
+      price: loanCost,
       player: newPlayer,
       fromTeam: team ? team.name : '',
       fromLogo: '',
@@ -10160,14 +11357,54 @@ function procesarSolicitudCesion(player, team, seasons, resEl) {
     document.getElementById('player-detail-modal').classList.remove('open')
     renderSquad(state.players)
   } else {
-    resEl.innerHTML = '<div style="text-align:center;padding:8px;background:rgba(239,68,68,0.1);border-radius:8px;font-size:13px;font-weight:600;color:#EF4444">' + result.msg + '</div>'
+    showOfferResultModal(result, player, team || getTeamObj(player.teamId) || { name: '', logo: '' })
   }
+}
+
+/* Al fin de temporada, las cesiones estáticas (sin loanUntil) regresan al club propietario:
+   se elimina la copia prestada del club cedente y se limpia la marca de cesión del dueño. */
+function retornarCesionesEstaticas() {
+  function limpiaSquad(squad) {
+    if (!Array.isArray(squad)) return
+    for (var i = squad.length - 1; i >= 0; i--) {
+      var p = squad[i]
+      if (!p) continue
+      if (p.loanedFrom) { squad.splice(i, 1); continue }
+      if (p.loanedTo) { delete p.loanedTo; delete p.loanedToName; delete p.loanedToLogo; continue }
+      if (p.loanFrom && !p.loanUntil) { squad.splice(i, 1); continue }
+      if (p.loanTo && !p.loanUntil) { p.onLoan = false; p.loanTo = null; p.loanToName = null; p.loanToLogo = null }
+    }
+  }
+  for (const cid in window.DB) {
+    const data = window.DB[cid]
+    if (!data || !data.country) continue
+    for (const l of data.country.leagues || []) {
+      ;(l.teams || []).forEach(function(t) { limpiaSquad(t.players || []) })
+    }
+  }
+  if (state.allLeagueData) {
+    for (const lid in state.allLeagueData) {
+      const d = state.allLeagueData[lid]
+      if (d && d.teams) d.teams.forEach(function(t) { limpiaSquad(t.players || []) })
+    }
+  }
+  ;(state.leagueTeams || []).forEach(function(t) { limpiaSquad(t.players || []) })
+  var userRem = []
+  ;(state.players || []).forEach(function(p) {
+    if (p.loanFrom && !p.loanUntil) { userRem.push(p); return }
+    if (p.loanTo && !p.loanUntil) { p.onLoan = false; p.loanTo = null; p.loanToName = null; p.loanToLogo = null }
+  })
+  userRem.forEach(function(p) {
+    var idx = state.players.indexOf(p)
+    if (idx >= 0) state.players.splice(idx, 1)
+  })
 }
 
 function procesarRetornoCesiones() {
   var sn = state.seasonNumber || 1
   var currentSeasonEnd = '30/06/' + (2026 + sn)
   var nextSeasonEnd = '30/06/' + (2026 + sn + 1)
+  retornarCesionesEstaticas()
   for (const team of state.leagueTeams) {
     const loans = team.players.filter(p => p.onLoan && p.loanFrom)
     for (const p of loans) {
@@ -10317,7 +11554,7 @@ function mostrarOfertaTransferencia(player, team, offer) {
           <div onclick="aceptarOferta('${player.id}','${team.teamId}',${offer})" style="display:flex;align-items:center;justify-content:center;gap:6px;flex:1;padding:14px;background:#2E7D32;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#388E3C'" onmouseout="this.style.background='#2E7D32'">${checkSvg} Aceptar</div>
           <div onclick="rechazarOferta('${player.id}')" style="display:flex;align-items:center;justify-content:center;gap:6px;flex:1;padding:14px;background:#c62828;border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#d32f2f'" onmouseout="this.style.background='#c62828'">${crossSvg} Rechazar</div>
         </div>
-        <div onclick="window.renderContra()" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;background:var(--accent);border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#1E40AF'" onmouseout="this.style.background='var(--accent)'">${refreshSvg} Contraofertar</div>
+        <div onclick="window.renderContra()" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;background:var(--accent);border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#106B31'" onmouseout="this.style.background='var(--accent)'">${refreshSvg} Contraofertar</div>
       </div>`
   }
   window.renderInitial = renderInitial
@@ -10335,8 +11572,8 @@ function mostrarOfertaTransferencia(player, team, offer) {
           <div style="font-size:13px;color:var(--text-secondary);margin-top:8px">Valor de mercado: ${valueStr}</div>
         </div>
         <div id="co-resultado" style="margin-bottom:10px"></div>
-        <div onclick="enviarContraoferta('${player.id}','${team.teamId}')" style="padding:14px;background:var(--accent);border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s;margin-bottom:8px" onmouseover="this.style.background='#1E40AF'" onmouseout="this.style.background='var(--accent)'">Enviar contraoferta</div>
-        <div onclick="window.renderInitial()" style="padding:10px;background:transparent;border:1px solid var(--text-muted);border-radius:10px;text-align:center;font-size:14px;color:var(--text-secondary);cursor:pointer">Volver</div>
+        <div onclick="enviarContraoferta('${player.id}','${team.teamId}')" style="padding:14px;background:var(--accent);border-radius:10px;text-align:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.2s;margin-bottom:8px" onmouseover="this.style.background='#106B31'" onmouseout="this.style.background='var(--accent)'">Enviar contraoferta</div>
+        <div onclick="window.renderInitial()" style="padding:10px;background:var(--danger);border:1px solid var(--danger);border-radius:10px;text-align:center;font-size:14px;font-weight:600;color:#F9F9F9;cursor:pointer">Volver</div>
       </div>`
     document.getElementById('co-price').addEventListener('input', function() {
       var n = this.value.replace(/[^\d]/g, '')
@@ -10372,6 +11609,122 @@ function mostrarOfertaTransferencia(player, team, offer) {
   document.body.appendChild(overlay)
 }
 
+/* Modal flotante con el resultado de una oferta (fichaje o cesión): aceptada / contraoferta / rechazada.
+   Sustituye a los avisos inline que antes se pintaban dentro del detalle del jugador. */
+function showOfferResultModal(result, player, team) {
+  const existing = document.getElementById('offer-result-modal')
+  if (existing) existing.remove()
+  const overlay = document.createElement('div')
+  overlay.id = 'offer-result-modal'
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px;box-sizing:border-box'
+  document.body.appendChild(overlay)
+
+  function close() { overlay.remove() }
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) close() })
+
+  var checkSvg = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+  var crossSvg = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+  var refreshSvg = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>'
+
+  var posKey = player.position
+  var posInternal = SIGLA_TO_POS[posKey] || posKey
+  var posAbbr = POS_ABBR[posInternal] || posKey
+  var posColor = (POSITIONS[posInternal] && POSITIONS[posInternal].color) || '#888'
+  var teamName = (team && team.name) ? team.name : 'el club'
+
+  var card =
+    '<div style="display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:10px;padding:12px;margin:16px 0">' +
+      '<img src="' + (player.avatar || NOPHOTO) + '" onerror="this.src=\'' + NOPHOTO + '\'" style="width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--bg-card);flex-shrink:0">' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:15px;font-weight:700;color:var(--text)">' + escHtml(player.name) + '</div>' +
+        '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">' +
+          '<span style="background:' + posColor + ';color:#fff;padding:0 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.6">' + posAbbr + '</span>' +
+          ' <span style="font-weight:700;color:var(--text)">' + (player.skill || 0) + '</span> · ' + (player.age || '-') + ' años · ' + escHtml(teamName) +
+        '</div>' +
+      '</div>' +
+    '</div>'
+
+  var base =
+    '<div style="background:var(--bg-surface);border:1px solid var(--text-muted);border-radius:14px;padding:24px;max-width:400px;width:100%;color:var(--text);font-family:inherit;box-shadow:0 4px 24px rgba(0,0,0,0.35);box-sizing:border-box">'
+
+  if (result.type === 'accepted') {
+    overlay.innerHTML = base +
+      '<div style="text-align:center;margin-bottom:6px"><div style="width:48px;height:48px;border-radius:50%;background:rgba(16,185,129,0.15);display:inline-flex;align-items:center;justify-content:center;color:#10B981">' + checkSvg + '</div></div>' +
+      '<div style="text-align:center;font-size:19px;font-weight:800;color:#10B981;margin-bottom:4px">¡OFERTA ACEPTADA!</div>' +
+      '<div style="text-align:center;font-size:13px;color:var(--text-muted)">' + (result.msg || '') + '</div>' +
+      card +
+      '<div style="text-align:center;font-size:17px;font-weight:800;color:var(--text)">' + formatMoney(result.price) + '</div>' +
+      '<button class="btn-primary" id="or-ok" style="width:100%;margin-top:14px;background:var(--accent)">Aceptar</button>' +
+    '</div>'
+    document.getElementById('or-ok').onclick = close
+  } else if (result.type === 'counter') {
+    overlay.innerHTML = base +
+      '<div style="text-align:center;margin-bottom:6px"><div style="width:48px;height:48px;border-radius:50%;background:rgba(245,158,11,0.15);display:inline-flex;align-items:center;justify-content:center;color:#F59E0B">' + refreshSvg + '</div></div>' +
+      '<div style="text-align:center;font-size:19px;font-weight:800;color:#F59E0B;margin-bottom:4px">CONTRAOFERTA RECIBIDA</div>' +
+      '<div style="text-align:center;font-size:13px;color:var(--text-muted)">' + teamName + ' pide ' + formatMoney(result.price) + ' por ' + escHtml(player.name) + '</div>' +
+      card +
+      '<div style="display:flex;gap:10px;margin-top:6px">' +
+        '<button class="btn-primary" id="or-accept" style="flex:1;background:#10B981">ACEPTAR</button>' +
+        '<button class="btn-secondary" id="or-reject" style="flex:1;background:#EF4444;color:#fff;border-color:#EF4444">RECHAZAR</button>' +
+      '</div>' +
+    '</div>'
+    document.getElementById('or-accept').onclick = function() {
+      close()
+      if (!state.transferWindowOpen) { alert('\ud83d\udd12 El mercado de fichajes est\u00e1 cerrado'); return }
+      if (state.boughtPlayerIds.indexOf(player.id) >= 0) { alert('Este jugador ya ha sido fichado'); document.getElementById('player-detail-modal').classList.remove('open'); return }
+      if (state.players.length >= MAX_SQUAD) { alert('Plantilla completa (' + MAX_SQUAD + ' jugadores)'); return }
+      if (state.finances.balance < result.price) { alert('Fondos insuficientes. Necesitas ' + formatMoney(result.price)); return }
+      finalizarFichaje(player, result.price)
+    }
+    document.getElementById('or-reject').onclick = close
+  } else {
+    var minTxt = result.minPrice ? ' Pide al menos ' + formatMoney(result.minPrice) + '.' : ''
+    overlay.innerHTML = base +
+      '<div style="text-align:center;margin-bottom:6px"><div style="width:48px;height:48px;border-radius:50%;background:rgba(239,68,68,0.15);display:inline-flex;align-items:center;justify-content:center;color:#EF4444">' + crossSvg + '</div></div>' +
+      '<div style="text-align:center;font-size:19px;font-weight:800;color:#EF4444;margin-bottom:4px">OFERTA RECHAZADA</div>' +
+      '<div style="text-align:center;font-size:13px;color:var(--text-muted)">' + (result.msg || teamName + ' rechaza la oferta.') + minTxt + '</div>' +
+      card +
+      '<button class="btn-primary" id="or-ok" style="width:100%;margin-top:14px;background:var(--accent)">ENTENDIDO</button>' +
+    '</div>'
+    document.getElementById('or-ok').onclick = close
+  }
+}
+
+/* Completa el fichaje de un jugador por el precio acordado (aceptada o contraoferta aceptada).
+   Extrae la compra del flujo inline para reutilizarla desde el modal de resultado. */
+function finalizarFichaje(player, price) {
+  var gi = state.globalPlayers.findIndex(function(p) { return p.id === player.id })
+  if (gi >= 0) state.globalPlayers.splice(gi, 1)
+  var team = getTeamObj(player.teamId)
+  if (team) {
+    var ti = team.players.findIndex(function(p) { return p.id === player.id })
+    if (ti >= 0) team.players.splice(ti, 1)
+  }
+  var newP = { ...player, id: 'user-' + Date.now(), value: player.value || calcValue(player.skill, player.age, player.position), teamId: state.teamId, energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
+  state.players.push(newP)
+  state.boughtPlayerIds.push(player.id)
+  state.finances.balance -= price
+  registrarTraspasoEnHistorial({
+    playerName: player.name, playerSkill: player.skill,
+    playerPosition: player.position, playerAge: player.age,
+    playerAvatar: player.avatar || '',
+    fromTeam: (team ? team.name : ''), fromTeamId: player.teamId, fromLogo: (team ? team.logo || '' : ''),
+    toTeam: state.team + ' (Tú)', toTeamId: state.teamId, toLogo: state.teamLogo || '',
+    price: price, isLoan: false, isUserRelated: true
+  })
+  var _posF = POS_ABBR[player.position] || player.position || '?'
+  state.finances.history.push({ reason: 'Fichaje: ' + player.name + ' (' + _posF + ') \u00b7 ' + formatMoney(price) + ' \u00b7 ' + (team ? team.name : ''), amount: -price })
+  addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(price) + ' \u00b7 ' + player.nationality, { playerData: { name: player.name, skill: player.skill, position: player.position, age: player.age, avatar: player.avatar, nationality: player.nationality, price: price, otherPositions: player.otherPositions } })
+  showTransferConfirmModal({
+    type: 'Fichaje', price: price, player: newP,
+    fromTeam: team ? team.name : '', fromTeamId: player.teamId, fromLogo: team ? team.logo || '' : '',
+    toTeam: state.team, toLogo: state.teamLogo || '',
+    teamStats: player.teamStats ? player.teamStats[player.teamId] : null
+  })
+  closePd()
+  renderMarketContent()
+}
+
 function showTransferConfirmModal(data) {
   var modal = document.getElementById('transfer-confirm-modal')
   if (!modal) return
@@ -10399,15 +11752,15 @@ function showTransferConfirmModal(data) {
   /* Positions */
   var posHtml = ''
   var mainAbbr = POS_ABBR[posKey] || player.position
-  var mainColor = (POSITIONS[posKey] && POSITIONS[posKey].color) || '#6B7280'
-  posHtml += '<span style="background:' + mainColor + ';color:#fff;padding:1px 6px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.8">' + mainAbbr + ' ' + (player.mainPct != null ? player.mainPct + '%' : '99%') + '</span>'
+  var mainColor = (POSITIONS[posKey] && POSITIONS[posKey].color) || '#71717A'
+  posHtml += '<span style="background:' + mainColor + ';color:#fff;padding:1px 6px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.8">' + mainAbbr + '</span>'
   if (player.otherPositions && player.otherPositions.length > 0) {
     player.otherPositions.forEach(function(o) {
       var oPos = normalizePosKey(o.pos)
       var oKey = SIGLA_TO_POS[oPos] || oPos
       var oAbbr = POS_ABBR[oKey] || oPos
       var oColor = (POSITIONS[oKey] && POSITIONS[oKey].color) || '#888'
-      posHtml += '<span style="background:' + oColor + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.8">' + oAbbr + ' ' + o.pct + '%</span>'
+      posHtml += '<span style="background:' + oColor + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:10px;line-height:1.8">' + oAbbr + '</span>'
     })
   }
   document.getElementById('tcm-positions').innerHTML = posHtml
@@ -10768,7 +12121,7 @@ function iniciarNuevaTemporada() {
     state.leagueTeams = filteredTeams.map(function(t) {
       var existing = state.leagueTeams.find(function(x) { return x.teamId === t.id })
       return {
-        teamId: t.id, name: t.name, logo: t.logo || null, palmares: t.palmares || null,
+        teamId: t.id, name: t.name, logo: t.logo || null, rating: t.rating || null, budget: t.budget || null, palmares: t.palmares || null,
         players: existing ? existing.players.map(function(p) { return Object.assign({}, p, { energy: 100, injury: null, goals: 0, matches: 0 }) })
           : (getRealSquad(t.id) || []).map(function(p) { var pp = Object.assign({}, p, { value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100, goals: 0, matches: 0 }); if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp }),
       }
@@ -10865,6 +12218,25 @@ function showTrofeoModal(title, subtitle, logoUrl, onContinue) {
     modal.classList.remove('open')
     if (onContinue) onContinue()
   }
+  modal.style.display = ''
+  modal.classList.add('open')
+}
+
+/* Detalle de un trofeo del palmarés (abierto al hacer clic en la tarjeta). */
+function openTrofeoDetalle(i) {
+  var t = (window._palmaresTrofeos || [])[i]
+  var modal = document.getElementById('trofeo-modal')
+  if (!t || !modal) return
+  document.getElementById('tm-title').textContent = t.comp
+  var ys = t.years && t.years.length > 0 ? t.years.join(', ') : 'Historial del club'
+  document.getElementById('tm-subtitle').textContent = (t.count === 1 ? '1 vez' : t.count + ' veces') + ' \u00b7 ' + ys
+  var logoEl = document.getElementById('tm-logo')
+  var logo = getCompeLogo(t.comp)
+  if (logo) { logoEl.src = logo; logoEl.style.display = '' }
+  else { logoEl.style.display = 'none' }
+  var btn = document.getElementById('tm-btn')
+  btn.textContent = 'Cerrar'
+  btn.onclick = function() { modal.style.display = 'none'; modal.classList.remove('open') }
   modal.style.display = ''
   modal.classList.add('open')
 }
@@ -11003,24 +12375,283 @@ function _compStatCardPlayerHtml(s, isGoals) {
   return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px"><img src="' + _teamLogoSrc + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:1px solid var(--text-muted)" onerror="this.src=\'' + NOPHOTO + '\'"><img src="' + _avatarSrc + '" style="width:38px;height:38px;border-radius:50%;object-fit:cover;background:var(--bg-card);border:1px solid var(--text-muted);margin:0 auto" onerror="this.src=\'' + NOPHOTO + '\'"><span style="font-size:17px;font-weight:700;color:var(--accent);display:inline-flex;align-items:center;gap:2px">' + _icon + _total + '</span></div><div style="display:grid;grid-template-columns:28px 1fr 28px;align-items:center;gap:6px"><span style="font-size:28px;line-height:28px;display:inline-block;vertical-align:middle;width:28px;height:28px;text-align:center">' + _flag + '</span><span style="font-size:14px;font-weight:600;color:var(--text);text-align:center">' + s.name + '</span><span></span></div>'
 }
 
-/* Builds the "máximo goleador / asistente" cards for a competition or league.
-   Stores the active competition so the top-10 modal reads the same data. */
+/* Coincidencia de nombres de competición (p. ej. 'Campeón de X' ↔ 'X',
+   y alias del palmarés de la DB → nombre oficial de la competición). */
+var _COMP_NORM = {
+  'Copa de Francia': 'Coupe de France',
+  'Copa Italia': 'Coppa Italia',
+  'DFB Pokal': 'Copa de Austria',
+  'Copa Belga': 'Copa de B\u00e9lgica',
+  'Supercopa Belga': 'Supercopa de B\u00e9lgica',
+  'KNVB Beker': 'Copa de los Pa\u00edses Bajos',
+  'Supercopa Pa\u00edses Bajos': 'Supercopa de los Pa\u00edses Bajos',
+  'Supercopa Polonia': 'Superpuchar Polski',
+  'Supercopa Francia': 'Troph\u00e9e des Champions',
+  'Supercopa Franz Beckenbauer': 'Supercopa Alemania',
+  'UEFA Europa Conference League': 'Conference League'
+}
+function _compCanonical(name) {
+  if (!name) return ''
+  var n = String(name)
+  if (n.indexOf('Campe\u00f3n de ') === 0) n = n.slice(11)
+  n = n.trim()
+  return _COMP_NORM[n] || n
+}
+function _compNameMatches(a, b) {
+  if (!a || !b) return false
+  return _compCanonical(a) === _compCanonical(b)
+}
+
+/* País al que pertenece un equipo (por id), buscando en los datos estáticos. */
+function countryOfTeam(tid) {
+  for (var ci in window.DB) {
+    var cd = window.DB[ci]
+    if (!cd || !cd.country || !cd.country.leagues) continue
+    for (var li = 0; li < cd.country.leagues.length; li++) {
+      if ((cd.country.leagues[li].teams || []).some(function(t) { return t.id === tid })) return ci
+    }
+  }
+  return null
+}
+
+/* Mapas de competición continental a nombre oficial para el palmarés. */
+var COMP_CONTINENTAL_NAMES = {
+  champions: 'Champions League',
+  europa_league: 'Europa League',
+  conference_league: 'Conference League',
+  supercopa_europa: 'Supercopa Europa',
+  mundial_clubes: 'Mundial de Clubes'
+}
+
+/* Nombre de la competición + hashtag de cabecera para los paneles de la derecha. */
+function resolveCompNames(competition, leagueId) {
+  if (leagueId && COMP_CONTINENTAL_NAMES[leagueId]) {
+    var cn0 = COMP_CONTINENTAL_NAMES[leagueId]
+    return { compName: cn0, hashtag: '#' + cn0 }
+  }
+  var cntry = state.leagueViewCountry || state.countryId
+  var compName = null
+  if (competition === 'league') {
+    compName = getLeagueDisplayName(leagueId || state.leagueId)
+  } else if (competition === 'cup') {
+    compName = getCupCompName(cntry)
+  } else if (competition === 'supercopa') {
+    compName = getSupercopaCompName(cntry)
+  } else if (competition === 'taca_da_liga') {
+    compName = getTacaDaLigaCompName()
+  } else if (competition === 'efl_cup') {
+    compName = getEflCupCompName()
+  } else if (COMP_CONTINENTAL_NAMES[competition]) {
+    compName = COMP_CONTINENTAL_NAMES[competition]
+  } else {
+    compName = competition
+  }
+  compName = String(compName || competition || '')
+  return { compName: compName, hashtag: '#' + compName }
+}
+
+/* Logo (no trofeo) de la competición que se está viendo. */
+var COMP_CONTINENTAL_LOGOS = {
+  champions: 'https://cdn.resfu.com/media/img/league_logos/champions.png?size=120x&lossy=1',
+  europa_league: 'https://cdn.resfu.com/media/img/league_logos/europa-league.png?size=120x&lossy=1',
+  conference_league: 'https://cdn.resfu.com/media/img/league_logos/conf-league.png?size=120x&lossy=1',
+  supercopa_europa: 'https://cdn.resfu.com/media/img/league_logos/supercopa_europa.png?size=120x&lossy=1',
+  mundial_clubes: 'https://cdn.resfu.com/media/img/league_logos/mundial-clubes.png?size=120x&lossy=1'
+}
+function getCompetitionLogo(competition, leagueId) {
+  if (leagueId && COMP_CONTINENTAL_LOGOS[leagueId]) return COMP_CONTINENTAL_LOGOS[leagueId]
+  var cntry = state.leagueViewCountry || state.countryId
+  if (competition === 'league' && leagueId) {
+    var lg = getLeagueFromId(leagueId)
+    if (lg && lg.logo) return lg.logo
+  }
+  if (competition === 'cup') return getCupLogo(cntry)
+  if (competition === 'supercopa') return getSupercopaLogo(cntry)
+  if (competition === 'taca_da_liga') return getTacaDaLigaLogo()
+  if (competition === 'efl_cup') return getEflCupLogo()
+  return ''
+}
+
+/* Palmarés (histórico real + temporadas jugadas) de una competición. */
+function getLeaguePalmaresCompName(leagueId) {
+  var map = {
+    'l2s': 'Segunda Divisi\u00f3n',
+    'l3sg1': 'Primera Federaci\u00f3n',
+    'l3sg2': 'Primera Federaci\u00f3n',
+    'lpl2': 'Segunda Polonia',
+    'lpl3': 'Tercera Polonia',
+    'lpl4g1': 'Cuarta Polonia',
+    'lpl4g2': 'Cuarta Polonia',
+    'lpl4g3': 'Cuarta Polonia',
+    'lpl4g4': 'Cuarta Polonia',
+    'l2p': 'Segunda Liga',
+    'bl1': 'Bundesliga Austria',
+    'bl2a': 'Segunda Austria',
+    'l1b': 'Liga Belga'
+  }
+  return map[leagueId] || null
+}
+
+function getCompetitionPalmares(compName, restrictCountry, competition, leagueId) {
+  var counts = {}
+  function add(teamId, n) {
+    if (teamId === null || teamId === undefined || teamId === '') return
+    if (!counts[teamId]) counts[teamId] = 0
+    counts[teamId] += (n || 0)
+  }
+  /* En ligas con nombre comercial distinto al del palmarés de la DB (p. ej.
+     'LaLiga Hypermotion' ↔ 'Segunda División') se aceptan ambos nombres. */
+  var matchNames = [compName]
+  if (competition === 'league' && leagueId) {
+    var canonLeague = getLeaguePalmaresCompName(leagueId)
+    var displayLeague = getLeagueDisplayName(leagueId)
+    if (canonLeague && matchNames.indexOf(canonLeague) === -1) matchNames.push(canonLeague)
+    if (displayLeague && matchNames.indexOf(displayLeague) === -1) matchNames.push(displayLeague)
+  }
+  function palMatch(v) {
+    if (!v) return false
+    for (var i = 0; i < matchNames.length; i++) {
+      if (_compNameMatches(v, matchNames[i])) return true
+    }
+    return false
+  }
+  /* 1) Palmarés real de los equipos (solo el país de la competición si aplica).
+        Al equipo del usuario no se le suma aquí: su palmarés real viene de
+        state.myPalmares (paso 2) para no contarlo dos veces. */
+  for (var ci in window.DB) {
+    if (restrictCountry && ci !== restrictCountry) continue
+    var cd = window.DB[ci]
+    if (!cd || !cd.country || !cd.country.leagues) continue
+    for (var li = 0; li < cd.country.leagues.length; li++) {
+      var league = cd.country.leagues[li]
+      ;(league.teams || []).forEach(function(t) {
+        if (!t.palmares) return
+        var matched = t.palmares.filter(function(p) {
+          return palMatch(p.comp)
+        })
+        if (!matched.length) return
+        if (t.id === state.teamId) return
+        matched.forEach(function(p) { add(t.id, p.count || 1) })
+      })
+    }
+  }
+  /* 2) Palmarés real del club elegido por el usuario (una sola vez; en el paso 1
+        se omite su equipo para evitar sumarlo dos veces) */
+  if (state.myPalmares && Array.isArray(state.myPalmares)) {
+    state.myPalmares.forEach(function(p) {
+      if (p && palMatch(p.comp)) add(state.teamId, p.count || 1)
+    })
+  }
+  /* 3) Trofeos ganados en la partida por los demás equipos (el del usuario se lee en
+     state.trophies para no contarlos dos veces) */
+  var ath = state.allTeamsHistory || {}
+  for (var tid in ath) {
+    if (tid === state.teamId) continue
+    if (restrictCountry && countryOfTeam(tid) !== restrictCountry) continue
+    var trophies = ath[tid].trophies || []
+    for (var ti = 0; ti < trophies.length; ti++) {
+      if (palMatch(trophies[ti].competition)) add(tid, 1)
+    }
+  }
+  /* 4) Trofeos del equipo del usuario registrados en la partida actual */
+  ;(state.trophies || []).forEach(function(t) {
+    if (t && palMatch(t.competition)) add(state.teamId, 1)
+  })
+  var list = []
+  for (var id in counts) {
+    if (!counts[id] || counts[id] <= 0) continue
+    list.push({ teamId: id, name: getTeamName(id), logo: getTeamLogo(id), count: counts[id] })
+  }
+  list.sort(function(a, b) {
+    return b.count - a.count || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
+  })
+  return list
+}
+
+/* Construye la columna derecha de la vista de competiciones: tres botones
+   (Palmarés / Goleadores / Asistencias) que abren paneles centrados con scroll. */
 function buildCompStatsCardsHtml(competition, leagueId) {
-  window._activeStatsComp = { competition: competition, leagueId: leagueId || null }
-  var compStats = getCompStats(competition, 10, leagueId)
-  var statsHtml = '<div class="comp-stats-row">'
-  if (compStats.goals.length > 0) {
-    statsHtml += '<div class="comp-stat-card" id="stat-card-goals"><div class="comp-stat-label">\u26bd M\u00e1ximo goleador</div>' + _compStatCardPlayerHtml(compStats.goals[0], true) + '<div style="margin-top:4px;text-align:right"><span style="color:var(--accent);cursor:pointer;font-size:12px;font-weight:600" onclick="showTopStatsModal(\'goals\')">Ver top 10 \u2192</span></div></div>'
-  } else {
-    statsHtml += '<div class="comp-stat-card"><div class="comp-stat-label">\u26bd M\u00e1ximo goleador</div><div class="comp-stat-main" style="color:var(--text-muted);font-weight:400;text-align:center;padding:16px 0">\u2014 Sin datos \u2014</div></div>'
+  var names = resolveCompNames(competition, leagueId)
+  var isNational = competition === 'league' || competition === 'cup' || competition === 'supercopa' || competition === 'taca_da_liga' || competition === 'efl_cup'
+  window._activeStatsComp = {
+    competition: competition,
+    leagueId: leagueId || null,
+    country: state.leagueViewCountry || state.countryId,
+    compName: names.compName,
+    hashtag: names.hashtag,
+    restrictCountry: (isNational && !COMP_CONTINENTAL_NAMES[leagueId]) ? (state.leagueViewCountry || state.countryId) : null
   }
-  if (compStats.assists.length > 0) {
-    statsHtml += '<div class="comp-stat-card" id="stat-card-assists"><div class="comp-stat-label">\ud83d\udc5f M\u00e1ximo asistente</div>' + _compStatCardPlayerHtml(compStats.assists[0], false) + '<div style="margin-top:4px;text-align:right"><span style="color:var(--accent);cursor:pointer;font-size:12px;font-weight:600" onclick="showTopStatsModal(\'assists\')">Ver top 10 \u2192</span></div></div>'
+  var trophyIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
+  return '<div class="comp-tabs">' +
+    '<button class="comp-tab" onclick="window.openCompPanel(\'palmares\')"><span class="comp-tab-ico">' + trophyIcon + '</span><span>Palmar\u00e9s</span></button>' +
+    '<button class="comp-tab" onclick="window.openCompPanel(\'goals\')"><span class="comp-tab-ico">\u26bd</span><span>Goleadores</span></button>' +
+    '<button class="comp-tab" onclick="window.openCompPanel(\'assists\')"><span class="comp-tab-ico">\ud83d\udc5f</span><span>Asistencias</span></button>' +
+    '</div>'
+}
+
+/* Abre un panel centrado con scroll: palmarés, goleadores o asistencias. */
+window.openCompPanel = function(type) {
+  var existing = document.getElementById('comp-panel-modal')
+  if (existing) existing.remove()
+  var ac = window._activeStatsComp || { competition: 'league', leagueId: null, country: state.countryId, compName: '', hashtag: '#', restrictCountry: null }
+  var closeBtn = '<button class="comp-modal-close" onclick="document.getElementById(\'comp-panel-modal\').remove()">\u2716 Cerrar</button>'
+  var body = ''
+  var typeLabel = ''
+  if (type === 'palmares') {
+    typeLabel = 'Palmar\u00e9s'
+    var palList = getCompetitionPalmares(ac.compName, ac.restrictCountry, ac.competition, ac.leagueId)
+    if (palList.length === 0) {
+      body = '<div class="comp-modal-empty">\ud83c\udfc6 Sin trofeos registrados</div>'
+    } else {
+      var rows = '<table class="comp-modal-table"><thead><tr><th class="comp-th-pos">#</th><th>Equipo</th><th class="comp-th-trofeos">Trofeos</th></tr></thead><tbody>'
+      palList.forEach(function(item, ix) {
+        rows += '<tr>' +
+          '<td class="comp-td-pos">' + (ix + 1) + '</td>' +
+          '<td><div class="comp-td-team"><img class="comp-td-logo" src="' + escHtml(item.logo || NOPHOTO) + '" onerror="this.style.display=\'none\'"><span class="comp-td-name">' + escHtml(item.name) + '</span></div></td>' +
+          '<td class="comp-td-trofeos">' + item.count + '</td>' +
+          '</tr>'
+      })
+      body = rows + '</tbody></table>'
+    }
   } else {
-    statsHtml += '<div class="comp-stat-card"><div class="comp-stat-label">\ud83d\udc5f M\u00e1ximo asistente</div><div class="comp-stat-main" style="color:var(--text-muted);font-weight:400;text-align:center;padding:16px 0">\u2014 Sin datos \u2014</div></div>'
+    var isGoals = type !== 'assists'
+    typeLabel = isGoals ? 'Goleadores' : 'Asistencias'
+    var stats = getCompStats(ac.competition, 30, ac.leagueId)
+    var list = isGoals ? stats.goals : stats.assists
+    var unit = isGoals ? 'Goles' : 'Asistencias'
+    if (list.length === 0) {
+      body = '<div class="comp-modal-empty">Sin datos a\u00fan</div>'
+    } else {
+      var rows2 = '<table class="comp-modal-table"><thead><tr><th class="comp-th-pos">#</th><th>Jugador</th><th>Equipo</th><th class="comp-th-num">' + unit + '</th></tr></thead><tbody>'
+      list.forEach(function(s, ix) {
+        var flag = natFlagHtml(s.nationality)
+        rows2 += '<tr>' +
+          '<td class="comp-td-pos">' + (ix + 1) + '</td>' +
+          '<td><div class="comp-td-player"><img class="comp-td-avatar" src="' + escHtml(s.avatar || NOPHOTO) + '" onerror="this.src=\'' + NOPHOTO + '\'"><span class="comp-td-flag">' + flag + '</span><span class="comp-td-name">' + escHtml(s.name) + '</span></div></td>' +
+          '<td><div class="comp-td-team"><img class="comp-td-logo" src="' + escHtml(s.teamLogo || NOPHOTO) + '" onerror="this.style.display=\'none\'"><span class="comp-td-name">' + escHtml(s.team) + '</span></div></td>' +
+          '<td class="comp-td-num">' + (isGoals ? (s.goals || 0) : (s.assists || 0)) + '</td>' +
+          '</tr>'
+      })
+      body = rows2 + '</tbody></table>'
+    }
   }
-  statsHtml += '</div>'
-  return statsHtml
+  var compLogo = getCompetitionLogo(ac.competition, ac.leagueId)
+  var overlay = document.createElement('div')
+  overlay.id = 'comp-panel-modal'
+  overlay.className = 'comp-modal'
+  overlay.innerHTML = '<div class="comp-modal-card">' +
+    '<div class="comp-modal-head">' +
+      (compLogo ? '<img class="comp-modal-logo" src="' + escHtml(compLogo) + '" onerror="this.style.display=\'none\'">' : '') +
+      '<div class="comp-modal-titles">' +
+        '<div class="comp-modal-title">' + escHtml(ac.compName) + '</div>' +
+        '<div class="comp-modal-sub">' + escHtml(typeLabel) + '</div>' +
+      '</div>' +
+      closeBtn +
+    '</div>' +
+    '<div class="comp-modal-scroll">' + body + '</div>' +
+  '</div>'
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove() }
+  document.body.appendChild(overlay)
 }
 
 function getSeasonWinners() {
@@ -12600,25 +14231,6 @@ function simularPartidoRapido(fixture, rivalId) {
       const p = state.players.find(x => x.id === pid)
       if (p) { p.minutosEnPista = 90; p.matches = (p.matches || 0) + 1 }
     })
-    /* Add position experience */
-    startingIds.forEach(function(pid, idx) {
-      var p = state.players.find(function(x) { return x.id === pid })
-      if (!p) return
-      var role = roles[idx]
-      var posKey = SIGLA_TO_POS[role] || role
-      p.positionExperience = p.positionExperience || {}
-      p.positionExperience[posKey] = (p.positionExperience[posKey] || 0) + 1
-    })
-    state.players.forEach(function(p) {
-      if (!p.positionExperience) return
-      // Si no jug\u00f3 de titular pero tiene experiencia, mantener
-      if (!startingIds.includes(p.id) && p.minutosEnPista > 0) {
-        var role = roles[state.benchIds.indexOf(p.id)] || p.position
-        var posKey = SIGLA_TO_POS[role] || role
-        p.positionExperience = p.positionExperience || {}
-        p.positionExperience[posKey] = (p.positionExperience[posKey] || 0) + 0.5
-      }
-    })
     const userGoalscorers = []
     userGoals.forEach(function(g) {
       if (!g.scorer) return
@@ -12671,31 +14283,7 @@ function simularPartidoRapido(fixture, rivalId) {
       aplicarFatigaEquipo(rivalTeam, rivalTeam.gamePlan)
     }
 
-    /* Track position experience + mainPct */
-    state.players.forEach(function(p) {
-      if (p.minutosEnPista > 0) {
-        var idx = startingIds.indexOf(p.id)
-        if (idx >= 0 && idx < roles.length) {
-          var role = roles[idx]
-          var naturalKey = SIGLA_TO_POS[p.position] || p.position
-          if (!p.positionExperience) p.positionExperience = {}
-          if (naturalKey === role) {
-            /* Incrementar mainPct cuando juega en su posición natural */
-            if (p.mainPct == null) p.mainPct = 99
-            if (p.mainPct < 100) {
-              p.mainPct = Math.min(100, p.mainPct + 0.25)
-            }
-          } else {
-            p.positionExperience[role] = (p.positionExperience[role] || 0) + 1
-            if (!p.otherPositions) p.otherPositions = []
-            var existing = p.otherPositions.find(function(o) { return o.pos === role })
-            var newPct = Math.min(100, p.positionExperience[role] * 3)
-            if (!existing) p.otherPositions.push({ pos: role, pct: newPct })
-            else existing.pct = Math.max(existing.pct, newPct)
-          }
-        }
-      }
-    })
+
 
     /* Simulate up to 5 substitutions for user's team based on score */
     const maxBench = getEffectiveMaxBench()
@@ -12707,7 +14295,7 @@ function simularPartidoRapido(fixture, rivalId) {
       let subIdx = -1
       if (needsOffensive && s < 3) {
         /* Try to sub in a forward/mid for a defender */
-        const forward = benchPlayers.find(p => !p.injury && (p.position === 'delantero' || p.position === 'extremo_izq' || p.position === 'extremo_der' || p.position === 'medio_ofensivo'))
+        const forward = benchPlayers.find(p => !p.injury && (p.position === 'DC' || p.position === 'EI' || p.position === 'ED' || p.position === 'MCO'))
         if (forward) {
           subIdx = benchPlayers.indexOf(forward)
           const tired = startingIds.filter(id => { const pl = state.players.find(x => x.id === id); return pl && !pl.injury && pl.energy < 40 })
@@ -12717,7 +14305,7 @@ function simularPartidoRapido(fixture, rivalId) {
           }
         }
       } else if (needsDefensive && s < 2) {
-        const defender = benchPlayers.find(p => !p.injury && (p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq'))
+        const defender = benchPlayers.find(p => !p.injury && (p.position === 'DFC' || p.position === 'LD' || p.position === 'LI'))
         if (defender) {
           subIdx = benchPlayers.indexOf(defender)
           const tired = startingIds.filter(id => { const pl = state.players.find(x => x.id === id); return pl && !pl.injury && pl.energy < 40 })
@@ -12771,7 +14359,7 @@ function simularPartidoRapido(fixture, rivalId) {
         var _clean = (p._yellowThisMatch || p._redThisMatch) ? 0 : 0.2
         var _rf = (Math.random() - 0.5) * 0.6
         var _cs = 0
-        if (them === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) _cs = 0.5
+        if (them === 0 && (p.position === 'POR' || p.position === 'DFC' || p.position === 'LD' || p.position === 'LI')) _cs = 0.5
         var _rr = Math.min(10, Math.max(1, 6.2 + _wb + _yp + _rpd + _gb + _ab + _clean + _rf + _cs))
         var _gq = p._goalsInMatch || 0
         var _aq = p._assistThisMatch || 0
@@ -12956,9 +14544,99 @@ function getDashboardMatchFixture() {
 }
 
 /* PASO 1 — Partidos de la Jornada */
+/* Cambia a la vista de jornada (Partidos / Resultados / Clasificaciones) sin tocar el contenido. */
+function showMatchdayView() {
+  var vmd = document.getElementById('view-matchday')
+  var vhome = document.getElementById('view-home')
+  if (vhome) vhome.classList.remove('active')
+  if (vmd) { vmd.classList.remove('hidden'); vmd.classList.add('active') }
+  var bn = document.getElementById('bottom-nav')
+  if (bn) bn.style.display = 'none'
+  updateHeaderContinueVisibility()
+}
+
+/* Fila de un partido ya jugado: marcador en vez de "vs". */
+function mdResultRowHtml(f) {
+  var homeName = getTeamName(f.home)
+  var awayName = getTeamName(f.away)
+  var homeLogo = getTeamLogo(f.home)
+  var awayLogo = getTeamLogo(f.away)
+  var isUser = f.home === state.teamId || f.away === state.teamId
+  var hs = (f.homeScore != null) ? f.homeScore : '-'
+  var as = (f.awayScore != null) ? f.awayScore : '-'
+  return '<div class="md-row' + (isUser ? ' md-user' : '') + '">' +
+    '<span class="md-name md-name-left">' + homeName + '</span>' +
+    '<img class="md-logo" src="' + homeLogo + '" alt="" onerror="this.style.display=\'none\'">' +
+    '<span class="md-score">' + hs + ' - ' + as + '</span>' +
+    '<img class="md-logo" src="' + awayLogo + '" alt="" onerror="this.style.display=\'none\'">' +
+    '<span class="md-name md-name-right">' + awayName + '</span>' +
+    '</div>'
+}
+
+/* Pantalla "Jornada X - Resultados". */
+function renderMatchdayResults(container) {
+  var md = state.currentMatchday || 1
+  var fixtures = (state.fixtures || []).filter(function(f) { return f.matchday === md })
+  var rows = fixtures.map(mdResultRowHtml).join('')
+  container.innerHTML =
+    '<div class="md-view">' +
+      '<div class="md-top"><span class="md-title">Jornada ' + md + ' - Resultados</span></div>' +
+      '<div class="md-list">' + rows + '</div>' +
+    '</div>'
+}
+
+/* Pantalla "Clasificaciones" con la tabla actualizada tras la jornada. */
+/* Pantalla "Clasificación" post-partido: idéntica a la pestaña de competiciones
+   (logos de competición a la izquierda, tabla en el centro, goleadores y
+   asistentes a la derecha). */
+function openMatchdayClasificacion() {
+  /* Asegura que se muestre la liga del usuario. */
+  state.leagueViewCountry = null
+  state.leagueViewContinental = false
+  state.leagueLogoSelected = null
+  var vmd = document.getElementById('view-matchday')
+  if (vmd) { vmd.classList.remove('active'); vmd.classList.add('hidden') }
+  var vhome = document.getElementById('view-home')
+  if (vhome) vhome.classList.remove('active')
+  var lv = document.getElementById('view-league')
+  if (lv) { lv.classList.remove('hidden'); lv.classList.add('active') }
+  var bn = document.getElementById('bottom-nav')
+  if (bn) bn.style.display = 'none'
+  renderLeague()
+  updateHeaderContinueVisibility()
+}
+
+/* Avanza el flujo post-partido: Resultados → Clasificaciones → siguiente jornada. */
+function advancePostMatch() {
+  if (state.matchdayScreen === 'resultados') {
+    state.matchdayScreen = 'clasificacion'
+    openMatchdayOverview()
+    return
+  }
+  if (state.matchdayScreen === 'clasificacion') {
+    state.matchdayScreen = 'partidos'
+    finalizarLiveJornada()
+    return
+  }
+}
+
+/* Continúa tras el resumen del partido: en liga muestra Resultados → Clasificaciones;
+   en copa/playoff/final avanza directamente. */
+function continuarTrasPartido() {
+  var mod = document.getElementById('match-result-modal')
+  if (mod) { mod.style.display = 'none'; mod.classList.remove('open') }
+  var isPlayoffHere = state.playoffs && state.playoffs.fixtures && state.playoffs.fixtures.length > 0
+  var isFinal = state.absoluteFinal && state.absoluteFinal.played
+  if (isPlayoffHere || isFinal) { finalizarLiveJornada(); return }
+  state.matchdayScreen = 'resultados'
+  openMatchdayOverview()
+}
+
 function openMatchdayOverview() {
   var container = document.getElementById('matchday-content')
   if (!container) return
+  if (state.matchdayScreen === 'resultados') { renderMatchdayResults(container); showMatchdayView(); return }
+  if (state.matchdayScreen === 'clasificacion') { openMatchdayClasificacion(); return }
   var isPlayoffsHere = state.playoffs && state.playoffs.fixtures && state.playoffs.fixtures.length > 0
   var fixtures
   var compTitle = ''
@@ -13016,11 +14694,11 @@ function openMatchdayOverview() {
     var awayLogo = getTeamLogo(f.away)
     var isUser = f.home === state.teamId || f.away === state.teamId
     return '<div class="md-row' + (isUser ? ' md-user' : '') + '" data-preview="' + (isUser ? '1' : '0') + '">' +
-      '<span class="md-name md-name-left">' + homeName + '</span>' +
-      '<img class="md-logo" src="' + homeLogo + '" alt="" onerror="this.style.display=\'none\'">' +
+      '<span class="md-name md-name-left" style="cursor:pointer" onclick="event.stopPropagation();openHomeTeam(\'' + f.home + '\')">' + homeName + '</span>' +
+      '<img class="md-logo" src="' + homeLogo + '" alt="" style="cursor:pointer" onclick="event.stopPropagation();openHomeTeam(\'' + f.home + '\')" onerror="this.style.display=\'none\'">' +
       '<span class="md-vs">vs</span>' +
-      '<img class="md-logo" src="' + awayLogo + '" alt="" onerror="this.style.display=\'none\'">' +
-      '<span class="md-name md-name-right">' + awayName + '</span>' +
+      '<img class="md-logo" src="' + awayLogo + '" alt="" style="cursor:pointer" onclick="event.stopPropagation();openHomeTeam(\'' + f.away + '\')" onerror="this.style.display=\'none\'">' +
+      '<span class="md-name md-name-right" style="cursor:pointer" onclick="event.stopPropagation();openHomeTeam(\'' + f.away + '\')">' + awayName + '</span>' +
       '</div>'
   }).join('')
 
@@ -13032,12 +14710,7 @@ function openMatchdayOverview() {
       '<div class="md-list">' + rows + '</div>' +
     '</div>'
 
-  document.getElementById('view-home').classList.remove('active')
-  document.getElementById('view-matchday').classList.remove('hidden')
-  document.getElementById('view-matchday').classList.add('active')
-  var bn = document.getElementById('bottom-nav')
-  if (bn) bn.style.display = 'none'
-  updateHeaderContinueVisibility()
+  showMatchdayView()
 
   /* Click en partido del usuario va a la previa */
   document.querySelectorAll('#matchday-content .md-row[data-preview="1"]').forEach(function(row) {
@@ -13057,14 +14730,15 @@ function openMatchPreview() {
 
   /* XI del usuario (alineaci\u00f3n guardada) */
   var slots = state.tacticsSlots || []
-  var startingIds = slots.filter(Boolean).filter(function(pid) {
-    var p = state.players.find(function(x) { return x.id === pid })
-    return p && !p._suspended && !p.injury
-  })
   var roles = SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']
-  var userXI = startingIds.map(function(pid, i) {
-    return { player: state.players.find(function(x) { return x.id === pid }), role: roles[i] || roles[0] }
-  })
+  var userXI = []
+  for (var si = 0; si < slots.length; si++) {
+    var pid = slots[si]
+    if (!pid) continue
+    var pp = state.players.find(function(x) { return x.id === pid })
+    if (!pp || pp._suspended || pp.injury) continue
+    userXI.push({ player: pp, role: roles[si] || roles[userXI.length] || roles[0] })
+  }
   if (userXI.length < 11) {
     var filled = userXI.slice()
     var rest = state.players.filter(function(p) { return !p._suspended && !p.injury && !filled.some(function(x) { return x.player.id === p.id }) })
@@ -13073,6 +14747,24 @@ function openMatchPreview() {
     }
     userXI = filled
   }
+
+  /* Orden del listado por formación (portería → defensa → medio → ataque).
+     Para 4-2-3-1 se intercala: MI · MCD · MCO · MCD · MD · DC. */
+  var userForm = state.tactic.formation || getTeamFormation(state.teamId)
+  var ROLE_ORDER = { '4-2-3-1': ['POR','LI','DFC','DFC','LD','MCD','MCO','MCD','MI','DC','MD'] }
+  var orderByFormation = function(xi, formation) {
+    var target = ROLE_ORDER[formation] || SLOT_ROLES[formation] || SLOT_ROLES['4-3-3']
+    var norm = function(it) { return SIGLA_TO_POS[(it && it.role)] || (it && it.role) }
+    var used = {}, out = []
+    target.forEach(function(r) {
+      for (var i = 0; i < xi.length; i++) {
+        if (!used[i] && norm(xi[i]) === r) { out.push(xi[i]); used[i] = true; break }
+      }
+    })
+    for (var j = 0; j < xi.length; j++) { if (!used[j]) out.push(xi[j]) }
+    return out
+  }
+  userXI = orderByFormation(userXI, userForm)
 
   /* XI del rival */
   var rivalTeam = getTeamObj(rivalId) || rivalFallback(rivalId)
@@ -13086,6 +14778,8 @@ function openMatchPreview() {
   if (rivalXI.length === 0) {
     rivalXI = (rivalTeam.players || []).slice(0, 11).map(function(p) { return { player: p, role: p.position } })
   }
+  var rivalForm = (rivalTeam.formation) || getTeamFormation(rivalId)
+  rivalXI = orderByFormation(rivalXI, rivalForm)
 
   var renderPlayer = function(item, side, captainId) {
     var p = item.player
@@ -13097,16 +14791,18 @@ function openMatchPreview() {
       : ''
     var grlSpan = '<span class="pv-grl" style="background:' + skillColor(p.skill || 0) + ';color:#fff;border-radius:999px">' + (p.skill || 0) + '</span>'
     var nameSpan = '<span class="pv-name">' + p.name + '</span>'
+    var posInfo = (POSITIONS[item.role] || POSITIONS[SIGLA_TO_POS[item.role]]) || { label: (POS_ABBR[item.role] || item.role || ''), color: '#818188' }
+    var posSpan = '<span class="pv-pos" style="background:' + posInfo.color + ';color:#fff">' + posInfo.label + '</span>'
     var avSpan = '<img class="pv-avatar" src="' + av + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'">'
     var cls = 'pv-player ' + (isLocal ? 'pv-home' : 'pv-away')
     if (isLocal) {
-      /* Local: GRL fijo a la izquierda · nombre · avatar (alineado a la derecha).
+      /* Local: GRL fijo a la izquierda · nombre · posición · avatar (alineado a la derecha).
          Capitán: C a la izquierda del nombre */
-      return '<div class="' + cls + '">' + grlSpan + capSpan + nameSpan + avSpan + '</div>'
+      return '<div class="' + cls + '">' + grlSpan + capSpan + nameSpan + posSpan + avSpan + '</div>'
     }
-    /* Visitante: avatar · nombre · GRL fijo a la derecha (alineado a la izquierda).
+    /* Visitante: posición · avatar · nombre · GRL fijo a la derecha (alineado a la izquierda).
        Capitán: C a la derecha del nombre */
-    return '<div class="' + cls + '">' + avSpan + nameSpan + capSpan + grlSpan + '</div>'
+    return '<div class="' + cls + '">' + posSpan + avSpan + nameSpan + capSpan + grlSpan + '</div>'
   }
 
   var userForm = state.tactic.formation || getTeamFormation(state.teamId)
@@ -13152,7 +14848,6 @@ function openMatchPreview() {
 
   container.innerHTML =
     '<div class="pv-view">' +
-      (pvRound ? '<div class="pv-round">' + pvRound + '</div>' : '') +
       '<div class="pv-head">' +
         '<div class="pv-side pv-left">' +
           '<div class="pv-side-info">' +
@@ -13172,12 +14867,10 @@ function openMatchPreview() {
       '</div>' +
       '<div class="pv-lineups">' +
         '<div class="pv-column">' +
-          '<div class="pv-col-head">' + (isHome ? myTeamName : rivalName) + '</div>' +
-          userXI.map(function(item) { return renderPlayer(item, userSideReal, myCaptainId) }).join('') +
+          (isHome ? userXI : rivalXI).map(function(item) { return renderPlayer(item, 'home', isHome ? myCaptainId : rivalCaptainId) }).join('') +
         '</div>' +
         '<div class="pv-column">' +
-          '<div class="pv-col-head">' + (isHome ? rivalName : myTeamName) + '</div>' +
-          rivalXI.map(function(item) { return renderPlayer(item, rivalSideReal, rivalCaptainId) }).join('') +
+          (isHome ? rivalXI : userXI).map(function(item) { return renderPlayer(item, 'away', isHome ? rivalCaptainId : myCaptainId) }).join('') +
         '</div>' +
       '</div>' +
     '</div>'
@@ -13221,9 +14914,6 @@ function closeMatchFlowViews() {
 /* Vuelve al Dashboard (pesta\u00f1a General) desde el flujo pre-match. */
 function goBackToHome() {
   closeMatchFlowViews()
-  document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active') })
-  var homeNav = document.querySelector('[data-tab="home"]')
-  if (homeNav) homeNav.classList.add('active')
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active') })
   var hv = document.getElementById('view-home')
   if (hv) hv.classList.add('active')
@@ -13238,7 +14928,12 @@ function startLiveMatch(fixture, rivalId, opts) {
     var p = state.players.find(function(x) { return x.id === pid })
     return p && !p._suspended && !p.injury && !(state.countryId === 'belgium' && window.BelgiumCopa && typeof window.BelgiumCopa.isCupSuspended === 'function' && window.BelgiumCopa.isCupSuspended(p))
   })
-  if (startingIds.length < 11) { alert('\u26a0\ufe0f Necesitas 11 jugadores disponibles (revisa lesiones/suspensiones).'); return }
+  if (startingIds.length < 11) {
+    var unavailXI = getUnavailableInXI()
+    if (unavailXI.length > 0) showAlineacionAviso(unavailXI)
+    else alert('\u26a0\ufe0f Necesitas 11 jugadores disponibles (revisa lesiones/suspensiones).')
+    return
+  }
 
   var isHome = fixture.home === state.teamId
   var compInfo = detectFixtureComp(fixture)
@@ -13348,7 +15043,6 @@ function showLiveScreen() {
   document.querySelectorAll('#app-content .view').forEach(function(v) { v.classList.remove('active') })
   var live = document.getElementById('live-match-screen')
   if (live) { live.classList.remove('hidden'); live.classList.add('active') }
-  document.getElementById('bottom-nav').style.display = 'none'
   document.getElementById('app-header').style.display = 'none'
 }
 
@@ -13357,7 +15051,6 @@ function hideLiveScreen() {
   if (live) { live.classList.add('hidden'); live.classList.remove('active') }
   var vm = document.getElementById('view-home')
   if (vm) vm.classList.add('active')
-  document.getElementById('bottom-nav').style.display = ''
   document.getElementById('app-header').style.display = ''
   updateHeaderContinueVisibility()
 }
@@ -13381,9 +15074,7 @@ function renderLiveMatch() {
   document.getElementById('lm-away-name').textContent = lm.awayName
   var hs = lm.isUserHomeSide ? (lm.isHome ? lm.simResult.homeScore : lm.simResult.awayScore) : 0
   /* marcos reales de la reproducción: acumulamos conforme se ven eventos */
-  document.getElementById('lm-score').textContent = (liveHomeGoals(lm)) + ' - ' + (liveAwayGoals(lm))
-  document.getElementById('lm-min').textContent = lm.minute + '\''
-  renderLiveRatings()
+  document.getElementById('lm-score').innerHTML = (liveHomeGoals(lm)) + ' <span class="lm-min-inline">' + lm.minute + '\'</span> ' + (liveAwayGoals(lm))
   updateLiveEventsFeed()
   var lmPauseEl = document.getElementById('lm-pause')
   var lmTacEl = document.getElementById('lm-tactics')
@@ -13396,14 +15087,7 @@ function renderLiveMatch() {
   }
   document.getElementById('lm-pause').textContent = lm.paused ? 'Reanudar' : 'Pausar'
   if (lmPauseEl) lmPauseEl.style.display = lm.auto ? 'none' : ''
-  if (lmTacEl) {
-    if (lm.auto) {
-      lmTacEl.style.display = 'none'
-    } else {
-      lmTacEl.style.display = ''
-      lmTacEl.textContent = 'T\u00e1ctica'
-    }
-  }
+  if (lmTacEl) lmTacEl.style.display = 'none'
   if (lmContEl) lmContEl.style.display = 'none'
   var elAs = document.getElementById('lm-attendance')
   if (elAs) {
@@ -13452,9 +15136,9 @@ function reshapeLiveXI(xi, sentOff) {
   var hasSent = (xi || []).some(function(x) { return x && x.player && set[x.player.id] })
   if (!hasSent) return xi
   var DEF = {}
-  ;['lateral_izq', 'lateral_der', 'carrilero_izq', 'carrilero_der', 'defensa_central'].forEach(function(r) { DEF[r] = true })
+  ;['LI', 'LD', 'CAI', 'CAD', 'DFC'].forEach(function(r) { DEF[r] = true })
   var MIDS = {}
-  ;['mediocentro', 'medio_def', 'medio_izq', 'medio_der'].forEach(function(r) { MIDS[r] = true })
+  ;['MC', 'MCD', 'MI', 'MD'].forEach(function(r) { MIDS[r] = true })
   var sentDefRoles = (xi || []).filter(function(x) { return x && x.player && set[x.player.id] && DEF[x.role] }).map(function(x) { return x.role })
   var players = (xi || []).filter(function(x) { return x && x.player && !set[x.player.id] })
   var result = players.slice()
@@ -13462,7 +15146,7 @@ function reshapeLiveXI(xi, sentOff) {
     var fwdIdx = -1
     for (var i = 0; i < result.length; i++) {
       var r = result[i].role
-      if (r === 'portero' || DEF[r]) continue
+      if (r === 'POR' || DEF[r]) continue
       fwdIdx = i
       break
     }
@@ -13595,32 +15279,26 @@ function renderLiveRatings() {
 function updateLiveEventsFeed() {
   var lm = state.liveMatch
   var feed = document.getElementById('lm-events')
+  if (!feed || !lm) return
 
-  function evBox(p) {
-    var av = p && (p.avatar || NOPHOTO)
-    var nm = p ? p.name : ''
-    return '<span class="lm-ev-box"><img class="lm-ev-photo" src="' + (av || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"></span>'
-  }
-
-  function evBody(ev, iconFirst) {
-    var name = ev.player ? ev.player.name : ''
-    var icon = ev.icon || ''
-    var penLine = ''
-    if (ev.pen) penLine = ev.penMiss ? '(PEN) FALLO' : '(PEN) \ud83d\udfe2'
-    var author = iconFirst ? '<span class="lm-ev-icon">' + icon + '</span><b>' + escHtml(name) + '</b>' : '<b>' + escHtml(name) + '</b> <span class="lm-ev-icon">' + icon + '</span>'
-    return '<span class="lm-ev-body">' +
-             '<span class="lm-ev-author">' + author + '</span>' +
-             (ev.assist ? '<span class="lm-ev-assist">\ud83d\udc5f ' + escHtml(ev.assist.name) + '</span>' : '') +
-             (penLine ? '<span class="lm-ev-pen' + (ev.penMiss ? ' miss' : '') + '">' + penLine + '</span>' : '') +
-           '</span>'
-  }
-
-  function avatarOf(p) {
-    return p && (p.avatar || NOPHOTO) || NOPHOTO
-  }
   var iconFor = { goal: '\u26bd', yellow: '\ud83d\udfe8', red: '\ud83d\udfe5', injury: '\ud83e\udd14', penmiss: '\u26bd' }
 
-  /* Unir goles (normales, autogoles y penaltis marcados) + tarjetas + lesiones + penaltis fallados */
+  function item(ev) {
+    var name = ev.player ? ev.player.name : ''
+    var icon = ev.icon || ''
+    var av = (ev.player && (ev.player.avatar || NOPHOTO)) || NOPHOTO
+    var min = ev.minute + '\''
+    var assist = ev.assist ? '<span class="lm-ev-assist">\ud83d\udc5f ' + escHtml(ev.assist.name) + '</span>' : ''
+    var penLine = ''
+    if (ev.pen) penLine = ev.penMiss ? '(PEN) FALLO' : '(PEN) \ud83d\udfe2'
+    var body = '<span class="lm-ev-body"><span class="lm-ev-icon">' + icon + '</span><b>' + escHtml(name) + '</b>' + assist + (penLine ? '<span class="lm-ev-pen">' + penLine + '</span>' : '') + '</span>'
+    var avHtml = '<span class="lm-ev-box"><img class="lm-ev-photo" src="' + av + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"></span>'
+    if (ev.side === 'home') {
+      return '<div class="lm-ev-item">' + '<span class="lm-ev-min">' + min + '</span>' + avHtml + body + '</div>'
+    }
+    return '<div class="lm-ev-item lm-ev-item-right">' + body + avHtml + '<span class="lm-ev-min">' + min + '</span>' + '</div>'
+  }
+
   var items = []
   ;([].concat((lm.simResult.goalsHome || []).map(function (g) { return { minute: g.minute, side: 'home', kind: 'goal', player: g.scorer, assist: g.assist, pen: !!g.pen } }),
               (lm.simResult.goalsAway || []).map(function (g) { return { minute: g.minute, side: 'away', kind: 'goal', player: g.scorer, assist: g.assist, pen: !!g.pen } })))
@@ -13635,33 +15313,20 @@ function updateLiveEventsFeed() {
   })
   items.sort(function (a, b) { return a.minute - b.minute })
 
-  var rows = items
-    .filter(function (it) { return it.minute <= lm.minute })
-    .map(function (it) {
-      it.icon = iconFor[it.kind] || ''
-      var isHome = it.side === 'home'
-      var body = evBody(it, isHome)
-      var row = '<div class="lm-event' + (isHome ? ' lm-e-home' : ' lm-e-away') + '">'
-      if (isHome) {
-        row += '<div class="lm-event-left">' + evBox(it.player) + body + '</div>'
-          + '<span class="lm-event-minute">' + it.minute + '\'</span>'
-          + '<div class="lm-event-right"></div>'
-      } else {
-        row += '<div class="lm-event-left"></div>'
-          + '<span class="lm-event-minute">' + it.minute + '\'</span>'
-          + '<div class="lm-event-right">' + body + evBox(it.player) + '</div>'
-      }
-      return row + '</div>'
-    })
-    .join('')
+  var homeItems = items.filter(function (it) { return it.minute <= lm.minute && it.side === 'home' })
+  var awayItems = items.filter(function (it) { return it.minute <= lm.minute && it.side === 'away' })
+  homeItems.forEach(function (it) { it.icon = iconFor[it.kind] || '' })
+  awayItems.forEach(function (it) { it.icon = iconFor[it.kind] || '' })
 
-  if (!rows) {
-    feed.innerHTML = '<div class="lm-ev-empty">El partido est\u00e1 por comenzar...</div>'
-    return
+  function colHtml(its, title) {
+    return '<div class="lm-ev-col-title">' + title + '</div>' +
+      (its.length ? its.map(item).join('') : '<div class="lm-ev-empty">\u2014</div>')
   }
-  var head = '<div class="lm-events-head"><span>EVENTOS</span></div>' +
-             '<div class="lm-events-cols"><span>LOCAL</span><span>MIN</span><span>VISITANTE</span></div>'
-  feed.innerHTML = head + rows
+
+  feed.innerHTML = '<div class="lm-ev-wrap">' +
+    '<div class="lm-ev-col lm-evs-home">' + colHtml(homeItems, 'Local') + '</div>' +
+    '<div class="lm-ev-col lm-evs-away">' + colHtml(awayItems, 'Visitante') + '</div>' +
+    '</div>'
 }
 
 /* Sustitución automática en modo SIMULAR: en el minuto 60 y 75 el juego elige
@@ -13674,7 +15339,7 @@ function autoSubLiveMatch() {
   if (lm.subsUsed >= maxSubs) return
   var bench = (state.benchIds || []).map(function(id) { return state.players.find(function(p) { return p.id === id }) }).filter(function(p) { return p && !(p.onLoan && p.loanTo) })
   if (bench.length === 0) return
-  var onPitch = (state.tacticsSlots || []).map(function(id) { return state.players.find(function(p) { return p.id === id }) }).filter(function(p) { return p && p.position !== 'POR' && p.position !== 'portero' && !(lm.sentOff || []).some(function(s) { return s === p.id }) })
+  var onPitch = (state.tacticsSlots || []).map(function(id) { return state.players.find(function(p) { return p.id === id }) }).filter(function(p) { return p && p.position !== 'POR' && p.position !== 'POR' && !(lm.sentOff || []).some(function(s) { return s === p.id }) })
   if (onPitch.length === 0) return
   var worst = onPitch.reduce(function(a, b) { return (lm.ratings[b.id] || 6) < (lm.ratings[a.id] || 6) ? b : a })
   var best = bench.slice().sort(function(a, b) { return (b.skill || 0) - (a.skill || 0) })[0]
@@ -13830,8 +15495,8 @@ function closeLiveTactics() {
    =================================================================== */
 function ratingColor(r) {
   r = r == null || isNaN(r) ? 6 : r
-  if (r >= 8) return '#2563EB'
-  if (r >= 7) return '#16A34A'
+  if (r >= 8) return '#21C55E'
+  if (r >= 7) return '#16803C'
   if (r >= 6) return '#F59E0B'
   return '#DC2626'
 }
@@ -13843,11 +15508,11 @@ function liveRatingColor(r) {
   return '#DC2626'
 }
 function skillColor(s) {
-  if (s >= 90) return '#A16207'
-  if (s >= 75) return '#15803D'
-  if (s >= 65) return '#4D7C0F'
-  if (s >= 55) return '#EA580C'
-  return '#7F1D1D'
+  s = Number(s) || 0
+  if (s >= 81) return '#21C55E'
+  if (s >= 71) return '#16803C'
+  if (s >= 61) return '#EAB30A'
+  return '#EA580B'
 }
 function staminaColor(e) {
   e = e == null ? 80 : e
@@ -13897,7 +15562,7 @@ function buildPlayerNode(player, role, ctx) {
   var captainId = ctx.captainId
   var rootCls = 'pitch-player-node ' + (mode === 'live' ? 'pp-live' : 'pp-tactics') + ' ' + (ctx.cls || '')
   var posKey = SIGLA_TO_POS[player.position] || player.position
-  var posObj = POSITIONS[posKey] || (POS_ABBR[posKey] ? { label: POS_ABBR[posKey], color: '#6B7280' } : { label: '?', color: '#6B7280' })
+  var posObj = POSITIONS[posKey] || (POS_ABBR[posKey] ? { label: POS_ABBR[posKey], color: '#71717A' } : { label: '?', color: '#71717A' })
   var posAbbr = ctx.posAbbr || POS_ABBR[posKey] || player.position
   var roleAbbr = ctx.labelOverride || (role ? (POS_ABBR[role] || role) : posAbbr)
   roleAbbr = String(roleAbbr || posAbbr).toUpperCase().slice(0, 4)
@@ -13906,8 +15571,14 @@ function buildPlayerNode(player, role, ctx) {
   var avatar = player.avatar || NOPHOTO
   var ene = getEneVal(player.energy)
   var cap = captainId && player.id === captainId
+  var footLetter = ''
+  var footVal = String(player.foot || '').toUpperCase()
+  if (footVal === 'DER') footLetter = 'D'
+  else if (footVal === 'IZQ') footLetter = 'I'
+  else if (footVal === 'AMB') footLetter = 'A'
 
   var badges = ''
+  var _skillVal = (ctx.skillOverride != null ? ctx.skillOverride : player.skill)
   if (mode === 'live' && lm) {
     /* GRL arriba-izquierda y nota en vivo debajo (zona inferior izquierda) */
     badges += '<span class="pp-badge pp-grl" style="background:' + skillColor(player.skill) + '">' + player.skill + '</span>'
@@ -13925,7 +15596,7 @@ function buildPlayerNode(player, role, ctx) {
     }
     if (cap) badges += '<span class="pp-badge pp-cap">C</span>'
   } else {
-    badges += '<span class="pp-badge pp-grl" style="background:' + skillColor(player.skill) + '">' + player.skill + '</span>'
+    badges += '<span class="pp-badge pp-grl" style="background:' + skillColor(_skillVal) + '">' + _skillVal + '</span>'
     if (cap) badges += '<span class="pp-badge pp-cap">C</span>'
   }
 
@@ -13934,26 +15605,48 @@ function buildPlayerNode(player, role, ctx) {
     susp = '<span class="pp-badge pp-susp">' + player._suspended + '</span>'
   }
 
+  var oop = ''
+  if (mode === 'tactics' && ctx.outOfPosition) {
+    oop = '<span class="pp-oop" title="No domina esta posici\u00f3n">!</span>'
+  }
+
   var posBadge = ''
   if (mode === 'tactics' || mode === 'live') {
     /* Posición mostrada: rol actual en el XI, o posición principal en banquillo */
     var posDisplayRole = ctx.isBench ? (player.position || role) : (role || player.position)
     var posKeyShow = SIGLA_TO_POS[posDisplayRole] || posDisplayRole
-    var posObjShow = POSITIONS[posKeyShow] || (POS_ABBR[posKeyShow] ? { color: '#6B7280' } : { color: '#6B7280' })
+    var posObjShow = POSITIONS[posKeyShow] || (POS_ABBR[posKeyShow] ? { color: '#71717A' } : { color: '#71717A' })
     var posAbbrShow = POS_ABBR[posKeyShow] || posKeyShow
     posBadge = '<span class="pp-pos-tag" style="background:' + posObjShow.color + '">' + String(posAbbrShow).toUpperCase().slice(0, 4) + '</span>'
   }
 
-  var html = '<div class="' + rootCls + '" ' + (ctx.dataAttr || '') + '>'
-    + '<img class="pp-avatar" style="border-color:' + posGroupColor(ctx.roleColor || player.position) + '" src="' + avatar + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'">'
-    + susp + badges
-    + '<div class="pp-under">'
-    +   posBadge
-    +   (player.injury ? '<div class="pp-injury">\ud83e\ude79</div>' : '')
-    +   '<span class="pp-label">' + labelText + '</span>'
-    +   '<div class="pp-stamina"><div class="pp-stamina-fill" style="width:' + Math.max(0, Math.min(100, ene)) + '%;background:' + staminaColor(ene) + '"></div></div>'
-    + '</div>'
-    + '</div>'
+  var html
+  if (mode === 'tactics') {
+    /* Izquierda apilada: GRL · posición · pierna. Derecha arriba: C · sanción · lesión. */
+    html = '<div class="' + rootCls + '" ' + (ctx.dataAttr || '') + '>'
+      + '<img class="pp-avatar" style="border-color:' + posGroupColor(ctx.roleColor || player.position) + '" src="' + avatar + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'">'
+      + posBadge
+      + (footLetter ? '<span class="pp-foot">' + footLetter + '</span>' : '')
+      + susp + badges
+      + (player.injury ? '<span class="pp-injury">\ud83e\ude79</span>' : '')
+      + oop
+      + '<div class="pp-under">'
+      +   '<span class="pp-label">' + labelText + '</span>'
+      +   '<div class="pp-stamina"><div class="pp-stamina-fill" style="width:' + Math.max(0, Math.min(100, ene)) + '%;background:' + staminaColor(ene) + '"></div></div>'
+      + '</div>'
+      + '</div>'
+  } else {
+    html = '<div class="' + rootCls + '" ' + (ctx.dataAttr || '') + '>'
+      + '<img class="pp-avatar" style="border-color:' + posGroupColor(ctx.roleColor || player.position) + '" src="' + avatar + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'">'
+      + susp + badges
+      + '<div class="pp-under">'
+      +   posBadge
+      +   (player.injury ? '<div class="pp-injury">\ud83e\ude79</div>' : '')
+      +   '<span class="pp-label">' + labelText + '</span>'
+      +   '<div class="pp-stamina"><div class="pp-stamina-fill" style="width:' + Math.max(0, Math.min(100, ene)) + '%;background:' + staminaColor(ene) + '"></div></div>'
+      + '</div>'
+      + '</div>'
+  }
   return html
 }
 
@@ -14372,7 +16065,7 @@ function finishLiveMatch() {
         base += (p._assistThisMatch || 0) * 0.6
         if (p._yellowThisMatch) base -= 0.5
         if (p._redThisMatch) base -= 2.0
-        if (them === 0 && (p.position === 'portero' || p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) base += 0.5
+        if (them === 0 && (p.position === 'POR' || p.position === 'POR' || p.position === 'DFC' || p.position === 'LD' || p.position === 'LI')) base += 0.5
         rating = Math.max(1, Math.min(10, base))
       }
       /* Nota mínima por rendimiento ofensivo: aunque el equipo pierda,
@@ -14394,28 +16087,11 @@ function finishLiveMatch() {
     })
   } catch (e) { console.error('[LIVE RATING]', e) }
 
-  /* Posición/experiencia */
-  state.tacticsSlots.forEach(function(pid, idx) {
-    var p = state.players.find(function(x) { return x.id === pid })
-    if (!p) return
-    var role = roles[idx]
-    var naturalKey = SIGLA_TO_POS[p.position] || p.position
-    if (!p.positionExperience) p.positionExperience = {}
-    if (naturalKey === role) {
-      if (p.mainPct == null) p.mainPct = 99
-      if (p.mainPct < 100) p.mainPct = Math.min(100, p.mainPct + 0.25)
-    } else {
-      p.positionExperience[role] = (p.positionExperience[role] || 0) + 1
-      if (!p.otherPositions) p.otherPositions = []
-      var existing = p.otherPositions.find(function(o) { return o.pos === role })
-      var newPct = Math.min(100, p.positionExperience[role] * 3)
-      if (!existing) p.otherPositions.push({ pos: role, pct: newPct })
-      else existing.pct = Math.max(existing.pct, newPct)
-    }
-  })
+
 
   /* Lesiones en partido para jugadores de campo (misma tirada que el modo simular) */
   var liveInjProb = 0.01
+  var incidenciasMatch = []
   state.players.filter(function(p) {
     return state.tacticsSlots.includes(p.id) && !esPortero(p) && !p.injury
   }).forEach(function(p) {
@@ -14423,11 +16099,16 @@ function finishLiveMatch() {
       var weeks = 1 + Math.floor(Math.random() * 3)
       if (Math.random() < 0.15) weeks += 1 + Math.floor(Math.random() * 6)
       p.injury = { remaining: weeks }
+      incidenciasMatch.push({ type: 'injury', name: p.name, detail: weeks + ' jornada' + (weeks > 1 ? 's' : '') + ' de baja' })
       addNotification('injury', '\u26A0 Lesi\u00f3n: ' + p.name, p.name + ' se lesiona durante el partido (' + weeks + ' jornada' + (weeks > 1 ? 's' : '') + ')', { logo: NOPHOTO })
     }
   })
   /* Lesión en caliente del portero (0.3%) + cambio automático */
-  gestionarLesionPortero(state.tacticsSlots)
+  var gkLesion = gestionarLesionPortero(state.tacticsSlots)
+  if (gkLesion && gkLesion.injured && gkLesion.injured.injury) {
+    var gkw = gkLesion.injured.injury.remaining || 1
+    incidenciasMatch.push({ type: 'injury', name: gkLesion.injured.name, detail: gkw + ' jornada' + (gkw > 1 ? 's' : '') + ' de baja' })
+  }
 
   /* Fatiga */
   state.players.forEach(function(p) {
@@ -14436,10 +16117,10 @@ function finishLiveMatch() {
     }
     p.enPista = false; p.convocado = false; p.titular = false
   })
-  procesarSuspensiones()
+  var suspendidosMatch = procesarSuspensiones()
+  suspendidosMatch.forEach(function(b) { incidenciasMatch.push({ type: 'susp', name: b.name, detail: b.detail }) })
 
   var cInfo = lm.compInfo || { isCup: false, comp: 'league' }
-  procesarSuspensiones()
   /* Croky Cup (Bélgica): sanciones de tarjetas independientes de la Liga.
      Las rojas las procesa procesarSuspensiones (pueden afectar a la Liga);
      las amarillas de Copa se acumulan por separado (2 en eliminatorias
@@ -14496,7 +16177,9 @@ function finishLiveMatch() {
     hideLiveScreen()
 
     var cupMatch = { homeId: isHome ? state.teamId : rivalId, awayId: isHome ? rivalId : state.teamId, homeName: isHome ? state.team : getTeamName(rivalId), awayName: isHome ? getTeamName(rivalId) : state.team, homeScore: us, awayScore: them, isUser: true }
-    autoSave(); renderTab('home')
+    var _cupBack = function() { autoSave(); renderTab('home') }
+    state._pendingIncidencias = incidenciasMatch.slice()
+    _cupBack()
     return
   }
 
@@ -14540,11 +16223,14 @@ function finishLiveMatch() {
       f.homeScore = r2.homeScore; f.awayScore = r2.awayScore; f.played = true
     })
     avanzarRondaPlayoff()
-    autoSave(); renderTab('home')
+    var _poBack = function() { autoSave(); renderTab('home') }
+    state._pendingIncidencias = incidenciasMatch.slice()
+    _poBack()
     return
   }
 
-  finalizarLiveJornada()
+  state._pendingIncidencias = incidenciasMatch.slice()
+  continuarTrasPartido()
 }
 
 /* ============ CUP MATCH SIMULATION ============ */
@@ -14640,15 +16326,6 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga, isEflCu
     startingIds.forEach(function(pid) {
       var p = state.players.find(function(x) { return x.id === pid })
       if (p) { p.minutosEnPista = 90; p.matches = (p.matches || 0) + 1 }
-    })
-    /* Position experience */
-    startingIds.forEach(function(pid, idx) {
-      var p = state.players.find(function(x) { return x.id === pid })
-      if (!p) return
-      var role = roles[idx]
-      var posKey = SIGLA_TO_POS[role] || role
-      p.positionExperience = p.positionExperience || {}
-      p.positionExperience[posKey] = (p.positionExperience[posKey] || 0) + 1
     })
     /* Goalscorers */
     var userGoalscorers = []
@@ -14820,7 +16497,7 @@ function simularPartidoCopa(fixture, rivalId, isSupercopa, isTacaDaLiga, isEflCu
         var cl = (p._yellowThisMatch || p._redThisMatch) ? 0 : 0.2
         var rf = (Math.random() - 0.5) * 0.6
         var cs = 0
-        if (them === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) cs = 0.5
+        if (them === 0 && (p.position === 'POR' || p.position === 'DFC' || p.position === 'LD' || p.position === 'LI')) cs = 0.5
         var rr = Math.min(10, Math.max(1, 6.2 + wb + yp + rp + gb + ab + cl + rf + cs))
         var _cg = p._goalsInMatch || 0
         var _ca = p._assistThisMatch || 0
@@ -14888,7 +16565,7 @@ function obtenerNotaJugador(playerId) {
 }
 
 function getColorNota(rating) {
-  if (rating == null || Number.isNaN(rating)) return '#64748B'
+  if (rating == null || Number.isNaN(rating)) return '#818188'
   if (rating < 6.0) return '#EF4444'
   if (rating < 7.0) return '#F59E0B'
   if (rating < 8.0) return '#34D399'
@@ -14897,6 +16574,8 @@ function getColorNota(rating) {
 }
 
 function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorers) {
+  /* Progresión jornada a jornada tras el cierre de la jornada */
+  aplicarCrecimientoJornada()
   rivalGoalscorers = rivalGoalscorers || []
   const modal = document.getElementById('match-result-modal')
   document.getElementById('mr-matchday').textContent = 'Jornada ' + matchday
@@ -14960,7 +16639,7 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
       if (!pl) continue
       var roleKey = SIGLA_TO_POS[slotRoles[si]] || slotRoles[si]
       var posLabel = POSITIONS[roleKey] ? POSITIONS[roleKey].label : (POS_ABBR[roleKey] || pl.position)
-      var posColor = POSITIONS[roleKey] ? POSITIONS[roleKey].color : '#6B7280'
+      var posColor = POSITIONS[roleKey] ? POSITIONS[roleKey].color : '#71717A'
       var nota = obtenerNotaJugador(pid)
       var goles = pl._goalsInMatch || 0
       var asistencias = pl._assistThisMatch || 0
@@ -15029,7 +16708,7 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
         var rp = rItem.player
         var roleKey = SIGLA_TO_POS[rItem.role] || rItem.role
         var rPosLabel = POSITIONS[roleKey] ? POSITIONS[roleKey].label : (POS_ABBR[roleKey] || rp.position)
-        var rPosColor = POSITIONS[roleKey] ? POSITIONS[roleKey].color : '#6B7280'
+        var rPosColor = POSITIONS[roleKey] ? POSITIONS[roleKey].color : '#71717A'
         var rGoles = rivalGoalscorers.filter(function(n) { return n === rp.name }).length
         var rGoalIcon = rGoles > 0 ? ' <span class="mr-lineup-goal">\u26bd' + (rGoles > 1 ? rGoles : '') + '</span>' : ''
         var rAssistIcon = rivalAssistNames[rp.name] ? ' <span class="mr-lineup-goal">\ud83d\udc5f</span>' : ''
@@ -15043,7 +16722,7 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
         var rRedPenalty = rivalCards[rp.name] === 'red' ? -2.0 : 0
         var rClean = (rivalCards[rp.name] === 'yellow' || rivalCards[rp.name] === 'red') ? 0 : 0.2
         var rCsBonus = 0
-        if (_uScore === 0 && (rp.position === 'POR' || rp.position === 'defensa_central' || rp.position === 'lateral_der' || rp.position === 'lateral_izq')) rCsBonus = 0.5
+        if (_uScore === 0 && (rp.position === 'POR' || rp.position === 'DFC' || rp.position === 'LD' || rp.position === 'LI')) rCsBonus = 0.5
         var rRandom = (Math.random() - 0.5) * 0.6
         var rRating = Math.min(10, Math.max(1, 6.2 + rWinBonus + rGoalBonus + rAssistBonus + rClean + rYellowPenalty + rRedPenalty + rCsBonus + rRandom))
         rivalHtml += '<div class="mr-lineup-row"><span class="mr-lineup-pos" style="background:' + rPosColor + ';color:#fff">' + rPosLabel + '</span><span class="mr-lineup-name">' + rp.name + rGoalIcon + rAssistIcon + rCardIcon + '</span><span class="mr-lineup-rating">(' + rRating.toFixed(1) + ')</span></div>'
@@ -15081,13 +16760,16 @@ function showJornadaModal(matchday, allResults, userGoalscorers, rivalGoalscorer
   modal.classList.add('open')
 
   document.getElementById('mr-btn-continue').onclick = function() {
-    finalizarLiveJornada()
+    continuarTrasPartido()
   }
   }
 
 /* Finaliza el partido en directo al pulsar "Continuar": cierra el modal
    (si estuviera abierto) y avanza la jornada / temporada. */
 function finalizarLiveJornada() {
+  /* Progresión jornada a jornada tras el cierre del partido en vivo */
+  aplicarCrecimientoJornada()
+  state.matchdayScreen = 'partidos'
   var mod = document.getElementById('match-result-modal')
   if (mod) { mod.style.display = 'none'; mod.classList.remove('open') }
 
@@ -15196,6 +16878,9 @@ function showMatchdayResults(userScore, rivalScore, rivalName) {
   if (bem) bem.style.display = 'none'
 
   /* Refresh league table with updated standings before showing results */
+  state.leagueViewCountry = null
+  state.leagueViewContinental = false
+  state.leagueLogoSelected = null
   renderLeague()
 
   /* Go directly to league results view */
@@ -15203,7 +16888,6 @@ function showMatchdayResults(userScore, rivalScore, rivalName) {
     const vm = document.getElementById('view-match')
     if (vm) vm.classList.remove('active')
     document.getElementById('view-league').classList.add('active')
-    document.getElementById('bottom-nav').style.display = ''
     document.getElementById('app-header').style.display = ''
     document.getElementById('btn-header-menu').style.display = ''
   }
@@ -15318,7 +17002,7 @@ function autoSimularPartidoUsuario(fixture) {
   var rawIds = slots.filter(Boolean)
   var startingIds = rawIds.filter(function(pid) {
     var p = state.players.find(function(x) { return x.id === pid })
-    return !p || !p._suspended
+    return !p || (!p._suspended && !p.injury)
   })
   if (startingIds.length < 11) {
     /* Fallback: auto-assign */
@@ -15397,7 +17081,7 @@ function autoSimularPartidoUsuario(fixture) {
       var _clean = (p._yellowThisMatch || p._redThisMatch) ? 0 : 0.2
       var _rf = (Math.random() - 0.5) * 0.6
       var _cs = 0
-      if (them === 0 && (p.position === 'POR' || p.position === 'defensa_central' || p.position === 'lateral_der' || p.position === 'lateral_izq')) _cs = 0.5
+      if (them === 0 && (p.position === 'POR' || p.position === 'DFC' || p.position === 'LD' || p.position === 'LI')) _cs = 0.5
       var _rr = Math.min(10, Math.max(1, 6.2 + _wb + _yp + _rpd + _gb + _ab + _clean + _rf + _cs))
       p.matchHistory.push({
         matchday: state.currentMatchday,
@@ -15421,25 +17105,7 @@ function autoSimularPartidoUsuario(fixture) {
     })
   } catch (e) { console.error('[RATING] Error computing match ratings:', e) }
 
-  /* Track position experience */
-  state.players.forEach(function(p) {
-    if (p.minutosEnPista > 0) {
-      var idx = ids.indexOf(p.id)
-      if (idx >= 0 && idx < roles.length) {
-        var role = roles[idx]
-        var naturalKey = SIGLA_TO_POS[p.position] || p.position
-        if (naturalKey !== role) {
-          if (!p.positionExperience) p.positionExperience = {}
-          p.positionExperience[role] = (p.positionExperience[role] || 0) + 1
-          if (!p.otherPositions) p.otherPositions = []
-          var existing = p.otherPositions.find(function(o) { return o.pos === role })
-          var newPct = Math.min(100, p.positionExperience[role] * 3)
-          if (!existing) p.otherPositions.push({ pos: role, pct: newPct })
-          else existing.pct = Math.max(existing.pct, newPct)
-        }
-      }
-    }
-  })
+
 
   /* Lesión en caliente del portero (1%) + cambio automático */
   gestionarLesionPortero(ids)
@@ -15495,35 +17161,22 @@ function updateTeamStatusBar() {
 function renderMarket() {
   updateTeamStatusBar()
   if (!state.marketSubTab) state.marketSubTab = 'active'
-  const header = document.getElementById('market-header')
-  if (header) {
-    const status = state.transferWindowOpen
-      ? '<span style="color:#4CAF50">🔓 Abierto</span>'
-      : '<span style="color:#f44336">🔒 Cerrado</span>'
-    header.innerHTML = `Mercado de fichajes · ${status}`
-  }
-  /* Render sub-tabs */
-  var tabBar = document.getElementById('market-tabs')
-  if (tabBar) {
-    tabBar.innerHTML =
-      '<button class="market-tab-btn' + (state.marketSubTab === 'active' ? ' active' : '') + '" data-tab="active">Mercado Activo</button>' +
-      '<button class="market-tab-btn' + (state.marketSubTab === 'history' ? ' active' : '') + '" data-tab="history">Historial de Traspasos</button>'
-    tabBar.querySelectorAll('.market-tab-btn').forEach(function(btn) {
-      btn.onclick = function() {
-        state.marketSubTab = btn.dataset.tab
-        renderMarket()
-      }
-    })
-  }
-  /* Show/hide toolbar for active tab only */
+  /* Presupuesto del club en la barra superior */
+  var budgetEl = document.getElementById('market-budget')
+  if (budgetEl) budgetEl.textContent = formatMoneyShort(state.finances ? state.finances.balance : 0)
+  /* Show/hide buscador + filtros solo en la pestaña activa */
   var toolbar = document.getElementById('market-toolbar')
+  var filterPanel = document.getElementById('market-filters-panel')
   if (state.marketSubTab === 'active') {
     if (toolbar) toolbar.style.display = ''
+    if (filterPanel) filterPanel.style.display = ''
+    var mc = document.getElementById('market-content')
+    if (mc && mc.innerHTML) mc.innerHTML = ''
     initAdvancedFiltersModal()
     renderMarketContent()
   } else {
     if (toolbar) toolbar.style.display = 'none'
-    closeAdvancedFiltersModal()
+    if (filterPanel) filterPanel.style.display = 'none'
     renderHistorialTraspasos()
   }
 }
@@ -15532,11 +17185,6 @@ function renderMarket() {
 var marketFilterApplied = false
 
 function initAdvancedFiltersModal() {
-  var btn = document.getElementById('market-filters-btn')
-  if (btn && !btn._afBound) {
-    btn._afBound = true
-    btn.onclick = function() { openAdvancedFiltersModal() }
-  }
   var natSel = document.getElementById('af-nat')
   if (natSel && natSel.options.length <= 1) {
     var nats = {}
@@ -15573,41 +17221,8 @@ function initAdvancedFiltersModal() {
   var search = document.getElementById('market-search')
   if (search && !search._afBound) {
     search._afBound = true
-    search.oninput = function() { renderMarketContent() }
+    search.oninput = function() { state.marketPage = 1; renderMarketContent() }
   }
-  var apply = document.getElementById('af-apply')
-  if (apply && !apply._afBound) {
-    apply._afBound = true
-    apply.onclick = function() {
-      marketFilterApplied = true
-      renderMarketContent()
-      closeAdvancedFiltersModal()
-    }
-  }
-  var reset = document.getElementById('af-reset')
-  if (reset && !reset._afBound) {
-    reset._afBound = true
-    reset.onclick = function() { resetAdvancedFilters() }
-  }
-  var closeBtn = document.getElementById('af-close')
-  if (closeBtn && !closeBtn._afBound) {
-    closeBtn._afBound = true
-    closeBtn.onclick = function() { closeAdvancedFiltersModal() }
-  }
-}
-
-function openAdvancedFiltersModal() {
-  var modal = document.getElementById('advanced-filters-modal')
-  if (!modal) return
-  modal.classList.remove('hidden')
-  requestAnimationFrame(function() { modal.classList.add('open') })
-}
-
-function closeAdvancedFiltersModal() {
-  var modal = document.getElementById('advanced-filters-modal')
-  if (!modal) return
-  modal.classList.remove('open')
-  setTimeout(function() { modal.classList.add('hidden') }, 300)
 }
 
 function resetAdvancedFilters() {
@@ -15620,6 +17235,8 @@ function resetAdvancedFilters() {
   document.getElementById('af-skill-max').value = ''
   document.getElementById('af-maxvalue').value = ''
   marketFilterApplied = false
+  state.marketPage = 1
+  renderMarketContent()
 }
 
 function getMarketFilters() {
@@ -15654,9 +17271,18 @@ function renderHistorialTraspasos() {
   html += '</div>'
   html += '<div class="historial-list" style="padding:6px 10px">'
 
+  var bindHF = function() {
+    container.querySelectorAll('.h-filter').forEach(function(btn) {
+      btn.onclick = function() {
+        state.hfFilter = btn.dataset.hf
+        renderHistorialTraspasos()
+      }
+    })
+  }
+
   if (list.length === 0) {
     html += '<div class="empty-state" style="padding:30px;text-align:center;color:var(--text-muted)">Aún no hay traspasos registrados esta temporada</div></div>'
-    container.innerHTML = html; return
+    container.innerHTML = html; bindHF(); return
   }
   var activeHf = state.hfFilter || 'all'
   var filtered = list
@@ -15671,49 +17297,48 @@ function renderHistorialTraspasos() {
   }
   if (filtered.length === 0) {
     html += '<div class="empty-state" style="padding:30px;text-align:center;color:var(--text-muted)">No hay traspasos con este filtro</div></div>'
-    container.innerHTML = html; return
+    container.innerHTML = html; bindHF(); return
   }
   for (var i = 0; i < filtered.length; i++) {
     var e = filtered[i]
     var isBuy = e.esUsuario && e.equipoDestino && e.equipoDestino.indexOf('(Tú)') >= 0
     var isSell = e.esUsuario && e.equipoOrigen && e.equipoOrigen.indexOf('(Tú)') >= 0
     var leftColor = isBuy ? 'var(--success,#10B981)' : isSell ? 'var(--danger,#EF4444)' : 'var(--border)'
-    var precio = e.esCesion ? 'Cesión' : (typeof e.precio === 'number' ? formatMoney(e.precio) : e.precio)
+    var precio = e.esCesion ? 'Cesión' : (typeof e.precio === 'number' ? formatMoneyShort(e.precio) : e.precio)
     var avatarUrl = e.jugadorAvatar || NOPHOTO
     var weekLabel = e.semana ? 'Semana ' + e.semana : ''
     var origen = (e.equipoOrigen || '').replace(' (Tú)', '')
     var destino = (e.equipoDestino || '').replace(' (Tú)', '')
 
     var entryId = e.id
-    html += '<div class="historial-item" data-entry="' + entryId + '" style="border-left:3px solid ' + leftColor + ';background:var(--bg-surface);border-radius:8px;padding:7px 10px;margin-bottom:4px;display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer">'
+    html += '<div class="historial-item" data-entry="' + entryId + '" style="border-left:3px solid ' + leftColor + ';background:var(--bg-surface);border-radius:8px;padding:7px 10px;margin-bottom:4px;display:grid;grid-template-columns:34px 96px 46px 18px 46px auto;align-items:center;gap:6px;font-size:12px;cursor:pointer">'
     /* Avatar */
-    html += '<img src="' + avatarUrl + '" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--bg-card);flex-shrink:0" onerror="this.src=\'' + NOPHOTO + '\'">'
+    html += '<img src="' + avatarUrl + '" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--bg-card)" onerror="this.src=\'' + NOPHOTO + '\'">'
     /* Name + week below */
-    html += '<div style="flex-shrink:0;min-width:0;max-width:110px">'
+    html += '<div style="min-width:0">'
     html += '<div style="font-weight:600;color:var(--text);font-size:12px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(e.jugadorNombre) + '</div>'
     html += '<div style="color:var(--text-muted);font-size:10px;line-height:1.3">' + weekLabel + '</div>'
     html += '</div>'
-    /* Club logos + arrow */
-    html += '<div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;justify-content:center">'
+    /* Club origen — columna fija */
     var fromLogo = e.origenLogo || ''
     var toLogo = e.destinoLogo || ''
-    html += fromLogo ? '<img src="' + fromLogo + '" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:contain;flex-shrink:0" onerror="this.style.display=\'none\'">' : '<span style="color:var(--text-muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px">' + escHtml(origen) + '</span>'
-    html += '<span style="color:var(--text-muted);flex-shrink:0;display:flex">' + arrowSvg + '</span>'
-    html += toLogo ? '<img src="' + toLogo + '" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:contain;flex-shrink:0" onerror="this.style.display=\'none\'">' : '<span style="color:var(--text-muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px">' + escHtml(destino) + '</span>'
+    html += '<div style="display:flex;align-items:center;justify-content:center">'
+    html += fromLogo ? '<img src="' + fromLogo + '" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:contain" onerror="this.style.display=\'none\'">' : '<span style="color:var(--text-muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46px">' + escHtml(origen) + '</span>'
+    html += '</div>'
+    /* Arrow — columna fija */
+    html += '<span style="color:var(--text-muted);display:flex;align-items:center;justify-content:center">' + arrowSvg + '</span>'
+    /* Club destino — columna fija */
+    html += '<div style="display:flex;align-items:center;justify-content:center">'
+    html += toLogo ? '<img src="' + toLogo + '" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:contain" onerror="this.style.display=\'none\'">' : '<span style="color:var(--text-muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46px">' + escHtml(destino) + '</span>'
     html += '</div>'
     /* Price */
     var priceColor = e.esCesion ? 'var(--text-muted)' : 'var(--success,#10B981)'
-    html += '<span style="font-weight:700;font-size:12px;color:' + priceColor + ';white-space:nowrap;text-align:right;flex-shrink:0;min-width:55px">' + precio + '</span>'
+    html += '<span style="font-weight:700;font-size:12px;color:' + priceColor + ';white-space:nowrap;text-align:right;justify-self:end">' + precio + '</span>'
     html += '</div>'
   }
   html += '</div>'
   container.innerHTML = html
-  container.querySelectorAll('.h-filter').forEach(function(btn) {
-    btn.onclick = function() {
-      state.hfFilter = btn.dataset.hf
-      renderHistorialTraspasos()
-    }
-  })
+  bindHF()
   /* Click on a history card opens the player detail modal in his CURRENT team */
   container.querySelectorAll('.historial-item[data-entry]').forEach(function(card) {
     card.onclick = function() {
@@ -15741,7 +17366,7 @@ function renderHistorialTraspasos() {
         foundPlayer = {
           name: entry.jugadorNombre,
           skill: entry.jugadorMedia || 50,
-          position: entry.jugadorPosicion || 'mediocentro',
+          position: entry.jugadorPosicion || 'MC',
           age: entry.jugadorEdad || 25,
           avatar: entry.jugadorAvatar || '',
           value: typeof entry.precio === 'number' ? entry.precio : 0,
@@ -15755,9 +17380,15 @@ function renderHistorialTraspasos() {
   })
 }
 
-function renderMarketContent() {
-  const container = document.getElementById('market-content')
-  const search = (document.getElementById('market-search').value || '').toLowerCase()
+/* Normaliza texto para búsqueda: minúsculas y sin diacríticos (acentos, ñ→n, ç→c). */
+function normalizeSearch(s) {
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+}
+
+/* Jugadores del mercado que cumplen el filtro + búsqueda (sin paginar ni renderizar). */
+function getFilteredMarketPlayers() {
+  const rawSearch = (document.getElementById('market-search').value || '').trim()
+  const search = normalizeSearch(rawSearch)
   const af = getMarketFilters()
   const posFilter = af.pos
   const natFilter = af.nat
@@ -15766,80 +17397,798 @@ function renderMarketContent() {
   const skillMin = af.skillMin
   const skillMax = af.skillMax
   const maxValue = af.maxValue
+  const userPlayerIds = new Set(state.players.filter(p => !(p.onLoan && p.loanTo)).map(p => p.id))
+  /* Exclude family players from market */
+  var familyIds = new Set()
+  var fId = getFilialId(state.teamId)
+  if (fId && state.filialSquad) state.filialSquad.forEach(function(p) { familyIds.add(p.id) })
+  if (state.filial2Squad) state.filial2Squad.forEach(function(p) { familyIds.add(p.id) })
+  var pId = getBTeamParent(state.teamId)
+  if (pId) {
+    var parentTeam = state.leagueTeams.find(function(t) { return t.teamId === pId })
+    if (parentTeam) parentTeam.players.forEach(function(p) { familyIds.add(p.id) })
+  }
+  const global = (state.globalPlayers || []).filter(p => !userPlayerIds.has(p.id) && !familyIds.has(p.id) && !(p.onLoan && p.loanTo))
+  const presentIds = new Set(global.map(p => p.id))
+  const merged = global.slice()
+  const loanedCandidates = []
+  ;(state.globalPlayers || []).forEach(function(p) { if (p.onLoan && p.loanTo) loanedCandidates.push(p) })
+  state.players.forEach(function(p) { if (p.onLoan && p.loanTo) loanedCandidates.push(p) })
+  loanedCandidates.forEach(function(p) {
+    if (presentIds.has(p.id)) return
+    const entry = resolveTeamEntry(p.loanTo)
+    merged.push({
+      ...p,
+      teamName: p.loanToName || (entry ? entry.name : ''),
+      teamId: p.loanTo,
+      leagueId: (entry ? entry.leagueId : '') || p.leagueId || '',
+      countryFlag: (entry ? countryFlagOfLeague(entry.leagueId) : '') || p.countryFlag || '',
+    })
+  })
+  let filtered = merged
+  if (search) filtered = filtered.filter(p => normalizeSearch(p.name).indexOf(search) !== -1)
+  if (posFilter) filtered = filtered.filter(p => (POS_ABBR[p.position] || p.position) === posFilter)
+  if (af.division) filtered = filtered.filter(p => getLeagueDisplayName(p.leagueId) === af.division)
+  if (natFilter) filtered = filtered.filter(p => (p.nationality || '').toLowerCase().includes(natFilter))
+  if (ageMin > 0) filtered = filtered.filter(p => (p.age || 0) >= ageMin)
+  if (ageMax < 99) filtered = filtered.filter(p => (p.age || 0) <= ageMax)
+  if (skillMin > 0) filtered = filtered.filter(p => p.skill >= skillMin)
+  if (skillMax < 99) filtered = filtered.filter(p => p.skill <= skillMax)
+  if (maxValue > 0) filtered = filtered.filter(p => (p.value || 0) <= maxValue)
+  filtered.sort((a, b) => b.skill - a.skill)
+  return filtered
+}
 
-  const userPlayerIds = new Set(state.players.map(p => p.id))
-    /* Exclude family players from market */
-    var familyIds = new Set()
-    var fId = getFilialId(state.teamId)
-    if (fId && state.filialSquad) state.filialSquad.forEach(function(p) { familyIds.add(p.id) })
-    if (state.filial2Squad) state.filial2Squad.forEach(function(p) { familyIds.add(p.id) })
-    var pId = getBTeamParent(state.teamId)
-    if (pId) {
-      var parentTeam = state.leagueTeams.find(function(t) { return t.teamId === pId })
-      if (parentTeam) parentTeam.players.forEach(function(p) { familyIds.add(p.id) })
+function updateMarketResultsCount() {
+  var resEl = document.getElementById('market-results')
+  if (!resEl) return
+  var n = getFilteredMarketPlayers().length
+  resEl.textContent = n + (n === 1 ? ' resultado encontrado' : ' resultados encontrados')
+}
+
+/* Punto de refresco: si el listado de resultados está abierto lo redibuja; si no, solo actualiza el contador. */
+function renderMarketContent() {
+  var res = document.getElementById('view-market-results')
+  if (res && res.classList.contains('active')) renderMarketResults()
+  else updateMarketResultsCount()
+}
+
+/* Abre el apartado de resultados y pinta el listado paginado. */
+function openMarketResults() {
+  state.marketPage = 1
+  renderMarketResults()
+  document.getElementById('view-market').classList.remove('active')
+  var res = document.getElementById('view-market-results')
+  res.classList.remove('hidden')
+  res.classList.add('active')
+  updateHeaderContinueVisibility()
+}
+
+function renderMarketResults() {
+  const container = document.getElementById('market-results-content')
+  if (!container) return
+  var budgetEl = document.getElementById('market-results-budget')
+  if (budgetEl) budgetEl.textContent = formatMoneyShort(state.finances ? state.finances.balance : 0)
+  var filtered = getFilteredMarketPlayers()
+  var resEl = document.getElementById('market-results')
+  if (resEl) resEl.textContent = filtered.length + (filtered.length === 1 ? ' resultado encontrado' : ' resultados encontrados')
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="market-empty">No hay jugadores disponibles</div>'
+    return
+  }
+  const perPage = 10
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage))
+  if (!state.marketPage || state.marketPage < 1) state.marketPage = 1
+  if (state.marketPage > totalPages) state.marketPage = totalPages
+  const page = state.marketPage || 1
+  const pageItems = filtered.slice((page - 1) * perPage, page * perPage)
+  container.innerHTML = pageItems.map(p => {
+    const posKey = SIGLA_TO_POS[p.position] || p.position
+    const pos = POSITIONS[posKey]
+    const valShort = formatShort(p.value)
+    const posColor = pos.color
+    const teamLogo = getTeamLogo(p.teamId)
+    const btnHtml = !state.transferWindowOpen
+      ? '<button class="market-card-btn disabled" style="font-size:18px;line-height:1">🔒</button>'
+      : '<button class="market-card-btn view">VER</button>'
+    return `
+      <div class="tp-row market-card" data-player-id="${p.id}" data-team-id="${p.teamId}">
+        <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[posKey] || p.position}</span>
+        <img class="mc-avatar" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
+        ${playerFlagHtml(p.nationality)}
+        <span class="mc-name">${p.name}</span>
+        <span class="mc-team">${teamLogo ? '<img class="mc-team-logo" src="' + teamLogo + '" alt="" onerror="this.style.display=\'none\'">' : ''}<span class="mc-team-name">${p.teamName || ''}</span></span>
+        <span class="tp-cell-power" style="background:${skillColor(p.skill)};color:#fff">${p.skill}</span>
+        <span class="tp-cell-age">${p.age || '-'}</span>
+        <span class="tp-cell-market">${valShort}</span>
+        ${btnHtml}
+      </div>
+    `
+  }).join('') + marketPagerHtml(page, totalPages, filtered.length)
+
+  container.querySelectorAll('.market-card').forEach(card => {
+    card.onclick = () => {
+      const pid = card.dataset.playerId
+      const tid = card.dataset.teamId
+      const gp = filtered.find(p => p.id === pid)
+      if (!gp) return
+      const team = getTeamObj(gp.teamId)
+      openPlayerDetail(gp, team)
     }
-    const global = (state.globalPlayers || []).filter(p => !userPlayerIds.has(p.id) && !familyIds.has(p.id))
+  })
+  container.querySelectorAll('.market-pager .mp-btn[data-page]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation()
+      state.marketPage = parseInt(btn.dataset.page, 10)
+      renderMarketResults()
+    }
+  })
+}
 
-    let filtered = global
-    if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search))
-    if (posFilter) filtered = filtered.filter(p => (POS_ABBR[p.position] || p.position) === posFilter)
-    if (af.division) filtered = filtered.filter(p => getLeagueDisplayName(p.leagueId) === af.division)
-    if (natFilter) filtered = filtered.filter(p => (p.nationality || '').toLowerCase().includes(natFilter))
-    if (ageMin > 0) filtered = filtered.filter(p => (p.age || 0) >= ageMin)
-    if (ageMax < 99) filtered = filtered.filter(p => (p.age || 0) <= ageMax)
-    if (skillMin > 0) filtered = filtered.filter(p => p.skill >= skillMin)
-    if (skillMax < 99) filtered = filtered.filter(p => p.skill <= skillMax)
-    if (maxValue > 0) filtered = filtered.filter(p => (p.value || 0) <= maxValue)
+function marketPagerHtml(page, totalPages, count) {
+  if (totalPages <= 1) {
+    return '<div class="market-pager mp-single">' + count + ' jugador' + (count === 1 ? '' : 'es') + '</div>'
+  }
+  var html = '<div class="market-pager" onclick="event.stopPropagation()"><button class="mp-btn' + (page <= 1 ? ' off' : '') + '" data-page="' + (page - 1) + '">\u00ab</button>'
+  var start = Math.max(1, Math.min(page - 2, totalPages - 4))
+  var end = Math.min(totalPages, start + 4)
+  for (var i = start; i <= end; i++) {
+    html += '<button class="mp-btn' + (i === page ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>'
+  }
+  html += '<button class="mp-btn' + (page >= totalPages ? ' off' : '') + '" data-page="' + (page + 1) + '">\u00bb</button>'
+  html += '<span class="mp-count">' + count + ' jugadores \u00b7 ' + page + '/' + totalPages + '</span></div>'
+  return html
+}
 
-    filtered.sort((a, b) => b.skill - a.skill)
-    filtered = filtered.slice(0, 50)
+/* ============ VENTAS / GESTIÓN DE PLANTILLA ============ */
 
-    if (filtered.length === 0) {
-      container.innerHTML = '<div class="market-empty">No hay jugadores disponibles</div>'
+function openMarketSell() {
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active') })
+  var v = document.getElementById('view-market-sell')
+  if (v) v.classList.add('active')
+  renderMarketSell()
+  /* Tras renderizar (puede generar ofertas), quedan vistas: se deja de parpadear. */
+  markSellOffersSeen()
+  updateHeaderContinueVisibility()
+}
+
+function renderMarketSell() {
+  var container = document.getElementById('market-sell-content')
+  if (!container) return
+  var budgetEl = document.getElementById('market-sell-budget')
+  if (budgetEl) budgetEl.textContent = formatMoneyShort(state.finances ? state.finances.balance : 0)
+  if (!state.sellOffers) state.sellOffers = []
+  /* Genera ofertas si no hay ninguna activa */
+  if (state.sellOffers.length === 0) generarOfertasVenta()
+
+  var html = '<div class="ms-section">' +
+    '<div class="ms-title">Ofertas recibidas</div>' +
+    renderSellOffersTable() +
+    '</div>'
+  html += '<div class="ms-section">' +
+    '<div class="ms-title">Venta r\u00e1pida \u00b7 Gesti\u00f3n de plantilla</div>' +
+    '<div class="ms-sub">Los jugadores se vender\u00e1n o ceder\u00e1n al mejor postor disponible seg\u00fan la necesidad del club destino.</div>' +
+    renderSellSquadTable() +
+    '</div>'
+  container.innerHTML = html
+
+  container.querySelectorAll('.ms-offer-row').forEach(function(row) {
+    var o = (state.sellOffers || []).find(function(x) { return String(x.id) === row.dataset.oid })
+    row.onclick = function() {
+      if (!o) return
+      var found = findPlayerInPools(o.playerId)
+      if (!found) return
+      openPlayerDetail(found.pool[found.idx], { name: state.team, logo: state.teamLogo, teamId: state.teamId }, o)
+    }
+  })
+  container.querySelectorAll('.ms-squad-row').forEach(function(row) {
+    var pid = row.dataset.pid
+    row.onclick = function() {
+      var found = findPlayerInPools(pid)
+      if (!found) return
+      var p = found.pool[found.idx]
+      var offer = (state.sellOffers || []).find(function(x) { return x.playerId === p.id })
+      openPlayerDetail(p, { name: state.team, logo: state.teamLogo, teamId: state.teamId }, offer || null)
+    }
+  })
+}
+
+function msPlayerHead(p) {
+  var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#71717A'
+  return '<span class="ms-player">' +
+    '<span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff;width:30px">' + (POS_ABBR[p.position] || p.position) + '</span>' +
+    '<img class="mc-avatar" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'">' +
+    playerFlagHtml(p.nationality) +
+    '<span class="mc-name">' + p.name + '</span>' + '</span>'
+}
+
+/* Cabeza de fila de oferta en columnas separadas: [POS] [NOMBRE] [VALOR] [OFERTA] */
+function msOfferRowCells(p) {
+  var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#71717A'
+  return '<span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff;width:30px">' + (POS_ABBR[p.position] || p.position) + '</span>' +
+    '<span class="ms-player">' +
+    '<img class="mc-avatar" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'">' +
+    playerFlagHtml(p.nationality) +
+    '<span class="mc-name">' + p.name + '</span>' + '</span>'
+}
+
+/* Render an offer (inbox / popup) en el mismo formato que «Mercado » Ventas » Ofertas recibidas». */
+function offerRowHtml(of) {
+  if (!of) return ''
+  var p = null
+  if (of.playerId) {
+    var found = findPlayerInPools(of.playerId)
+    if (found) p = found.pool[found.idx]
+  }
+  var pp = {
+    position: (p && p.position) || of.playerPosition || 'global',
+    avatar: (p && p.avatar) || of.playerAvatar || NOPHOTO,
+    nationality: (p && p.nationality) || of.nationality,
+    name: (p && p.name) || of.playerName || 'Jugador',
+    value: (p && p.value) || of.playerValue || 0
+  }
+  var clubLogo = of.teamLogo || getTeamLogo(of.teamId || of.clubId) || NOPHOTO
+  var isLoan = of.type === 'cesion'
+  return '<div class="ms-row ms-offer-row" data-oid="' + of.id + '">' +
+    msOfferRowCells(pp) +
+    '<span class="ms-val">' + formatShort(pp.value || 0) + '</span>' +
+    (isLoan
+      ? '<span class="ms-offer"><span class="ms-cesion" style="font-size:10px;font-weight:800;letter-spacing:0.5px;color:#F59E0B">CESI\u00d3N</span><img class="ms-club-logo" src="' + clubLogo + '" alt="" onerror="this.style.display=\'none\'"></span>'
+      : '<span class="ms-offer">' + formatMoneyShort(of.amount || 0) + '<img class="ms-club-logo" src="' + clubLogo + '" alt="" onerror="this.style.display=\'none\'"></span>') +
+    '</div>'
+}
+
+function renderSellOffersTable() {
+  var offers = state.sellOffers || []
+  if (offers.length === 0) return '<div class="ms-empty">No hay ofertas recibidas por tus jugadores.</div>'
+  var colHeaderHtml = '<div class="ms-cols">' +
+    '<span class="ms-col ms-col-pos">POS</span>' +
+    '<span class="ms-col ms-col-nombre">NOMBRE</span>' +
+    '<span class="ms-col ms-col-valor">VALOR</span>' +
+    '<span class="ms-col ms-col-oferta">OFERTA</span>' +
+    '</div>'
+  var html = colHeaderHtml
+  html += '<div class="ms-list ms-list-offers">'
+  offers.forEach(function(o) {
+    var found = findPlayerInPools(o.playerId)
+    if (!found) return
+    var p = found.pool[found.idx]
+    var clubLogo = getTeamLogo(o.clubId)
+    var isLoan = o.type === 'cesion'
+    html += '<div class="ms-row ms-offer-row" data-oid="' + o.id + '">' +
+      msOfferRowCells(p) +
+      '<span class="ms-val">' + formatShort(p.value || 0) + '</span>' +
+      (isLoan
+        ? '<span class="ms-offer"><span class="ms-cesion" style="font-size:10px;font-weight:800;letter-spacing:0.5px;color:#F59E0B">CESI\u00d3N</span><img class="ms-club-logo" src="' + clubLogo + '" alt="" onerror="this.style.display=\'none\'"></span>'
+        : '<span class="ms-offer">' + formatMoneyShort(o.amount) + '<img class="ms-club-logo" src="' + clubLogo + '" alt="" onerror="this.style.display=\'none\'"></span>') +
+      '</div>'
+  })
+  html += '</div>'
+  return html
+}
+
+function renderSellSquadTable() {
+  var active = (state.players || []).filter(function(p) { return !(p.onLoan && p.loanTo) })
+  var ordered = active.slice().sort(function(a, b) {
+    var posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
+    var posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
+    return (posA === -1 ? 999 : posA) - (posB === -1 ? 999 : posB) || a.number - b.number
+  })
+  var html = '<div class="tp-table-header" style="padding:6px 14px">' +
+    '<span class="tp-th-pos">Pos</span>' +
+    '<span class="tp-th-name">Nombre</span>' +
+    '<span class="tp-th-age">Edad</span>' +
+    '<span class="tp-th-value">Valor</span>' +
+    '<span class="tp-th-power">Pod</span>' +
+    '</div>'
+  html += '<div class="tp-list">'
+  html += ordered.map(function(p) {
+    var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#71717A'
+    var valShort = formatShort(p.value || calcValue(p.skill, p.age, p.position))
+    return '<div class="tp-row ms-squad-row" data-pid="' + p.id + '">' +
+      '<span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span>' +
+      '<div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info">' +
+        '<span class="tp-cell-head">' + playerFlagHtml(p.nationality) + '<span class="tp-cell-name">' + p.name + '</span></span>' +
+        '<span class="tp-cell-value">' + (p.transferListed ? '<span class="player-badge badge-lt" style="font-size:8px">TR</span>' : '') + (p.loanListed ? '<span class="player-badge badge-lc" style="font-size:8px">CED</span>' : '') + '</span>' +
+      '</div></div>' +
+      '<span class="tp-cell-age">' + (p.age || '-') + '</span>' +
+      '<span class="tp-cell-market">' + valShort + '</span>' +
+      '<span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span>' +
+      '</div>'
+  }).join('')
+  html += '</div>'
+  return html
+}
+
+/* Nº de ofertas de fichaje ya emitidas en una jornada (máx. 3 por jornada). */
+function ofertasDeJornada(md) {
+  return (state.sellOffers || []).filter(function(o) { return (o.matchday != null ? o.matchday : (state.currentMatchday || 0)) === md })
+}
+
+/* Registra una oferta de compra directa en «Ventas » Ofertas recibidas».
+   (Las ofertas ya no llegan a la bandeja de entrada.) */
+function registrarOfertaVenta(offer) {
+  if (!offer || !offer.playerId || !offer.teamId) return
+  if (!state.sellOffers) state.sellOffers = []
+  var md = state.currentMatchday || 0
+  if (ofertasDeJornada(md).length >= 3) return
+  var amount = Math.max(1, Math.round(offer.amount || 0))
+  /* Las ofertas recibidas nunca son inferiores al valor del jugador */
+  var val = offer.playerValue || 0
+  if (!val) { var f = findPlayerInPools(offer.playerId); if (f) val = f.pool[f.idx].value || 0 }
+  if (val > 0 && amount < val) amount = Math.round(val)
+  state.sellOffers.push({
+    type: 'transfer',
+    id: Date.now() + Math.random(),
+    playerId: offer.playerId,
+    clubId: offer.teamId,
+    amount: amount,
+    steps: 0,
+    matchday: md
+  })
+}
+
+/* Genera ofertas simuladas de CPU (de cualquier liga) para tus jugadores más valiosos.
+   Solo un club que puede pagar el valor del jugador hace oferta, y el importe nunca supera su presupuesto.
+   Como máximo 3 ofertas por jornada. */
+function generarOfertasVenta() {
+  if (!state.sellOffers) state.sellOffers = []
+  var md = state.currentMatchday || 0
+  var remaining = Math.max(0, 3 - ofertasDeJornada(md).length)
+  if (remaining === 0) return
+  var pool = (state.players || []).filter(function(p) { return !(p.onLoan && p.loanTo) })
+  var targets = pool.slice().sort(function(a, b) { return (b.value || 0) - (a.value || 0) }).slice(0, remaining)
+  var buyerPool = getAllBuyerTeams()
+  targets.forEach(function(p) {
+    if (buyerPool.length === 0) return
+    if (ofertasDeJornada(md).length >= 3) return
+    /* Jugador joven y no muy caro → puede llegar una oferta de cesión en vez de fichaje */
+    var esCesion = (p.age <= 22 && (p.value || 0) < 20000000) && Math.random() < 0.5
+    if (esCesion) {
+      var clubL = pickLoanClub()
+      if (!clubL) return
+      var sn = state.seasonNumber || 1
+      var loanDur = Math.random() < 0.3 ? 0.5 : (Math.random() < 0.6 ? 1 : 2)
+      state.sellOffers.push({
+        type: 'cesion',
+        id: Date.now() + Math.random() + Math.random(),
+        playerId: p.id,
+        clubId: clubL.teamId,
+        clubName: clubL.name,
+        clubLogo: clubL.logo || '',
+        loanDur: loanDur,
+        loanUntil: '30/06/' + (2026 + sn + Math.ceil(loanDur)),
+        durationLabel: loanDur === 0.5 ? 'media temporada' : (loanDur === 2 ? '2 temporadas' : '1 temporada'),
+        steps: 0,
+        matchday: md
+      })
       return
     }
+    var club = selectBuyerClub(p, p.value || 0)
+    if (!club) return
+    var base = Math.round((p.value || 0) * (1.05 + Math.random() * 0.2))
+    var amount = Math.max(1, Math.min(base, club.budget || base))
+    /* Las ofertas recibidas nunca son inferiores al valor del jugador */
+    if (amount < (p.value || 0)) amount = Math.round(p.value || 0)
+    if (amount > (club.budget || 0)) return
+    state.sellOffers.push({ type: 'transfer', id: Date.now() + Math.random(), playerId: p.id, clubId: club.teamId, amount: amount, steps: 0, matchday: md })
+  })
+}
 
-    container.innerHTML = filtered.map(p => {
-      const posKey = SIGLA_TO_POS[p.position] || p.position
-      const pos = POSITIONS[posKey]
-      const teamLabel = (p.countryFlag || '') + ' ' + (p.teamName || '')
-      const valShort = formatShort(p.value)
-      const posColor = pos.color
-      const btnHtml = state.transferWindowOpen
-        ? '<button class="market-card-btn view">VER</button>'
-        : '<button class="market-card-btn disabled" style="font-size:18px;line-height:1">🔒</button>'
-      return `
-        <div class="tp-row market-card" data-player-id="${p.id}" data-team-id="${p.teamId}">
-          <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[posKey] || p.position}</span>
-          <div class="tp-cell">
-            <img class="tp-cell-img" src="${p.avatar || NOPHOTO}" alt="" onerror="this.src='${NOPHOTO}'">
-            <div class="tp-cell-info">
-              <span class="tp-cell-name">${p.name}</span>
-              <span class="tp-cell-value">${teamLabel}</span>
-            </div>
-          </div>
-          <span class="tp-cell-age">${p.age || '-'}</span>
-          <span class="tp-cell-market">${valShort}</span>
-          <span class="tp-cell-power" style="background:${skillColor(p.skill)};color:#fff">${p.skill}</span>
-          ${btnHtml}
-        </div>
-      `
-    }).join('')
+function openOfferDecision(oid) {
+  var o = (state.sellOffers || []).find(function(x) { return x.id === oid })
+  if (!o) return
+  var found = findPlayerInPools(o.playerId)
+  if (!found) return
+  var p = found.pool[found.idx]
+  var modal = document.getElementById('offer-decision-modal')
+  var body = document.getElementById('od-body')
+  var clubLogo = getTeamLogo(o.clubId)
+  var clubName = getTeamName(o.clubId)
+  var isLoan = o.type === 'cesion'
+  var amountHtml = isLoan
+    ? '<div class="od-club-name">' + escHtml(clubName) + '</div>' +
+      '<div class="od-amount" style="color:#F59E0B;font-size:12px">CESI\u00d3N</div>' +
+      '<div class="od-amount-sub" style="font-size:11px;color:var(--text-muted)">' + (o.durationLabel || '') + '</div>'
+    : '<div class="od-club-name">' + escHtml(clubName) + '</div>' +
+      '<div class="od-amount">' + formatMoney(o.amount) + '</div>'
+  var btns = isLoan
+    ? '<button class="od-btn ok" id="od-accept">\u2713 Aceptar</button>' +
+      '<button class="od-btn no" id="od-reject">\u2715 Rechazar</button>'
+    : '<button class="od-btn ok" id="od-accept">\u2713 Aceptar</button>' +
+      '<button class="od-btn neg" id="od-negocia">$ Negociar (+10%)</button>' +
+      '<button class="od-btn no" id="od-reject">\u2715 Rechazar</button>'
+  body.innerHTML =
+    '<div class="od-head">' + (isLoan ? '\u00bfACEPTAR CESI\u00d3N?' : '\u00bfACEPTAR OFERTA?') + ' de ' + escHtml(clubName) + '</div>' +
+    '<div class="od-cols">' +
+      '<div class="od-left">' +
+        '<img class="od-club-logo" src="' + clubLogo + '" alt="" onerror="this.style.display=\'none\'">' +
+        amountHtml +
+      '</div>' +
+      '<div class="od-right">' +
+        '<img class="od-avatar" src="' + (p.avatar || NOPHOTO) + '" onerror="this.src=\'' + NOPHOTO + '\'">' +
+        '<div class="od-name">' + p.name + '</div>' +
+        '<div class="od-stats"><span>MEDIA</span><b>' + p.skill + '</b></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="od-btns">' + btns + '</div>'
+  modal.classList.remove('hidden')
+  modal.classList.add('open')
+  document.getElementById('od-accept').onclick = function() { cerrarOfertaDec(); aceptarOfertaRecibida(o.id) }
+  if (document.getElementById('od-negocia')) document.getElementById('od-negocia').onclick = function() { negociarOferta(o.id) }
+  document.getElementById('od-reject').onclick = function() { cerrarOfertaDec(); rechazarOfertaRecibida(o.id) }
+}
 
-    container.querySelectorAll('.market-card').forEach(card => {
-      card.onclick = () => {
-        const pid = card.dataset.playerId
-        const tid = card.dataset.teamId
-        const gp = state.globalPlayers.find(p => p.id === pid)
-        if (!gp) return
-        const team = getTeamObj(gp.teamId)
-        openPlayerDetail(gp, team)
+function cerrarOfertaDec() {
+  var m = document.getElementById('offer-decision-modal')
+  if (m) { m.classList.remove('open'); m.classList.add('hidden') }
+}
+
+function negociarOferta(oid) {
+  var o = (state.sellOffers || []).find(function(x) { return x.id === oid })
+  if (!o) return
+  o.steps = (o.steps || 0) + 1
+  o.amount = Math.round(o.amount * 1.1)
+  var prob = 0.85 - 0.20 * (o.steps - 1)
+  if (Math.random() < prob) {
+    var found = findPlayerInPools(o.playerId)
+    cerrarOfertaDec()
+    if (found) ejecutarVenta(o, found.pool[found.idx])
+  } else {
+    var clubName = getTeamName(o.clubId)
+    cerrarOfertaDec()
+    estadoOferta(o.id)
+    showOfferReject(clubName)
+  }
+}
+
+function aceptarOfertaRecibida(oid) {
+  var o = (state.sellOffers || []).find(function(x) { return x.id === oid })
+  if (!o) return
+  var found = findPlayerInPools(o.playerId)
+  if (!found) return
+  cerrarOfertaDec()
+  estadoOferta(o.id)
+  if (o.type === 'cesion') ejecutarCesion(o, found.pool[found.idx])
+  else ejecutarVenta(o, found.pool[found.idx])
+}
+
+function rechazarOfertaRecibida(oid) {
+  state.sellOffers = (state.sellOffers || []).filter(function(x) { return x.id !== oid })
+  refreshAfterTransfer()
+}
+
+function ejecutarVenta(o, p) {
+  if (!p || (p.onLoan && p.loanTo)) { alert('\u26d4 El jugador está cedido a otro club. No puedes venderlo.'); estadoOferta(o.id); refreshAfterTransfer(); return }
+  var clubId = o.clubId
+  var clubName = getTeamName(clubId)
+  var amount = o.amount
+  /* Quita el jugador (primer equipo o cantera) y suma fondos */
+  var found = findPlayerInPools(p.id)
+  if (found) found.pool.splice(found.idx, 1)
+  addPlayerToClub(clubId, p)
+  if (state.finances) {
+    state.finances.balance += amount
+    state.finances.history.push({ reason: 'Venta: ' + p.name + ' (' + (POS_ABBR[p.position] || p.position) + ') \u00b7 ' + formatMoney(amount), amount: amount })
+  }
+  state.sellOffers = (state.sellOffers || []).filter(function(x) { return x.id !== o.id })
+  registrarTraspasoEnHistorial({
+    playerName: p.name, playerSkill: p.skill,
+    playerPosition: p.position, playerAge: p.age,
+    playerAvatar: p.avatar || '',
+    fromTeam: state.team + ' (Tú)', fromTeamId: state.teamId, fromLogo: state.teamLogo || '',
+    toTeam: clubName, toTeamId: clubId, toLogo: getTeamLogo(clubId) || '',
+    price: amount, isLoan: false, isUserRelated: true
+  })
+  refreshAfterTransfer()
+  var badge = state.sellOffers !== null
+  showSaleConfirm('sold', p, clubName, amount, clubId)
+}
+
+/* Acepta una oferta de cesión: el jugador se marcha cedido (no abandona el club). */
+function ejecutarCesion(o, p) {
+  if (!p || (p.onLoan && p.loanTo)) { alert('\u26d4 Ese jugador ya está cedido a otro club.'); estadoOferta(o.id); refreshAfterTransfer(); return }
+  var clubId = o.clubId
+  var clubName = getTeamName(clubId) || o.clubName || 'Otro club'
+  var sn = state.seasonNumber || 1
+  var duracionLabel = o.durationLabel || (o.loanDur === 0.5 ? 'media temporada' : o.loanDur === 2 ? '2 temporadas' : '1 temporada')
+  p.onLoan = true
+  p.loanTo = clubId
+  p.loanToName = clubName
+  p.loanToLogo = o.clubLogo || getTeamLogo(clubId) || ''
+  p.loanUntil = o.loanUntil || ('30/06/' + (2026 + sn + 1))
+  syncMercadoEquipoJugador(p, clubId)
+  /* Al cederlo, se retiran el resto de ofertas que pudiera tener pendientes */
+  state.sellOffers = (state.sellOffers || []).filter(function(x) { return x.id !== o.id && x.playerId !== p.id })
+  if (state.finances) {
+    state.finances.history.push({ reason: 'Cesión: ' + p.name + ' (' + (POS_ABBR[p.position] || p.position) + ') · ' + duracionLabel + ' · ' + clubName, amount: 0 })
+  }
+  registrarTraspasoEnHistorial({
+    playerName: p.name, playerSkill: p.skill,
+    playerPosition: p.position, playerAge: p.age,
+    playerAvatar: p.avatar || '',
+    fromTeam: state.team + ' (Tú)', fromTeamId: state.teamId, fromLogo: state.teamLogo || '',
+    toTeam: clubName, toTeamId: clubId, toLogo: getTeamLogo(clubId) || '',
+    price: 'Cesión', isLoan: true, isUserRelated: true
+  })
+  addNotification('transfer', '\uD83D\uDCC4 Cesión aceptada: ' + p.name, p.name + ' se marcha cedido a ' + clubName + ' (' + duracionLabel + ')')
+  refreshAfterTransfer()
+  showSaleConfirm('loan', p, clubName, 0, clubId)
+}
+
+/* Añade un jugador vendido a la plantilla del club comprador y marca para recalcular su rating. */
+function addPlayerToClub(teamId, player) {
+  if (!teamId || !player) return false
+  var copy = { ...player, teamId: teamId, id: teamId + '-tr-' + Date.now() + '-' + Math.random().toString(36).slice(2, 5) }
+  copy.transferListed = false; copy.transferPrice = 0; copy.loanListed = false
+  copy.energy = randInt(70, 100)
+  copy.goals = 0; copy.assists = 0; copy.matches = 0; copy.yellowCards = 0; copy.redCards = 0; copy.mvp = 0; copy.matchHistory = []
+  copy.onLoan = false; copy.loanFrom = null; copy.loanUntil = null; copy.loanTo = null; copy.loanToName = null; copy.loanToLogo = null
+  copy.enPista = false; copy.minutosEnPista = 0; copy.convocado = false; copy.titular = false; copy.injury = null
+  var lt = (state.leagueTeams || []).find(function(t) { return t.teamId === teamId })
+  if (lt) { if (!lt.players) lt.players = []; lt.players.push(copy); return true }
+  for (var lid in (state.allLeagueData || {})) {
+    var d = state.allLeagueData[lid]
+    if (!d || !d.teams) continue
+    for (var i = 0; i < d.teams.length; i++) {
+      if (d.teams[i].teamId === teamId) {
+        if (!d.teams[i].players) d.teams[i].players = []
+        d.teams[i].players.push(copy)
+        return true
       }
+    }
+  }
+  for (var cid in window.DB) {
+    var data = window.DB[cid]
+    if (!data || !data.realSquads) continue
+    var sq = data.realSquads[teamId]
+    if (sq) { sq.push(copy); return true }
+  }
+  return false
+}
+
+function estadoOferta(oid) {
+  state.sellOffers = (state.sellOffers || []).filter(function(x) { return x.id !== oid })
+}
+
+function showOfferReject(clubName) {
+  var m = document.getElementById('offer-reject-modal')
+  var b = document.getElementById('or-body')
+  b.innerHTML =
+    '<div class="sc-club"><img class="ms-club-logo" src="" alt=""></div>' +
+    '<div class="sc-title">OFERTA RECHAZADA</div>' +
+    '<div class="sc-msg">El ' + escHtml(clubName) + ' ha rechazado tu propuesta.</div>' +
+    '<button class="sc-ok" id="or-ok">\u2715 Cerrar</button>'
+  m.classList.remove('hidden'); m.classList.add('open')
+  document.getElementById('or-ok').onclick = function() { m.classList.remove('open'); m.classList.add('hidden'); refreshAfterTransfer() }
+}
+
+/* Acción (Vender / Ceder) desde la sección inferior */
+function openSellAction(pid) {
+  var p = state.players.find(function(x) { return x.id === pid })
+  if (!p) return
+  var m = document.getElementById('sell-action-modal')
+  var b = document.getElementById('sa-body')
+  b.innerHTML =
+    '<div class="sa-head">Acci\u00f3n del jugador</div>' +
+    '<div class="sa-player">' + msPlayerHead(p) + '</div>' +
+    '<div class="od-btns">' +
+      '<button class="od-btn ok" id="sa-sell">VENDER</button>' +
+      '<button class="od-btn neg" id="sa-loan">CEDER</button>' +
+      '<button class="od-btn no" id="sa-close">\u2715</button>' +
+    '</div>'
+  m.classList.remove('hidden'); m.classList.add('open')
+  document.getElementById('sa-sell').onclick = function() { m.classList.remove('open'); m.classList.add('hidden'); venderJugador(pid) }
+  document.getElementById('sa-loan').onclick = function() { m.classList.remove('open'); m.classList.add('hidden'); cederJugador(pid) }
+  document.getElementById('sa-close').onclick = function() { m.classList.remove('open'); m.classList.add('hidden') }
+}
+
+/* Bandera del país al que pertenece una liga */
+function countryFlagOfLeague(leagueId) {
+  if (!leagueId) return ''
+  for (var cid in window.DB) {
+    var data = window.DB[cid]
+    if (!data || !data.country || !data.country.leagues) continue
+    for (var li = 0; li < data.country.leagues.length; li++) {
+      if (data.country.leagues[li].id === leagueId) return data.country.flag || ''
+    }
+  }
+  return ''
+}
+
+/* Refleja el equipo actual del jugador en el mercado cuando se vende o se cede */
+function syncMercadoEquipoJugador(player, newTeamId) {
+  if (!player || !newTeamId) return
+  var pid = player.id
+  var entry = resolveTeamEntry(newTeamId)
+  var newName = entry ? entry.name : ''
+  var newLeagueId = entry ? entry.leagueId : ''
+  var newFlag = countryFlagOfLeague(newLeagueId)
+  var pool = state.globalPlayers || []
+  var found = false
+  pool.forEach(function(gp) {
+    if (gp.id === pid) {
+      found = true
+      gp.teamId = newTeamId
+      if (newName) gp.teamName = newName
+      if (newLeagueId) gp.leagueId = newLeagueId
+      if (newFlag) gp.countryFlag = newFlag
+    }
+  })
+  if (!found) {
+    pool.push({
+      ...player,
+      teamName: newName || player.teamName || '',
+      teamId: newTeamId,
+      countryFlag: newFlag || player.countryFlag || '',
+      leagueId: newLeagueId || player.leagueId || '',
     })
   }
+}
+
+/* Re-renderiza la vista actual (Mercado ▸ Ventas o Club) tras una venta/cesión
+   para que la plantilla / lista de ofertas se actualice sin salir y volver a entrar. */
+function refreshAfterTransfer() {
+  var active = document.querySelector('.view.active')
+  var id = active ? active.id : ''
+  if (id === 'view-market-sell') { if (typeof renderMarketSell === 'function') renderMarketSell() }
+  else if (id === 'view-club') { if (typeof renderClub === 'function') renderClub() }
+  else if (typeof renderSquad === 'function') renderSquad(state.players)
+}
+
+function venderJugador(pid) {
+  var p = state.players.find(function(x) { return x.id === pid })
+  if (!p) return
+  var club = pickBuyerClub(p)
+  if (!club) { alert('No hay clubes con presupuesto suficiente ahora mismo.'); return }
+  /* Venta rápida manual: el club paga un poco por debajo del valor (85%-93%) */
+  var amount = Math.round((p.value || 0) * (0.85 + Math.random() * 0.08))
+  var idx = state.players.findIndex(function(x) { return x.id === p.id })
+  if (idx >= 0) state.players.splice(idx, 1)
+  if (state.finances) {
+    state.finances.balance += amount
+    state.finances.history.push({ reason: 'Venta: ' + p.name + ' (' + (POS_ABBR[p.position] || p.position) + ') \u00b7 ' + formatMoney(amount), amount: amount })
+  }
+  addPlayerToClub(club.teamId, p)
+  syncMercadoEquipoJugador(p, club.teamId)
+  registrarTraspasoEnHistorial({
+    playerName: p.name, playerSkill: p.skill,
+    playerPosition: p.position, playerAge: p.age,
+    playerAvatar: p.avatar || '',
+    fromTeam: state.team + ' (Tú)', fromTeamId: state.teamId, fromLogo: state.teamLogo || '',
+    toTeam: club.name, toTeamId: club.teamId, toLogo: getTeamLogo(club.teamId) || '',
+    price: amount, isLoan: false, isUserRelated: true
+  })
+  showSaleConfirm('sold', p, club.name, amount, club.teamId)
+}
+
+function cederJugador(pid) {
+  var p = state.players.find(function(x) { return x.id === pid })
+  if (!p) return
+  var club = pickLoanClub()
+  if (!club) { alert('No hay clubes disponibles para la cesi\u00f3n ahora mismo.'); return }
+  p.onLoan = true
+  p.loanTo = club.teamId
+  p.loanToName = club.name
+  p.loanToLogo = club.logo || ''
+  syncMercadoEquipoJugador(p, club.teamId)
+  refreshAfterTransfer()
+  showSaleConfirm('loan', p, club.name, 0, club.teamId)
+}
+
+/* Puntuación de "encaje" club comprador ↔ jugador: los clubes más fuertes
+   (por GRL) son los que fichan a las estrellas, con independencia de la liga.
+   Se deja una leve preferencia por la misma liga, nunca como prioridad. */
+function buyerFitScore(club, player) {
+  var cr = (club && club.rating) || 50
+  var ps = (player && player.skill) || 50
+  var base = Math.max(5, Math.min(95, 55 + (cr - ps) * 6))
+  if (club && club.leagueId && club.leagueId === state.leagueId) base += 4
+  return base
+}
+
+/* Elige un club comprador para un jugador: puede pagar (budget >= precio) y de
+   nivel razonable (nunca un "pequeño" fichando a una estrella). Se selecciona
+   de cualquier liga con probabilidad ponderada por el nivel del club, de forma
+   que los jugadores top acaban en clubes top (Real Madrid, City, Bayern, PSG...). */
+function selectBuyerClub(player, price) {
+  var target = price || (player && player.value) || 0
+  if (!target || target <= 0) return null
+  var all = getAllBuyerTeams()
+  if (all.length === 0) return null
+  var equals = 0
+  while (equals < 2) {
+    var pool = all.filter(function(c) {
+      if ((c.budget || 0) < target) return false
+      return equals === 1 || (((c.rating || 50) + 4) >= (player.skill || 50))
+    })
+    if (pool.length > 0) {
+      var scores = pool.map(function(c) {
+        var s = buyerFitScore(c, player) + Math.random() * 22
+        return s < 1 ? 1 : s
+      })
+      var total = 0
+      scores.forEach(function(s) { total += s })
+      var r = Math.random() * total
+      for (var i = 0; i < pool.length; i++) {
+        r -= scores[i]
+        if (r <= 0) return pool[i]
+      }
+      return pool[pool.length - 1]
+    }
+    equals++
+  }
+  return null
+}
+
+function pickBuyerClub(player) {
+  return selectBuyerClub(player, player.value)
+}
+
+/* Club de cesión: prioriza la misma liga; si no hay cupo o no conviene, busca
+   en divisiones inferiores del mismo país y, en última instancia, en otros países. */
+function pickLoanClub() {
+  var pools = { 1: [], 2: [], 3: [] }
+  var all = {}
+  function addClub(id, name, logo, tier) {
+    if (!id || id === state.teamId || all[id]) return
+    if (getFilialId(state.teamId) === id) return
+    all[id] = true
+    pools[tier].push({ teamId: id, name: name, logo: logo || '' })
+  }
+  ;(state.leagueTeams || []).forEach(function(t) {
+    if (t.teamId !== state.teamId && t.players && t.players.length > 0) addClub(t.teamId, t.name, t.logo, 1)
+  })
+  for (var lid in (state.allLeagueData || {})) {
+    var d = state.allLeagueData[lid]
+    if (!d || !d.teams) continue
+    for (var i = 0; i < d.teams.length; i++) {
+      var t = d.teams[i]
+      if (t.teamId === state.teamId || !t.players || t.players.length === 0) continue
+      addClub(t.teamId, t.name, t.logo, lid === state.leagueId ? 1 : 2)
+    }
+  }
+  var tiers = [1, 2]
+  if (pools[1].length === 0 && pools[2].length === 0) {
+    getAllBuyerTeams().forEach(function(c) { addClub(c.teamId, c.name, c.logo, 3) })
+  }
+  for (var t2 = 0; t2 < tiers.length; t2++) {
+    if (pools[tiers[t2]].length > 0) return pools[tiers[t2]][Math.floor(Math.random() * pools[tiers[t2]].length)]
+  }
+  if (pools[3].length > 0) return pools[3][Math.floor(Math.random() * pools[3].length)]
+  return null
+}
+
+function showSaleConfirm(kind, p, clubName, amount, clubId) {
+  var m = document.getElementById('sale-confirm-modal')
+  var b = document.getElementById('sc-body')
+  var clubLogo = getTeamLogo(clubId)
+  var title = kind === 'sold' ? 'JUGADOR VENDIDO' : 'JUGADOR CEDIDO'
+  var msg = kind === 'sold'
+    ? p.name + ' fue vendido a ' + escHtml(clubName) + ' por ' + formatMoney(amount) + '.'
+    : p.name + ' fue cedido a ' + escHtml(clubName) + '.'
+  b.innerHTML =
+    '<div class="sc-club"><img class="ms-club-logo" src="' + clubLogo + '" alt="" onerror="this.style.display=\'none\'"></div>' +
+    '<div class="sc-title" style="color:#16803C">' + title + '</div>' +
+    '<div class="sc-msg">' + msg + '</div>' +
+    '<button class="sc-ok" id="sc-ok">\u2713</button>'
+  m.classList.remove('hidden'); m.classList.add('open')
+  document.getElementById('sc-ok').onclick = function() {
+    m.classList.remove('open'); m.classList.add('hidden')
+    refreshAfterTransfer()
+  }
+}
+
+function closeOverlayById(id) {
+  var m = document.getElementById(id)
+  if (m) { m.classList.remove('open'); m.classList.add('hidden') }
+}
 
 function buyPlayer(player, team, agreedPrice) {
   if (!state.transferWindowOpen) { alert('\ud83d\udd12 El mercado de fichajes est\u00e1 cerrado. Vuelve cuando se abra.'); return }
+  if (player && player.onLoan && (player.loanTo || player.loanedTo || player.loanFrom || player.loanedFrom)) {
+    alert('\u26d4 ' + (player.name || 'Ese jugador') + ' est\u00e1 cedido a otro club. No puedes ficharlo hasta que vuelva al club propietario.'); return
+  }
   if (state.players.length >= MAX_SQUAD) { alert('Plantilla completa (' + MAX_SQUAD + ' jugadores)'); return }
   const basePrice = agreedPrice || player.value
   const finalValue = Math.round(basePrice)
@@ -15914,10 +18263,10 @@ function getFactorMinutos(seasonMinPct) {
   return 0.4
 }
 
-/* Factor Entrenamiento: instalaciones del club, nivel 1-15. */
+/* Factor Entrenamiento: instalaciones del club, nivel 1-20. */
 function getFactorEntrenamiento(nivel) {
   nivel = nivel || 1
-  return 1 + (nivel * 0.05)
+  return 0.5 + (nivel / ZC_ENTRENAMIENTO_MAX) * 1.0
 }
 
 /* % de minutos jugados en la temporada respecto al total posible. */
@@ -15931,13 +18280,13 @@ function getSeasonMinutesPct(p, totalM) {
   return Math.max(0, Math.min(1, total / max))
 }
 
-/* Nivel de instalaciones asignado a un equipo IA según su rating/reputación. */
+/* Nivel de instalaciones asignado a un equipo IA según su rating (escala 1-20). */
 function getAIFacilityLevel(rating) {
   rating = rating || 70
-  if (rating >= 80) return 11
-  if (rating >= 70) return 8
-  if (rating >= 60) return 5
-  return 3
+  if (rating >= 80) return 16
+  if (rating >= 70) return 12
+  if (rating >= 60) return 9
+  return 5
 }
 
 /* Margen de potencial según la edad (cuánto puede crecer desde su GRL actual). */
@@ -15956,28 +18305,78 @@ function getMinSkillFloor(age) {
   return 50
 }
 
-/* Potencial (tope de crecimiento): se deriva dinámicamente en la primera
-   carga. Un jugador nunca debe crecer por encima de p.potencial. */
+/* Factor Margen: cuanto más cerca del tope blando (potencial + superación),
+   menos crece, pero sin atascarse (mín. 0.3) para que se pueda llegar al
+   potencial y, si los factores acompañan, superarlo un poco. */
+function getFactorMargen(p, tope) {
+  ensurePlayerPotencial(p)
+  var potencial = (tope != null ? tope : (p.potencial != null ? p.potencial : 99))
+  var margen = (potencial - (p.skill || 0)) / 15
+  return Math.max(0.3, Math.min(1.0, margen))
+}
+
+/* Potencial (único número): tope blando hacia el que tiende el jugador según
+   edad, minutos, instalaciones y suerte; puede quedarse corto o superarlo un poco. */
 function ensurePlayerPotencial(p) {
   if (p == null) return
+  /* Por robustez, si aún llegara un array [mín, máx] se conserva el menor. */
+  if (Array.isArray(p.potencial)) {
+    p.potencial = p.potencial[0] != null ? p.potencial[0] : (p.potencial[1] != null ? p.potencial[1] : null)
+  }
   if (p.potencial == null) {
     p.potencial = Math.min(99, (p.skill || 50) + getAgeHeadroom(p.age || 22))
   }
+  p.potencial = Math.max(50, Math.min(99, p.potencial))
+  delete p.potencialMin
   if (p.progreso == null) p.progreso = 0
+  if (p.minutosJugadosPCT == null) p.minutosJugadosPCT = 0
+  if (p._potLuck == null) p._potLuck = Math.random()
 }
 
-/* Motor central de la fórmula: acumula puntos y aplica ±1 de GRL cada ±10. */
-function aplicarFormulaEvolucion(p, totalM, nivelEntrenamiento) {
+/* Cuánto puede superar un jugador su potencial (0-2 puntos): depende de la
+   edad, los minutos jugados, las instalaciones y una suerte estable por
+   jugador. Da variabilidad: unos no llegan, otros llegan y otros lo superan. */
+function getOvershootCap(p, nivelEnt) {
   if (!p) return 0
   ensurePlayerPotencial(p)
   var edad = getFactorEdad(p.age || 22)
-  var minutos = getFactorMinutos(getSeasonMinutesPct(p, totalM))
-  var ent = getFactorEntrenamiento(nivelEntrenamiento)
-  p.progreso = (p.progreso || 0) + (edad * minutos * ent)
+  if (edad <= 0) return 0
+  var pct = p.minutosJugadosPCT != null ? p.minutosJugadosPCT : getSeasonMinutesPct(p, state.totalMatchdays || 34)
+  var minutos = getFactorMinutos(pct)
+  var ent = getFactorEntrenamiento(nivelEnt)
+  var luck = p._potLuck != null ? p._potLuck : 0.5
+  var v = edad * minutos * ent * 2 * (0.5 + luck)
+  return Math.max(0, Math.min(2, Math.round(v)))
+}
 
+/* Puntos ganados por partido (cierre de jornada). Con escala global para que
+   el mejor caso (joven + muchos minutos + instalación 20 + margen amplio)
+   proyecte ≈ +6/7 GRL por temporada y los que tocan su potencial puedan
+   superarlo un poco. */
+var CRECIMIENTO_ESCALA = 0.65
+function getPuntosCrecimiento(p, nivelEnt) {
+  if (!p) return 0
+  ensurePlayerPotencial(p)
+  var edad = getFactorEdad(p.age || 22)
+  var pct = p.minutosJugadosPCT != null ? p.minutosJugadosPCT : getSeasonMinutesPct(p, state.totalMatchdays || 34)
+  var minutos = getFactorMinutos(pct)
+  var ent = getFactorEntrenamiento(nivelEnt)
+  var tope = (p.potencial != null ? p.potencial : 99) + getOvershootCap(p, nivelEnt)
+  var margen = getFactorMargen(p, tope)
+  return edad * minutos * ent * margen * CRECIMIENTO_ESCALA
+}
+
+/* Motor central: acumula puntos y aplica ±1 de GRL cada ±10 (hacia el tope
+   blando = potencial + posible superación, sin bajar del suelo por edad).
+   Devuelve la variación de GRL. */
+function aplicarCrecimientoJugador(p, nivelEnt) {
+  if (!p) return 0
+  ensurePlayerPotencial(p)
+  p.progreso = (p.progreso || 0) + getPuntosCrecimiento(p, nivelEnt)
+
+  var cap = Math.min(99, (p.potencial != null ? p.potencial : 99) + getOvershootCap(p, nivelEnt))
   var growth = 0
   while (p.progreso >= 10) {
-    var cap = p.potencial != null ? Math.min(99, p.potencial) : 99
     if ((p.skill || 0) < cap) { p.skill = Math.min(99, (p.skill || 0) + 1); growth++ }
     p.progreso -= 10
   }
@@ -15990,6 +18389,91 @@ function aplicarFormulaEvolucion(p, totalM, nivelEntrenamiento) {
   return growth
 }
 
+/* Nivel de instalaciones estimado del club de destino de un cedido. */
+function getLoanDestinationRating(p) {
+  if (!p) return 70
+  var t = (state.leagueTeams || []).find(function(x) { return x.teamId === p.loanTo })
+  if (t && t.rating) return t.rating
+  try { var o = getTeamObj(p.loanTo); if (o && o.rating) return o.rating } catch (e) {}
+  return 70
+}
+
+/* Minutos esperados de un cedido cuando su club destino no se simula en la liga
+   activa: los mejores respecto al nivel del club juegan más. */
+function getLoanMinutesPct(p) {
+  var diff = (p.skill || 0) - getLoanDestinationRating(p)
+  if (diff >= 3) return 0.85
+  if (diff >= -3) return 0.6
+  if (diff >= -8) return 0.4
+  return 0.25
+}
+
+/* Progreso de un jugador cedido a otro club: mejora con las instalaciones, los
+   minutos y el rendimiento de su club de destino, nunca con las del usuario. */
+function progresarJugadorCedido(p) {
+  if (!p || !p.loanTo) return
+  var dest = (state.leagueTeams || []).find(function(t) { return t.teamId === p.loanTo })
+  var clone = null
+  if (dest) {
+    clone = (dest.players || []).find(function(x) {
+      return x.name === p.name && (x.loanFrom === state.teamId || x.loanedFrom === state.teamId)
+    })
+    if (!clone) clone = (dest.players || []).find(function(x) { return x.name === p.name })
+  }
+  if (clone) {
+    /* El destino ya se simula: reflejamos su evolución en la ficha del usuario. */
+    p.skill = clone.skill
+    p.potencial = clone.potencial
+    if (clone.progreso != null) p.progreso = clone.progreso
+    p.minutosJugadosPCT = clone.minutosJugadosPCT
+    if (clone.matchHistory) p.matchHistory = clone.matchHistory.slice()
+    p.matches = clone.matches
+    p.goals = clone.goals
+    p.assists = clone.assists
+    p.yellowCards = clone.yellowCards
+    p.redCards = clone.redCards
+    p.mvp = clone.mvp
+    return
+  }
+  /* Destino fuera de la liga simulada: progreso estimado. */
+  var nivelDest = getAIFacilityLevel(getLoanDestinationRating(p))
+  p.minutosJugadosPCT = getLoanMinutesPct(p)
+  aplicarCrecimientoJugador(p, nivelDest)
+}
+
+/* Cierre de jornada: actualiza % minutos y aplica la progresión a la plantilla
+   del usuario y a todos los equipos IA. Se llama una vez por jornada. */
+function aplicarCrecimientoJornada() {
+  if (!state || !state.players) return
+  if (state._crecimientoJornada === state.currentMatchday) return
+  state._crecimientoJornada = state.currentMatchday
+  var totalM = state.totalMatchdays || 34
+  var nivelEnt = 1
+  try {
+    var zc = getZonaClub()
+    nivelEnt = (zc && zc.entrenamiento) || 1
+  } catch (e) { nivelEnt = 1 }
+
+  /* Primero progresa la IA (incluye los cedidos que juegan en otro club). */
+  if (state.leagueTeams) {
+    state.leagueTeams.forEach(function(team) {
+      var aiNivel = getAIFacilityLevel(team.rating || 70)
+      ;(team.players || []).forEach(function(p) {
+        p.minutosJugadosPCT = getSeasonMinutesPct(p, totalM)
+        aplicarCrecimientoJugador(p, aiNivel)
+      })
+    })
+  }
+
+  /* Plantilla del usuario: los cedidos a otros clubes no entrenan con tus
+     instalaciones; mejoran por su parte en su club de destino. */
+  state.players.forEach(function(p) {
+    if (p.onLoan && p.loanTo) { progresarJugadorCedido(p); return }
+    p.minutosJugadosPCT = getSeasonMinutesPct(p, totalM)
+    aplicarCrecimientoJugador(p, nivelEnt)
+  })
+}
+
 function envejecerYProgresar() {
   var totalM = state.totalMatchdays || 34
   var changes = []
@@ -15997,25 +18481,14 @@ function envejecerYProgresar() {
   var valueChanges = []
 
   state.players.forEach(function(p) {
-    var oldValue = p.value || 0
+    ensurePlayerPotencial(p)
     var oldSkill = p.skill
 
-    /* Fórmula de evolución: FactorEdad × FactorMinutos × FactorEntrenamiento */
-    var nivelEnt = (typeof getZonaClub === 'function' && getZonaClub()) ? (getZonaClub().entrenamiento || 1) : 1
-    aplicarFormulaEvolucion(p, totalM, nivelEnt)
-
-    /* Versatility bonus: jugar en múltiples posiciones ayuda al desarrollo */
-    var otherPosCount = 0
-    if (p.otherPositions) {
-      otherPosCount = p.otherPositions.filter(function(o) { return o.pct >= 15 }).length
-    }
-    var versBonus = 0
-    if (otherPosCount >= 4) versBonus = 2
-    else if (otherPosCount >= 2) versBonus = 1
-    if (versBonus > 0) {
-      /* No crecer por encima del potencial por el bonus de versatilidad */
-      var capPs = p.potencial != null ? Math.min(99, p.potencial) : 99
-      p.skill = Math.min(capPs, (p.skill || 0) + versBonus)
+    /* Estancamiento de promesas: al cumplir 23 años sin haber explotado
+       (aún con margen de crecimiento), se reduce el techo de potencial. */
+    if ((p.age || 0) === 23 && (p.skill || 0) < (p.potencial != null ? p.potencial : 99)) {
+      p.potencial = Math.max((p.skill || 0) + 2, (p.potencial != null ? p.potencial : 99) - 2)
+      p.potencial = Math.max(50, Math.min(99, p.potencial))
     }
 
     var change = Math.round(p.skill - oldSkill)
@@ -16054,19 +18527,13 @@ function progresarJugadoresIA(totalM) {
   var retirados = []
   state.leagueTeams.forEach(function(team) {
     var keep = []
-    var aiNivel = getAIFacilityLevel(team.rating || 70)
     team.players.forEach(function(p) {
-      /* Fórmula de evolución con nivel de instalaciones según rating del club */
-      aplicarFormulaEvolucion(p, totalM, aiNivel)
-
-      /* Versatility bonus for IA players */
-      var otherCount = 0
-      if (p.otherPositions) {
-        otherCount = p.otherPositions.filter(function(o) { return o.pct >= 15 }).length
+      ensurePlayerPotencial(p)
+      /* Estancamiento de promesas en IA */
+      if ((p.age || 0) === 23 && (p.skill || 0) < (p.potencial != null ? p.potencial : 99)) {
+        p.potencial = Math.max((p.skill || 0) + 2, (p.potencial != null ? p.potencial : 99) - 2)
+        p.potencial = Math.max(50, Math.min(99, p.potencial))
       }
-      if (otherCount >= 4) p.skill = Math.min(99, p.skill + 2)
-      else if (otherCount >= 2) p.skill = Math.min(99, p.skill + 1)
-
       if (p.age >= 35 && (p.matches || 0) < 5 && Math.random() < 0.5) {
         retirados.push({ name: p.name, age: p.age, matches: p.matches || 0, team: team.name })
       } else {
@@ -16122,27 +18589,6 @@ function renderFinances() {
 
 /* ============ NAVIGATION ============ */
 function setupNavigation() {
-  document.querySelectorAll('.nav-item').forEach(btn => {
-    btn.onclick = () => {
-      playSound('click')
-      const tab = btn.dataset.tab
-      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
-      btn.classList.add('active')
-      if (tab === 'bandeja') {
-        state.clubSubTab = 'inbox'
-        renderTab('club')
-      } else if (tab === 'club') {
-        state.clubSubTab = 'club-info'
-        renderTab('club')
-      } else if (tab === 'plantilla') {
-        state.clubSubTab = 'squad'
-        renderTab('club')
-      } else {
-        renderTab(tab)
-      }
-    }
-  })
-
   /* Club sub-tabs (only those shown in the UI) */
   document.querySelectorAll('#view-club .sub-tab').forEach(btn => {
     btn.onclick = () => {
@@ -16181,7 +18627,7 @@ function renderTab(tab) {
   
   switch (tab) {
     case 'club': renderClub(); break
-    case 'league': renderLeague(); break
+    case 'league': openMyCompetition(); break
     case 'home': renderHome(); break
     case 'market': renderMarket(); break
     case 'finances': renderFinances(); break
@@ -16535,13 +18981,14 @@ function renderCopaView(viewType, selectedRoundIdx) {
     }
   }
   var tableWrap = document.getElementById('league-table-wrap')
+  var statsWrap = document.getElementById('league-stats-wrap')
   var resultsWrap = document.getElementById('league-results-wrap')
   resultsWrap.classList.add('hidden')
   var html = '<div class="copa-wrap">'
 
-  /* Top scorers & assisters for this cup competition */
+  /* Top scorers & assisters for this cup competition → columna derecha */
   var _copaComp = viewType === 'supercopa' ? 'supercopa' : viewType === 'tacaDaLiga' ? 'taca_da_liga' : viewType === 'eflCup' ? 'efl_cup' : 'cup'
-  html += buildCompStatsCardsHtml(_copaComp, null)
+  if (statsWrap) statsWrap.innerHTML = buildCompStatsCardsHtml(_copaComp, null)
 
   /* EFL Cup section */
   if (viewType === 'eflCup' && eflCupData && eflCupData.schedule && eflCupData.schedule.length > 0) {
@@ -16986,7 +19433,9 @@ function newGame() {
     }
     realLeagueId = realGroup ? realGroup.id : (getGroupedConfig(realLeagueId) ? getGroupedConfig(realLeagueId).groups[0] : realLeagueId)
   }
-  const league = country ? country.leagues.find(l => l.id === realLeagueId) : null
+  if (!country) throw new Error('No se pudieron cargar los datos del pa\u00eds')
+  var league = country.leagues.find(l => l.id === realLeagueId)
+  if (!league && country.leagues.length) { league = country.leagues[0]; realLeagueId = league.id }
   state.team = selectedTeam.name
   state.teamId = selectedTeam.id
   state.teamLogo = selectedTeam.logo || ''
@@ -16995,7 +19444,7 @@ function newGame() {
   state.leagueId = realLeagueId
   state.gameId = Date.now()
   state.stats = { wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 }
-  state.tactic = { formation: '4-3-3', gamePlan: 'pesado' }
+  state.tactic = { formation: selectedTeam.formation || '4-3-3', gamePlan: selectedTeam.gamePlan || 'pesado' }
   state.tacticsSlots = []
   state.benchIds = []
   state.reserveIds = []
@@ -17011,16 +19460,16 @@ function newGame() {
   generarOfertasPatrocinioIniciales()
   state._popupShownMatchday = null
   state._popupSuppressed = false
-  setTimeout(function() { try { mostrarPopupPrioridad() } catch (e) {} }, 600)
+  state._pendingIncidencias = null
+  state._sellOffersSeenIds = {}
   state.captainId = null
   state.trophyHistory = { seasons: [], leagueTitles: [], cupWins: [], supercopaWins: [], tacaDaLigaWins: [] }
   state.allTeamsHistory = {}
 
   /* Assign user squad based on selected team */
   const userSquad = getRealSquad(state.teamId) || generateCpuSquad(state.teamId, state.countryId, selectedTeam.rating)
-  const teamCap = selectedTeam.rating || 99
   state.players = userSquad.map(p => ({
-    ...p, skill: Math.min(teamCap, p.skill), value: p.value || calcValue(p.skill, p.age, p.position),
+    ...p, value: p.value || calcValue(p.skill, p.age, p.position),
     enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null,
     teamStats: {},
   }))
@@ -17066,9 +19515,8 @@ function newGame() {
   for (const t of league.teams) {
     if (t.id === state.teamId) continue
     const base = getRealSquad(t.id)
-    const cap = t.rating || 99
     const squad = base
-      ? base.map(p => { var pp = { ...p, skill: Math.min(cap, p.skill), value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100 }; ensurePlayerPotencial(pp); if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp })
+      ? base.map(p => { var pp = { ...p, value: p.value || calcValue(p.skill, p.age, p.position), enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, energy: 100 }; ensurePlayerPotencial(pp); if (pp.loanedFrom) { pp.onLoan = true; pp.loanFrom = pp.loanedFrom; pp.loanFromName = pp.loanedFromName; pp.loanFromLogo = pp.loanedFromLogo } if (pp.loanedTo) { pp.onLoan = true; pp.loanTo = pp.loanedTo; pp.loanToName = pp.loanedToName; pp.loanToLogo = pp.loanedToLogo } return pp })
       : generateCpuSquad(t.id, state.countryId, t.rating)
     state.leagueTeams.push({ teamId: t.id, name: t.name, logo: t.logo || '', formation: t.formation, gamePlan: t.gamePlan, players: squad, rating: t.rating || 50, palmares: t.palmares })
     allTeamIds.push(t.id)
@@ -17093,6 +19541,15 @@ function newGame() {
       }
     }
   }
+
+  /* Assign free shirt numbers to any player without a valid one */
+  assignFreeNumbers(state.players)
+  assignFreeNumbers(state.filialSquad)
+  assignFreeNumbers(state.filial2Squad)
+  state.leagueTeams.forEach(function(t) { assignFreeNumbers(t.players) })
+
+  /* Rellena avatares que hayan quedado vacíos al clonar cedidos */
+  fixAvatares()
 
   /* Generate fixtures */
   state.fixtures = generateFixtures(allTeamIds)
@@ -17129,9 +19586,17 @@ function newGame() {
         const teamObj = getTeamObj(t.id)
         if (!teamObj || !teamObj.players) continue
         for (const p of teamObj.players) {
+          if (p.loanFrom || p.loanedFrom) continue
           if (state.boughtPlayerIds && state.boughtPlayerIds.indexOf(p.id) >= 0) continue
+          var entry = { ...p }
+          if (entry.loanedTo) {
+            entry.onLoan = true
+            entry.loanTo = entry.loanedTo
+            entry.loanToName = entry.loanedToName
+            entry.loanToLogo = entry.loanedToLogo
+          }
           state.globalPlayers.push({
-            ...p,
+            ...entry,
             teamName: teamObj.name,
             teamId: teamObj.teamId,
             countryFlag: countryFlag,
@@ -17199,7 +19664,11 @@ function newGame() {
     }
   })
 
-  autoAssignSquad()
+  if (selectedTeam.defaultXI && selectedTeam.defaultXI.length === (SLOT_ROLES[state.tactic.formation] || SLOT_ROLES['4-3-3']).length) {
+    applyDefaultXI(selectedTeam.defaultXI)
+  } else {
+    autoAssignSquad()
+  }
 
   addNotification('general', `🏆 ¡Bienvenido a ${league.name}!`, `Te haces cargo del ${selectedTeam.name} en la ${league.name}`)
   startGame()
@@ -17272,6 +19741,8 @@ function loadGame(id) {
   const saves = getSaves()
   const data = saves.find(s => Number(s.id) === Number(id))
   if (!data) { console.warn('[LOAD] Save not found for id:', id, 'saves:', saves.length); return }
+  /* Migra posiciones heredadas (nombres largos) a códigos cortos. */
+  try { normalizePositionsDeep(data) } catch (e) { console.warn('[LOAD] normalizePositionsDeep', e) }
   if (typeof state.zonaClub === 'undefined') state.zonaClub = null
   state.team = data.team
   state.teamId = data.teamId
@@ -17323,11 +19794,14 @@ function loadGame(id) {
   state.absoluteFinal = data.absoluteFinal || null
   state.historialTraspasosGlobal = data.historialTraspasosGlobal || []
   state.mercadoSimuladoSemana = data.mercadoSimuladoSemana || 0
+  state.sellOffers = data.sellOffers || []
+  state._sellOffersSeenIds = data.sellOffersSeenIds || {}
   state.zonaClub = data.zonaClub || null
   state.eflCup = data.eflCup || null
   state.eflCupChampion = data.eflCupChampion || null
   initZonaClub()
   migrarPartidaEnergy()
+  fixAvatares()
   /* Migrate stale allTeamsHistory competition/division names from before canonicalization */
   if (state.allTeamsHistory) {
     for (var _athid in state.allTeamsHistory) {
@@ -17362,10 +19836,10 @@ function startGame() {
   document.getElementById('menu-screen').classList.add('hidden')
   document.getElementById('menu-newgame').classList.add('hidden')
   document.getElementById('game-screen').classList.remove('hidden')
+  var _pvStart = document.getElementById('view-team-preview')
+  if (_pvStart) { _pvStart.classList.add('hidden'); _pvStart.classList.remove('active') }
   loadTactics()
   setupNavigation()
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
-  document.querySelector('[data-tab="home"]').classList.add('active')
   renderTab('home')
   updateInboxBadge()
   updateHeaderTeam()
@@ -17551,6 +20025,10 @@ function showTeamSelectionStep() {
     document.getElementById('ng-step-countries').classList.add('ng-hidden')
     document.getElementById('ng-step-teams').classList.remove('ng-hidden')
 
+    /* En el paso de elegir equipo solo queda Volver (Continuar oculto; el juego se inicia con "Tomar el mando") */
+    var _ngContBtn2 = document.getElementById('btn-ng-continue')
+    if (_ngContBtn2) _ngContBtn2.style.display = 'none'
+
     /* Load remaining countries in background (non-blocking) */
     ;['france', 'spain', 'portugal', 'poland', 'italy'].forEach(function(c) {
       if (c !== countryId) loadCountryData(c, function(){})
@@ -17616,11 +20094,48 @@ function getDB() {
 
 function getRealSquad(teamId) {
   if (!teamId) return null
+  var own = null
   for (const cid in window.DB) {
     const sq = window.DB[cid].realSquads
-    if (sq && sq[teamId]) return sq[teamId]
+    if (sq && sq[teamId]) { own = sq[teamId]; break }
   }
-  return null
+  if (!own) return null
+  /* Sincroniza los jugadores que llegan cedidos desde otros clubes. */
+  var loans = (window._LOAN_IN_INDEX && window._LOAN_IN_INDEX[teamId]) || []
+  if (!loans.length) return own
+  var byName = {}
+  own.forEach(function(p) { if (p && p.name) byName[p.name] = p })
+  loans.forEach(function(e) {
+    var src = e.player
+    if (!src || !src.name) return
+    var existing = byName[src.name]
+    if (existing) {
+      /* Ya está en el club destino: sincroniza sus datos con el propietario. */
+      existing.skill = src.skill
+      if (src.potencial != null) existing.potencial = src.potencial
+      if (src.age != null) existing.age = src.age
+      if (src.value != null) existing.value = src.value
+      if (src.salario != null) existing.salario = src.salario
+      if (src.tendencia != null) existing.tendencia = src.tendencia
+      if (src.otherPositions) existing.otherPositions = src.otherPositions
+      if (!existing.loanedFrom) {
+        existing.loanedFrom = e.ownerId
+        existing.loanedFromName = getTeamName(e.ownerId)
+        existing.loanedFromLogo = getTeamLogo(e.ownerId)
+      }
+      return
+    }
+    var np = {}
+    for (var k in src) np[k] = src[k]
+    delete np.loanedTo; delete np.loanedToName; delete np.loanedToLogo
+    np.id = (src.id || teamId + '-loan') + '-in'
+    np.loanedFrom = e.ownerId
+    np.loanedFromName = getTeamName(e.ownerId)
+    np.loanedFromLogo = getTeamLogo(e.ownerId)
+    own.push(np)
+    byName[src.name] = np
+  })
+  return own
 }
 
 function getBaseDato(teamId) {
@@ -17644,67 +20159,97 @@ function getBaseDato(teamId) {
   return null
 }
 
+/* Construye un mapa id -> avatar con los reales de todos los países. */
+function buildAvatarMap() {
+  var map = {}
+  var addList = function(list) {
+    ;(list || []).forEach(function(p) { if (p && p.id && p.avatar) map[p.id] = p.avatar })
+  }
+  for (var cid in window.DB) {
+    var data = window.DB[cid]
+    if (!data) continue
+    if (data.baseDatos) data.baseDatos.forEach(function(b) { addList(b.players) })
+    if (data.realSquads) for (var tid in data.realSquads) addList(data.realSquads[tid])
+    if (data.country && data.country.leagues) {
+      data.country.leagues.forEach(function(l) {
+        ;(l.teams || []).forEach(function(t) { addList(t.players) })
+      })
+    }
+  }
+  window._avatarMap = map
+  return map
+}
+
+/* Rellena el avatar de jugadores que lo tengan vacío/NOPHOTO usando el mapa de datos. */
+function fixAvatares() {
+  if (!window._avatarMap) buildAvatarMap()
+  var map = window._avatarMap
+  var fix = function(list) {
+    ;(list || []).forEach(function(p) {
+      if (p && (p.avatar === '' || p.avatar === NOPHOTO) && map[p.id]) p.avatar = map[p.id]
+    })
+  }
+  fix(state.players)
+  fix(state.filialSquad)
+  fix(state.filial2Squad)
+  fix(state.globalPlayers)
+  ;(state.leagueTeams || []).forEach(function(t) { fix(t.players) })
+  for (var lid in (state.allLeagueData || {})) {
+    var d = state.allLeagueData[lid]
+    if (d && d.teams) d.teams.forEach(function(t) { fix(t.players) })
+  }
+}
+
 function renderTeamList(league) {
   const list = document.getElementById('ng-teams-list')
-  const countEl = document.getElementById('ng-team-count')
   const teams = [...(league.teams || [])].sort((a, b) => {
     const rsA = getRealSquad(a.id), rsB = getRealSquad(b.id)
     const pA = rsA ? getTop11Average(rsA) : (a.rating || 0)
     const pB = rsB ? getTop11Average(rsB) : (b.rating || 0)
     return pB - pA
   })
-  countEl.textContent = `Equipo (${teams.length})`
 
   if (teams.length === 0) {
     list.innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--text-muted);font-size:13px">No hay equipos disponibles.</div>'
     return
   }
 
-  let html = `<div class="ng-create-row" id="ng-create-team">
-    <div class="ng-create-icon">＋</div>
-    <span class="ng-create-text">Crear mi propio club</span>
-  </div>`
+  let html = ''
 
   for (const t of teams) {
     const db = getBaseDato(t.id)
     const rs = getRealSquad(t.id)
     const rating = rs ? getTop11Average(rs) : (db ? db.rating : t.rating || 70)
-    const squadCount = rs ? rs.length : 10
+    const lines = calcTeamLinesByFormation({ name: t.name, players: rs || [], formation: t.formation, gamePlan: t.gamePlan, teamId: t.id })
     const isSelected = selectedTeam && selectedTeam.id === t.id
-    html += `<div class="ng-team-row${isSelected ? ' selected' : ''}" data-tid="${t.id}">
-      <img class="ng-team-logo" src="${t.logo || NOPHOTO}" alt="" loading="lazy" onerror="this.src='${NOPHOTO}'">
-      <span class="ng-team-name">${t.name}</span>
-      <button class="ng-team-preview" data-pid="${t.id}">Ver</button>
-      <span class="ng-team-players">${squadCount}</span>
-      <span class="ng-team-rating">${rating}</span>
+    html += `<div class="ng-team-card${isSelected ? ' selected' : ''}" data-tid="${t.id}">
+      <div class="ng-tc-top">
+        <img class="ng-tc-logo" src="${t.logo || NOPHOTO}" alt="" loading="lazy" onerror="this.src='${NOPHOTO}'">
+        <div class="ng-tc-main">
+          <span class="ng-tc-name">${t.name}</span>
+          <span class="ng-tc-league">${league.logo ? `<img class="ng-tc-league-logo" src="${league.logo}" alt="" loading="lazy">` : ''}<span class="ng-tc-league-name">${league.name}</span></span>
+        </div>
+      </div>
+      <div class="ng-tc-divider"></div>
+      <div class="ng-tc-stats">
+        <div class="ng-tc-stat"><span class="ng-tc-stat-label">GRL</span><span class="ng-tc-stat-value" style="color:${skillColor(rating)}">${Math.round(rating)}</span></div>
+        <div class="ng-tc-stat"><span class="ng-tc-stat-label">ATA</span><span class="ng-tc-stat-value" style="color:${skillColor(lines.ATA)}">${lines.ATA}</span></div>
+        <div class="ng-tc-stat"><span class="ng-tc-stat-label">CEN</span><span class="ng-tc-stat-value" style="color:${skillColor(lines.MED)}">${lines.MED}</span></div>
+        <div class="ng-tc-stat"><span class="ng-tc-stat-label">DEF</span><span class="ng-tc-stat-value" style="color:${skillColor(lines.DEF)}">${lines.DEF}</span></div>
+      </div>
     </div>`
   }
 
   list.innerHTML = html
 
-  /* Team row click → select team */
-  list.querySelectorAll('.ng-team-row').forEach(row => {
+  /* Team card click → open club preview */
+  list.querySelectorAll('.ng-team-card').forEach(row => {
     row.onclick = () => {
       const tid = row.dataset.tid
       selectedTeam = teams.find(t => t.id === tid)
-      list.querySelectorAll('.ng-team-row').forEach(r => r.classList.toggle('selected', r.dataset.tid === tid))
+      list.querySelectorAll('.ng-team-card').forEach(r => r.classList.toggle('selected', r.dataset.tid === tid))
       updateTeamBadge(selectedTeam)
-    }
-  })
-
-  /* Create team → select custom */
-  document.getElementById('ng-create-team').onclick = () => {
-    selectedTeam = { id: 'custom', name: 'Mi Club', rating: 70, logo: '' }
-    updateTeamBadge(selectedTeam)
-    list.querySelectorAll('.ng-team-row').forEach(r => r.classList.remove('selected'))
-  }
-
-  /* Preview buttons */
-  list.querySelectorAll('.ng-team-preview').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation()
-      const pid = btn.dataset.pid
-      showTeamPreview(pid)
+      showTeamPreview(tid)
     }
   })
 }
@@ -17727,30 +20272,25 @@ function updateTeamBadge(team) {
   }
   const db = getBaseDato(team.id)
   const rs = getRealSquad(team.id)
-  const grl = rs ? getTop11Average(rs) : (db ? db.rating : team.rating || 70)
-  const repStars = starsFromGrl(grl)
-  const budget = team.budget || (db ? db.budget : 0)
+  const lines = calcTeamLinesByFormation({ name: team.name, players: rs || [], formation: team.formation, gamePlan: team.gamePlan, teamId: team.id })
+  const valor = (rs || []).reduce(function(s, p) { return s + (p.value || 0) }, 0)
   if (badge) {
     badge.innerHTML = team.logo
       ? '<img src="' + team.logo + '" alt="' + team.name + '" onerror="this.classList.add(\'ng-badge-nologo\');this.removeAttribute(\'src\')">'
       : '<span class="ng-badge-placeholder">' + team.name + '</span>'
   }
-  if (grlEl) grlEl.innerHTML =
-    '<span class="ng-manager-budget"><span class="ng-manager-budget-label">Presupuesto</span><span class="ng-manager-budget-value">€' + formatShort(budget) + '</span></span>' +
-    '<div class="ng-team-rating">' + grl + '</div>'
   if (info) {
-    const kp = getTeamKeyPlayers(rs || [])
-    var captain = kp.captain, key = kp.key
-    var capHtml = captain
-      ? '<div class="ng-manager-player"><div class="ng-manager-avatar" style="background-image:url(' + (captain.avatar || NOPHOTO) + ')"></div><div class="ng-manager-player-info"><span class="ng-manager-player-role">Capitán</span><span class="ng-manager-player-name">' + captain.name.split(' ').slice(-1)[0] + '</span></div></div>'
-      : ''
-    var keyHtml = key
-      ? '<div class="ng-manager-player"><div class="ng-manager-avatar" style="background-image:url(' + (key.avatar || NOPHOTO) + ')"></div><div class="ng-manager-player-info"><span class="ng-manager-player-role">Jugador clave</span><span class="ng-manager-player-name">' + key.name.split(' ').slice(-1)[0] + '</span></div></div>'
-      : ''
     info.innerHTML =
       '<span class="ng-manager-title">' + team.name + '</span>' +
-      '<span class="ng-manager-reputation">' + repStars + '</span>' +
-      '<span class="ng-manager-players">' + capHtml + keyHtml + '</span>'
+      '<div class="db-next-badges" style="justify-content:center;margin-top:6px">' +
+        '<span class="db-next-chip">DEF: ' + lines.DEF + '</span>' +
+        '<span class="db-next-chip">MED: ' + lines.MED + '</span>' +
+        '<span class="db-next-chip">ATA: ' + lines.ATA + '</span>' +
+      '</div>'
+  }
+  if (grlEl) {
+    grlEl.innerHTML =
+      '<span class="ng-team-valor"><span class="ng-team-valor-label">Valor</span><b>&#8364;' + formatShort(valor) + '</b></span>'
   }
 }
 
@@ -17784,10 +20324,11 @@ function showTeamPreview(teamId) {
     if (!preview) return
     preview.classList.remove('hidden')
     preview.classList.add('active')
+    var _ngContBtn = document.getElementById('btn-ng-continue')
+    if (_ngContBtn) _ngContBtn.style.display = 'none'
 
     var totalVal = realSquad.reduce(function(s, p) { return s + (p.value || 0) }, 0)
     var displayPower = getTop11Average(realSquad)
-    var stars = starsFromGrl(displayPower)
     var countryFlag = window.DB[foundCountryId] ? window.DB[foundCountryId].country.flag : ''
     var teamBudget = team.budget || (foundLeague ? Math.round(getDivisionBaseBudget(foundLeague.id) * getCountryBudgetMult(foundCountryId) * ((team.rating || 50) / 50)) : 0)
     var orderedPlayers = [...realSquad].sort(function(a, b) {
@@ -17799,13 +20340,13 @@ function showTeamPreview(teamId) {
     var loanedOutPlayers = orderedPlayers.filter(function(p) { return p.onLoan && p.loanTo })
     var tptab = 'general'
 
+    var inWizard = !document.getElementById('menu-newgame').classList.contains('hidden')
     var headerHtml = '<div class="view-header">' +
       (logo ? '<div class="view-header-left"><img class="team-logo" src="' + logo + '" style="width:32px;height:32px"><h2>' + team.name + '</h2></div>' : '<div class="view-header-left"><h2>' + team.name + '</h2></div>') +
-      '<button class="btn-back" id="tp-header-back">\u2190 Volver</button></div>' +
-      '<div class="sub-tabs">' +
-      '<button class="sub-tab active" data-tptab="general">General</button>' +
-      '<button class="sub-tab" data-tptab="squad">Plantilla</button>' +
-      '<button class="sub-tab" data-tptab="history">Historial</button></div>'
+      '<div class="header-actions" style="margin-left:auto">' +
+      '<button class="btn-back" id="tp-header-back">Volver</button>' +
+      (inWizard ? '<button class="header-continue-btn" id="tp-header-take" onclick="startNewGame()">Tomar el mando</button>' : '') +
+      '</div></div>'
 
     var contentEl = document.getElementById('tp-view-content')
     if (!contentEl) return
@@ -17831,53 +20372,70 @@ function showTeamPreview(teamId) {
       }
       if (tptab === 'general') {
         var leagueName = foundLeague ? foundLeague.name : ''
-        var kp3 = getTeamKeyPlayers(orderedPlayers)
-        var captain = kp3.captain
-        var bestPlayer = kp3.key
-        content += '<div class="tp-stats" style="margin-bottom:6px">' +
-          '<div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">\u2014</span></div>' +
-          '<div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">' + stars + '</span></div>' +
-          '<div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">' + countryFlag + '</span></div>' +
-          '<div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">' + displayPower + '</span></div>' +
-          '<div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">€' + formatShort(totalVal) + '</span></div>' +
+        var lines = calcTeamLinesByFormation({ name: team.name, players: realSquad, formation: team.formation, gamePlan: team.gamePlan, teamId: teamId })
+        var estNombre = team.stadium || 'Estadio Municipal'
+        var estCap = team.capacity || 0
+        var pressureLabel = (GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '—'
+        var palBody = (team.palmares && team.palmares.length)
+          ? team.palmares.map(function(t) {
+              var logo2 = getCompeLogo(t.comp)
+              return '<div class="pal-row">' + (logo2 ? '<img class="pal-logo" src="' + logo2 + '" alt="">' : '<span class="pal-logo pal-noimg">\ud83c\udfc6</span>') + '<span class="pal-comp">' + t.comp + '</span><span class="pal-count">' + t.count + '</span></div>'
+            }).join('')
+          : '<div class="pal-empty">Sin trofeos</div>'
+        var dLogo = getDivisionLogo(leagueName) || ''
+        var lgBody = '<div class="pal-row"><span class="pal-pos">\u2014</span>' + (dLogo ? '<img class="pal-logo" src="' + dLogo + '" alt="">' : '') + '<span class="pal-comp">' + (leagueName || 'Liga') + '</span><span class="pal-season">\u2014</span></div>'
+        content += '<div class="view-team-line">' + filialLabelHtml(teamId) + '<div class="vtl-center"><span class="vtl-stats">' + teamLinesHtml(lines) + '</span></div></div>'
+        content += '<div class="tic-grid">' +
+          '<div class="team-info-card">' +
+            '<div class="tic-head"><span class="tic-flag">' + countryFlag + '</span><span class="tic-country">' + (window.DB[foundCountryId] ? window.DB[foundCountryId].country.name : '\u2014') + '</span><span class="tic-sep">-</span><span class="tic-division">' + (leagueName || '\u2014') + '</span></div>' +
+            '<div class="tic-row"><span class="tic-label">GRL</span><span class="tic-val">' + displayPower + '</span></div>' +
+            '<div class="tic-row"><span class="tic-label">Estadio</span><span class="tic-val">' + estNombre + '</span></div>' +
+            '<div class="tic-row"><span class="tic-label">Capacidad</span><span class="tic-val">' + (estCap ? Number(estCap).toLocaleString('es-ES') : '\u2014') + '</span></div>' +
+            '<div class="tic-row"><span class="tic-label">Valor</span><span class="tic-val">\u20AC' + formatShort(totalVal) + '</span></div>' +
+            '<div class="tic-row"><span class="tic-label">Presupuesto</span><span class="tic-val">\u20AC' + formatShort(teamBudget) + '</span></div>' +
+            '<div class="tic-row"><span class="tic-label">Formaci\u00f3n</span><span class="tic-val">' + (team.formation || '\u2014') + '</span></div>' +
+            '<div class="tic-row"><span class="tic-label">Presi\u00f3n</span><span class="tic-val">' + pressureLabel + '</span></div>' +
           '</div>' +
-          '<div class="tp-stats" style="margin-bottom:6px">' +
-          '<div class="tp-stat"><span class="tp-stat-label">División</span><span class="tp-stat-value">' + (leagueName || '\u2014') + '</span></div>' +
-          '<div class="tp-stat"><span class="tp-stat-label">Formación</span><span class="tp-stat-value">' + (team.formation || '\u2014') + '</span></div>' +
-          '<div class="tp-stat"><span class="tp-stat-label">Presión</span><span class="tp-stat-value">' + ((GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014') + '</span></div>' +
-          '</div>' +
-          '<div class="tp-stats" style="border-bottom:none"><div class="tp-stat"><span class="tp-stat-label">Presupuesto</span><span class="tp-stat-value" style="color:#10B981">€' + formatShort(teamBudget) + '</span></div></div>'
-        content += '<div class="tactics-subsection-label" style="margin-top:8px">Personal clave</div>'
-        if (captain) { var av2 = captain.avatar || NOPHOTO; content += '<div class="staff-card"><div class="staff-card-avatar" style="background-image:url(' + av2 + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + captain.name + '</div><div class="staff-card-meta">' + (captain.nationality || '') + ' · ' + (POS_ABBR[captain.position] || captain.position) + '</div></div><span class="staff-card-role" style="background:var(--accent);color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Capitán</span></div>' }
-        if (bestPlayer) { var av3 = bestPlayer.avatar || NOPHOTO; content += '<div class="staff-card"><div class="staff-card-avatar" style="background-image:url(' + av3 + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + bestPlayer.name + '</div><div class="staff-card-meta">' + (bestPlayer.nationality || '') + ' · ' + (POS_ABBR[bestPlayer.position] || bestPlayer.position) + ' · ' + bestPlayer.skill + '</div></div><span class="staff-card-role" style="background:#F59E0B;color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Mejor jugador</span></div>' }
-        if (typeof renderZonaClubSectionDe === 'function') { content += renderZonaClubSectionDe(teamId) }
+          '<div class="tic-side"><div class="tic-side-head"><span class="tic-side-title">PALMAR\u00c9S (' + (team.palmares ? team.palmares.reduce(function(s, t) { return s + t.count }, 0) : 0) + ')</span></div><div class="pal-list">' + palBody + '</div></div>' +
+          '<div class="tic-side"><div class="tic-side-head"><span class="tic-side-title">HISTORIAL DE LIGA</span></div><div class="pal-list">' + lgBody + '</div></div>' +
+          '</div>'
+        /* Plantilla */
+        content += '<div class="tactics-subsection-label">PLANTILLA (' + activePlayers.length + ')</div>'
+        content += '<div class="pl-list">'
+        content += activePlayers.map(function(p) {
+          return playerCardHtml(p)
+        }).join('')
+        content += '</div>'
+        if (loanedOutPlayers.length > 0) {
+          content += '<div class="tactics-subsection-label" style="margin-top:12px">CEDIDOS A OTROS CLUBES (' + loanedOutPlayers.length + ')</div>'
+          content += '<div class="pl-list">'
+          content += loanedOutPlayers.map(function(p) {
+            return playerCardHtml(p, { className: 'pl-card-loan' })
+          }).join('')
+          content += '</div>'
+        }
         document.getElementById('tp-list').style.display = 'none'
         document.getElementById('tp-table-header').style.display = 'none'
         document.getElementById('tp-view-content').style.display = ''
       } else if (tptab === 'squad') {
-        document.getElementById('tp-list').style.display = ''
-        document.getElementById('tp-table-header').style.display = ''
-        document.getElementById('tp-view-content').style.display = 'none'
-        var listHtml = activePlayers.map(function(p) {
-          var valShort = formatShort(p.value || 0)
-          var cedTag = p.onLoan && p.loanFrom ? ' <span class="player-badge badge-lt" style="font-size:8px;background:#F59E0B">CED</span>' : ''
-          var fromTag = p.onLoan && p.loanFromName ? ' <span style="font-size:10px;color:var(--text-muted)">(' + p.loanFromName + ')</span>' : ''
-          return '<div class="tp-row"><span class="tp-cell-pos-badge" style="background:' + ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280') + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + cedTag + fromTag + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
-        }).join('')
-        if (loanedOutPlayers.length > 0) {
-          listHtml += '<div class="tactics-subsection-label" style="margin-top:12px">CEDIDOS A OTROS CLUBES (' + loanedOutPlayers.length + ')</div>'
-          loanedOutPlayers.forEach(function(p) {
-            var valShort = formatShort(p.value || 0)
-            var destTeam = p.loanToName || p.loanTo || 'Otro club'
-            var destLogo = getTeamLogo(p.loanTo) || p.loanToLogo
-            listHtml += '<div class="tp-row" style="opacity:0.6"><span class="tp-cell-pos-badge" style="background:' + ((POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280') + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (destLogo ? '<img src="' + destLogo + '" style="width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-right:3px" onerror="this.style.display=\'none\'">' : '') + '\u2192 ' + destTeam + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
-          })
-        }
-        document.getElementById('tp-list').innerHTML = listHtml
-        var clickPlayers = activePlayers.concat(loanedOutPlayers)
-        document.querySelectorAll('#tp-list .tp-row').forEach(function(row, idx) { row.onclick = function() { openPlayerDetail(clickPlayers[idx]) } })
+        document.getElementById('tp-list').style.display = 'none'
+        document.getElementById('tp-table-header').style.display = 'none'
+        document.getElementById('tp-view-content').style.display = ''
         var activeCount = activePlayers.length
-        content = '<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (' + activeCount + ')' + (loanedOutPlayers.length > 0 ? ' <span style="color:var(--text-muted);font-size:11px;font-weight:400">\u00b7 ' + loanedOutPlayers.length + ' cedidos</span>' : '') + '</div>'
+        content += '<div class="tactics-subsection-label" style="margin-top:4px">PLANTILLA (' + activeCount + ')' + (loanedOutPlayers.length > 0 ? ' <span style="color:var(--text-muted);font-size:11px;font-weight:400">\u00b7 ' + loanedOutPlayers.length + ' cedidos</span>' : '') + '</div>'
+        content += '<div class="pl-list">'
+        content += activePlayers.map(function(p) {
+          return playerCardHtml(p)
+        }).join('')
+        content += '</div>'
+        if (loanedOutPlayers.length > 0) {
+          content += '<div class="tactics-subsection-label" style="margin-top:12px">CEDIDOS A OTROS CLUBES (' + loanedOutPlayers.length + ')</div>'
+          content += '<div class="pl-list">'
+          content += loanedOutPlayers.map(function(p) {
+            return playerCardHtml(p, { className: 'pl-card-loan' })
+          }).join('')
+          content += '</div>'
+        }
       } else if (tptab === 'history') {
         document.getElementById('tp-list').style.display = 'none'
         document.getElementById('tp-table-header').style.display = 'none'
@@ -17891,15 +20449,14 @@ function showTeamPreview(teamId) {
         var logosMap = COMP_TROFEO_MAP
         if (palmares.length === 0) { content += '<div class="hist-card-empty">Sin trofeos</div>' } else {
           content += '<div class="hist-card"><div class="hist-trophy-list">'
+          window._palmaresTrofeos = palmares
           palmares.forEach(function(p, pi) {
-            var ys = p.years && p.years.length > 0 ? p.years.join(', ') : '\u2014'
             var logoUrl = logosMap[p.comp] || null
             if (!logoUrl) { for (var _c2 in window.DB) { var _d2 = window.DB[_c2]; if (_d2) { var _l2 = (_d2.country.leagues || []).find(function(x) { return x.name === p.comp || x.name.indexOf(p.comp) >= 0 }); if (_l2) { logoUrl = _l2.logo; break } } } }
-            content += '<div class="hist-trophy-row">' +
-              (logoUrl ? '<div class="hist-trophy-logo"><img src="' + logoUrl + '" alt="" loading="lazy"></div>' : '<div class="hist-trophy-logo hist-trophy-noimg">\ud83c\udfc6</div>') +
+            content += '<div class="hist-trophy-row" onclick="openTrofeoDetalle(' + pi + ')">' +
+              (logoUrl ? '<div class="hist-trophy-logo"><img src="' + logoUrl + '" alt="" loading="lazy"></div>' : '<div class="hist-trophy-logo hist-trophy-noimg"></div>') +
               '<div class="hist-trophy-info">' +
               '<div class="hist-trophy-top"><span class="hist-trophy-count">' + p.count + '</span><span class="hist-trophy-comp">' + p.comp + '</span></div>' +
-              '<div class="hist-trophy-years">' + ys + '</div>' +
               '</div>' +
               '</div>'
           })
@@ -17910,15 +20467,63 @@ function showTeamPreview(teamId) {
       }
       var cEl = document.getElementById('tp-view-content')
       if (cEl) cEl.innerHTML = content
+      document.querySelectorAll('#tp-view-content .pl-card').forEach(function(row) {
+        row.onclick = function() {
+          var pid = row.dataset.playerId
+          var player = realSquad.find(function(x) { return x.id === pid })
+          if (player) openPlayerDetail(player, team)
+        }
+      })
     }
 
     renderPreviewTab()
-    document.querySelectorAll('#view-team-preview .sub-tab').forEach(function(btn) {
-      btn.onclick = function() { document.querySelectorAll('#view-team-preview .sub-tab').forEach(function(b) { b.classList.remove('active') }); btn.classList.add('active'); tptab = btn.dataset.tptab; ZC_VISTA = null; renderPreviewTab() }
-    })
     selectedTeam = team
-    document.getElementById('tp-header-back').onclick = function() { document.getElementById('view-team-preview').classList.add('hidden'); document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active') }); document.getElementById('view-newgame').classList.add('active'); if (selectedLeague) { updateTeamBadge(selectedTeam); document.querySelectorAll('.ng-team-row').forEach(function(r) { r.classList.toggle('selected', r.dataset.tid === selectedTeam.id) }) } }
+    document.getElementById('tp-header-back').onclick = function() { try {
+      var _pv = document.getElementById('view-team-preview')
+      if (_pv) { _pv.classList.add('hidden'); _pv.classList.remove('active') }
+      document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active') })
+      var _pp = document.getElementById('popup-prioridad')
+      if (_pp && _pp.parentNode) _pp.parentNode.removeChild(_pp)
+      var _teams = document.getElementById('ng-step-teams')
+      if (_teams) _teams.classList.remove('ng-hidden')
+      var _countries = document.getElementById('ng-step-countries')
+      if (_countries) _countries.classList.add('ng-hidden')
+      document.querySelectorAll('.ng-step').forEach(function(s, i) { s.classList.toggle('done', i === 0); s.classList.toggle('active', i === 1) })
+      if (selectedLeague) {
+        try { updateTeamBadge(selectedTeam) } catch(e) {}
+        document.querySelectorAll('.ng-team-card').forEach(function(r) { r.classList.toggle('selected', r.dataset.tid === selectedTeam.id) })
+      }
+    } catch(e) { console.error('[PREVIEW] Error al volver:', e) } }
   } catch(e) { console.error('[PREVIEW] Error:', e); alert('Error: ' + e.message) }
+}
+
+function reiniciarAsistenteTrasError() {
+  var _pp = document.getElementById('popup-prioridad')
+  if (_pp && _pp.parentNode) _pp.parentNode.removeChild(_pp)
+  state._popupSuppressed = true
+  var _pv = document.getElementById('view-team-preview')
+  if (_pv) { _pv.classList.add('hidden'); _pv.classList.remove('active') }
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active') })
+  if (typeof hideLoading === 'function') hideLoading()
+  try {
+    if (selectedLeague) {
+      var _teams = document.getElementById('ng-step-teams')
+      if (_teams) _teams.classList.remove('ng-hidden')
+      var _countries = document.getElementById('ng-step-countries')
+      if (_countries) _countries.classList.add('ng-hidden')
+      document.querySelectorAll('.ng-step').forEach(function(s, i) { s.classList.toggle('done', i === 0); s.classList.toggle('active', i === 1) })
+      if (window.DB && window.DB[selectedCountry.id])
+        renderLeagueSelector(window.DB[selectedCountry.id].country.leagues || [])
+      renderTeamList(selectedLeague)
+    } else {
+      var _c2 = document.getElementById('ng-step-countries')
+      if (_c2) _c2.classList.remove('ng-hidden')
+      var _t2 = document.getElementById('ng-step-teams')
+      if (_t2) _t2.classList.add('ng-hidden')
+      document.querySelectorAll('.ng-step').forEach(function(s, i) { s.classList.toggle('done', false); s.classList.toggle('active', i === 0) })
+    }
+  } catch(e) { console.error('[NUEVA PARTIDA] Restaurar asistente:', e) }
+  selectedTeam = null
 }
 
 function startNewGame() {
@@ -17926,15 +20531,28 @@ function startNewGame() {
   const db = window.DB[selectedCountry.id]
   if (!selectedLeague && db) selectedLeague = db.country.leagues[0]
 
-  /* For custom team, create a temp team entry */
-  if (selectedTeam.id === 'custom') {
-    const tmpId = 'custom-' + Date.now()
-    selectedTeam.id = tmpId
-    selectedTeam.logo = ''
-    selectedTeam.rating = 70
-  }
+  var takeBtn = document.getElementById('tp-header-take')
 
-  newGame()
+  try {
+    if (takeBtn) { takeBtn.disabled = true; takeBtn.style.opacity = '0.6' }
+    if (typeof showLoading === 'function') showLoading('Preparando tu club...')
+
+    /* For custom team, create a temp team entry */
+    if (selectedTeam.id === 'custom') {
+      const tmpId = 'custom-' + Date.now()
+      selectedTeam.id = tmpId
+      selectedTeam.logo = ''
+      selectedTeam.rating = 70
+    }
+
+    newGame()
+    if (typeof hideLoading === 'function') hideLoading()
+  } catch (e) {
+    console.error('[NUEVA PARTIDA] Error al iniciar:', e)
+    var msg = document.getElementById('ng-error-msg')
+    if (msg) { msg.textContent = 'No se pudo iniciar la partida. ' + (e && e.message ? e.message : String(e || 'Int\u00e9ntalo de nuevo.')); msg.classList.remove('hidden') }
+    reiniciarAsistenteTrasError()
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -17946,6 +20564,17 @@ document.addEventListener('DOMContentLoaded', function() {
   if (lmContinue) lmContinue.onclick = function() { continueLiveMatch() }
   var mtClose = document.getElementById('mt-close-live')
   if (mtClose) mtClose.onclick = function() { window._liveTacticsSwap = null; closeLiveTactics() }
+})
+
+/* Capturar errores no controlados mientras el asistente de nueva partida est\u00e1 visible */
+window.addEventListener('error', function(ev) {
+  var _mw = document.getElementById('menu-newgame')
+  if (!_mw || _mw.classList.contains('hidden')) return
+  var msg = document.getElementById('ng-error-msg')
+  if (msg && ev && ev.message) {
+    msg.textContent = 'Error: ' + ev.message
+    msg.classList.remove('hidden')
+  }
 })
 
 /* ============ LOAD MENU ============ */
@@ -17992,7 +20621,7 @@ function showLoadMenu() {
         <div class="ls-btns">
           <button class="ls-load" data-id="${save.id}">CARGAR</button>
           <button class="ls-delete" data-id="${save.id}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
           </button>
         </div>
       </div>
@@ -18043,8 +20672,12 @@ function openHomeCalendar() {
   state.clubSubTab = 'calendar'
   renderTab('club')
 }
-function openHomeCompetition() {
-  renderTab('league')
+/* Abre la clasificación de la competición real del modo carrera: siempre vuelve a
+   nuestro país/división actual (o a la copa/supercopa vigente), aunque antes se
+   hubiera navegado a otra liga o país. */
+function openMyCompetition() {
+  state.leagueViewCountry = null
+  state.leagueViewContinental = false
   var kind = getPendingCompKind()
   if (kind === 'tacaDaLiga') {
     state.leagueLogoSelected = 'taca_da_liga'
@@ -18067,7 +20700,11 @@ function openHomeCompetition() {
     if (typeof renderLeague === 'function' && state.leagueId) renderLeague(state.leagueId)
   }
 }
+function openHomeCompetition() {
+  renderTab('league')
+}
 function openHomeMarket() {
+  state.marketSubTab = 'active'
   renderTab('market')
 }
 function openHomeFinances() {
@@ -18078,12 +20715,34 @@ function openHomeTactics() {
   renderTab('club')
 }
 function openHomeTeam(teamId) {
-  if (teamId && typeof showTeamInfo === 'function') showTeamInfo(teamId)
+  if (teamId && typeof showTeamInfo === 'function') {
+    /* Al abrir un equipo desde el logo/su nombre: siempre a la información general. */
+    state.zcScreen = null
+    ZC_VISTA = null
+    window._openTeamTab = 'general'
+    showTeamInfo(teamId)
+  }
 }
 function openHomePlayerStats() {
-  window._openTeamTab = 'squad'
-  window._openSquadTab = 'performance'
+  window._statsOnly = true
+  state.statsView = 'plantilla'
   showTeamInfo(state.teamId)
+}
+
+/* Tabla de rendimiento reutilizable para la vista de estadísticas de jugadores. */
+function renderPerformanceTable(players) {
+  var html = '<div class="tp-table-header" style="padding:6px 14px"><span class="tp-th-pos">Pos</span><span class="tp-th-name">Nombre</span><span style="width:28px;text-align:center">PJ</span><span style="width:38px;text-align:center">\u26BD</span><span style="width:38px;text-align:center">\uD83D\uDC5F</span><span style="width:30px;text-align:center">\uD83D\uDFE8</span><span style="width:28px;text-align:center">\uD83D\uDFE5</span><span style="width:36px;text-align:center">\u2B50</span></div><div class="tp-list">'
+  html += players.map(function(p) {
+    var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#71717A'
+    var overageHtml = ''
+    if (p._overage) {
+      overageHtml += '<span class="player-badge" style="font-size:8px;background:#EF4444;color:#fff;padding:1px 5px;border-radius:3px;margin-top:2px">\u26a0 Excedente</span>'
+    }
+    var avg = playerAvgRating(p)
+    return '<div class="tp-row" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'">' + playerFlagHtml(p.nationality) + '<div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span>' + (overageHtml ? '<span class="tp-cell-value">' + overageHtml + '</span>' : '') + '</div></div><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.matches || 0) + '</span><span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.goals || 0) + '</span><span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.assists || 0) + '</span><span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">' + (p.yellowCards || 0) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">' + (p.redCards || 0) + '</span><span style="width:36px;text-align:center;font-size:12px;font-weight:700;color:' + (avg != null ? '#16803C' : 'var(--text-muted)') + '">' + (avg != null ? avg.toFixed(1) : '\u2014') + '</span></div>'
+  }).join('')
+  html += '</div>'
+  return html
 }
 
 function renderCalendar() {
@@ -18094,7 +20753,6 @@ function renderCalendar() {
   if (!league) console.warn('[CAL] League not found:', state.leagueId)
   const leagueName = league?.name || state.leagueId
   const leagueLogo = league?.logo || ''
-  const myLogo = state.teamLogo || getTeamLogo(state.teamId) || ''
 
   /* Build a combined list of events: league fixtures + cup fixtures, sorted by week */
   var events = []
@@ -18141,9 +20799,10 @@ function renderCalendar() {
 
   let html = `<div class="cal-list">
     <div class="cal-list-header">
-      <span class="cal-list-hd-semana">SEMANA</span>
-      <span class="cal-list-hd-comp">COMPETICI\u00d3N</span>
+      <span class="cal-list-hd-semana">S</span>
       <span class="cal-list-hd-equipo">EQUIPO</span>
+      <span class="cal-list-hd-loc">L/V</span>
+      <span class="cal-list-hd-comp">COMPETICI\u00d3N</span>
       <span class="cal-list-hd-result">RESULTADO</span>
     </div>`
 
@@ -18155,6 +20814,7 @@ function renderCalendar() {
       var isHome = f.home === state.teamId
       var rivalId = isHome ? f.away : f.home
       var rivalLogo = getTeamLogo(rivalId)
+      var rivalName = getTeamName(rivalId)
       var played = f.played
       var scoreText = played ? (f.homeScore + ' - ' + f.awayScore) : '\u2014'
       var resultClass = 'pending'
@@ -18165,39 +20825,32 @@ function renderCalendar() {
         else if (us < them) resultClass = 'loss'
         else resultClass = 'draw'
       }
-      var badge = e.type === 'cup' ? '\ud83c\udfc6 ' : e.type === 'supercopa' ? '\ud83c\udfc6 ' : ''
-      var equipoHtml = isHome
-        ? '<img class="cal-list-team-logo" src="' + myLogo + '" onerror="this.style.display=\'none\'"><img class="cal-list-team-logo" src="' + rivalLogo + '" onerror="this.style.display=\'none\'">'
-        : '<img class="cal-list-team-logo" src="' + rivalLogo + '" onerror="this.style.display=\'none\'"><img class="cal-list-team-logo" src="' + myLogo + '" onerror="this.style.display=\'none\'">'
       var compHtml = e.compLogo
-        ? '<img class="cal-list-comp-logo" src="' + e.compLogo + '" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'"><span style="display:none">' + badge + e.compName + '</span>'
-        : '<span>' + badge + e.compName + '</span>'
+        ? '<img class="cal-list-comp-logo" src="' + e.compLogo + '" onerror="this.style.display=\'none\'">'
+        : ''
       return '<div class="cal-list-row' + (e.type === 'cup' || e.type === 'supercopa' ? ' cal-cup-row' : '') + '" data-md="' + f.matchday + '">' +
         '<span class="cal-list-semana">' + e.week + '</span>' +
+        '<span class="cal-list-equipo">' +
+          '<img class="cal-list-team-logo" src="' + rivalLogo + '" onerror="this.style.display=\'none\'">' +
+          '<span class="cal-list-team-name">' + rivalName + '</span>' +
+        '</span>' +
+        '<span class="cal-list-loc-col"><span class="cal-list-loc ' + (isHome ? 'is-home' : 'is-away') + '">' + (isHome ? 'L' : 'V') + '</span></span>' +
         '<span class="cal-list-comp">' + compHtml + '</span>' +
-        '<span class="cal-list-equipo">' + equipoHtml + '</span>' +
         '<span class="cal-list-result ' + resultClass + '">' + scoreText + '</span>' +
       '</div>'
     }).join('')
   }
 
-  html += '</div><button class="cal-back-btn" id="cal-back" style="margin-top:12px">\u2190 Volver</button>'
+  html += '</div>'
 
   container.innerHTML = html
 
   /* Click row — go to home tab and highlight upcoming match */
   container.querySelectorAll('.cal-list-row').forEach(row => {
     row.onclick = () => {
-      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
-      document.querySelector('[data-tab="home"]').classList.add('active')
       renderTab('home')
     }
   })
-
-  document.getElementById('cal-back').onclick = () => {
-    state.clubSubTab = 'squad'
-    renderClub()
-  }
 }
 
 /* ============ PALMARÉS ============ */
@@ -18271,6 +20924,23 @@ function getCompeLogo(comp) {
   return null
 }
 
+/* Logo (escudo) de una división por nombre de liga. */
+function getDivisionLogo(nombre) {
+  if (!nombre) return null
+  for (var cid in window.DB) {
+    var data = window.DB[cid]
+    if (!data) continue
+    var leagues = data.country && data.country.leagues ? data.country.leagues : []
+    for (var i = 0; i < leagues.length; i++) {
+      var l = leagues[i]
+      if (l.name === nombre || (l.name && nombre.indexOf(l.name) >= 0)) {
+        return l.logo || null
+      }
+    }
+  }
+  return null
+}
+
 function renderPalmares() {
   var container = document.getElementById('club-palmares-content')
   if (!state.clubHistTab) state.clubHistTab = 'palmares'
@@ -18279,10 +20949,7 @@ function renderPalmares() {
   var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
   var histIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
 
-  var html = '<div class="hist-subtabs">' +
-    '<button class="hist-subtab' + (histTab === 'palmares' ? ' active' : '') + '" data-histsub="palmares">' + trophySvg + ' <span>Palmar\u00e9s</span></button>' +
-    '<button class="hist-subtab' + (histTab === 'liga' ? ' active' : '') + '" data-histsub="liga">' + histIcon + ' <span>Historial en liga</span></button>' +
-    '</div>'
+  var html = ''
 
   if (histTab === 'palmares') {
     /* Palmarés = histórico real del club (team.palmares) + trofeos ganados en la partida */
@@ -18310,17 +20977,18 @@ function renderPalmares() {
       }
     }
     var trophiesList = Object.keys(mergedTrophies).map(function(k) { return mergedTrophies[k] })
-    html += '<div class="hist-card"><div class="hist-card-head">' + trophySvg + ' <span>Palmar\u00e9s</span></div>'
+    var palTotalCount = trophiesList.reduce(function(s, t) { return s + t.count }, 0)
+    html += '<div class="hist-card"><div class="hist-card-head">' + trophySvg + ' <span>Palmar\u00e9s (' + palTotalCount + ')</span></div>'
     if (trophiesList.length === 0) {
       html += '<div class="hist-card-empty">\ud83c\udfc6 Sin trofeos</div>'
     } else {
       html += '<div class="hist-trophy-scroll"><div class="hist-trophy-list">'
-      trophiesList.forEach(function(t) {
-        var ys = t.years.length > 0 ? t.years.join(', ') : '\u2014'
+      window._palmaresTrofeos = trophiesList.slice()
+      trophiesList.forEach(function(t, i) {
         var logo = getCompeLogo(t.comp)
-        html += '<div class="hist-trophy-row">' +
-          (logo ? '<div class="hist-trophy-logo"><img src="' + logo + '" alt="" loading="lazy"></div>' : '<div class="hist-trophy-logo hist-trophy-noimg">\ud83c\udfc6</div>') +
-          '<div class="hist-trophy-info"><div class="hist-trophy-top"><span class="hist-trophy-count">' + t.count + '</span><span class="hist-trophy-comp">' + t.comp + '</span></div><div class="hist-trophy-years">' + ys + '</div></div>' +
+        html += '<div class="hist-trophy-row" onclick="openTrofeoDetalle(' + i + ')">' +
+          (logo ? '<div class="hist-trophy-logo"><img src="' + logo + '" alt="" loading="lazy"></div>' : '<div class="hist-trophy-logo hist-trophy-noimg"></div>') +
+          '<div class="hist-trophy-info"><div class="hist-trophy-top"><span class="hist-trophy-count">' + t.count + '</span><span class="hist-trophy-comp">' + t.comp + '</span></div></div>' +
           '</div>'
       })
       html += '</div></div>'
@@ -18337,7 +21005,7 @@ function renderPalmares() {
       var reversedSeasons = teamSeasons.slice().reverse()
       reversedSeasons.forEach(function(s) {
         var posDisplay = s.position + '\u00ba'
-        var posColor = s.position === 1 ? '#10B981' : s.position <= 4 ? '#3B82F6' : s.position <= 6 ? '#F59E0B' : '#EF4444'
+        var posColor = s.position === 1 ? '#10B981' : s.position <= 4 ? '#21C55E' : s.position <= 6 ? '#F59E0B' : '#EF4444'
         var logoUrl = getCompeLogo(s.division)
         html += '<div class="hist-row">' +
           (logoUrl ? '<img class="hist-row-logo" src="' + logoUrl + '" alt="" loading="lazy">' : '<div class="hist-row-logo hist-row-nologo"></div>') +
@@ -18351,49 +21019,53 @@ function renderPalmares() {
   }
 
   container.innerHTML = html
-  container.querySelectorAll('.hist-subtab').forEach(function(btn) {
-    btn.onclick = function() {
-      state.clubHistTab = btn.dataset.histsub
-      renderPalmares()
-    }
-  })
 }
 
 /* ============ TEAM INFO ============ */
-function showTeamInfo(teamId) {
+function showTeamInfo(teamId, origin) {
   scrollAppToTop()
   const team = getTeamObj(teamId)
   if (!team) return
-  updateHeaderContinueVisibility()
+  state._teamInfoFrom = origin || null
+  state._viewingTeamId = teamId
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
   document.getElementById('view-team').classList.add('active')
+  updateHeaderContinueVisibility()
   const standings = updateLeagueStandings()
   const pos = standings.findIndex(s => s.teamId === teamId) + 1
   const logo = getTeamLogo(teamId)
   const posDisplay = pos > 0 ? `${pos}º` : (team.players.length > 0 ? '—' : 'Otra liga')
   const displayPower = getTop11Average(team.players)
-  const stars = starsFromGrl(displayPower)
+  const lines = calcTeamLinesByFormation({ name: team.name, players: team.players, formation: team.formation, gamePlan: team.gamePlan, teamId: teamId })
   const totalVal = team.players.reduce((s, p) => s + (p.value || 0), 0)
   /* Find country flag and league name for this team */
   let teamFlag = ''
   let leagueName = ''
+  let countryName = ''
   for (const cid in window.DB) {
     const data = window.DB[cid]
     if (!data) continue
     for (const l of data.country.leagues || []) {
       if (l.teams.find(x => x.id === teamId)) {
         teamFlag = data.country.flag || ''
+        countryName = data.country.name || ''
         leagueName = l.name
         break
       }
     }
     if (teamFlag) break
   }
-  var teamViewTab = window._openTeamTab || 'general'
-  var histTab = 'palmares'
-  var squadTab = window._openSquadTab || 'info'
+  var statsOnly = !!window._statsOnly
+  var teamViewTab = statsOnly ? 'squad' : (window._openTeamTab || 'general')
+  var histOnly = !!window._histOnly
+  var histTab = window._histTab || 'palmares'
+  var squadTab = statsOnly ? 'performance' : (window._openSquadTab || 'info')
   window._openTeamTab = null
   window._openSquadTab = null
+  window._histOnly = false
+  window._histTab = null
+  window._statsOnly = false
+  state._teamHistOnly = histOnly
   var orderedPlayers = [...team.players].sort(function(a, b) {
     var posA = POS_ORDER.indexOf(SIGLA_TO_POS[a.position] || a.position)
     var posB = POS_ORDER.indexOf(SIGLA_TO_POS[b.position] || b.position)
@@ -18402,45 +21074,122 @@ function showTeamInfo(teamId) {
 
   function renderTeamView() {
     var content = ''
-    if (teamId === state.teamId && state.zcScreen && typeof renderZonaClubScreen === 'function') {
+    if (statsOnly) {
+      var ssView = state.statsView || 'plantilla'
+      var stActive = orderedPlayers.filter(function(p) { return !(p.onLoan && p.loanTo) })
+      var stLoaned = orderedPlayers.filter(function(p) { return p.onLoan && p.loanTo })
+      var ssList = ssView === 'cedidos' ? stLoaned : stActive
+      content += '<div class="sq-toggle" style="padding:2px 10px;margin:2px 14px 6px">' +
+        '<button class="sq-tab' + (ssView === 'plantilla' ? ' active' : '') + '" data-sv="plantilla">Plantilla</button>' +
+        '<button class="sq-tab' + (ssView === 'cedidos' ? ' active' : '') + '" data-sv="cedidos">Cedidos</button>' +
+        '</div>'
+      content += '<div class="tactics-subsection-label">' + (ssView === 'cedidos' ? 'CEDIDOS A OTROS CLUBES (' + stLoaned.length + ')' : 'PLANTILLA (' + stActive.length + ')') + '</div>'
+      content += renderPerformanceTable(ssList)
+    } else if (teamId === state.teamId && state.zcScreen && typeof renderZonaClubScreen === 'function') {
       content += renderZonaClubScreen()
     } else if (teamId !== state.teamId && ZC_VISTA && ZC_VISTA.teamId === teamId && typeof renderZonaClubScreenDe === 'function') {
       content += renderZonaClubScreenDe(teamId)
     } else if (teamViewTab === 'general') {
-      content += '<div class="tp-stats" style="margin-bottom:6px">' +
-        '<div class="tp-stat"><span class="tp-stat-label">Ranking</span><span class="tp-stat-value">' + posDisplay + '</span></div>' +
-        '<div class="tp-stat"><span class="tp-stat-label">Reputación</span><span class="tp-stat-stars">' + stars + '</span></div>' +
-        '<div class="tp-stat"><span class="tp-stat-label">País</span><span class="tp-stat-flag">' + teamFlag + '</span></div>' +
-        '<div class="tp-stat"><span class="tp-stat-label">Poder</span><span class="tp-stat-value">' + displayPower + '</span></div>' +
-        '<div class="tp-stat"><span class="tp-stat-label">Valor</span><span class="tp-stat-value">\u20AC' + formatShort(totalVal) + '</span></div>' +
-        '</div>' +
-        '<div class="tp-stats" style="margin-bottom:12px">' +
-        '<div class="tp-stat"><span class="tp-stat-label">División</span><span class="tp-stat-value">' + (leagueName || '\u2014') + '</span></div>' +
-        '<div class="tp-stat"><span class="tp-stat-label">Formación</span><span class="tp-stat-value">' + (team.formation || '\u2014') + '</span></div>' +
-        '<div class="tp-stat"><span class="tp-stat-label">Presión</span><span class="tp-stat-value">' + ((GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '\u2014') + '</span></div>' +
-        '</div>'
+      var zcModel = (teamId === state.teamId) ? getZonaClub() : getZonaClubDe(teamId)
+      var estNom = (zcModel && zcModel.estadio && zcModel.estadio.nombre) || (team.stadium || 'Estadio Municipal')
+      var estCap = (zcModel && zcModel.estadio && zcModel.estadio.capacidad) ? zcModel.estadio.capacidad : (team.capacity || 0)
+      var pressureLabel = (GAME_PLANS[team.gamePlan] || {}).label || team.gamePlan || '—'
+      var cardBudgetHtml = ''
       if (teamId === state.teamId) {
-        var balance = state.finances ? state.finances.balance : 0
-        content += '<div style="padding:10px 14px;background:var(--bg);border-radius:8px;margin:0 14px 8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-secondary)">Presupuesto</span><span style="font-size:15px;font-weight:700;color:#10B981">\u20AC' + formatShort(balance) + '</span></div>'
+        var balanceAct = state.finances ? state.finances.balance : 0
+        cardBudgetHtml = '<div class="tic-row"><span class="tic-label">Presupuesto</span><span class="tic-val">\u20AC' + formatShort(balanceAct) + '</span></div>'
+      } else if (team.budget) {
+        cardBudgetHtml = '<div class="tic-row"><span class="tic-label">Presupuesto</span><span class="tic-val">\u20AC' + formatShort(team.budget) + '</span></div>'
       }
-      var kp2 = getTeamKeyPlayers(team.players)
-      var captain = kp2.captain
-      var bestPlayer = kp2.key
-      if (captain || bestPlayer) {
-        content += '<div class="tactics-subsection-label">Personal clave</div>'
-        if (captain) {
-          var caAv = captain.avatar || NOPHOTO
-          content += '<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="background-image:url(' + caAv + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + captain.name + '</div><div class="staff-card-meta">' + (captain.nationality || '') + ' · ' + (POS_ABBR[captain.position] || captain.position) + '</div></div><span class="staff-card-role" style="background:var(--accent);color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Capit\u00e1n</span></div>'
-        }
-        if (bestPlayer) {
-          var bpAv = bestPlayer.avatar || NOPHOTO
-          content += '<div class="staff-card staff-card-team"><div class="staff-card-avatar" style="background-image:url(' + bpAv + ');background-size:cover;background-position:center;background-color:var(--bg-surface)"></div><div class="staff-card-info"><div class="staff-card-name">' + bestPlayer.name + '</div><div class="staff-card-meta">' + (bestPlayer.nationality || '') + ' · ' + (POS_ABBR[bestPlayer.position] || bestPlayer.position) + ' · ' + bestPlayer.skill + '</div></div><span class="staff-card-role" style="background:#F59E0B;color:#fff;font-size:10px;padding:3px 8px;border-radius:999px">Mejor jugador</span></div>'
-        }
+      /* Palmarés del equipo (real + trofeos en partida) */
+      var palTrophies = []
+      if (team.palmares) team.palmares.forEach(function(p) { palTrophies.push({ comp: p.comp, count: p.count }) })
+      if (teamId === state.teamId) {
+        var athP = state.allTeamsHistory || {}
+        var myTrophiesP = (athP[state.teamId] && athP[state.teamId].trophies) || []
+        var grpT = {}
+        myTrophiesP.forEach(function(t) { grpT[t.competition] = (grpT[t.competition] || 0) + 1 })
+        Object.keys(grpT).forEach(function(c) {
+          var ex = palTrophies.find(function(x) { return x.comp === c })
+          if (ex) ex.count += grpT[c]
+          else palTrophies.push({ comp: c, count: grpT[c] })
+        })
       }
-      if (teamId === state.teamId && typeof renderZonaClubSection === 'function') {
-        content += renderZonaClubSection()
-      } else if (teamId !== state.teamId && typeof renderZonaClubSectionDe === 'function') {
-        content += renderZonaClubSectionDe(teamId)
+      palTrophies.sort(function(a, b) { return b.count - a.count })
+      var palTotalCount = palTrophies.reduce(function(s, t) { return s + t.count }, 0)
+      var palShow = palTrophies
+      var palBody = palShow.length
+        ? palShow.map(function(t) {
+            var logo = getCompeLogo(t.comp)
+            return '<div class="pal-row">' +
+              (logo ? '<img class="pal-logo" src="' + logo + '" alt="">' : '<span class="pal-logo pal-noimg">\ud83c\udfc6</span>') +
+              '<span class="pal-comp">' + t.comp + '</span><span class="pal-count">' + t.count + '</span>' +
+              '</div>'
+          }).join('')
+        : '<div class="pal-empty">Sin trofeos</div>'
+
+      /* Historial de liga */
+      var athH = state.allTeamsHistory || {}
+      var lgSeasons = (athH[teamId] && athH[teamId].seasons) || []
+      var lgShow = lgSeasons.slice().reverse().slice(0, 4)
+      var lgBody
+      if (lgShow.length > 0) {
+        lgBody = lgShow.map(function(s) {
+          var dLogo = getDivisionLogo(s.division)
+          return '<div class="pal-row">' +
+            '<span class="pal-pos">' + (s.position != null ? s.position + '\u00ba' : '\u2014') + '</span>' +
+            (dLogo ? '<img class="pal-logo" src="' + dLogo + '" alt="">' : '') +
+            '<span class="pal-comp">' + (s.division || 'Liga') + '</span>' +
+            '<span class="pal-season">' + (s.season || '\u2014') + '</span>' +
+            '</div>'
+        }).join('')
+      } else {
+        var _posTeam = pos > 0 ? pos + '\u00ba' : '\u2014'
+        var _dLogo = getDivisionLogo(leagueName) || ((getLeagueFromId(state.leagueId) || {}).logo || null)
+        var _seasonTxt = (typeof getSeasonLabel === 'function') ? getSeasonLabel() : ('T' + (state.seasonNumber || 1))
+        lgBody = '<div class="pal-row">' +
+          '<span class="pal-pos">' + _posTeam + '</span>' +
+          (_dLogo ? '<img class="pal-logo" src="' + _dLogo + '" alt="">' : '') +
+          '<span class="pal-comp">' + (leagueName || 'Liga') + '</span>' +
+          '<span class="pal-season">' + _seasonTxt + '</span>' +
+          '</div>'
+      }
+
+      content += '<div class="tic-grid">' +
+        '<div class="team-info-card">' +
+          '<div class="tic-head"><span class="tic-flag">' + teamFlag + '</span><span class="tic-country">' + (countryName || '\u2014') + '</span><span class="tic-sep">-</span><span class="tic-division">' + (leagueName || '\u2014') + '</span></div>' +
+          '<div class="tic-row"><span class="tic-label">GRL</span><span class="tic-val">' + displayPower + '</span></div>' +
+          '<div class="tic-row"><span class="tic-label">Estadio</span><span class="tic-val">' + estNom + '</span></div>' +
+          '<div class="tic-row"><span class="tic-label">Capacidad</span><span class="tic-val">' + (estCap ? Number(estCap).toLocaleString('es-ES') : '\u2014') + '</span></div>' +
+          '<div class="tic-row"><span class="tic-label">Valor</span><span class="tic-val">\u20AC' + formatShort(totalVal) + '</span></div>' +
+          cardBudgetHtml +
+          '<div class="tic-row"><span class="tic-label">Formaci\u00f3n</span><span class="tic-val">' + (team.formation || '\u2014') + '</span></div>' +
+          '<div class="tic-row"><span class="tic-label">Presi\u00f3n</span><span class="tic-val">' + pressureLabel + '</span></div>' +
+        '</div>' +
+        '<div class="tic-side" style="cursor:pointer" onclick="window._openTeamTab=\'history\';window._histOnly=true;window._histTab=\'palmares\';showTeamInfo(\'' + teamId + '\')">' +
+          '<div class="tic-side-head"><span class="tic-side-title">PALMAR\u00c9S (' + palTotalCount + ')</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
+          '<div class="pal-list">' + palBody + '</div>' +
+        '</div>' +
+        '<div class="tic-side" style="cursor:pointer" onclick="window._openTeamTab=\'history\';window._histOnly=true;window._histTab=\'liga\';showTeamInfo(\'' + teamId + '\')">' +
+          '<div class="tic-side-head"><span class="tic-side-title">HISTORIAL DE LIGA</span><span class="db-card-arrow">&gt;&gt;</span></div>' +
+          '<div class="pal-list">' + lgBody + '</div>' +
+        '</div>' +
+        '</div>'
+      var genActive = orderedPlayers.filter(function(p) { return !(p.onLoan && p.loanTo) })
+      var genLoaned = orderedPlayers.filter(function(p) { return p.onLoan && p.loanTo })
+      content += '<div class="tactics-subsection-label">PLANTILLA (' + genActive.length + ')</div>'
+      content += '<div class="pl-list">'
+      content += genActive.map(function(p) {
+        return playerCardHtml(p)
+      }).join('')
+      content += '</div>'
+      if (genLoaned.length > 0) {
+        content += '<div class="tactics-subsection-label" style="margin-top:12px">CEDIDOS A OTROS CLUBES (' + genLoaned.length + ')</div>'
+        content += '<div class="pl-list">'
+        content += genLoaned.map(function(p) {
+          return playerCardHtml(p, { className: 'pl-card-loan' })
+        }).join('')
+        content += '</div>'
       }
     } else if (teamViewTab === 'squad') {
       var activeSquad = orderedPlayers.filter(function(p) { return !(p.onLoan && p.loanTo) })
@@ -18449,41 +21198,26 @@ function showTeamInfo(teamId) {
       content += '<div class="tactics-subsection-label">' + squadLabel + '</div>'
       content += '<div class="sub-tabs" style="display:flex;gap:4px;padding:4px 14px"><button class="sub-tab team-subtab ' + (squadTab === 'info' ? 'active' : '') + '" data-tab="info">Info</button><button class="sub-tab team-subtab ' + (squadTab === 'performance' ? 'active' : '') + '" data-tab="performance">Rendimiento</button></div>'
       if (squadTab === 'info') {
-      content += '<div class="tp-table-header" style="padding:6px 14px"><span class="tp-th-pos">Pos</span><span class="tp-th-name">Nombre</span><span class="tp-th-age">Edad</span><span class="tp-th-value">Valor</span><span class="tp-th-power">Pod</span></div><div class="tp-list">'
+      content += '<div class="pl-list">'
       content += activeSquad.map(function(p) {
-        var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
-        var valShort = formatShort(p.value || 0)
         var badgeHtml = ''
         if (p._overage) {
-          badgeHtml += '<div style="display:flex;align-items:center;gap:4px;margin-top:2px"><span class="player-badge" style="font-size:8px;background:#EF4444;color:#fff;padding:1px 5px;border-radius:3px">\u26a0 Excedente</span></div>'
+          badgeHtml += '<span class="player-badge" style="font-size:8px;background:#EF4444;color:#fff;padding:1px 5px;border-radius:3px">\u26a0 Excedente</span> '
         }
-        return '<div class="tp-row" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + badgeHtml + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
+        return playerCardHtml(p, { extra: badgeHtml })
       }).join('')
       content += '</div>'
       if (loanedSquad.length > 0) {
         content += '<div class="tactics-subsection-label" style="margin-top:12px">CEDIDOS A OTROS CLUBES (' + loanedSquad.length + ')</div>'
-        content += '<div class="tp-list">'
+        content += '<div class="pl-list">'
         content += loanedSquad.map(function(p) {
-          var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
-          var valShort = formatShort(p.value || 0)
-          var loanTeamName = getTeamName(p.loanTo)
-          var loanTeamLogo = getTeamLogo(p.loanTo)
-          return '<div class="tp-row" style="opacity:0.6" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (loanTeamLogo ? '<img src="' + loanTeamLogo + '" style="width:12px;height:12px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'">' : '') + '\u2192 ' + loanTeamName + '</span></div></div><span class="tp-cell-age">' + (p.age || '-') + '</span><span class="tp-cell-market">' + valShort + '</span><span class="tp-cell-power" style="' + getPowerBadgeStyle(p.skill) + '">' + p.skill + '</span></div>'
+          return playerCardHtml(p, { className: 'pl-card-loan' })
         }).join('')
         content += '</div>'
       }
       } else {
         content += '<div class="tactics-subsection-label">RENDIMIENTO (' + activeSquad.length + ')</div>'
-        content += '<div class="tp-table-header" style="padding:6px 14px"><span class="tp-th-name">Nombre</span><span class="tp-th-pos">Pos</span><span style="width:28px;text-align:center">PJ</span><span style="width:38px;text-align:center">\u26BD</span><span style="width:38px;text-align:center">\uD83D\uDC5F</span><span style="width:30px;text-align:center">\uD83D\uDFE8</span><span style="width:28px;text-align:center">\uD83D\uDFE5</span></div><div class="tp-list">'
-        content += activeSquad.map(function(p) {
-          var posColor = (POSITIONS[p.position] || POSITIONS[SIGLA_TO_POS[p.position]])?.color || '#6B7280'
-          var badgeHtml = ''
-          if (p._overage) {
-            badgeHtml += '<div style="display:flex;align-items:center;gap:4px;margin-top:2px"><span class="player-badge" style="font-size:8px;background:#EF4444;color:#fff;padding:1px 5px;border-radius:3px">\u26a0 Excedente</span></div>'
-          }
-          return '<div class="tp-row" data-player-id="' + p.id + '"><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span><span class="tp-cell-value">' + (p.nationality || '') + badgeHtml + '</span></div></div><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.matches || 0) + '</span><span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.goals || 0) + '</span><span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.assists || 0) + '</span><span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">' + (p.yellowCards || 0) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">' + (p.redCards || 0) + '</span></div>'
-        }).join('')
-        content += '</div>'
+        content += renderPerformanceTable(activeSquad)
       }
     } else if (teamViewTab === 'history') {
       /* Merge historical palmares from team data with in-game achievements */
@@ -18510,15 +21244,13 @@ function showTeamInfo(teamId) {
         }
       }
       var trophiesList = Object.keys(mergedTrophies).map(function(k) { return mergedTrophies[k] })
+      var palTotalCount = trophiesList.reduce(function(s, t) { return s + t.count }, 0)
       var trophySvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 9 6 9 9v1c0 3-2 5-3 8h12c-1-3-3-5-3-8V9c0-3 2-5 4.5-5a2.5 2.5 0 010 5H18"/><path d="M12 18v3"/><path d="M9 21h6"/></svg>'
       var histIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
-      content += '<div class="hist-subtabs">' +
-        '<button class="hist-subtab' + (histTab === 'palmares' ? ' active' : '') + '" data-histsub="palmares">' + trophySvg + ' <span>Palmar\u00e9s</span></button>' +
-        '<button class="hist-subtab' + (histTab === 'liga' ? ' active' : '') + '" data-histsub="liga">' + histIcon + ' <span>Historial en liga</span></button>' +
-        '</div>'
+      content += '<div class="tactics-subsection-label">' + (histTab === 'palmares' ? 'Palmar\u00e9s' : 'Historial en liga') + '</div>'
       content += '<div class="hist-subpanel">'
       if (histTab === 'palmares') {
-      content += '<div class="hist-card"><div class="hist-card-head">' + trophySvg + ' <span>Palmar\u00e9s</span></div>'
+      content += '<div class="hist-card"><div class="hist-card-head">' + trophySvg + ' <span>Palmar\u00e9s (' + palTotalCount + ')</span></div>'
       var logosMap = {
         'Copa del Rey': 'https://cdn.resfu.com/img_data/competiciones/copa/129.png?size=120x&lossy=1',
         'Supercopa': 'https://cdn.resfu.com/img_data/competiciones/copa/132.png?size=120x&lossy=1',
@@ -18571,13 +21303,12 @@ function showTeamInfo(teamId) {
         content += '<div class="hist-card-empty">Sin trofeos</div>'
       } else {
         content += '<div class="hist-trophy-scroll"><div class="hist-trophy-list">'
+        window._palmaresTrofeos = trophiesList
         trophiesList.forEach(function(t, ti) {
-          var yearsStr = t.years.length > 0 ? t.years.join(', ') : '—'
-          content += '<div class="hist-trophy-row" data-years="' + yearsStr + '" data-idx="' + ti + '">' +
-            (t.logo ? '<div class="hist-trophy-logo"><img src="' + t.logo + '" alt="" loading="lazy"></div>' : '<div class="hist-trophy-logo hist-trophy-noimg">\ud83c\udfc6</div>') +
+          content += '<div class="hist-trophy-row" onclick="openTrofeoDetalle(' + ti + ')">' +
+            (t.logo ? '<div class="hist-trophy-logo"><img src="' + t.logo + '" alt="" loading="lazy"></div>' : '<div class="hist-trophy-logo hist-trophy-noimg"></div>') +
             '<div class="hist-trophy-info">' +
             '<div class="hist-trophy-top"><span class="hist-trophy-count">' + t.count + '</span><span class="hist-trophy-comp">' + t.comp + '</span></div>' +
-            '<div class="hist-trophy-years">' + yearsStr + '</div>' +
             '</div>' +
             '</div>'
         })
@@ -18596,7 +21327,7 @@ function showTeamInfo(teamId) {
         var reversedSeasons = teamSeasons.slice().reverse()
         reversedSeasons.forEach(function(s) {
           var posDisplay = s.position + '\u00ba'
-          var posColor = s.position === 1 ? '#10B981' : s.position <= 4 ? '#3B82F6' : s.position <= 6 ? '#F59E0B' : '#EF4444'
+          var posColor = s.position === 1 ? '#10B981' : s.position <= 4 ? '#21C55E' : s.position <= 6 ? '#F59E0B' : '#EF4444'
           var logoUrl = logosMap[s.division] || null
           if (!logoUrl) {
             for (var _c3 in window.DB) { var _d3 = window.DB[_c3]; if (_d3) { var _l3 = (_d3.country.leagues || []).find(function(x) { return x.name === s.division }); if (_l3) { logoUrl = _l3.logo; break } } }
@@ -18614,19 +21345,28 @@ function showTeamInfo(teamId) {
       content += '</div>'
     }
     document.getElementById('team-view-content').innerHTML = content
-    /* Bind player rows for squad tab */
-    if (teamViewTab === 'squad') {
-      document.querySelectorAll('#team-view-content .tp-row').forEach(function(row) {
+    /* Bind player rows (pestaña General y Plantilla) */
+    if (teamViewTab === 'general' || teamViewTab === 'squad') {
+      document.querySelectorAll('#team-view-content .pl-card, #team-view-content .tp-row').forEach(function(row) {
         row.onclick = function() {
           var pid = row.dataset.playerId
           var player = team.players.find(function(p) { return p.id === pid })
           if (player) openPlayerDetail(player, team)
         }
       })
+    }
+    if (teamViewTab === 'squad') {
       document.querySelectorAll('#team-view-content .team-subtab').forEach(function(btn) {
         btn.onclick = function(e) {
           e.stopPropagation()
           squadTab = btn.dataset.tab
+          renderTeamView()
+        }
+      })
+      document.querySelectorAll('#team-view-content .sq-tab').forEach(function(btn) {
+        btn.onclick = function(e) {
+          e.stopPropagation()
+          state.statsView = btn.dataset.sv
           renderTeamView()
         }
       })
@@ -18642,22 +21382,18 @@ function showTeamInfo(teamId) {
     }
   }
 
-  var html = `
-    <div class="view-header">
-      <div class="view-header-left">
-        ${logo ? `<img class="team-logo" src="${logo}" style="width:32px;height:32px">` : ''}
-        <h2>${team.name}</h2>
-      </div>
-      <button class="btn-back" id="btn-team-back">← Volver</button>
-    </div>
-    <div class="sub-tabs">
-      <button class="sub-tab${teamViewTab === 'general' ? ' active' : ''}" data-teamtab="general">General</button>
-      <button class="sub-tab${teamViewTab === 'squad' ? ' active' : ''}" data-teamtab="squad">Plantilla</button>
-      <button class="sub-tab${teamViewTab === 'history' ? ' active' : ''}" data-teamtab="history">Historial</button>
-    </div>
-    <div id="team-view-content"></div>`
+  var teamLineLabel = state.zcScreen === 'entrenamiento' ? 'Entrenamiento' : (state.zcScreen === 'cantera' ? 'Cantera' : (state.zcScreen === 'estadio' ? 'Estadio' : (state.zcScreen === 'patrocinadores' ? 'Patrocinadores' : '')))
+  var teamLineHtml = ''
+  if (!statsOnly) {
+    var lineStatsHtml = teamLinesHtml(lines)
+    var filialWrap = filialLabelHtml(teamId, 'showTeamInfo')
+    teamLineHtml = '<div class="view-team-line">' +
+      filialWrap +
+      '<div class="vtl-center">' + (teamLineLabel ? '<span class="vtl-stats">' + teamLineLabel + '</span>' : '<span class="vtl-stats">' + lineStatsHtml + '</span>') + '</div>' +
+      '</div>'
+  }
+  var html = teamLineHtml + '\n    <div id="team-view-content"' + (statsOnly ? ' class="stats-view"' : '') + '></div>'
   document.getElementById('team-info-content').innerHTML = html
-  document.getElementById('btn-team-back').onclick = goBackFromTeam
 
   renderTeamView()
 
@@ -18849,8 +21585,8 @@ function showPressureModal() {
 
   plans.forEach(function(p) {
     const isActive = current === p
-    html += '<div class="pressure-card' + (isActive ? ' active' : '') + '" data-plan="' + p + '" style="flex:1;background:#fff;border-radius:12px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;border:2px solid ' + (isActive ? 'var(--accent)' : 'rgba(0,0,0,0.06)') + ';box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:all 0.2s ease">' +
-      '<span style="font-size:13px;font-weight:700;color:#1E293B">' + labels[p] + '</span>' +
+    html += '<div class="pressure-card' + (isActive ? ' active' : '') + '" data-plan="' + p + '" style="flex:1;background:var(--bg-card);border-radius:12px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;border:2px solid ' + (isActive ? 'var(--accent)' : 'var(--border)') + ';box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:all 0.2s ease">' +
+      '<span style="font-size:13px;font-weight:700;color:var(--text)">' + labels[p] + '</span>' +
       '<span style="display:flex;align-items:center;justify-content:center;height:36px">' + icons[p] + '</span>' +
       '<div style="width:100%;display:flex;flex-direction:column;gap:3px">'
     traits[p].forEach(function(t) {
@@ -18897,20 +21633,20 @@ function showCaptainModal() {
   var currentCaptainId = state.captainId || slots[0]
 
   var pastelColors = {
-    portero: 'rgba(155,89,182,0.12)',
-    defensa_central: 'rgba(231,76,60,0.12)',
-    lateral_der: 'rgba(231,76,60,0.12)',
-    lateral_izq: 'rgba(231,76,60,0.12)',
-    carrilero_der: 'rgba(231,76,60,0.12)',
-    carrilero_izq: 'rgba(231,76,60,0.12)',
-    medio_def: 'rgba(243,156,18,0.12)',
-    mediocentro: 'rgba(243,156,18,0.12)',
-    medio_ofensivo: 'rgba(243,156,18,0.12)',
-    medio_der: 'rgba(243,156,18,0.12)',
-    medio_izq: 'rgba(243,156,18,0.12)',
-    extremo_der: 'rgba(46,204,113,0.12)',
-    extremo_izq: 'rgba(46,204,113,0.12)',
-    delantero: 'rgba(46,204,113,0.12)',
+    POR: 'rgba(155,89,182,0.12)',
+    DFC: 'rgba(231,76,60,0.12)',
+    LD: 'rgba(231,76,60,0.12)',
+    LI: 'rgba(231,76,60,0.12)',
+    CAD: 'rgba(231,76,60,0.12)',
+    CAI: 'rgba(231,76,60,0.12)',
+    MCD: 'rgba(243,156,18,0.12)',
+    MC: 'rgba(243,156,18,0.12)',
+    MCO: 'rgba(243,156,18,0.12)',
+    MD: 'rgba(243,156,18,0.12)',
+    MI: 'rgba(243,156,18,0.12)',
+    ED: 'rgba(46,204,113,0.12)',
+    EI: 'rgba(46,204,113,0.12)',
+    DC: 'rgba(46,204,113,0.12)',
   }
 
   var html = '<div class="modal-content" style="width:100%;border-radius:0 0 16px 16px;padding:20px;background:var(--bg-card);animation:slideDown 0.3s ease">' +
@@ -18928,11 +21664,11 @@ function showCaptainModal() {
     if (isCaptain) {
       html += '<span style="position:absolute;top:4px;right:4px;background:#F59E0B;color:#fff;font-size:9px;font-weight:800;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center">C</span>'
     }
-    html += '<span style="font-size:10px;font-weight:700;color:#1E293B;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">' + p.name.split(' ').slice(-1)[0] + '</span>' +
+    html += '<span style="font-size:10px;font-weight:700;color:var(--text);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">' + p.name.split(' ').slice(-1)[0] + '</span>' +
       '<div style="width:44px;height:44px;border-radius:50%;' + avatarStyle + '"></div>' +
       '<div style="display:flex;align-items:center;gap:4px">' +
         '<span style="' + getPowerBadgeStyle(p.skill) + ';min-width:22px;height:18px;padding:0 7px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;flex-shrink:0">' + p.skill + '</span>' +
-        '<span style="font-size:8px;font-weight:600;color:#6B7280">' + posAbbr + '</span>' +
+        '<span style="font-size:8px;font-weight:600;color:#71717A">' + posAbbr + '</span>' +
       '</div></div>'
   })
 
@@ -18976,9 +21712,9 @@ function renderMiniPitch(roles) {
   var rows = { gk: [], def: [], mid: [], fwd: [] }
   for (var r = 0; r < roles.length; r++) {
     var role = roles[r]
-    if (role === 'portero') rows.gk.push(role)
-    else if (['defensa_central','lateral_der','lateral_izq','carrilero_der','carrilero_izq'].indexOf(role) >= 0) rows.def.push(role)
-    else if (['mediocentro','medio_def','medio_ofensivo','medio_der','medio_izq'].indexOf(role) >= 0) rows.mid.push(role)
+    if (role === 'POR') rows.gk.push(role)
+    else if (['DFC','LD','LI','CAD','CAI'].indexOf(role) >= 0) rows.def.push(role)
+    else if (['MC','MCD','MCO','MD','MI'].indexOf(role) >= 0) rows.mid.push(role)
     else rows.fwd.push(role)
   }
   var pitchHtml = '<div class="fm-pitch">'
@@ -19002,8 +21738,8 @@ function showFormationModal() {
   overlay.style.cssText = 'align-items:flex-start;padding:0'
 
   var categories = {
-    ofensivo: { label: 'Ofensivo', formations: ['3-4-3', '3-5-2'] },
-    equilibrado: { label: 'Equilibrado', formations: ['4-3-3', '4-4-2', '4-1-4-1', '4-2-3-1'] },
+    ofensivo: { label: 'Ofensivo', formations: ['3-4-3', '3-5-2', '3-1-4-2'] },
+    equilibrado: { label: 'Equilibrado', formations: ['4-3-3', '4-4-2', '4-1-4-1', '4-2-3-1', '4-1-2-1-2', '4-2-1-3'] },
     defensivo: { label: 'Defensivo', formations: ['3-4-2-1'] },
   }
   var current = state.tactic.formation
@@ -19025,8 +21761,8 @@ function showFormationModal() {
       var fData = FORMATIONS[fKey]
       if (!fData) continue
       var isActive = current === fKey
-      html += '<div class="formation-card' + (isActive ? ' active' : '') + '" data-formation="' + fKey + '" style="cursor:pointer;border-radius:10px;padding:8px;background:#fff;border:2px solid ' + (isActive ? 'var(--accent)' : 'rgba(0,0,0,0.06)') + ';box-shadow:' + (isActive ? '0 4px 16px rgba(38,99,235,0.2)' : '0 1px 4px rgba(0,0,0,0.06)') + ';transition:all 0.2s ease">' +
-        '<div style="text-align:center;font-size:11px;font-weight:700;color:#1E293B;margin-bottom:4px">' + fData.label + '</div>' +
+      html += '<div class="formation-card' + (isActive ? ' active' : '') + '" data-formation="' + fKey + '" style="cursor:pointer;border-radius:10px;padding:8px;background:var(--bg-card);border:2px solid ' + (isActive ? 'var(--accent)' : 'var(--border)') + ';box-shadow:' + (isActive ? '0 4px 16px rgba(22,128,60,0.2)' : '0 1px 4px rgba(0,0,0,0.06)') + ';transition:all 0.2s ease">' +
+        '<div style="text-align:center;font-size:11px;font-weight:700;color:var(--text);margin-bottom:4px">' + fData.label + '</div>' +
         renderMiniPitch(fData.roles) +
       '</div>'
     }
@@ -19102,11 +21838,17 @@ function actualizarIndicadorTemporada() {
 }
 
 function updateInboxBadge() {
-  const badge = document.getElementById('inbox-badge')
-  if (!badge) return
   const unread = state.inbox ? state.inbox.filter(n => !n.read).length : 0
-  badge.textContent = unread
-  badge.style.display = unread > 0 ? 'flex' : 'none'
+  const badge = document.getElementById('inbox-badge')
+  if (badge) {
+    badge.textContent = unread
+    badge.style.display = unread > 0 ? 'flex' : 'none'
+  }
+  const homeBadge = document.getElementById('home-inbox-badge')
+  if (homeBadge) {
+    homeBadge.textContent = unread
+    homeBadge.style.display = unread > 0 ? 'flex' : 'none'
+  }
   const dropBadge = document.getElementById('dropdown-inbox-badge')
   if (dropBadge) {
     dropBadge.textContent = unread
@@ -19140,25 +21882,34 @@ function marcarPrioridadesVistas(prioridades) {
 
 function mostrarPopupPrioridad() {
   if (state._popupSuppressed) return
+  var _gs = document.getElementById('game-screen')
+  if (_gs && _gs.classList.contains('hidden')) return
+  var _mw = document.getElementById('menu-newgame')
+  if (_mw && !_mw.classList.contains('hidden')) return
   if (state._popupShownMatchday === (state.currentMatchday || 0)) return
+  var md = state.currentMatchday || 0
   var info = collectPrioridadesSemana()
-  if (info.all.length === 0) return
+  /* Ofertas de fichaje: ya no caen en la bandeja, van a Mercado » Ventas » Ofertas recibidas */
+  var nuevasVentas = (state.sellOffers || []).filter(function(o) { return o.matchday === md })
+  if (info.all.length === 0 && nuevasVentas.length === 0) return
   /* Anti-spam: un único pop-up por semana. */
   marcarPrioridadesVistas(info.all)
 
-  var titulo = 'Novedades en la bandeja de entrada'
+  var titulo = nuevasVentas.length > 0 ? 'Tienes nuevas ofertas en el mercado' : 'Novedades en la bandeja de entrada'
   var resumen = ''
-  if (info.transfers.length > 0) {
-    var nombres = info.transfers.map(function(n) { return n.title.replace(/^Oferta por /, '') })
-    resumen += '<div class="pp-block"><div class="pp-block-title">\ud83d\udcb0 ' + info.transfers.length + ' oferta' + (info.transfers.length > 1 ? 's' : '') + ' de fichaje/cesi\u00f3n</div><div class="pp-block-list">' + nombres.map(function(x) { return '<div class="pp-line">\u00b7 ' + x + '</div>' }).join('') + '</div></div>'
+  if (nuevasVentas.length > 0) {
+    resumen += '<div class="pp-block"><div class="pp-block-title">\ud83d\udcb0 ' + nuevasVentas.length + ' oferta' + (nuevasVentas.length > 1 ? 's' : '') + ' de fichaje o cesi\u00f3n en Mercado » Ventas</div><div class="pp-block-list pp-offer-list">' +
+      '<div class="ms-cols"><span class="ms-col ms-col-pos">POS</span><span class="ms-col ms-col-nombre">NOMBRE</span><span class="ms-col ms-col-valor">VALOR</span><span class="ms-col ms-col-oferta">OFERTA</span></div>' +
+      nuevasVentas.map(function(o) { return offerRowHtml(o) }).join('') +
+      '</div></div>'
   }
   if (info.sponsors.length > 0) {
     resumen += '<div class="pp-block"><div class="pp-block-title">\ud83d\udccb ' + info.sponsors.length + ' oferta' + (info.sponsors.length > 1 ? 's' : '') + ' de patrocinio</div><div class="pp-block-list">' + info.sponsors.map(function(n) { return '<div class="pp-line">\u00b7 ' + escHtml(n.title) + '</div>' }).join('') + '</div></div>'
   }
   if (!resumen) resumen = '<div class="pp-block">Hay novedades que requieren tu atenci\u00f3n en la bandeja de entrada.</div>'
 
-  /* Acciones rápidas si hay EXACTAMENTE 1 oferta de transferencia. */
-  var solaOferta = (info.transfers.length === 1 && info.sponsors.length === 0) ? info.transfers[0] : null
+  /* Acciones rápidas si hay EXACTAMENTE 1 oferta de fichaje nueva. */
+  var solaVenta = (nuevasVentas.length === 1 && info.sponsors.length === 0) ? nuevasVentas[0] : null
 
   var overlay = document.createElement('div')
   overlay.id = 'popup-prioridad'
@@ -19167,13 +21918,15 @@ function mostrarPopupPrioridad() {
   var html = '<div class="modal-content pp-modal" style="max-width:420px;width:90%">'
   html += '<div class="pp-title"><svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> ' + titulo + '</div>'
   html += '<div class="pp-body">' + resumen + '</div>'
-  if (solaOferta) {
-    var of = solaOferta.offer
-    html += '<div class="pp-offer"><img src="' + (of.teamLogo || NOPHOTO) + '" style="width:34px;height:34px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'"><span style="flex:1;font-size:13px">' + escHtml(of.teamName || 'Equipo') + ' ofrece <strong>' + formatMoney(of.amount || 0) + '</strong> por ' + escHtml(of.playerName || '') + '</span></div>'
+  if (solaVenta) {
+    html += '<div class="pp-offer">' + offerRowHtml(solaVenta) + '</div>'
   }
+  var botonMarket = nuevasVentas.length > 0
+  var botonInbox = info.all.length > 0 && !botonMarket
   html += '<div class="pp-actions">' +
-    (solaOferta ? '<div id="pp-accept" class="pp-btn pp-accept">Aceptar</div><div id="pp-reject" class="pp-btn pp-reject">Rechazar</div>' : '') +
-    '<div id="pp-inbox" class="pp-btn pp-primary">Ir a Bandeja de Entrada</div>' +
+    (solaVenta ? '<div id="pp-accept" class="pp-btn pp-accept">Aceptar</div><div id="pp-reject" class="pp-btn pp-reject">Rechazar</div>' : '') +
+    (botonMarket ? '<div id="pp-market" class="pp-btn pp-primary">Ir a Ofertas Recibidas</div>' : '') +
+    (botonInbox ? '<div id="pp-inbox" class="pp-btn pp-primary">Ir a Bandeja de Entrada</div>' : '') +
     '<div id="pp-close" class="pp-btn pp-close">Cerrar</div>' +
   '</div>'
   html += '</div>'
@@ -19182,26 +21935,43 @@ function mostrarPopupPrioridad() {
 
   var closePopup = function() { if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay) }
   document.getElementById('pp-close').onclick = closePopup
-  document.getElementById('pp-inbox').onclick = function() {
-    closePopup()
-    state.clubSubTab = 'inbox'
-    if (typeof renderTab === 'function') renderTab('club')
-    if (typeof hideInboxDetail === 'function') hideInboxDetail()
-  }
-  if (solaOferta) {
-    document.getElementById('pp-accept').onclick = function() {
-      if (typeof window.aceptarOferta === 'function') window.aceptarOferta(of.playerId, of.teamId, of.amount)
-      solaOferta.offer = null
+  if (botonMarket) {
+    document.getElementById('pp-market').onclick = function() {
       closePopup()
-      if (typeof renderInbox === 'function') renderInbox()
+      if (typeof openMarketSell === 'function') openMarketSell()
+    }
+  }
+  if (botonInbox) {
+    document.getElementById('pp-inbox').onclick = function() {
+      closePopup()
+      state.clubSubTab = 'inbox'
+      if (typeof renderTab === 'function') renderTab('club')
+      if (typeof hideInboxDetail === 'function') hideInboxDetail()
+    }
+  }
+  if (solaVenta) {
+    document.getElementById('pp-accept').onclick = function() {
+      if (typeof aceptarOfertaRecibida === 'function') aceptarOfertaRecibida(solaVenta.id)
+      closePopup()
     }
     document.getElementById('pp-reject').onclick = function() {
-      if (typeof window.rechazarOferta === 'function') window.rechazarOferta(of.playerId)
-      solaOferta.offer = null
+      if (typeof rechazarOfertaRecibida === 'function') rechazarOfertaRecibida(solaVenta.id)
       closePopup()
-      if (typeof renderInbox === 'function') renderInbox()
     }
   }
+  /* Click en la fila de una oferta: abre el modal normal del jugador */
+  overlay.querySelectorAll('.ms-offer-row').forEach(function(row) {
+    var o = (state.sellOffers || []).find(function(x) { return String(x.id) === row.dataset.oid })
+    if (!o) return
+    row.style.cursor = 'pointer'
+    row.onclick = function(e) {
+      e.stopPropagation()
+      var f = findPlayerInPools(o.playerId)
+      if (!f) return
+      closePopup()
+      openPlayerDetail(f.pool[f.idx], { name: state.team, logo: state.teamLogo, teamId: state.teamId }, o)
+    }
+  })
 }
 
 function renderInbox() {
@@ -19249,6 +22019,11 @@ function renderInbox() {
     html += '<div class="inbox-empty" style="padding:30px 20px"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg><p>No hay notificaciones de este tipo</p></div>'
   } else {
     html += filtered.map(n => {
+      if (n.type === 'transfer' && n.offer) {
+        return '<div class="inbox-item inbox-offer-wrap' + (n.read ? '' : ' unread') + '" data-inbox-id="' + n.id + '">' +
+          offerRowHtml(n.offer) +
+          '</div>'
+      }
       const t = senderLabels[n.type] || senderLabels.general
       const date = new Date(n.createdAt)
       const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })
@@ -19257,7 +22032,7 @@ function renderInbox() {
         '<div class="inbox-avatar ' + n.type + '">' + t.icon + '</div>' +
         '<div class="inbox-body">' +
           '<div class="inbox-row1"><span class="inbox-sender">' + t.label + '</span><span class="inbox-date">' + dateStr + ' ' + timeStr + '</span></div>' +
-          '<div class="inbox-subject">' + ((n.offer && n.offer.categoriaEquipo) ? '<span style="background:' + (n.offer.categoriaEquipo === 'SUB_18' ? '#8B5CF6' : n.offer.categoriaEquipo === 'EQUIPO_B' ? '#2563EB' : '#6B7280') + ';color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:5px">' + (n.offer.categoriaEquipo === 'SUB_18' ? 'U18' : n.offer.categoriaEquipo === 'EQUIPO_B' ? 'B' : '1º') + '</span>' : '') + n.title + '</div>' +
+          '<div class="inbox-subject">' + ((n.offer && n.offer.categoriaEquipo) ? '<span style="background:' + (n.offer.categoriaEquipo === 'SUB_18' ? '#8B5CF6' : n.offer.categoriaEquipo === 'EQUIPO_B' ? '#16803C' : '#71717A') + ';color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:5px">' + (n.offer.categoriaEquipo === 'SUB_18' ? 'U18' : n.offer.categoriaEquipo === 'EQUIPO_B' ? 'B' : '1º') + '</span>' : '') + n.title + '</div>' +
           (n.body ? '<div class="inbox-preview">' + n.body + '</div>' : '') +
         '</div></div>'
     }).join('')
@@ -19343,7 +22118,7 @@ function showInboxDetail(n) {
       '<div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:14px">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0"><span style="font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 6v12M6 12h12"/></svg> Oferta</span><span style="font-size:18px;font-weight:700;color:#2E7D32">' + offerMoney + '</span></div>' +
         '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border)"><span style="font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Valor de mercado</span><span style="font-size:14px;color:var(--text)">' + valueMoney + '</span></div>' +
-        (of.categoriaEquipo ? '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border)"><span style="font-size:13px;color:var(--text-secondary)">Categoría</span><span style="background:' + (of.categoriaEquipo === 'SUB_18' ? '#8B5CF6' : of.categoriaEquipo === 'EQUIPO_B' ? '#2563EB' : '#6B7280') + ';color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:700">' + (of.categoriaEquipo === 'SUB_18' ? 'SUB-18' : of.categoriaEquipo === 'EQUIPO_B' ? 'EQUIPO B' : 'PRIMER EQUIPO') + '</span></div>' : '') +
+        (of.categoriaEquipo ? '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border)"><span style="font-size:13px;color:var(--text-secondary)">Categoría</span><span style="background:' + (of.categoriaEquipo === 'SUB_18' ? '#8B5CF6' : of.categoriaEquipo === 'EQUIPO_B' ? '#16803C' : '#71717A') + ';color:#fff;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:700">' + (of.categoriaEquipo === 'SUB_18' ? 'SUB-18' : of.categoriaEquipo === 'EQUIPO_B' ? 'EQUIPO B' : 'PRIMER EQUIPO') + '</span></div>' : '') +
         (of.recomendacion ? '<div style="padding:8px 10px;margin-top:8px;background:rgba(16,185,129,0.08);border-radius:8px;font-size:12px;color:#059669;line-height:1.4">' + escHtml(of.recomendacion) + '</div>' : '') +
       '</div>' +
       '<div style="display:flex;gap:8px;margin-bottom:8px">' +
@@ -19355,26 +22130,11 @@ function showInboxDetail(n) {
     var sp = n.sponsor
     var spCat = sp.categoriaPatrocinio || sp.catid
     var spSlot = SPONSOR_SLOTS[spCat] || { label: spCat }
-    bodyHtml = '<div style="margin-bottom:14px;padding:10px 14px;background:#2563EB;color:#fff;border-radius:10px;font-size:13px;font-weight:600;text-align:center">Elige una de las 3 propuestas para ' + escHtml(spSlot.label) + '</div>'
+    bodyHtml = '<div style="margin-bottom:14px;padding:10px 14px;background:#16803C;color:#fff;border-radius:10px;font-size:13px;font-weight:600;text-align:center">Elige una de las 3 propuestas para ' + escHtml(spSlot.label) + '</div>'
     var spSigned = (state.sponsors && state.sponsors.slots && state.sponsors.slots[spCat])
-    bodyHtml += '<div class="sponsor-offer-list">'
-    ;(sp.ofertas || []).forEach(function(o, oi) {
-      var spAnual = formatMoney(o.anual)
-      var spBonus = o.bonusObjetivo > 0 ? formatMoney(o.bonusObjetivo) : '—'
-      bodyHtml += '<div class="sponsor-offer' + (spSigned ? ' disabled' : '') + '">' +
-        '<div class="sponsor-offer-head">' +
-          '<span class="sponsor-offer-brand">' + escHtml(o.brand) + '</span>' +
-          '<span class="sponsor-offer-anual">' + spAnual + '/a\u00f1o</span>' +
-        '</div>' +
-        '<div class="sponsor-offer-rows">' +
-          '<div class="sponsor-offer-row"><span>Duraci\u00f3n</span><strong>' + o.anios + ' a\u00f1os</strong></div>' +
-          '<div class="sponsor-offer-row"><span>Bonus por objetivos</span><strong>' + spBonus + '</strong></div>' +
-          (o.descBonus ? '<div class="sponsor-offer-bonus">' + escHtml(o.descBonus) + '</div>' : '') +
-        '</div>' +
-        '<div id="sp-sign-' + n.id + '-' + oi + '" class="sponsor-sign-btn' + (spSigned ? ' hidden' : '') + '">Firmar Contrato</div>' +
-      '</div>'
-    })
-    bodyHtml += '</div>'
+    bodyHtml += sponsorOfferCardsHtml(sp.ofertas || [], spSigned ? null : function(o, oi) {
+      return '<div id="sp-sign-' + n.id + '-' + oi + '" class="sponsor-offer-btn">Firmar contrato</div>'
+    }, spSigned ? 'disabled' : '')
     if (spSigned) {
       bodyHtml += '<div style="padding:8px 14px;background:rgba(16,185,129,0.08);border-radius:10px;font-size:12px;color:#059669;text-align:center;margin-top:10px">\u2713 Patrocinio activo en esta categor\u00eda</div>'
     } else {
@@ -19384,16 +22144,16 @@ function showInboxDetail(n) {
     var pd = n.playerData
     var pk = SIGLA_TO_POS[pd.position] || pd.position
     var pa = POS_ABBR[pk] || pd.position
-    var pc = (POSITIONS[pk] && POSITIONS[pk].color) || '#6B7280'
+    var pc = (POSITIONS[pk] && POSITIONS[pk].color) || '#71717A'
     var av = pd.avatar || NOPHOTO
-    var posHtml = '<span style="background:' + pc + ';color:#fff;padding:1px 6px;border-radius:3px;font-weight:700;font-size:10px">' + pa + ' ' + (pd.mainPct != null ? pd.mainPct + '%' : '99%') + '</span>'
+    var posHtml = '<span style="background:' + pc + ';color:#fff;padding:1px 6px;border-radius:3px;font-weight:700;font-size:10px">' + pa + '</span>'
     if (pd.otherPositions && pd.otherPositions.length > 0) {
       pd.otherPositions.forEach(function(o) {
         var oPos = normalizePosKey(o.pos)
         var ok = SIGLA_TO_POS[oPos] || oPos
         var oa = POS_ABBR[ok] || oPos
         var oc = (POSITIONS[ok] && POSITIONS[ok].color) || '#888'
-        posHtml += '<span style="background:' + oc + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:10px">' + oa + ' ' + o.pct + '%</span>'
+        posHtml += '<span style="background:' + oc + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:10px">' + oa + '</span>'
       })
     }
     bodyHtml =
@@ -19455,7 +22215,7 @@ function showInboxDetail(n) {
             '<input id="' + inputId + '" type="text" inputmode="numeric" value="' + of.playerValue.toLocaleString('es-ES') + '" style="width:100%;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:18px;font-weight:700;outline:none;box-sizing:border-box;text-align:center">' +
             '<div style="display:flex;gap:8px;margin-top:8px">' +
               '<div id="' + sendId + '" style="flex:1;padding:11px;background:#2E7D32;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg> Enviar</div>' +
-              '<div id="' + cancelId + '" style="flex:1;padding:11px;background:#6B7280;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer">Cancelar</div>' +
+              '<div id="' + cancelId + '" style="flex:1;padding:11px;background:#71717A;border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer">Cancelar</div>' +
             '</div>' +
           '</div>'
         container.appendChild(inputDiv)
@@ -19531,6 +22291,19 @@ try {
   const menuBtn = document.getElementById('btn-header-menu')
   if (menuBtn) {
     menuBtn.onclick = (e) => {
+      e.stopPropagation()
+      const dd = document.getElementById('header-dropdown')
+      if (dd && dd.classList.contains('open')) {
+        hideSideMenu()
+      } else {
+        showSideMenu()
+      }
+    }
+  }
+
+  const loadMenuBtn = document.getElementById('btn-load-menu')
+  if (loadMenuBtn) {
+    loadMenuBtn.onclick = (e) => {
       e.stopPropagation()
       const dd = document.getElementById('header-dropdown')
       if (dd && dd.classList.contains('open')) {
@@ -19706,7 +22479,7 @@ function evaluarOferta(player, offeredPrice) {
     return { type: 'accepted', price: offeredPrice, msg: '\u00a1El club acepta la oferta!' }
   }
   if (offeredPrice >= Math.round(value * 0.75)) {
-    const counter = Math.round(value * randInt(95, 130) / 100)
+    const counter = Math.round(value * randInt(105, 115) / 100)
     return { type: 'counter', price: counter, msg: `El club pide ${formatMoney(counter)}` }
   }
   const minPrice = Math.round(value * 0.9)
@@ -19734,309 +22507,205 @@ function evaluarCesion(player) {
 }
 
 /* ============ PLAYER DETAIL ============ */
-function openPlayerDetail(player, teamObj) {
+function openPlayerDetail(player, teamObj, offer) {
   if (!player) return
 
   const posKey = SIGLA_TO_POS[player.position] || player.position
 
-  document.getElementById('pd-name').textContent = player.name
-  const ratingEl = document.getElementById('pd-rating')
-  ratingEl.textContent = player.skill
-  ratingEl.style.cssText = getPowerBadgeStyle(player.skill) + ';min-width:26px;height:20px;padding:0 8px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center'
+  /* ---------- Header ---------- */
+  document.getElementById('pd-name').innerHTML = escHtml(player.name) + (player.onLoan ? ' <span class="pd-ced-badge">CED</span>' : '')
 
+  /* ---------- Photo ---------- */
   var photo = document.getElementById('pd-photo')
   var playerPhotoUrl = player.avatar || NOPHOTO
   photo.innerHTML = '<img src="' + playerPhotoUrl + '" onerror="this.src=\'' + NOPHOTO + '\'" style="width:100%;height:100%;object-fit:cover">'
 
   const team = teamObj || (player.teamId ? getTeamObj(player.teamId) : null) || { name: state.team, logo: state.teamLogo, teamId: state.teamId }
-  var teamLogo = getTeamLogo(team.teamId) || (team.logo) || (player.teamId ? getTeamLogo(player.teamId) : '') || NOPHOTO
-  document.getElementById('pd-team-logo').src = teamLogo
-  document.getElementById('pd-team').textContent = team.name || '\u2014'
-  var loanRow = document.getElementById('pd-loan-row')
-  if (player.onLoan && player.loanTo) {
-    var destLogo = getTeamLogo(player.loanTo)
-    var destName = player.loanToName || player.loanTo || 'Otro club'
-    if (!loanRow) {
-      loanRow = document.createElement('div')
-      loanRow.className = 'pd-info-row'
-      loanRow.id = 'pd-loan-row'
-      loanRow.innerHTML = '<img class="pd-team-logo" id="pd-loan-logo" src="" alt=""><span id="pd-loan-team"></span>'
-      document.querySelector('.pd-mid .pd-info').appendChild(loanRow)
-    }
-    document.getElementById('pd-loan-logo').src = destLogo || player.loanToLogo || 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
-    document.getElementById('pd-loan-team').textContent = '\u2192 ' + destName
-    loanRow.style.display = ''
-  } else if (player.onLoan && player.loanFrom) {
-    var originLogo = getTeamLogo(player.loanFrom) || player.loanFromLogo
-    var originName = player.loanFromName || player.loanFrom || 'Otro club'
-    if (!loanRow) {
-      loanRow = document.createElement('div')
-      loanRow.className = 'pd-info-row'
-      loanRow.id = 'pd-loan-row'
-      loanRow.innerHTML = '<img class="pd-team-logo" id="pd-loan-logo" src="" alt=""><span id="pd-loan-team"></span>'
-      document.querySelector('.pd-mid .pd-info').appendChild(loanRow)
-    }
-    document.getElementById('pd-loan-logo').src = originLogo || 'https://cdn.resfu.com/media/img/nofoto_jugador.png?size=120x&lossy=1'
-    document.getElementById('pd-loan-team').textContent = '\u2190 ' + originName
-    loanRow.style.display = ''
-  } else if (loanRow) {
-    loanRow.style.display = 'none'
-  }
-  const posLabel = POSITIONS[posKey] ? POSITIONS[posKey].label : player.position
-  document.getElementById('pd-position').textContent = posLabel + ' (' + (POS_ABBR[posKey] || player.position) + ')'
-  document.getElementById('pd-flag').innerHTML = natFlagHtml(player.nationality) || ''
-  const natName = (player.nationality || '').replace(/^[^\s]+\s/, '') || '\u2014'
-  document.getElementById('pd-nationality').textContent = natName
-  document.getElementById('pd-foot').textContent = player.foot === 'IZQ' ? 'Izq' : 'Der'
-  document.getElementById('pd-height').textContent = player.height ? (player.height / 100).toFixed(2) + 'm' : '\u2014'
-  document.getElementById('pd-age').textContent = player.age || '\u2014'
-  document.getElementById('pd-value').textContent = '\u20AC ' + formatShort(player.value || calcValue(player.skill, player.age, player.position))
 
-  /* Adaptability: main position 99%, other positions from data */
+  /* ---------- Sub: edad + posiciones (estilo tarjeta) ---------- */
   const mainAbbr = POS_ABBR[posKey] || player.position
   const otherPositions = player.otherPositions || []
-  const PITCH_POS = {
-    POR: [85, 50],
-    LI:  [68, 15], DFC: [68, 50], LD:  [68, 85],
-    CAI: [52, 15], MCD: [52, 50], CAD: [52, 85],
-    MI:  [38, 20], MC:  [38, 50], MD:  [38, 80],
-    EI:  [20, 15], DC:  [15, 50], ED:  [20, 85],
-    MCO: [30, 50],
-    portero: [85, 50], lateral_izq: [68, 15], defensa_central: [68, 50], lateral_der: [68, 85],
-    carrilero_izq: [52, 15], medio_def: [52, 50], carrilero_der: [52, 85],
-    medio_izq: [38, 20], mediocentro: [38, 50], medio_der: [38, 80],
-    extremo_izq: [20, 15], delantero: [15, 50], extremo_der: [20, 85],
-    medio_ofensivo: [30, 50],
-    cierre: [68, 50], ala: [38, 50], pivot: [15, 50],
-  }
-  const MAIN_PCT = player.mainPct !== undefined ? player.mainPct : 99
-  const mainExp = player.positionExperience ? (player.positionExperience[posKey] || 0) : 0
-  const mainEffectivePct = Math.min(100, Math.max(MAIN_PCT, mainExp * 0.5))
-  const mainColor = (POSITIONS[posKey] || {}).color || '#2663EB'
-  const mainMastered = mainEffectivePct >= 100
-  const mainOpacity = mainMastered ? 1.0 : (0.35 + 0.65 * mainEffectivePct / 100)
-  let adaptHtml = `<div class="pd-pos-label">Posici\u00f3n principal</div>
-    <div class="pd-pos-row main" style="color:${mainColor};opacity:${mainOpacity.toFixed(2)};font-weight:${mainMastered ? '600' : '400'}">
-      <span>${posLabel} (${mainAbbr})${mainExp > 0 ? ' <span style="font-size:9px;color:var(--text-muted);font-weight:400">' + mainExp + ' pj</span>' : ''}</span>
-      <span>${mainEffectivePct}%</span>
-    </div>`
-  if (otherPositions.length > 0) {
-    adaptHtml += `<div class="pd-pos-label">Otras posiciones</div>`
+  var subEl = document.getElementById('pd-hero-sub')
+  if (subEl) {
+    var possHtml = '<span class="pl-age">' + (player.age || '-') + ' a</span>' +
+      '<span class="pl-pos-main">' + mainAbbr + '</span>'
     for (const alt of otherPositions) {
       const altPos = normalizePosKey(alt.pos || alt)
       const altKey = SIGLA_TO_POS[altPos] || altPos
-      const altPct = alt.pct !== undefined ? alt.pct : 1
-      const exp = player.positionExperience ? (player.positionExperience[altKey] || 0) : 0
-      const expPct = Math.min(100, exp * 0.5)
-      const effectivePct = Math.min(100, Math.max(altPct, expPct))
-      const altLabel = POSITIONS[altKey] ? POSITIONS[altKey].label : altPos
       const altAbbr = POS_ABBR[altKey] || altPos
-      const altColor = (POSITIONS[altKey] || {}).color || '#2663EB'
-      const isMastered = effectivePct >= 100
-      const opacity = isMastered ? 1.0 : (0.35 + 0.65 * effectivePct / 100)
-      const fontWeight = isMastered ? '600' : '400'
-      adaptHtml += `<div class="pd-pos-row" style="color:${altColor};opacity:${opacity.toFixed(2)};font-weight:${fontWeight}">
-        <span>${altLabel} (${altAbbr})${exp > 0 ? ' <span style="font-size:9px;color:var(--text-muted);font-weight:400">' + exp + ' pj</span>' : ''}</span>
-        <span>${effectivePct}%</span>
-      </div>`
+      possHtml += '<span class="pl-pos-sec">' + altAbbr + '</span>'
     }
+    subEl.innerHTML = possHtml
   }
-  document.getElementById('pd-adapt-list').innerHTML = adaptHtml
 
-  /* Pitch badges */
-  const pitch = document.getElementById('pd-pitch')
-  let pitchHtml = ''
-  const mainCoords = PITCH_POS[player.position] || [50, 50]
-  pitchHtml += `<span class="pd-pitch-badge main" style="background:${mainColor};top:${mainCoords[0]}%;left:${mainCoords[1]}%">${mainAbbr}</span>`
-  for (const alt of otherPositions) {
-    const altPos = normalizePosKey(alt.pos || alt)
-    const altKey = SIGLA_TO_POS[altPos] || altPos
-    const altPct = alt.pct !== undefined ? alt.pct : 1
-    const altExp = player.positionExperience ? (player.positionExperience[altKey] || 0) : 0
-    const altEffectivePct = Math.min(100, Math.max(altPct, altExp * 0.5))
-    const altCoords = PITCH_POS[altPos] || [50, 50]
-    const altAbbr = POS_ABBR[altKey] || altPos
-    const altBadgeColor = (POSITIONS[altKey] || {}).color || '#2663EB'
-    const altBadgeOpacity = altEffectivePct >= 100 ? 1.0 : (0.35 + 0.65 * altEffectivePct / 100)
-    pitchHtml += `<span class="pd-pitch-badge alt" style="background:${altBadgeColor};opacity:${altBadgeOpacity.toFixed(2)};top:${altCoords[0]}%;left:${altCoords[1]}%">${altAbbr}</span>`
+  /* ---------- GRL + POT (etiqueta encima, número más grande) ---------- */
+  var ratEl = document.getElementById('pd-hero-ratings')
+  if (ratEl) {
+    var heroPot = player.potencial != null ? player.potencial : player.skill
+    ratEl.innerHTML =
+      '<span class="pl-rating"><span class="pl-rating-lbl">GRL</span><span class="pl-rating-val" style="color:' + skillColor(player.skill) + '">' + (player.skill != null ? player.skill : '-') + '</span></span>' +
+      '<span class="pl-rating"><span class="pl-rating-lbl">POT</span><span class="pl-rating-val" style="color:' + skillColor(heroPot) + '">' + (heroPot != null ? heroPot : '-') + '</span></span>'
   }
-  pitch.innerHTML = pitchHtml
 
-  /* Position switch (only for owned players with mastered secondary positions) */
-  var switchContainer = document.getElementById('pd-pos-switch')
-  if (switchContainer) {
-    switchContainer.innerHTML = ''
-    if (player.teamId === state.teamId && !player.onLoan && otherPositions.length > 0) {
-      var masteredPositions = otherPositions.filter(function(op) { return (op.pct || 0) >= 100 })
-      if (masteredPositions.length > 0) {
-        var switchHtml = '<div class="pd-adapt-title" style="margin-top:8px;cursor:pointer" id="pd-switch-toggle">🔄 Cambiar posición principal</div><div id="pd-switch-options" style="display:none">'
-        masteredPositions.forEach(function(op) {
-          var opPos = normalizePosKey(op.pos)
-          var altKey = SIGLA_TO_POS[opPos] || opPos
-          var altLabel = POSITIONS[altKey] ? POSITIONS[altKey].label : opPos
-          var altColor = (POSITIONS[altKey] || {}).color || '#2663EB'
-          switchHtml += '<div class="pd-pos-row" data-switch-pos="' + op.pos + '" style="color:' + altColor + ';cursor:pointer;font-weight:600">' +
-            '<span>' + altLabel + ' (' + (POS_ABBR[altKey] || opPos) + ')</span><span>✅ 100%</span></div>'
-        })
-        switchHtml += '</div>'
-        switchContainer.innerHTML = switchHtml
-        var toggle = document.getElementById('pd-switch-toggle')
-        var options = document.getElementById('pd-switch-options')
-        if (toggle) {
-          toggle.onclick = function() {
-            options.style.display = options.style.display === 'none' ? 'block' : 'none'
-          }
-        }
-        switchContainer.querySelectorAll('[data-switch-pos]').forEach(function(el) {
-          el.onclick = function() {
-            var newPos = el.dataset.switchPos
-            var oldPos = player.position
-            var oldMainPct = player.mainPct || 100
-            var opEntry = player.otherPositions.find(function(op) { return op.pos === newPos })
-            if (!opEntry) return
-            player.position = newPos
-            player.mainPct = opEntry.pct
-            player.otherPositions = player.otherPositions.filter(function(op) { return op.pos !== newPos })
-            player.otherPositions.push({ pos: oldPos, pct: oldMainPct })
-            document.getElementById('player-detail-modal').classList.remove('open')
-            renderSquad(state.players)
-          }
-        })
-      }
+  /* ---------- Valor, salario, pie y altura (en una línea) ---------- */
+  var bottomEl = document.getElementById('pd-hero-bottom')
+  if (bottomEl) {
+    var heroVal = player.value != null ? player.value : calcValue(player.skill, player.age, player.position)
+    var footLbl = player.foot === 'IZQ' ? 'Izquierdo' : ((player.foot === 'AMB' || player.foot === 'Ambos') ? 'Ambos' : 'Derecho')
+    var heightLbl = player.height ? (player.height / 100).toFixed(2) + 'm' : '\u2014'
+    bottomEl.innerHTML =
+      '<span class="pd-hero-fact"><span class="pd-hero-fact-lbl">Valor</span><span class="pd-hero-fact-val">\u20AC' + formatShort(heroVal) + '</span></span>' +
+      '<span class="pd-hero-fact"><span class="pd-hero-fact-lbl">Salario</span><span class="pd-hero-fact-val">\u20AC' + formatShort(playerSalary(player)) + '</span></span>' +
+      '<span class="pd-hero-fact"><span class="pd-hero-fact-lbl">Pie preferido</span><span class="pd-hero-fact-val">' + footLbl + '</span></span>' +
+      '<span class="pd-hero-fact"><span class="pd-hero-fact-lbl">Altura</span><span class="pd-hero-fact-val">' + heightLbl + '</span></span>'
+  }
+
+  /* ---------- País (estilo tarjeta) ---------- */
+  var countryEl = document.getElementById('pd-hero-country')
+  if (countryEl) {
+    var heroNatName = (player.nationality || '').replace(/^[^\s]+\s/, '')
+    countryEl.innerHTML = natFlagHtml(player.nationality) + '<span class="pl-country-name">' + (heroNatName || '\u2014') + '</span>'
+  }
+
+  /* ---------- Club (propietario → actual si está cedido) ---------- */
+  var clubEl = document.getElementById('pd-hero-club')
+  if (clubEl) {
+    var contextLogo = (team && team.logo) || getTeamLogo(team && team.teamId) || state.teamLogo || ''
+    var playerClubLogo = getTeamLogo(player.teamId) || contextLogo
+    var ownerLogo = '', currentLogo = ''
+    if (player.onLoan && player.loanFrom) {
+      /* Le han cedido (a este equipo o al club donde juega): origen → actual */
+      ownerLogo = getTeamLogo(player.loanFrom) || player.loanFromLogo || ''
+      currentLogo = contextLogo || playerClubLogo
+    } else if (player.onLoan && player.loanTo) {
+      /* Lo cede este equipo: origen → club destino */
+      ownerLogo = contextLogo || playerClubLogo
+      currentLogo = getTeamLogo(player.loanTo) || player.loanToLogo || ''
+    } else {
+      currentLogo = playerClubLogo
+    }
+    if (ownerLogo && currentLogo && ownerLogo !== currentLogo) {
+      clubEl.innerHTML =
+        '<img class="pd-club-logo" src="' + ownerLogo + '" alt="" onerror="this.style.display=\'none\'">' +
+        '<svg class="pd-club-arrow" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>' +
+        '<img class="pd-club-logo" src="' + currentLogo + '" alt="" onerror="this.style.display=\'none\'">'
+    } else {
+      var onlyLogo = currentLogo || ownerLogo
+      clubEl.innerHTML = onlyLogo ? '<img class="pd-club-logo" src="' + onlyLogo + '" alt="" onerror="this.style.display=\'none\'">' : ''
     }
   }
 
-  /* === RENDIMIENTO TAB === */
-  const rendStats = document.getElementById('pd-rend-stats')
-  const pos = POSITIONS[posKey]
-  const energy = (player.energy != null && !Number.isNaN(player.energy)) ? player.energy : 100
+  /* ---------- Energía ---------- */
+  const energy = (player.energy != null && !Number.isNaN(player.energy)) ? Math.round(player.energy) : 100
   const energyColor = energy >= 70 ? '#10B981' : (energy >= 40 ? '#F59E0B' : '#EF4444')
-  var avgRating = 0
-  var ratedMatches = (player.matchHistory || []).filter(function(m) { return m.rating })
-  if (ratedMatches.length > 0) {
-    avgRating = ratedMatches.reduce(function(sum, m) { return sum + m.rating }, 0) / ratedMatches.length
-  }
-  var statsHtml = '<div class="modal-stats-row" style="padding:8px 0;gap:4px"><div class="modal-stat" style="flex:1;padding:8px"><span class="modal-stat-label">ENE</span><span class="modal-stat-value" style="font-size:20px;color:' + energyColor + '">' + energy + '%</span><div class="modal-stat-bar"><div class="modal-stat-fill" style="width:' + energy + '%;background:' + energyColor + '"></div></div></div></div>'
-  /* Per-team stats */
-  var teamStatsObj = player.teamStats || {}
-  var teamIds = Object.keys(teamStatsObj)
-  if (teamIds.length > 0) {
-    for (var ti = 0; ti < teamIds.length; ti++) {
-      var tid = teamIds[ti]
-      var ts = teamStatsObj[tid]
-      var tName = getTeamName(tid) || 'Equipo'
-      statsHtml += '<div class="pd-team-stats"><div class="pd-team-stats-name">' + tName + '</div><div class="modal-season-stats" style="padding:0 0 6px">' +
-        '<div class="modal-sstat"><span class="modal-sstat-icon">📊</span><span class="modal-sstat-val">' + (ts.matches || 0) + '</span><span class="modal-sstat-lbl">PJ</span></div>' +
-        '<div class="modal-sstat"><span class="modal-sstat-icon">⚽</span><span class="modal-sstat-val">' + (ts.goals || 0) + '</span><span class="modal-sstat-lbl">Goles</span></div>' +
-        '<div class="modal-sstat"><span class="modal-sstat-icon">👟</span><span class="modal-sstat-val">' + (ts.assists || 0) + '</span><span class="modal-sstat-lbl">Asist.</span></div>' +
-        '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#F59E0B">🟨</span><span class="modal-sstat-val">' + (ts.yellowCards || 0) + '</span><span class="modal-sstat-lbl">Amar.</span></div>' +
-        '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#EF4444">🟥</span><span class="modal-sstat-val">' + (ts.redCards || 0) + '</span><span class="modal-sstat-lbl">Roja</span></div>' +
-        '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#F59E0B">⭐</span><span class="modal-sstat-val">' + (avgRating ? avgRating.toFixed(1) : '-') + '</span><span class="modal-sstat-lbl">Media</span></div>' +
-        '</div></div>'
-    }
-  } else {
-    statsHtml += '<div class="modal-season-stats" style="padding:0 0 6px">' +
-      '<div class="modal-sstat"><span class="modal-sstat-icon">📊</span><span class="modal-sstat-val">' + (player.matches || 0) + '</span><span class="modal-sstat-lbl">PJ</span></div>' +
-      '<div class="modal-sstat"><span class="modal-sstat-icon">⚽</span><span class="modal-sstat-val">' + (player.goals || 0) + '</span><span class="modal-sstat-lbl">Goles</span></div>' +
-      '<div class="modal-sstat"><span class="modal-sstat-icon">👟</span><span class="modal-sstat-val">' + (player.assists || 0) + '</span><span class="modal-sstat-lbl">Asist.</span></div>' +
-      '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#F59E0B">🟨</span><span class="modal-sstat-val">' + (player.yellowCards || 0) + '</span><span class="modal-sstat-lbl">Amar.</span></div>' +
-      '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#EF4444">🟥</span><span class="modal-sstat-val">' + (player.redCards || 0) + '</span><span class="modal-sstat-lbl">Roja</span></div>' +
-      '<div class="modal-sstat"><span class="modal-sstat-icon" style="color:#F59E0B">⭐</span><span class="modal-sstat-val">' + (avgRating ? avgRating.toFixed(1) : '-') + '</span><span class="modal-sstat-lbl">Media</span></div>' +
-      '</div>'
-  }
-  rendStats.innerHTML = statsHtml
-  document.getElementById('pd-rend-history').innerHTML = ''
+  document.getElementById('pd-energy-val').textContent = energy + '%'
+  const energyFill = document.getElementById('pd-energy-fill')
+  energyFill.style.width = energy + '%'
+  energyFill.style.background = energyColor
 
-  /* === MERCADO TAB === */
-  const actions = document.getElementById('pd-market-actions')
-  actions.innerHTML = ''
-  const formatPriceInput = (el) => {
-    if (el) el.addEventListener('input', function() {
-      const n = this.value.replace(/[^\d]/g, '')
-      this.value = n ? parseInt(n, 10).toLocaleString('es-ES') : ''
-    })
+  /* ---------- Estadísticas de la temporada (PJ/G/A/AMA/ROJ/MED) ---------- */
+  var tsCur = player.teamStats ? (player.teamStats[player.teamId] || player.teamStats[player.loanTo || ''] || Object.values(player.teamStats)[0]) : null
+  var sMatches = tsCur ? (tsCur.matches || 0) : (player.matches || 0)
+  var sGoals = tsCur ? (tsCur.goals || 0) : (player.goals || 0)
+  var sAssists = tsCur ? (tsCur.assists || 0) : (player.assists || 0)
+  var sYellow = tsCur ? (tsCur.yellowCards || tsCur.amarillas || 0) : (player.yellowCards || 0)
+  var sRed = tsCur ? (tsCur.redCards || tsCur.rojas || 0) : (player.redCards || 0)
+  var avgRating = playerAvgRating(player)
+  var sMedia = avgRating ? avgRating.toFixed(1) : '-'
+  var sstat = function(lbl, val, color) {
+    return '<div class="pd-sstat"><span class="pd-sstat-lbl">' + lbl + '</span><span class="pd-sstat-val"' + (color ? ' style="color:' + color + '"' : '') + '>' + val + '</span></div>'
   }
+  document.getElementById('pd-season').innerHTML =
+    '<div class="pd-season-row">' +
+    sstat('PJ', sMatches) +
+    sstat('G', sGoals) +
+    sstat('A', sAssists) +
+    sstat('AMA', sYellow, '#F59E0B') +
+    sstat('ROJ', sRed, '#EF4444') +
+    sstat('MED', sMedia) +
+    '</div>'
+
+  /* ---------- Acciones ---------- */
+  const actions = document.getElementById('pd-actions')
+  actions.innerHTML = ''
+  const closePd = () => document.getElementById('player-detail-modal').classList.remove('open')
+
+  /* Si llega desde «Ofertas recibidas», mostrar el club + valor a la derecha y los botones de decisión */
+  var offerSide = document.getElementById('pd-offer-side')
+  if (offerSide) offerSide.style.display = 'none'
+  if (offer && offer.id) {
+    var isLoanOffer = offer.type === 'cesion'
+    var ofClubLogo = getTeamLogo(offer.clubId)
+    var ofClubName = getTeamName(offer.clubId)
+    if (offerSide) {
+      document.getElementById('pd-offer-logo').src = ofClubLogo || ''
+      document.getElementById('pd-offer-logo').onerror = function() { this.style.display = 'none' }
+      document.getElementById('pd-offer-name').textContent = ofClubName
+      document.getElementById('pd-offer-amount').textContent = isLoanOffer ? 'CESI\u00d3N' + (offer.durationLabel ? ' \u00b7 ' + offer.durationLabel : '') : formatMoney(offer.amount)
+      offerSide.style.display = 'flex'
+    }
+    actions.innerHTML =
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button class="pd-btn pd-btn-accept" id="pd-accept">\u2713 Aceptar</button>' +
+        (isLoanOffer ? '' : '<button class="pd-btn pd-btn-counter" id="pd-counter">\u20AC Contraoferta</button>') +
+        '<button class="pd-btn pd-btn-reject" id="pd-reject">\u2715 Rechazar</button>' +
+      '</div>'
+    document.getElementById('pd-accept')?.addEventListener('click', () => { var oid = offer.id; closePd(); aceptarOfertaRecibida(oid) })
+    if (!isLoanOffer) document.getElementById('pd-counter')?.addEventListener('click', () => { var oid = offer.id; closePd(); negociarOferta(oid) })
+    document.getElementById('pd-reject')?.addEventListener('click', () => { var oid = offer.id; closePd(); rechazarOfertaRecibida(oid) })
+    document.getElementById('player-detail-modal').classList.add('open')
+    return
+  }
+
   const isOwn = state.players.some(p => p.id === player.id)
   const isFilialPlayer = isPlayerFromMyFilial(player)
   const isU18Player = isPlayerFromMyU18(player)
   const isParentPlayer = isPlayerFromMyParent(player)
   var filialId = getFilialId(state.teamId)
   var u18Id = filialId ? getFilialId(filialId) : null
+
   if (isOwn) {
     if (!player.onLoan) {
-      if (player.transferListed) {
-        actions.innerHTML += `
-          <div class="market-input-group">
-            <span class="market-input-label">Precio de venta actual</span>
-            <div style="text-align:center;font-weight:700;font-size:16px;color:var(--text)">${formatMoney(player.transferPrice)}</div>
-          </div>
-          <button class="btn-secondary" id="pd-retirar-lt">RETIRAR DE TRANSFERIBLES</button>`
-      } else {
-        actions.innerHTML += `
-          <div class="market-input-group" style="margin-bottom:10px">
-            <label class="market-input-label">Precio para lista de transferibles</label>
-            <input class="market-price-input" id="pd-lt-price" type="text" inputmode="numeric" value="${player.value.toLocaleString('es-ES')}" min="1">
-          </div>
-          <button class="btn-primary" id="pd-listar-lt" style="background:#EF4444">LISTA TRANSFERIBLES</button>`
-      }
-      if (player.loanListed) {
-        actions.innerHTML += `<button class="btn-secondary" id="pd-retirar-lc" style="margin-top:4px">RETIRAR CEDIBLES</button>`
-      } else {
-        actions.innerHTML += `<button class="btn-primary" id="pd-listar-lc" style="background:var(--accent);margin-top:4px">LISTA CEDIBLES</button>`
-      }
-      /* Filial button */
-      var filialId = getFilialId(state.teamId)
-      if (filialId) {
-        actions.innerHTML += `<button class="btn-secondary" id="pd-bajar-filial" style="background:#555;color:#fff;margin-top:8px">⬇ BAJAR AL FILIAL</button>`
-      }
-      /* U18 button */
-      if (u18Id) {
-        actions.innerHTML += `<button class="btn-secondary" id="pd-bajar-u18" style="background:#555;color:#fff;margin-top:8px">⬇ BAJAR AL U18</button>`
-      }
+      var ownBtns = '<button class="pd-btn pd-btn-lt" id="pd-lt">VENDER</button>' +
+        '<button class="pd-btn pd-btn-lc" id="pd-lc">CEDER</button>'
+      var downBtns = ''
+      if (filialId) downBtns += '<button class="pd-btn pd-btn-down" id="pd-down-filial">\u2B07 B</button>'
+      if (u18Id && player.age <= 18) downBtns += '<button class="pd-btn pd-btn-down" id="pd-down-u18">\u2B07 U18</button>'
+      actions.innerHTML = '<div style="display:flex;gap:8px;flex-wrap:wrap">' + ownBtns + downBtns + '</div>'
     } else {
-      actions.innerHTML += `<div style="text-align:center;padding:8px;background:rgba(245,158,11,0.1);border-radius:8px;font-size:12px;color:#F59E0B">Jugador cedido — no disponible para traspasos</div>`
+      actions.innerHTML = '<div style="padding:10px;text-align:center;font-size:12px;color:#F59E0B;background:rgba(245,158,11,0.1);border-radius:8px">Jugador cedido \u2014 no disponible para traspasos</div>'
     }
-    /* Bind events */
-    formatPriceInput(document.getElementById('pd-lt-price'))
-    document.getElementById('pd-retirar-lt')?.addEventListener('click', () => { player.transferListed = false; player.transferPrice = 0; document.getElementById('player-detail-modal').classList.remove('open'); renderMarketContent(); renderSquad(state.players) })
-    document.getElementById('pd-listar-lt')?.addEventListener('click', () => {
-      const price = parseInt(document.getElementById('pd-lt-price').value.replace(/\./g, ''))
-      if (!price || price < 1) return
-      player.transferListed = true; player.transferPrice = price; document.getElementById('player-detail-modal').classList.remove('open'); renderMarketContent(); renderSquad(state.players)
-      /* Generar ofertas inmediatas */
-      setTimeout(function() { generarOfertasParaJugador(player) }, 800)
-    })
-    document.getElementById('pd-retirar-lc')?.addEventListener('click', () => { player.loanListed = false; document.getElementById('player-detail-modal').classList.remove('open'); renderSquad(state.players) })
-    document.getElementById('pd-listar-lc')?.addEventListener('click', () => { player.loanListed = true; document.getElementById('player-detail-modal').classList.remove('open'); renderSquad(state.players) })
-    document.getElementById('pd-bajar-filial')?.addEventListener('click', () => {
-      if (player.age > 23) { alert('\u26a0\ufe0f No se puede bajar al B/II a jugadores de m\u00e1s de 23 a\u00f1os. Promuevelo o v\u00e9ndelo.'); return }
+    document.getElementById('pd-lt')?.addEventListener('click', () => { closePd(); venderJugador(player.id) })
+    document.getElementById('pd-lc')?.addEventListener('click', () => { closePd(); cederJugador(player.id) })
+    document.getElementById('pd-down-filial')?.addEventListener('click', () => {
+      if (player.age > 23) { alert('\u26a0\ufe0f No se puede bajar al B/II a jugadores de m\u00e1s de 23 a\u00f1os. Prom\u00fcl\u00f3velo o v\u00e9ndelo.'); return }
       if (state.filialSquad.length >= MAX_SQUAD) return
-      const idx = state.players.indexOf(player)
+      var idx = state.players.indexOf(player)
       if (idx < 0) return
       var demotedPlayer = { ...player, id: 'filial-down-' + Date.now(), energy: 100, goals: 0, assists: 0, matches: 0, teamStats: player.teamStats || {} }
       state.players.splice(idx, 1)
       state.filialSquad.push(demotedPlayer)
       addNotification('transfer', '\u2B07 ' + player.name + ' baja al filial', 'Traspasado a ' + getTeamName(filialId))
-      document.getElementById('player-detail-modal').classList.remove('open')
+      closePd()
       renderSquad(state.players)
     })
-    document.getElementById('pd-bajar-u18')?.addEventListener('click', () => {
+    document.getElementById('pd-down-u18')?.addEventListener('click', () => {
       if (player.age > 18) { alert('\u26a0\ufe0f No se puede bajar al U18 a jugadores de m\u00e1s de 18 a\u00f1os.'); return }
       if (state.filial2Squad.length >= MAX_SQUAD) return
-      const idx = state.players.indexOf(player)
+      var idx = state.players.indexOf(player)
       if (idx < 0) return
       var demotedU18 = { ...player, id: 'filial2-down-' + Date.now(), energy: 100, goals: 0, assists: 0, matches: 0, teamStats: player.teamStats || {} }
       state.players.splice(idx, 1)
       state.filial2Squad.push(demotedU18)
       addNotification('transfer', '\u2B07 ' + player.name + ' baja al U18', 'Traspasado a ' + getTeamName(u18Id))
-      document.getElementById('player-detail-modal').classList.remove('open')
+      closePd()
       renderSquad(state.players)
     })
   } else if (isFilialPlayer) {
     var filialTeamName = getTeamName(getFilialId(state.teamId))
-    actions.innerHTML = '<div style="text-align:center;padding:10px;background:rgba(16,185,129,0.08);border-radius:8px;font-size:13px;color:#10B981;margin-bottom:10px">Jugador del filial de ' + filialTeamName + '</div>' +
-      '<button class="btn-primary" id="pd-subir-filial" style="background:#10B981">\u2B06 SUBIR AL PRIMER EQUIPO</button>' +
-      (u18Id ? '<button class="btn-secondary" id="pd-bajar-u18" style="background:#555;color:#fff;margin-top:8px">⬇ BAJAR AL U18</button>' : '')
+    actions.innerHTML = '<div style="text-align:center;padding:8px;background:rgba(16,185,129,0.08);border-radius:8px;font-size:12px;color:#10B981;margin-bottom:8px">Jugador del filial de ' + filialTeamName + '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="pd-btn pd-btn-lc" id="pd-subir-filial" style="background:#10B981">\u2B06 SUBIR</button>' +
+      (u18Id ? '<button class="pd-btn pd-btn-down" id="pd-bajar-u18">\u2B07 U18</button>' : '') + '</div>'
     document.getElementById('pd-subir-filial')?.addEventListener('click', function() {
       if (state.players.length >= MAX_SQUAD) { alert('Plantilla completa (' + MAX_SQUAD + ' jugadores)'); return }
       var idx = state.filialSquad.indexOf(player)
@@ -20044,7 +22713,7 @@ function openPlayerDetail(player, teamObj) {
       state.filialSquad.splice(idx, 1)
       state.players.push({ ...player, id: 'promoted-' + Date.now(), value: calcValue(player.skill, player.age, player.position), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null, teamStats: player.teamStats || {} })
       addNotification('transfer', '\u2B06 ' + player.name + ' sube al primer equipo', 'Promocionado desde ' + filialTeamName)
-      document.getElementById('player-detail-modal').classList.remove('open')
+      closePd()
       renderSquad(state.players)
     })
     document.getElementById('pd-bajar-u18')?.addEventListener('click', function() {
@@ -20056,14 +22725,15 @@ function openPlayerDetail(player, teamObj) {
       state.filialSquad.splice(idx, 1)
       state.filial2Squad.push(demotedU18)
       addNotification('transfer', '\u2B07 ' + player.name + ' baja al U18', 'Traspasado a ' + getTeamName(u18Id))
-      document.getElementById('player-detail-modal').classList.remove('open')
+      closePd()
       renderSquad(state.players)
     })
   } else if (isU18Player) {
     var u18TeamName = getTeamName(u18Id)
-    actions.innerHTML = '<div style="text-align:center;padding:10px;background:rgba(139,92,246,0.08);border-radius:8px;font-size:13px;color:#8B5CF6;margin-bottom:10px">Jugador del ' + u18TeamName + '</div>' +
-      (filialId ? '<button class="btn-primary" id="pd-subir-u18-ii" style="background:#10B981;margin-bottom:8px">\u2B06 SUBIR AL EQUIPO B/II</button>' : '') +
-      '<button class="btn-primary" id="pd-subir-u18-first" style="background:#10B981">\u2B06 SUBIR AL PRIMER EQUIPO</button>'
+    actions.innerHTML = '<div style="text-align:center;padding:8px;background:rgba(139,92,246,0.08);border-radius:8px;font-size:12px;color:#8B5CF6;margin-bottom:8px">Jugador del ' + u18TeamName + '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      (filialId ? '<button class="pd-btn pd-btn-lc" id="pd-subir-u18-ii" style="background:#10B981">\u2B06 B/II</button>' : '') +
+      '<button class="pd-btn pd-btn-lc" id="pd-subir-u18-first" style="background:#10B981">\u2B06 PRIMER</button></div>'
     document.getElementById('pd-subir-u18-ii')?.addEventListener('click', function() {
       if (state.filialSquad.length >= MAX_SQUAD) { alert('Plantilla del filial completa (' + MAX_SQUAD + ' jugadores)'); return }
       var idx = state.filial2Squad.indexOf(player)
@@ -20071,7 +22741,7 @@ function openPlayerDetail(player, teamObj) {
       state.filial2Squad.splice(idx, 1)
       state.filialSquad.push({ ...player, id: 'filial-promoted-' + Date.now(), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], teamStats: player.teamStats || {} })
       addNotification('transfer', '\u2B06 ' + player.name + ' sube al equipo B/II', 'Promocionado desde ' + u18TeamName)
-      document.getElementById('player-detail-modal').classList.remove('open')
+      closePd()
       renderSquad(state.players)
     })
     document.getElementById('pd-subir-u18-first')?.addEventListener('click', function() {
@@ -20081,28 +22751,34 @@ function openPlayerDetail(player, teamObj) {
       state.filial2Squad.splice(idx, 1)
       state.players.push({ ...player, id: 'promoted-' + Date.now(), value: calcValue(player.skill, player.age, player.position), energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null, teamStats: player.teamStats || {} })
       addNotification('transfer', '\u2B06 ' + player.name + ' sube al primer equipo', 'Promocionado desde ' + u18TeamName)
-      document.getElementById('player-detail-modal').classList.remove('open')
+      closePd()
       renderSquad(state.players)
     })
   } else if (isParentPlayer) {
-    actions.innerHTML = '<div style="text-align:center;padding:10px;background:rgba(0,0,0,0.04);border-radius:8px;font-size:13px;color:var(--text-muted)">Jugador del primer equipo — No disponible</div>'
+    actions.innerHTML = '<div style="text-align:center;padding:10px;background:rgba(0,0,0,0.04);border-radius:8px;font-size:13px;color:var(--text-muted)">Jugador del primer equipo \u2014 No disponible</div>'
   } else if (player.onLoan && player.loanFrom) {
-    actions.innerHTML = '<div style="text-align:center;padding:10px;background:rgba(255,193,7,0.1);border-radius:8px;font-size:13px;color:#F59E0B;margin-bottom:10px">\ud83d\udcc4 Jugador cedido a este equipo — No est\u00e1 disponible para fichaje ni cesi\u00f3n hasta que regrese a ' + escHtml(player.loanFrom ? getTeamName(player.loanFrom) || 'su club de origen' : 'su club de origen') + '</div>'
+    actions.innerHTML = '<div style="text-align:center;padding:10px;background:rgba(255,193,7,0.1);border-radius:8px;font-size:13px;color:#F59E0B;margin-bottom:10px">Jugador cedido a este equipo \u2014 No disponible para fichaje ni cesi\u00f3n hasta que regrese a ' + escHtml(getTeamName(player.loanFrom) || 'su club de origen') + '</div>'
   } else if (player.onLoan) {
-    actions.innerHTML = '<div style="text-align:center;padding:10px;background:rgba(255,193,7,0.1);border-radius:8px;font-size:13px;color:#F59E0B;margin-bottom:10px">\ud83d\udcc4 Jugador cedido — No disponible para fichaje ni cesi\u00f3n hasta que regrese a su club de origen</div>'
+    actions.innerHTML = '<div style="text-align:center;padding:10px;background:rgba(255,193,7,0.1);border-radius:8px;font-size:13px;color:#F59E0B;margin-bottom:10px">Jugador cedido \u2014 No disponible para fichaje ni cesi\u00f3n hasta que regrese a su club de origen</div>'
   } else {
-    /* CPU player — negotiation system */
+    /* CPU player \u2014 negotiation system (stepper: Fichar / Ceder) */
     let acceptedPrice = 0
+    window._pdBuyOffer = null
     const renderMercadoCPU = (screen) => {
-      const valueStr = formatMoney(player.value)
-      let h = `<div style="text-align:center;font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:8px">Valor de mercado: ${valueStr}</div>`
+      const value = player.value || calcValue(player.skill, player.age, player.position)
+      var buyOffer = (screen === 'initial' && window._pdBuyOffer != null) ? window._pdBuyOffer : value
+      var step = buyOffer >= 1000000 ? 1000000 : 100000
+      let h = ''
       if (screen === 'initial') {
-        h += `<div class="market-input-group" style="margin-bottom:8px">
-          <label class="market-input-label">Tu oferta</label>
-          <input class="market-price-input" id="pd-offer-price" type="text" inputmode="numeric" value="${player.value.toLocaleString('es-ES')}">
+        h += `<div class="pd-buy-bar">
+          <button class="pd-btn pd-btn-lt" id="pd-enviar-oferta">FICHAR</button>
+          <div class="pd-buy-stepper">
+            <button class="pd-step-btn" id="pd-offer-minus">&minus;</button>
+            <div class="pd-buy-amount" id="pd-buy-amount">${formatMoneyShort(buyOffer)}</div>
+            <button class="pd-step-btn" id="pd-offer-plus">+</button>
+          </div>
+          <button class="pd-btn pd-btn-lc" id="pd-pedir-cedido">CEDER</button>
         </div>
-        <button class="btn-primary" id="pd-enviar-oferta" style="background:#10B981">ENVIAR OFERTA</button>
-        <button class="btn-primary" id="pd-pedir-cedido" style="margin-top:6px">PEDIR CEDIDO</button>
         <div id="pd-oferta-resultado" style="margin-top:8px"></div>`
       } else if (screen === 'accepted') {
         h += `<div style="text-align:center;padding:10px;background:rgba(16,185,129,0.1);border-radius:8px;font-size:14px;font-weight:700;color:#10B981;margin-bottom:8px">\u00a1Oferta aceptada! Precio final: ${formatMoney(acceptedPrice)}</div>
@@ -20110,11 +22786,13 @@ function openPlayerDetail(player, teamObj) {
       }
       actions.innerHTML = h
       if (screen === 'initial') {
-        formatPriceInput(document.getElementById('pd-offer-price'))
+        var setOffer = function(newVal) { window._pdBuyOffer = Math.max(1000, Math.round(newVal)); renderMercadoCPU('initial') }
+        document.getElementById('pd-offer-plus')?.addEventListener('click', () => setOffer(buyOffer + step))
+        document.getElementById('pd-offer-minus')?.addEventListener('click', () => setOffer(buyOffer - step))
         document.getElementById('pd-enviar-oferta')?.addEventListener('click', () => {
           if (!state.transferWindowOpen) { alert('\ud83d\udd12 El mercado de fichajes est\u00e1 cerrado'); return }
-          if (state.boughtPlayerIds.indexOf(player.id) >= 0) { alert('Este jugador ya ha sido fichado'); document.getElementById('player-detail-modal').classList.remove('open'); return }
-          const offer = parseInt(document.getElementById('pd-offer-price').value.replace(/\./g, ''))
+          if (state.boughtPlayerIds.indexOf(player.id) >= 0) { alert('Este jugador ya ha sido fichado'); closePd(); return }
+          const offer = buyOffer
           if (!offer || offer < 1) return
           const result = evaluarOferta(player, offer)
           if (result.type === 'accepted') {
@@ -20130,75 +22808,39 @@ function openPlayerDetail(player, teamObj) {
             state.players.push(newP)
             state.boughtPlayerIds.push(player.id)
             state.finances.balance -= result.price
+            registrarTraspasoEnHistorial({
+              playerName: player.name, playerSkill: player.skill,
+              playerPosition: player.position, playerAge: player.age,
+              playerAvatar: player.avatar || '',
+              fromTeam: (team ? team.name : ''), fromTeamId: player.teamId, fromLogo: (team ? team.logo || '' : ''),
+              toTeam: state.team + ' (Tú)', toTeamId: state.teamId, toLogo: state.teamLogo || '',
+              price: result.price, isLoan: false, isUserRelated: true
+            })
             var _posBuy2 = POS_ABBR[player.position] || player.position || '?'
             state.finances.history.push({ reason: 'Fichaje: ' + player.name + ' (' + _posBuy2 + ') \u00b7 ' + formatMoney(result.price) + ' \u00b7 ' + (team ? team.name : ''), amount: -result.price })
-            addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality, { playerData: { name: player.name, skill: player.skill, position: player.position, age: player.age, avatar: player.avatar, nationality: player.nationality, price: result.price, otherPositions: player.otherPositions, mainPct: player.mainPct } })
+            addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality, { playerData: { name: player.name, skill: player.skill, position: player.position, age: player.age, avatar: player.avatar, nationality: player.nationality, price: result.price, otherPositions: player.otherPositions } })
             showTransferConfirmModal({
               type: 'Fichaje', price: result.price, player: newP,
               fromTeam: team ? team.name : '', fromTeamId: player.teamId, fromLogo: team ? team.logo || '' : '',
               toTeam: state.team, toLogo: state.teamLogo || '',
               teamStats: player.teamStats ? player.teamStats[player.teamId] : null
             })
-            document.getElementById('player-detail-modal').classList.remove('open')
+            closePd()
             renderMarketContent()
             return
           } else if (result.type === 'counter') {
-            const resEl = document.getElementById('pd-oferta-resultado')
-            resEl.innerHTML = `<div style="text-align:center;padding:8px;background:rgba(245,158,11,0.1);border-radius:8px;font-size:13px;font-weight:600;color:#F59E0B">${result.msg}</div>
-              <button class="btn-primary" id="pd-aceptar-contra" style="background:#10B981;margin-top:6px">ACEPTAR CONTRAOFERTA (${formatMoney(result.price)})</button>
-              <button class="btn-secondary" id="pd-rechazar-contra" style="background:#EF4444;color:#fff;border-color:#EF4444;margin-top:4px">RECHAZAR</button>`
-            document.getElementById('pd-aceptar-contra')?.addEventListener('click', () => {
-              if (!state.transferWindowOpen) { alert('\ud83d\udd12 El mercado de fichajes est\u00e1 cerrado'); return }
-              if (state.boughtPlayerIds.indexOf(player.id) >= 0) { alert('Este jugador ya ha sido fichado'); document.getElementById('player-detail-modal').classList.remove('open'); return }
-              if (state.players.length >= MAX_SQUAD) { alert('Plantilla completa (' + MAX_SQUAD + ' jugadores)'); return }
-              if (state.finances.balance < result.price) { alert('Fondos insuficientes. Necesitas ' + formatMoney(result.price)); return }
-              /* Remove from global pool */
-              var gi = state.globalPlayers.findIndex(function(p) { return p.id === player.id })
-              if (gi >= 0) state.globalPlayers.splice(gi, 1)
-              /* Remove from source team if found */
-              var team = getTeamObj(player.teamId)
-              if (team) {
-                var ti = team.players.findIndex(function(p) { return p.id === player.id })
-                if (ti >= 0) team.players.splice(ti, 1)
-              }
-              /* Add to user's team */
-              var newP = { ...player, id: 'user-' + Date.now(), value: player.value || calcValue(player.skill, player.age, player.position), teamId: state.teamId, energy: 100, matches: 0, goals: 0, assists: 0, yellowCards: 0, redCards: 0, mvp: 0, matchHistory: [], transferListed: false, transferPrice: 0, loanListed: false, enPista: false, minutosEnPista: 0, convocado: false, titular: false, injury: null, contractUntil: '30/06/' + (2027 + state.seasonNumber), onLoan: false, loanFrom: null, loanUntil: null }
-              state.players.push(newP)
-              state.boughtPlayerIds.push(player.id)
-              state.finances.balance -= result.price
-            var _posBuy3 = POS_ABBR[player.position] || player.position || '?'
-            state.finances.history.push({ reason: 'Fichaje: ' + player.name + ' (' + _posBuy3 + ') \u00b7 ' + formatMoney(result.price) + ' \u00b7 ' + (team ? team.name : ''), amount: -result.price })
-              addNotification('transfer', 'Fichaje completado: ' + player.name, formatMoney(result.price) + ' \u00b7 ' + player.nationality, { playerData: { name: player.name, skill: player.skill, position: player.position, age: player.age, avatar: player.avatar, nationality: player.nationality, price: result.price, otherPositions: player.otherPositions, mainPct: player.mainPct } })
-              showTransferConfirmModal({
-                type: 'Fichaje', price: result.price, player: newP,
-                fromTeam: team ? team.name : '', fromTeamId: player.teamId, fromLogo: team ? team.logo || '' : '',
-                toTeam: state.team, toLogo: state.teamLogo || '',
-                teamStats: player.teamStats ? player.teamStats[player.teamId] : null
-              })
-              document.getElementById('player-detail-modal').classList.remove('open')
-              renderMarketContent()
-            })
-            document.getElementById('pd-rechazar-contra')?.addEventListener('click', () => renderMercadoCPU('initial'))
+            showOfferResultModal(result, player, team || getTeamObj(player.teamId))
+            renderMercadoCPU('initial')
           } else {
-            const resEl = document.getElementById('pd-oferta-resultado')
-            resEl.innerHTML = `<div style="text-align:center;padding:8px;background:rgba(239,68,68,0.1);border-radius:8px;font-size:13px;font-weight:600;color:#EF4444">${result.msg}</div>
-              <button class="btn-secondary" id="pd-volver-intentar" style="margin-top:6px">VOLVER A INTENTAR</button>`
-            document.getElementById('pd-volver-intentar')?.addEventListener('click', () => renderMercadoCPU('initial'))
+            showOfferResultModal(result, player, team || getTeamObj(player.teamId))
+            renderMercadoCPU('initial')
           }
         })
         document.getElementById('pd-pedir-cedido')?.addEventListener('click', () => {
           if (!state.transferWindowOpen) { alert('\ud83d\udd12 El mercado de fichajes est\u00e1 cerrado'); return }
           const resEl = document.getElementById('pd-oferta-resultado')
-          resEl.innerHTML = '<div style="text-align:center;padding:8px;background:rgba(59,130,246,0.08);border-radius:8px;margin-bottom:6px">' +
-            '<div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px">Duraci\u00f3n de la cesi\u00f3n</div>' +
-            '<div style="display:flex;gap:6px;justify-content:center">' +
-            '<button class="btn-primary" id="pd-cesion-med" style="padding:8px 14px;font-size:12px">\u00bd Temporada</button>' +
-            '<button class="btn-primary" id="pd-cesion-1t" style="padding:8px 14px;font-size:12px">1 Temporada</button>' +
-            '<button class="btn-primary" id="pd-cesion-2t" style="padding:8px 14px;font-size:12px">2 Temporadas</button>' +
-            '</div></div>'
-          document.getElementById('pd-cesion-med')?.addEventListener('click', () => procesarSolicitudCesion(player, team, 0.5, resEl))
-          document.getElementById('pd-cesion-1t')?.addEventListener('click', () => procesarSolicitudCesion(player, team, 1, resEl))
-          document.getElementById('pd-cesion-2t')?.addEventListener('click', () => procesarSolicitudCesion(player, team, 2, resEl))
+          var cost = Math.round(value * 0.25)
+          procesarSolicitudCesion(player, team, 1, resEl, cost)
         })
       } else if (screen === 'accepted') {
         document.getElementById('pd-comprar-tras-oferta')?.addEventListener('click', () => {
@@ -20208,25 +22850,12 @@ function openPlayerDetail(player, teamObj) {
           if (!team) return
           const teamPlayer = team.players.find(p => p.id === player.id)
           if (teamPlayer) buyPlayer(teamPlayer, team, acceptedPrice)
-          document.getElementById('player-detail-modal').classList.remove('open')
+          closePd()
         })
       }
     }
     renderMercadoCPU('initial')
   }
-
-  /* Tab switching */
-  const showTab = (tab) => {
-    document.querySelectorAll('.pd-tab').forEach(b => b.classList.toggle('active', b.dataset.pdTab === tab))
-    document.querySelectorAll('.pd-tab-content').forEach(c => c.classList.add('hidden'))
-    const content = document.getElementById('pd-' + tab + '-content')
-    if (content) content.classList.remove('hidden')
-  }
-  document.querySelectorAll('.pd-tab').forEach(btn => {
-    btn.onclick = () => showTab(btn.dataset.pdTab)
-  })
-  /* Default: info tab */
-  showTab('info')
 
   document.getElementById('player-detail-modal').classList.add('open')
 }
@@ -20237,12 +22866,14 @@ try {
   el('btn-new-game') && (el('btn-new-game').onclick = showNewGameScreen)
   el('btn-load-game') && (el('btn-load-game').onclick = showLoadMenu)
   el('btn-load-back') && (el('btn-load-back').onclick = showMainMenu)
-  el('btn-ng-back') && (el('btn-ng-back').onclick = () => {
+  el('btn-ng-back-action') && (el('btn-ng-back-action').onclick = () => {
     const teams = el('ng-step-teams')
     if (teams && teams.classList.contains('ng-hidden') === false) {
       const countries = el('ng-step-countries')
       teams.classList.add('ng-hidden')
       countries.classList.remove('ng-hidden')
+      const _ngCont3 = el('btn-ng-continue')
+      if (_ngCont3) _ngCont3.style.display = ''
       document.querySelectorAll('.ng-step').forEach((s, i) => {
         s.classList.toggle('done', false)
         s.classList.toggle('active', i === 0)
@@ -20251,7 +22882,6 @@ try {
       showMainMenu()
     }
   })
-  el('btn-ng-back-action') && (el('btn-ng-back-action').onclick = () => { const b = el('btn-ng-back'); if (b) b.click() })
   el('btn-ng-continue') && (el('btn-ng-continue').onclick = () => {
     const teams = el('ng-step-teams')
     if (teams && teams.classList.contains('ng-hidden') === false) {
@@ -20267,7 +22897,6 @@ try {
     state.soundEnabled = e.target.checked
     if (state.soundEnabled) playSound('click')
   })
-  el('pd-close') && (el('pd-close').onclick = () => { const m = el('player-detail-modal'); if (m) m.classList.remove('open') })
   el('player-detail-modal') && (el('player-detail-modal').onclick = (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open') })
 } catch(e) { console.warn('[INIT] Error:', e) }
 

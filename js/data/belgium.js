@@ -5,24 +5,24 @@ window.DB.belgium = {
     leagues: [
       { id: 'l1b', name: 'Jupiler Pro League', logo: 'https://cdn.resfu.com/media/img/league_logos/liga_belga.png?size=120x&lossy=1',
         teams: [
-          { id: 'club-brugge', name: 'Club Brugge', rating: 80, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/6200.jpg?size=120x&lossy=1', budget: 35000000, palmares: [{ comp: 'Liga Belga', count: 20, years: ['2025-26', '2023-24', '2021-22', '2020-21', '2019-20', '2017-18', '2015-16', '2004-05', '2002-03', '1997-98', '1995-96', '1991-92', '1989-90', '1987-88', '1979-80', '1977-78', '1976-77', '1975-76', '1972-73', '1919-20'] }, { comp: 'Copa Belga', count: 5, years: ['2025', '2015', '2007', '2004', '2002'] }, { comp: 'Supercopa Belga', count: 18, years: ['2025', '2022', '2021', '2018', '2016', '2005', '2004', '2003', '2002', '1998', '1996', '1994', '1992', '1991', '1990', '1988', '1986', '1980'] }] },
-          { id: 'anderlecht', name: 'Anderlecht', rating: 78, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/218.jpg?size=120x&lossy=1', budget: 20000000, palmares: [{ comp: 'Europa League', count: 1, years: ['1982-83'] }, { comp: 'Supercopa Europa', count: 2, years: ['1978', '1976'] }, { comp: 'Liga Belga', count: 34, years: ['2016-17', '2013-14', '2012-13', '2011-12', '2009-10', '2006-07', '2005-06', '2003-04', '2000-01', '1999-00', '1994-95', '1993-94', '1992-93', '1990-91', '1986-87', '1985-86', '1984-85', '1980-81', '1973-74', '1971-72', '1967-68', '1966-67', '1965-66', '1964-65', '1963-64', '1961-62', '1958-59', '1955-56', '1954-55', '1953-54', '1950-51', '1949-50', '1948-49', '1946-47'] }, { comp: 'Copa Belga', count: 1, years: ['2008'] }, { comp: 'Supercopa Belga', count: 13, years: ['2017', '2014', '2013', '2012', '2010', '2007', '2006', '2001', '2000', '1995', '1993', '1987', '1985'] }] },
-          { id: 'genk', name: 'Genk', rating: 76, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/9785.jpg?size=120x&lossy=1', budget: 25000000, palmares: [{ comp: 'Liga Belga', count: 4, years: ['2018-19', '2010-11', '2001-02', '1998-99'] }, { comp: 'Copa Belga', count: 4, years: ['2021', '2013', '2009', '2000'] }, { comp: 'Supercopa Belga', count: 2, years: ['2019', '2011'] }] },
-          { id: 'antwerp', name: 'Antwerp', rating: 74, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/7512.jpg?size=120x&lossy=1', budget: 12000000, palmares: [{ comp: 'Liga Belga', count: 5, years: ['2022-23', '1956-57', '1943-44', '1930-31', '1928-29'] }, { comp: 'Copa Belga', count: 2, years: ['2023', '2020'] }, { comp: 'Supercopa Belga', count: 1, years: ['2023'] }, { comp: 'Segunda División Bélgica', count: 2, years: ['2016-17', '1999-00'] }] },
-          { id: 'union-saint-gilloise', name: 'Union Saint-Gilloise', rating: 75, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/escudos/medium/7551.jpg?size=120x&lossy=1', budget: 22000000, palmares: [{ comp: 'Liga Belga', count: 12, years: ['2024-25', '1934-35', '1933-34', '1932-33', '1922-23', '1912-13', '1909-10', '1908-09', '1906-07', '1905-06', '1904-05', '1903-04'] }, { comp: 'Copa Belga', count: 2, years: ['2026', '2024'] }, { comp: 'Supercopa Belga', count: 2, years: ['2026', '2024'] }, { comp: 'Segunda División Bélgica', count: 1, years: ['2020-21'] }, { comp: 'División Belga 2', count: 1, years: ['2003-04'] }] },
-          { id: 'standard-liege', name: 'Standard de Liège', rating: 73, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2425.jpg?size=120x&lossy=1', budget: 14000000, palmares: [{ comp: 'Liga Belga', count: 10, years: ['2008-09', '2007-08', '1982-83', '1981-82', '1970-71', '1969-70', '1968-69', '1962-63', '1960-61', '1957-58'] }, { comp: 'Copa Belga', count: 4, years: ['2018', '2016', '2011', '1993'] }, { comp: 'Supercopa Belga', count: 4, years: ['2009', '2008', '1983', '1981'] }] },
-          { id: 'kaa-gent', name: 'KAA Gent', rating: 72, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1431.jpg?size=120x&lossy=1', budget: 15000000, palmares: [{ comp: 'Liga Belga', count: 1, years: ['2014-15'] }, { comp: 'Copa Belga', count: 2, years: ['2022', '2010'] }, { comp: 'Supercopa Belga', count: 1, years: ['2015'] }] },
-          { id: 'cercle-brugge', name: 'Cercle Brugge', rating: 70, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/9786.jpg?size=120x&lossy=1', budget: 9000000, palmares: [{ comp: 'Liga Belga', count: 3, years: ['1929-30', '1926-27', '1910-11'] }, { comp: 'Segunda División Bélgica', count: 2, years: ['2017-18', '2002-03'] }] },
-          { id: 'charleroi', name: 'Charleroi', rating: 70, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/7514.jpg?size=120x&lossy=1', budget: 5500000, palmares: [{ comp: 'Segunda División Bélgica', count: 1, years: ['2011-12'] }] },
-          { id: 'oh-leuven', name: 'OH Leuven', rating: 69, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/5801.jpg?size=120x&lossy=1', budget: 7500000, palmares: [{ comp: 'Segunda División Bélgica', count: 2, years: ['2019-20', '2010-11'] }, { comp: 'División Belga 2', count: 1, years: ['2004-05'] }] },
-          { id: 'kv-mechelen', name: 'KV Mechelen', rating: 69, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1670.jpg?size=120x&lossy=1', budget: 10000000, palmares: [{ comp: 'Supercopa Europa', count: 1, years: ['1988'] }, { comp: 'Liga Belga', count: 4, years: ['1988-89', '1947-48', '1945-46', '1942-43'] }, { comp: 'Copa Belga', count: 1, years: ['2019'] }, { comp: 'Segunda División Bélgica', count: 2, years: ['2018-19', '2001-02'] }, { comp: 'División Belga 2', count: 1, years: ['2004-05'] }] },
-          { id: 'kvc-westerlo', name: 'KVC Westerlo', rating: 68, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/1478.jpg?size=120x&lossy=1', budget: 8500000, palmares: [{ comp: 'Copa Belga', count: 1, years: ['2001'] }, { comp: 'Segunda División Bélgica', count: 2, years: ['2021-22', '2013-14'] }] },
-          { id: 'sint-truiden', name: 'Sint-Truidense VV', rating: 68, formation: '3-4-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2342.jpg?size=120x&lossy=1', budget: 7000000, palmares: [{ comp: 'Segunda División Bélgica', count: 2, years: ['2014-15', '2008-09'] }] },
-          { id: 'kv-kortrijk', name: 'KV Kortrijk', rating: 67, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/9778.jpg?size=120x&lossy=1', budget: 4000000, palmares: [{ comp: 'Segunda División Bélgica', count: 1, years: ['2007-08'] }] },
-          { id: 'raal-la-louviere', name: 'RAAL La Louviere', rating: 66, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/63671.jpg?size=120x&lossy=1', budget: 5000000, palmares: [{ comp: 'División Nacional Belga 1', count: 1, years: ['2023-24'] }, { comp: 'División Belga 2', count: 1, years: ['2021-22'] }] },
-          { id: 'zulte-waregem', name: 'Zulte-Waregem', rating: 66, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/escudos/medium/2799.jpg?size=120x&lossy=1', budget: 4500000, palmares: [{ comp: 'Copa Belga', count: 2, years: ['2017', '2006'] }, { comp: 'Segunda División Bélgica', count: 1, years: ['2024-25'] }, { comp: 'División Belga 2', count: 1, years: ['2001-02'] }] },
-          { id: 'lommel-sk', name: 'Lommel SK', rating: 65, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/7511.jpg?size=120x&lossy=1', budget: 6500000, palmares: [{ comp: 'División Nacional Belga 1', count: 1, years: ['2017-18'] }, { comp: 'División Belga 2', count: 1, years: ['2004-05'] }] },
-          { id: 'sk-beveren', name: 'SK Beveren', rating: 65, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/escudos/medium/7507.jpg?size=120x&lossy=1', budget: 3500000, palmares: [{ comp: 'Segunda División Bélgica', count: 1, years: ['2025-26'] }, { comp: 'División Belga 2', count: 1, years: ['2003-04'] }] }
+          { id: 'club-brugge', name: 'Club Brugge', rating: 80, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/6200.png?size=120x&lossy=1', budget: 35000000, palmares: [{ comp: 'Liga Belga', count: 20, years: ['2025-26', '2023-24', '2021-22', '2020-21', '2019-20', '2017-18', '2015-16', '2004-05', '2002-03', '1997-98', '1995-96', '1991-92', '1989-90', '1987-88', '1979-80', '1977-78', '1976-77', '1975-76', '1972-73', '1919-20'] }, { comp: 'Copa Belga', count: 5, years: ['2025', '2015', '2007', '2004', '2002'] }, { comp: 'Supercopa Belga', count: 18, years: ['2025', '2022', '2021', '2018', '2016', '2005', '2004', '2003', '2002', '1998', '1996', '1994', '1992', '1991', '1990', '1988', '1986', '1980'] }] },
+          { id: 'anderlecht', name: 'Anderlecht', rating: 78, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/218.png?size=120x&lossy=1', budget: 20000000, palmares: [{ comp: 'Europa League', count: 1, years: ['1982-83'] }, { comp: 'Supercopa Europa', count: 2, years: ['1978', '1976'] }, { comp: 'Liga Belga', count: 34, years: ['2016-17', '2013-14', '2012-13', '2011-12', '2009-10', '2006-07', '2005-06', '2003-04', '2000-01', '1999-00', '1994-95', '1993-94', '1992-93', '1990-91', '1986-87', '1985-86', '1984-85', '1980-81', '1973-74', '1971-72', '1967-68', '1966-67', '1965-66', '1964-65', '1963-64', '1961-62', '1958-59', '1955-56', '1954-55', '1953-54', '1950-51', '1949-50', '1948-49', '1946-47'] }, { comp: 'Copa Belga', count: 1, years: ['2008'] }, { comp: 'Supercopa Belga', count: 13, years: ['2017', '2014', '2013', '2012', '2010', '2007', '2006', '2001', '2000', '1995', '1993', '1987', '1985'] }] },
+          { id: 'genk', name: 'Genk', rating: 76, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/9785.png?size=120x&lossy=1', budget: 25000000, palmares: [{ comp: 'Liga Belga', count: 4, years: ['2018-19', '2010-11', '2001-02', '1998-99'] }, { comp: 'Copa Belga', count: 4, years: ['2021', '2013', '2009', '2000'] }, { comp: 'Supercopa Belga', count: 2, years: ['2019', '2011'] }] },
+          { id: 'antwerp', name: 'Antwerp', rating: 74, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/7512.png?size=120x&lossy=1', budget: 12000000, palmares: [{ comp: 'Liga Belga', count: 5, years: ['2022-23', '1956-57', '1943-44', '1930-31', '1928-29'] }, { comp: 'Copa Belga', count: 2, years: ['2023', '2020'] }, { comp: 'Supercopa Belga', count: 1, years: ['2023'] }, { comp: 'Segunda División Bélgica', count: 2, years: ['2016-17', '1999-00'] }] },
+          { id: 'union-saint-gilloise', name: 'Union Saint-Gilloise', rating: 75, formation: '4-3-3', gamePlan: 'extremo', logo: 'https://cdn.resfu.com/img_data/equipos/7551.png?size=120x&lossy=1', budget: 22000000, palmares: [{ comp: 'Liga Belga', count: 12, years: ['2024-25', '1934-35', '1933-34', '1932-33', '1922-23', '1912-13', '1909-10', '1908-09', '1906-07', '1905-06', '1904-05', '1903-04'] }, { comp: 'Copa Belga', count: 2, years: ['2026', '2024'] }, { comp: 'Supercopa Belga', count: 2, years: ['2026', '2024'] }, { comp: 'Segunda División Bélgica', count: 1, years: ['2020-21'] }, { comp: 'División Belga 2', count: 1, years: ['2003-04'] }] },
+          { id: 'standard-liege', name: 'Standard de Liège', rating: 73, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2425.png?size=120x&lossy=1', budget: 14000000, palmares: [{ comp: 'Liga Belga', count: 10, years: ['2008-09', '2007-08', '1982-83', '1981-82', '1970-71', '1969-70', '1968-69', '1962-63', '1960-61', '1957-58'] }, { comp: 'Copa Belga', count: 4, years: ['2018', '2016', '2011', '1993'] }, { comp: 'Supercopa Belga', count: 4, years: ['2009', '2008', '1983', '1981'] }] },
+          { id: 'kaa-gent', name: 'KAA Gent', rating: 72, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1431.png?size=120x&lossy=1', budget: 15000000, palmares: [{ comp: 'Liga Belga', count: 1, years: ['2014-15'] }, { comp: 'Copa Belga', count: 2, years: ['2022', '2010'] }, { comp: 'Supercopa Belga', count: 1, years: ['2015'] }] },
+          { id: 'cercle-brugge', name: 'Cercle Brugge', rating: 70, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/9786.png?size=120x&lossy=1', budget: 9000000, palmares: [{ comp: 'Liga Belga', count: 3, years: ['1929-30', '1926-27', '1910-11'] }, { comp: 'Segunda División Bélgica', count: 2, years: ['2017-18', '2002-03'] }] },
+          { id: 'charleroi', name: 'Charleroi', rating: 70, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/7514.png?size=120x&lossy=1', budget: 5500000, palmares: [{ comp: 'Segunda División Bélgica', count: 1, years: ['2011-12'] }] },
+          { id: 'oh-leuven', name: 'OH Leuven', rating: 69, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/5801.png?size=120x&lossy=1', budget: 7500000, palmares: [{ comp: 'Segunda División Bélgica', count: 2, years: ['2019-20', '2010-11'] }, { comp: 'División Belga 2', count: 1, years: ['2004-05'] }] },
+          { id: 'kv-mechelen', name: 'KV Mechelen', rating: 69, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/1670.png?size=120x&lossy=1', budget: 10000000, palmares: [{ comp: 'Supercopa Europa', count: 1, years: ['1988'] }, { comp: 'Liga Belga', count: 4, years: ['1988-89', '1947-48', '1945-46', '1942-43'] }, { comp: 'Copa Belga', count: 1, years: ['2019'] }, { comp: 'Segunda División Bélgica', count: 2, years: ['2018-19', '2001-02'] }, { comp: 'División Belga 2', count: 1, years: ['2004-05'] }] },
+          { id: 'kvc-westerlo', name: 'KVC Westerlo', rating: 68, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/1478.png?size=120x&lossy=1', budget: 8500000, palmares: [{ comp: 'Copa Belga', count: 1, years: ['2001'] }, { comp: 'Segunda División Bélgica', count: 2, years: ['2021-22', '2013-14'] }] },
+          { id: 'sint-truiden', name: 'Sint-Truidense VV', rating: 68, formation: '3-4-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/2342.png?size=120x&lossy=1', budget: 7000000, palmares: [{ comp: 'Segunda División Bélgica', count: 2, years: ['2014-15', '2008-09'] }] },
+          { id: 'kv-kortrijk', name: 'KV Kortrijk', rating: 67, formation: '4-2-3-1', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/9778.png?size=120x&lossy=1', budget: 4000000, palmares: [{ comp: 'Segunda División Bélgica', count: 1, years: ['2007-08'] }] },
+          { id: 'raal-la-louviere', name: 'RAAL La Louviere', rating: 66, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/63671.png?size=120x&lossy=1', budget: 5000000, palmares: [{ comp: 'División Nacional Belga 1', count: 1, years: ['2023-24'] }, { comp: 'División Belga 2', count: 1, years: ['2021-22'] }] },
+          { id: 'zulte-waregem', name: 'Zulte-Waregem', rating: 66, formation: '4-3-3', gamePlan: 'pesado', logo: 'https://cdn.resfu.com/img_data/equipos/2799.png?size=120x&lossy=1', budget: 4500000, palmares: [{ comp: 'Copa Belga', count: 2, years: ['2017', '2006'] }, { comp: 'Segunda División Bélgica', count: 1, years: ['2024-25'] }, { comp: 'División Belga 2', count: 1, years: ['2001-02'] }] },
+          { id: 'lommel-sk', name: 'Lommel SK', rating: 65, formation: '4-3-3', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/7511.png?size=120x&lossy=1', budget: 6500000, palmares: [{ comp: 'División Nacional Belga 1', count: 1, years: ['2017-18'] }, { comp: 'División Belga 2', count: 1, years: ['2004-05'] }] },
+          { id: 'sk-beveren', name: 'SK Beveren', rating: 65, formation: '4-2-3-1', gamePlan: 'suave', logo: 'https://cdn.resfu.com/img_data/equipos/7507.png?size=120x&lossy=1', budget: 3500000, palmares: [{ comp: 'Segunda División Bélgica', count: 1, years: ['2025-26'] }, { comp: 'División Belga 2', count: 1, years: ['2003-04'] }] }
         ]
       }
     ]
@@ -33,9 +33,10 @@ window.DB.belgium = {
   "name": "M. Seghers",
   "position": "POR",
   "skill": 38,
+  "potencial": 63,
+  "tendencia": ">",
   "age": 17,
   "height": 193,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -48,9 +49,10 @@ window.DB.belgium = {
   "name": "M. Haentjens",
   "position": "POR",
   "skill": 49,
+  "potencial": 67,
+  "tendencia": ">",
   "age": 20,
   "height": 185,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -63,9 +65,10 @@ window.DB.belgium = {
   "name": "Justin Heekeren",
   "position": "POR",
   "skill": 59,
+  "potencial": 69,
+  "tendencia": ">",
   "age": 25,
   "height": 196,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇩🇪 Alemania",
   "foot": "DER",
@@ -78,9 +81,10 @@ window.DB.belgium = {
   "name": "C. Coosemans",
   "position": "POR",
   "skill": 79,
+  "potencial": 79,
+  "tendencia": "<",
   "age": 34,
   "height": 186,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -91,13 +95,14 @@ window.DB.belgium = {
  {
   "id": "and-5",
   "name": "K. Barry",
-  "position": "defensa_central",
+  "position": "DFC",
   "skill": 50,
+  "potencial": 68,
+  "tendencia": ">",
   "age": 20,
   "height": 186,
-  "mainPct": 89,
   "otherPositions": [
-   "lateral_der"
+   "LD"
   ],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -108,13 +113,14 @@ window.DB.belgium = {
  {
   "id": "and-6",
   "name": "Z. Keita",
-  "position": "defensa_central",
+  "position": "DFC",
   "skill": 51,
+  "potencial": 69,
+  "tendencia": ">",
   "age": 20,
   "height": 189,
-  "mainPct": 96,
   "otherPositions": [
-   "mediocentro"
+   "MC"
   ],
   "nationality": "🇩🇪 Alemania",
   "foot": "DER",
@@ -125,13 +131,14 @@ window.DB.belgium = {
  {
   "id": "and-7",
   "name": "B. Vroninks",
-  "position": "lateral_der",
+  "position": "LD",
   "skill": 54,
+  "potencial": 72,
+  "tendencia": ">",
   "age": 19,
   "height": 175,
-  "mainPct": 83,
   "otherPositions": [
-   "mediocentro"
+   "MC"
   ],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -142,13 +149,14 @@ window.DB.belgium = {
  {
   "id": "and-8",
   "name": "Giulian Biancone",
-  "position": "defensa_central",
+  "position": "DFC",
   "skill": 65,
+  "potencial": 69,
+  "tendencia": ">",
   "age": 26,
   "height": 187,
-  "mainPct": 85,
   "otherPositions": [
-   "lateral_der"
+   "LD"
   ],
   "nationality": "🇫🇷 Francia",
   "foot": "DER",
@@ -159,13 +167,14 @@ window.DB.belgium = {
  {
   "id": "and-9",
   "name": "Ilay Camara",
-  "position": "lateral_der",
+  "position": "LD",
   "skill": 66,
+  "potencial": 76,
+  "tendencia": ">",
   "age": 23,
   "height": 174,
-  "mainPct": 90,
   "otherPositions": [
-   "carrilero_der"
+   "CAD"
   ],
   "nationality": "🇸🇳 Senegal",
   "foot": "DER",
@@ -176,13 +185,14 @@ window.DB.belgium = {
  {
   "id": "and-10",
   "name": "A. Maamar",
-  "position": "lateral_der",
+  "position": "LD",
   "skill": 67,
+  "potencial": 85,
+  "tendencia": ">",
   "age": 21,
   "height": 182,
-  "mainPct": 86,
   "otherPositions": [
-   "mediocentro"
+   "MC"
   ],
   "nationality": "🇲🇦 Marruecos",
   "foot": "DER",
@@ -190,16 +200,18 @@ window.DB.belgium = {
   "avatar": "https://cdn.resfu.com/img_data/players/medium/3182464.jpg?size=120x&lossy=1",
   "value": 5080000
  },
+
  {
   "id": "and-11",
   "name": "L. Pétrot",
-  "position": "defensa_central",
+  "position": "DFC",
   "skill": 68,
+  "potencial": 68,
+  "tendencia": "=",
   "age": 29,
   "height": 188,
-  "mainPct": 81,
   "otherPositions": [
-   "lateral_izq"
+   "LI"
   ],
   "nationality": "🇫🇷 Francia",
   "foot": "IZQ",
@@ -210,13 +222,14 @@ window.DB.belgium = {
  {
   "id": "and-12",
   "name": "M. N'diaye",
-  "position": "lateral_izq",
+  "position": "LI",
   "skill": 69,
+  "potencial": 79,
+  "tendencia": ">",
   "age": 24,
   "height": 181,
-  "mainPct": 87,
   "otherPositions": [
-   "defensa_central"
+   "DFC"
   ],
   "nationality": "🇸🇳 Senegal",
   "foot": "IZQ",
@@ -227,13 +240,14 @@ window.DB.belgium = {
  {
   "id": "and-13",
   "name": "K. Sardella",
-  "position": "lateral_der",
+  "position": "LD",
   "skill": 71,
+  "potencial": 81,
+  "tendencia": ">",
   "age": 24,
   "height": 174,
-  "mainPct": 87,
   "otherPositions": [
-   "lateral_izq"
+   "LI"
   ],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -244,13 +258,14 @@ window.DB.belgium = {
  {
   "id": "and-14",
   "name": "Ludwig Augustinsson",
-  "position": "lateral_izq",
+  "position": "LI",
   "skill": 75,
+  "potencial": 75,
+  "tendencia": "=",
   "age": 32,
   "height": 181,
-  "mainPct": 91,
   "otherPositions": [
-   "carrilero_izq"
+   "CAI"
   ],
   "nationality": "🇸🇪 Suecia",
   "foot": "IZQ",
@@ -261,13 +276,14 @@ window.DB.belgium = {
  {
   "id": "and-15",
   "name": "Lucas Hey",
-  "position": "defensa_central",
+  "position": "DFC",
   "skill": 77,
+  "potencial": 87,
+  "tendencia": ">",
   "age": 23,
   "height": 189,
-  "mainPct": 94,
   "otherPositions": [
-   "lateral_der"
+   "LD"
   ],
   "nationality": "🇩🇰 Dinamarca",
   "foot": "DER",
@@ -278,11 +294,12 @@ window.DB.belgium = {
  {
   "id": "and-16",
   "name": "N. Kalonji",
-  "position": "medio_def",
+  "position": "MCD",
   "skill": 30,
+  "potencial": 55,
+  "tendencia": ">",
   "age": 17,
   "height": 185,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -293,13 +310,14 @@ window.DB.belgium = {
  {
   "id": "and-17",
   "name": "Cedric Hatenboer",
-  "position": "medio_def",
+  "position": "MCD",
   "skill": 51,
+  "potencial": 69,
+  "tendencia": ">",
   "age": 21,
   "height": 188,
-  "mainPct": 78,
   "otherPositions": [
-   "mediocentro"
+   "MC"
   ],
   "nationality": "🇳🇱 Países Bajos",
   "foot": "DER",
@@ -310,13 +328,14 @@ window.DB.belgium = {
  {
   "id": "and-18",
   "name": "M. Ashimeru",
-  "position": "mediocentro",
+  "position": "MC",
   "skill": 55,
+  "potencial": 59,
+  "tendencia": ">",
   "age": 28,
   "height": 174,
-  "mainPct": 86,
   "otherPositions": [
-   "medio_def"
+   "MCD"
   ],
   "nationality": "🇬🇭 Ghana",
   "foot": "DER",
@@ -327,13 +346,14 @@ window.DB.belgium = {
  {
   "id": "and-19",
   "name": "Lukáš Ambros",
-  "position": "medio_ofensivo",
+  "position": "MCO",
   "skill": 64,
+  "potencial": 74,
+  "tendencia": ">",
   "age": 22,
   "height": 182,
-  "mainPct": 80,
   "otherPositions": [
-   "mediocentro"
+   "MC"
   ],
   "nationality": "🇨🇿 República Checa",
   "foot": "IZQ",
@@ -344,13 +364,14 @@ window.DB.belgium = {
  {
   "id": "and-20",
   "name": "Marco Kana",
-  "position": "medio_def",
+  "position": "MCD",
   "skill": 67,
+  "potencial": 77,
+  "tendencia": ">",
   "age": 24,
   "height": 182,
-  "mainPct": 81,
   "otherPositions": [
-   "defensa_central"
+   "DFC"
   ],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -361,13 +382,14 @@ window.DB.belgium = {
  {
   "id": "and-21",
   "name": "M. Stroeykens",
-  "position": "medio_ofensivo",
+  "position": "MCO",
   "skill": 71,
+  "potencial": 89,
+  "tendencia": ">",
   "age": 21,
   "height": 177,
-  "mainPct": 90,
   "otherPositions": [
-   "extremo_izq"
+   "EI"
   ],
   "nationality": "🇨🇩 RD Congo",
   "foot": "DER",
@@ -378,13 +400,14 @@ window.DB.belgium = {
  {
   "id": "and-22",
   "name": "E. Llansana",
-  "position": "medio_def",
+  "position": "MCD",
   "skill": 76,
+  "potencial": 86,
+  "tendencia": ">",
   "age": 25,
   "height": 183,
-  "mainPct": 84,
   "otherPositions": [
-   "defensa_central"
+   "DFC"
   ],
   "nationality": "🇳🇱 Países Bajos",
   "foot": "DER",
@@ -395,11 +418,12 @@ window.DB.belgium = {
  {
   "id": "and-23",
   "name": "Noa Cobiella",
-  "position": "extremo_izq",
+  "position": "EI",
   "skill": 34,
+  "potencial": 59,
+  "tendencia": ">",
   "age": 17,
   "height": 168,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -410,13 +434,14 @@ window.DB.belgium = {
  {
   "id": "and-24",
   "name": "Joshua Nga Kana",
-  "position": "extremo_der",
+  "position": "ED",
   "skill": 44,
+  "potencial": 69,
+  "tendencia": ">",
   "age": 17,
   "height": 178,
-  "mainPct": 83,
   "otherPositions": [
-   "mediocentro"
+   "MC"
   ],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -427,13 +452,14 @@ window.DB.belgium = {
  {
   "id": "and-25",
   "name": "T. Degreef",
-  "position": "extremo_der",
+  "position": "ED",
   "skill": 62,
+  "potencial": 80,
+  "tendencia": ">",
   "age": 21,
   "height": 177,
-  "mainPct": 85,
   "otherPositions": [
-   "extremo_izq"
+   "EI"
   ],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -444,13 +470,14 @@ window.DB.belgium = {
  {
   "id": "and-26",
   "name": "J. Onia",
-  "position": "extremo_der",
+  "position": "ED",
   "skill": 63,
+  "potencial": 88,
+  "tendencia": ">",
   "age": 17,
   "height": 178,
-  "mainPct": 84,
   "otherPositions": [
-   "extremo_izq"
+   "EI"
   ],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -461,13 +488,14 @@ window.DB.belgium = {
  {
   "id": "and-27",
   "name": "Marten Winkler",
-  "position": "extremo_der",
+  "position": "ED",
   "skill": 65,
+  "potencial": 75,
+  "tendencia": ">",
   "age": 23,
   "height": 184,
-  "mainPct": 85,
   "otherPositions": [
-   "extremo_izq"
+   "EI"
   ],
   "nationality": "🇩🇪 Alemania",
   "foot": "IZQ",
@@ -478,13 +506,14 @@ window.DB.belgium = {
  {
   "id": "and-28",
   "name": "T. Bentayeb",
-  "position": "delantero",
+  "position": "DC",
   "skill": 67,
+  "potencial": 77,
+  "tendencia": ">",
   "age": 24,
   "height": 180,
-  "mainPct": 82,
   "otherPositions": [
-   "extremo_der"
+   "ED"
   ],
   "nationality": "🇲🇦 Marruecos",
   "foot": "IZQ",
@@ -495,13 +524,14 @@ window.DB.belgium = {
  {
   "id": "and-29",
   "name": "O. Antman",
-  "position": "extremo_der",
+  "position": "ED",
   "skill": 67,
+  "potencial": 77,
+  "tendencia": ">",
   "age": 25,
   "height": 185,
-  "mainPct": 84,
   "otherPositions": [
-   "extremo_izq"
+   "EI"
   ],
   "nationality": "🇫🇮 Finlandia",
   "foot": "DER",
@@ -512,13 +542,14 @@ window.DB.belgium = {
  {
   "id": "and-30",
   "name": "Danylo Sikan",
-  "position": "delantero",
+  "position": "DC",
   "skill": 67,
+  "potencial": 77,
+  "tendencia": ">",
   "age": 25,
   "height": 187,
-  "mainPct": 92,
   "otherPositions": [
-   "extremo_izq"
+   "EI"
   ],
   "nationality": "🇺🇦 Ucrania",
   "foot": "DER",
@@ -529,13 +560,14 @@ window.DB.belgium = {
  {
   "id": "and-31",
   "name": "Mihajlo Cvetković",
-  "position": "delantero",
+  "position": "DC",
   "skill": 68,
+  "potencial": 86,
+  "tendencia": ">",
   "age": 19,
   "height": 178,
-  "mainPct": 89,
   "otherPositions": [
-   "extremo_der"
+   "ED"
   ],
   "nationality": "🇷🇸 Serbia",
   "foot": "DER",
@@ -546,13 +578,14 @@ window.DB.belgium = {
  {
   "id": "and-32",
   "name": "A. Bertaccini",
-  "position": "delantero",
+  "position": "DC",
   "skill": 71,
+  "potencial": 75,
+  "tendencia": ">",
   "age": 26,
   "height": 173,
-  "mainPct": 83,
   "otherPositions": [
-   "extremo_izq"
+   "EI"
   ],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -563,13 +596,14 @@ window.DB.belgium = {
  {
   "id": "and-33",
   "name": "A. Tajaouart",
-  "position": "mediocentro",
+  "position": "MC",
   "skill": 55,
+  "potencial": 73,
+  "tendencia": ">",
   "age": 20,
   "height": 167,
-  "mainPct": 83,
   "otherPositions": [
-   "medio_def"
+   "MCD"
   ],
   "nationality": "🇲🇦 Marruecos",
   "foot": "DER",
@@ -583,13 +617,14 @@ window.DB.belgium = {
  {
   "id": "and-34",
   "name": "I. Kanaté",
-  "position": "extremo_izq",
+  "position": "EI",
   "skill": 44,
+  "potencial": 62,
+  "tendencia": ">",
   "age": 19,
   "height": 172,
-  "mainPct": 83,
   "otherPositions": [
-   "mediocentro"
+   "MC"
   ],
   "nationality": "🇲🇱 Mali",
   "foot": "DER",
@@ -604,11 +639,12 @@ window.DB.belgium = {
    "antwerp": [{
   "id": "ant-1",
   "name": "Luis Narh",
-  "position": "delantero",
+  "position": "DC",
   "skill": 33,
+  "potencial": 58,
+  "tendencia": ">",
   "age": 18,
   "height": 186,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇬🇭 Ghana",
   "foot": "DER",
@@ -619,11 +655,12 @@ window.DB.belgium = {
  {
   "id": "ant-2",
   "name": "Carlos Mejia",
-  "position": "extremo_der",
+  "position": "ED",
   "skill": 37,
+  "potencial": 55,
+  "tendencia": ">",
   "age": 19,
   "height": null,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇪🇨 Ecuador",
   "foot": "IZQ",
@@ -634,11 +671,12 @@ window.DB.belgium = {
  {
   "id": "ant-3",
   "name": "Koki Ando",
-  "position": "extremo_izq",
+  "position": "EI",
   "skill": 33,
+  "potencial": 58,
+  "tendencia": ">",
   "age": 18,
   "height": 170,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇯🇵 Japón",
   "foot": "DER",
@@ -649,15 +687,15 @@ window.DB.belgium = {
  {
   "id": "ant-4",
   "name": "Anthony Valencia",
-  "position": "extremo_der",
+  "position": "ED",
   "skill": 51,
+  "potencial": 61,
+  "tendencia": ">",
   "age": 23,
   "height": 173,
-  "mainPct": 90,
   "otherPositions": [
    {
-    "pos": "delantero",
-    "pct": 10
+    "pos": "DC"
    }
   ],
   "nationality": "🇪🇨 Ecuador",
@@ -669,15 +707,15 @@ window.DB.belgium = {
  {
   "id": "ant-5",
   "name": "S. Porozo",
-  "position": "delantero",
+  "position": "DC",
   "skill": 52,
+  "potencial": 70,
+  "tendencia": ">",
   "age": 19,
   "height": 191,
-  "mainPct": 86,
   "otherPositions": [
    {
-    "pos": "medio_izq",
-    "pct": 14
+    "pos": "MI"
    }
   ],
   "nationality": "🇪🇨 Ecuador",
@@ -689,15 +727,15 @@ window.DB.belgium = {
  {
   "id": "ant-6",
   "name": "G. Vandeplas",
-  "position": "delantero",
+  "position": "DC",
   "skill": 54,
+  "potencial": 72,
+  "tendencia": ">",
   "age": 20,
   "height": 169,
-  "mainPct": 90,
   "otherPositions": [
    {
-    "pos": "medio_der",
-    "pct": 10
+    "pos": "MD"
    }
   ],
   "nationality": "🇧🇪 Bélgica",
@@ -712,15 +750,15 @@ window.DB.belgium = {
  {
   "id": "ant-7",
   "name": "I. Salah",
-  "position": "extremo_izq",
+  "position": "EI",
   "skill": 57,
+  "potencial": 67,
+  "tendencia": ">",
   "age": 24,
   "height": 186,
-  "mainPct": 90,
   "otherPositions": [
    {
-    "pos": "medio_ofensivo",
-    "pct": 10
+    "pos": "MCO"
    }
   ],
   "nationality": "🇲🇦 Marruecos",
@@ -735,15 +773,15 @@ window.DB.belgium = {
  {
   "id": "ant-8",
   "name": "Michael Frey",
-  "position": "delantero",
+  "position": "DC",
   "skill": 61,
+  "potencial": 61,
+  "tendencia": "=",
   "age": 32,
   "height": 188,
-  "mainPct": 97,
   "otherPositions": [
    {
-    "pos": "extremo_izq",
-    "pct": 3
+    "pos": "EI"
    }
   ],
   "nationality": "🇨🇭 Suiza",
@@ -755,15 +793,15 @@ window.DB.belgium = {
  {
   "id": "ant-9",
   "name": "G. Hairemans",
-  "position": "extremo_der",
+  "position": "ED",
   "skill": 66,
+  "potencial": 66,
+  "tendencia": "<",
   "age": 34,
   "height": 183,
-  "mainPct": 88,
   "otherPositions": [
    {
-    "pos": "medio_ofensivo",
-    "pct": 12
+    "pos": "MCO"
    }
   ],
   "nationality": "🇧🇪 Bélgica",
@@ -775,11 +813,12 @@ window.DB.belgium = {
  {
   "id": "ant-10",
   "name": "M. Fofana",
-  "position": "mediocentro",
+  "position": "MC",
   "skill": 48,
+  "potencial": 73,
+  "tendencia": ">",
   "age": 18,
   "height": 178,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇨🇮 Costa de Marfil",
   "foot": "DER",
@@ -790,15 +829,15 @@ window.DB.belgium = {
  {
   "id": "ant-11",
   "name": "L. Van Gelder",
-  "position": "mediocentro",
+  "position": "MC",
   "skill": 41,
+  "potencial": 66,
+  "tendencia": ">",
   "age": 17,
   "height": 178,
-  "mainPct": 86,
   "otherPositions": [
    {
-    "pos": "medio_def",
-    "pct": 14
+    "pos": "MCD"
    }
   ],
   "nationality": "🇧🇪 Bélgica",
@@ -810,15 +849,15 @@ window.DB.belgium = {
  {
   "id": "ant-12",
   "name": "Y. Hamdaoui",
-  "position": "mediocentro",
+  "position": "MC",
   "skill": 46,
+  "potencial": 71,
+  "tendencia": ">",
   "age": 18,
   "height": 184,
-  "mainPct": 90,
   "otherPositions": [
    {
-    "pos": "extremo_der",
-    "pct": 10
+    "pos": "ED"
    }
   ],
   "nationality": "🇲🇦 Marruecos",
@@ -830,11 +869,12 @@ window.DB.belgium = {
  {
   "id": "ant-13",
   "name": "F. Adekami",
-  "position": "medio_ofensivo",
+  "position": "MCO",
   "skill": 50,
+  "potencial": 68,
+  "tendencia": ">",
   "age": 20,
   "height": 180,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇨🇮 Costa de Marfil",
   "foot": "DER",
@@ -845,15 +885,15 @@ window.DB.belgium = {
  {
   "id": "ant-14",
   "name": "X. Dierckx",
-  "position": "mediocentro",
+  "position": "MC",
   "skill": 52,
+  "potencial": 77,
+  "tendencia": ">",
   "age": 17,
   "height": 177,
-  "mainPct": 85,
   "otherPositions": [
    {
-    "pos": "medio_def",
-    "pct": 15
+    "pos": "MCD"
    }
   ],
   "nationality": "🇧🇪 Bélgica",
@@ -865,15 +905,15 @@ window.DB.belgium = {
  {
   "id": "ant-15",
   "name": "M. Benítez",
-  "position": "medio_def",
+  "position": "MCD",
   "skill": 61,
+  "potencial": 71,
+  "tendencia": ">",
   "age": 22,
   "height": 185,
-  "mainPct": 79,
   "otherPositions": [
    {
-    "pos": "mediocentro",
-    "pct": 21
+    "pos": "MC"
    }
   ],
   "nationality": "🇦🇷 Argentina",
@@ -885,15 +925,15 @@ window.DB.belgium = {
  {
   "id": "ant-16",
   "name": "C. Scott",
-  "position": "medio_izq",
+  "position": "MI",
   "skill": 63,
+  "potencial": 73,
+  "tendencia": ">",
   "age": 24,
   "height": 178,
-  "mainPct": 90,
   "otherPositions": [
    {
-    "pos": "medio_ofensivo",
-    "pct": 10
+    "pos": "MCO"
    }
   ],
   "nationality": "🇩🇪 Alemania",
@@ -905,11 +945,12 @@ window.DB.belgium = {
  {
   "id": "ant-17",
   "name": "L. Schelfhout",
-  "position": "defensa_central",
+  "position": "DFC",
   "skill": 31,
+  "potencial": 56,
+  "tendencia": ">",
   "age": 18,
   "height": 180,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -920,15 +961,15 @@ window.DB.belgium = {
  {
   "id": "ant-18",
   "name": "Eran Tuypens",
-  "position": "lateral_izq",
+  "position": "LI",
   "skill": 51,
+  "potencial": 69,
+  "tendencia": ">",
   "age": 20,
   "height": 181,
-  "mainPct": 85,
   "otherPositions": [
    {
-    "pos": "delantero",
-    "pct": 15
+    "pos": "DC"
    }
   ],
   "nationality": "🇧🇪 Bélgica",
@@ -940,15 +981,15 @@ window.DB.belgium = {
  {
   "id": "ant-19",
   "name": "Semm Renders",
-  "position": "lateral_der",
+  "position": "LD",
   "skill": 56,
+  "potencial": 81,
+  "tendencia": ">",
   "age": 18,
   "height": 179,
-  "mainPct": 81,
   "otherPositions": [
    {
-    "pos": "medio_der",
-    "pct": 19
+    "pos": "MD"
    }
   ],
   "nationality": "🇧🇪 Bélgica",
@@ -960,15 +1001,15 @@ window.DB.belgium = {
  {
   "id": "ant-20",
   "name": "M. Busi",
-  "position": "lateral_der",
+  "position": "LD",
   "skill": 62,
+  "potencial": 66,
+  "tendencia": ">",
   "age": 26,
   "height": 182,
-  "mainPct": 86,
   "otherPositions": [
    {
-    "pos": "carrilero_der",
-    "pct": 14
+    "pos": "CAD"
    }
   ],
   "nationality": "🇧🇪 Bélgica",
@@ -980,15 +1021,15 @@ window.DB.belgium = {
  {
   "id": "ant-21",
   "name": "R. Van Helden",
-  "position": "defensa_central",
+  "position": "DFC",
   "skill": 68,
+  "potencial": 78,
+  "tendencia": ">",
   "age": 24,
   "height": 187,
-  "mainPct": 90,
   "otherPositions": [
    {
-    "pos": "lateral_der",
-    "pct": 10
+    "pos": "LD"
    }
   ],
   "nationality": "🇧🇪 Bélgica",
@@ -1000,15 +1041,15 @@ window.DB.belgium = {
  {
   "id": "ant-22",
   "name": "Daam Foulon",
-  "position": "lateral_izq",
+  "position": "LI",
   "skill": 68,
+  "potencial": 72,
+  "tendencia": ">",
   "age": 27,
   "height": 180,
-  "mainPct": 86,
   "otherPositions": [
    {
-    "pos": "medio_izq",
-    "pct": 14
+    "pos": "MI"
    }
   ],
   "nationality": "🇧🇪 Bélgica",
@@ -1020,15 +1061,15 @@ window.DB.belgium = {
  {
   "id": "ant-23",
   "name": "Y. Tsunashima",
-  "position": "defensa_central",
+  "position": "DFC",
   "skill": 76,
+  "potencial": 80,
+  "tendencia": ">",
   "age": 26,
   "height": 188,
-  "mainPct": 90,
   "otherPositions": [
    {
-    "pos": "mediocentro",
-    "pct": 10
+    "pos": "MC"
    }
   ],
   "nationality": "🇯🇵 Japón",
@@ -1040,15 +1081,15 @@ window.DB.belgium = {
  {
   "id": "ant-24",
   "name": "Thibo Somers",
-  "position": "carrilero_der",
+  "position": "CAD",
   "skill": 80,
+  "potencial": 84,
+  "tendencia": ">",
   "age": 27,
   "height": 183,
-  "mainPct": 90,
   "otherPositions": [
    {
-    "pos": "mediocentro",
-    "pct": 10
+    "pos": "MC"
    }
   ],
   "nationality": "🇧🇪 Bélgica",
@@ -1062,9 +1103,10 @@ window.DB.belgium = {
   "name": "Y. Thoelen",
   "position": "POR",
   "skill": 44,
+  "potencial": 50,
+  "tendencia": "<",
   "age": 36,
   "height": 188,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -1077,9 +1119,10 @@ window.DB.belgium = {
   "name": "N. Devalckeneer",
   "position": "POR",
   "skill": 47,
+  "potencial": 57,
+  "tendencia": ">",
   "age": 22,
   "height": 192,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇧🇪 Bélgica",
   "foot": "DER",
@@ -1092,30 +1135,47 @@ window.DB.belgium = {
   "name": "T. Nozawa",
   "position": "POR",
   "skill": 68,
+  "potencial": 78,
+  "tendencia": ">",
   "age": 23,
   "height": 193,
-  "mainPct": 99,
   "otherPositions": [],
   "nationality": "🇯🇵 Japón",
   "foot": "DER",
-  "number": 41,
-  "avatar": "https://cdn.resfu.com/img_data/players/medium/824145.jpg?size=120x&lossy=1",
+"number": 41,
+   "avatar": "https://cdn.resfu.com/img_data/players/medium/824145.jpg?size=120x&lossy=1",
    "value": 5920000
+  },
+  {
+   "id": "ant-28",
+   "name": "Á. Cortés",
+   "position": "DFC",
+   "skill": 55,
+   "potencial": 73,
+   "tendencia": ">",
+   "age": 21,
+   "height": 190,
+   "otherPositions": [],
+   "nationality": "🇪🇸 España",
+   "foot": "IZQ",
+   "number": 13,
+   "avatar": "https://cdn.resfu.com/img_data/players/medium/1005057.jpg?size=120x&lossy=1",
+   "value": 1410000
   }
- ]
+  ]
   ,"cercle-brugge": [
   {
    "id": "cer-1",
    "name": "Krys Kouassi",
-   "position": "delantero",
+   "position": "DC",
    "skill": 38,
+   "potencial": 56,
+   "tendencia": ">",
    "age": 19,
    "height": 189,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 15
+     "pos": "EI"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -1127,15 +1187,15 @@ window.DB.belgium = {
   {
    "id": "cer-2",
    "name": "A. Ouattara",
-   "position": "delantero",
+   "position": "DC",
    "skill": 46,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 21,
    "height": 171,
-   "mainPct": 79,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 21
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇫 Burkina Faso",
@@ -1147,15 +1207,15 @@ window.DB.belgium = {
   {
    "id": "cer-3",
    "name": "C. Herrmann",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 51,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 20,
    "height": 180,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 15
+     "pos": "EI"
     }
    ],
    "nationality": "🇩🇪 Alemania",
@@ -1167,15 +1227,15 @@ window.DB.belgium = {
   {
    "id": "cer-4",
    "name": "Joel Ndala",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 51,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 20,
    "height": 178,
-   "mainPct": 92,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 8
+     "pos": "ED"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",
@@ -1185,40 +1245,17 @@ window.DB.belgium = {
    "value": 2650000
   },
   {
-   "id": "cer-5",
-   "name": "Lucas Michal",
-   "position": "extremo_izq",
-   "skill": 51,
-   "age": 21,
-   "height": 185,
-   "mainPct": 83,
-   "otherPositions": [
-    {
-     "pos": "delantero",
-     "pct": 17
-    }
-   ],
-   "nationality": "🇫🇷 Francia",
-   "foot": "DER",
-   "number": 22,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/3143461.jpg?size=120x&lossy=1",
-   "value": 3400000,
-   "loanedFrom": "monaco",
-   "loanedFromName": "AS Monaco",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/1713.jpg?size=120x&lossy=1"
-  },
-  {
    "id": "cer-6",
    "name": "Heriberto Jurado",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 53,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 21,
    "height": 173,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 18
+     "pos": "MI"
     }
    ],
    "nationality": "🇲🇽 México",
@@ -1230,15 +1267,15 @@ window.DB.belgium = {
   {
    "id": "cer-7",
    "name": "S. Ngoura",
-   "position": "delantero",
+   "position": "DC",
    "skill": 62,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 21,
    "height": 193,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 10
+     "pos": "MD"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -1250,15 +1287,15 @@ window.DB.belgium = {
   {
    "id": "cer-8",
    "name": "Abdoulie Manneh",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 65,
+   "potencial": 83,
+   "tendencia": ">",
    "age": 21,
    "height": 179,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 15
+     "pos": "DC"
     }
    ],
    "nationality": "🇬🇲 Gambia",
@@ -1273,15 +1310,15 @@ window.DB.belgium = {
   {
    "id": "cer-9",
    "name": "D. Vanzeir",
-   "position": "delantero",
+   "position": "DC",
    "skill": 68,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 28,
    "height": 175,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 11
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -1293,15 +1330,15 @@ window.DB.belgium = {
   {
    "id": "cer-10",
    "name": "I. Diaby",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 46,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 19,
    "height": 189,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 18
+     "pos": "MC"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -1313,11 +1350,12 @@ window.DB.belgium = {
   {
    "id": "cer-11",
    "name": "V. Martens",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 48,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 19,
    "height": 172,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -1328,15 +1366,15 @@ window.DB.belgium = {
   {
    "id": "cer-12",
    "name": "Lukas Mondele",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 52,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 22,
    "height": 181,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 14
+     "pos": "DFC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -1348,15 +1386,15 @@ window.DB.belgium = {
   {
    "id": "cer-13",
    "name": "Lazare Amani",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 65,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 28,
    "height": 172,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 14
+     "pos": "MCD"
     }
    ],
    "nationality": "🇨🇮 Costa de Marfil",
@@ -1368,15 +1406,15 @@ window.DB.belgium = {
   {
    "id": "cer-14",
    "name": "L. Agyekum",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 71,
+   "potencial": 81,
+   "tendencia": ">",
    "age": 22,
    "height": 174,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 13
+     "pos": "MD"
     }
    ],
    "nationality": "🇬🇭 Ghana",
@@ -1388,15 +1426,15 @@ window.DB.belgium = {
   {
    "id": "cer-15",
    "name": "H. Van Der Bruggen",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 72,
+   "potencial": 72,
+   "tendencia": "<",
    "age": 33,
    "height": 181,
-   "mainPct": 76,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 24
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -1408,15 +1446,15 @@ window.DB.belgium = {
   {
    "id": "cer-16",
    "name": "Valy Konaté",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 37,
+   "potencial": 55,
+   "tendencia": ">",
    "age": 19,
    "height": 182,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 17
+     "pos": "DFC"
     }
    ],
    "nationality": "🇨🇮 Costa de Marfil",
@@ -1428,11 +1466,12 @@ window.DB.belgium = {
   {
    "id": "cer-17",
    "name": "Sebbe Gheerardyns",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 48,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 21,
    "height": 183,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "IZQ",
@@ -1443,15 +1482,15 @@ window.DB.belgium = {
   {
    "id": "cer-18",
    "name": "Emmanuel Kakou",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 55,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 21,
    "height": 180,
-   "mainPct": 95,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 5
+     "pos": "LD"
     }
    ],
    "nationality": "🇨🇮 Costa de Marfil",
@@ -1463,15 +1502,15 @@ window.DB.belgium = {
   {
    "id": "cer-19",
    "name": "Erick Nunes",
-   "position": "carrilero_der",
+   "position": "CAD",
    "skill": 57,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 22,
    "height": 180,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 10
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇷 Brasil",
@@ -1483,15 +1522,15 @@ window.DB.belgium = {
   {
    "id": "cer-20",
    "name": "T. Adaramola",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 58,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 22,
    "height": 177,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 15
+     "pos": "MI"
     }
    ],
    "nationality": "🇮🇪 Irlanda",
@@ -1503,15 +1542,15 @@ window.DB.belgium = {
   {
    "id": "cer-21",
    "name": "G. Kondo",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 60,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 24,
    "height": 187,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 17
+     "pos": "LI"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -1523,15 +1562,15 @@ window.DB.belgium = {
   {
    "id": "cer-22",
    "name": "I. Diakité",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 63,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 22,
    "height": 180,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 19
+     "pos": "DFC"
     }
    ],
    "nationality": "🇬🇳 Guinea",
@@ -1543,15 +1582,15 @@ window.DB.belgium = {
   {
    "id": "cer-23",
    "name": "C. Ravych",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 73,
+   "potencial": 83,
+   "tendencia": ">",
    "age": 24,
    "height": 193,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 10
+     "pos": "MCD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -1563,15 +1602,15 @@ window.DB.belgium = {
   {
    "id": "cer-24",
    "name": "G. Magnée",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 74,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 26,
    "height": 175,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 10
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -1585,9 +1624,10 @@ window.DB.belgium = {
    "name": "B. Langenbick",
    "position": "POR",
    "skill": 47,
+   "potencial": 57,
+   "tendencia": ">",
    "age": 23,
    "height": 189,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -1600,9 +1640,10 @@ window.DB.belgium = {
    "name": "G. Coucke",
    "position": "POR",
    "skill": 55,
+   "potencial": 59,
+   "tendencia": ">",
    "age": 27,
    "height": 187,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -1615,9 +1656,10 @@ window.DB.belgium = {
    "name": "Maxime Delanghe",
    "position": "POR",
    "skill": 58,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 25,
    "height": 189,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -1628,15 +1670,15 @@ window.DB.belgium = {
   {
    "id": "cer-28",
    "name": "J. Lietaert",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 35,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 22,
    "height": 190,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 19
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -1648,11 +1690,12 @@ window.DB.belgium = {
   {
    "id": "cer-29",
    "name": "R. Caicedo",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 40,
+   "potencial": 58,
+   "tendencia": ">",
    "age": 20,
    "height": 195,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇨🇴 Colombia",
    "foot": "IZQ",
@@ -1665,15 +1708,15 @@ window.DB.belgium = {
   {
    "id": "ch-1",
    "name": "A. Colassin",
-   "position": "delantero",
+   "position": "DC",
    "skill": 56,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 25,
    "height": 188,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 12
+     "pos": "EI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -1685,15 +1728,15 @@ window.DB.belgium = {
   {
    "id": "ch-2",
    "name": "Severin Nioule",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 57,
+   "potencial": 75,
+   "tendencia": ">",
    "age": 21,
    "height": 175,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 14
+     "pos": "ED"
     }
    ],
    "nationality": "🇨🇮 Costa de Marfil",
@@ -1703,40 +1746,17 @@ window.DB.belgium = {
    "value": 1740000
   },
   {
-   "id": "ch-3",
-   "name": "A. Bojang",
-   "position": "delantero",
-   "skill": 59,
-   "age": 22,
-   "height": 191,
-   "mainPct": 88,
-   "otherPositions": [
-    {
-     "pos": "extremo_der",
-     "pct": 12
-    }
-   ],
-   "nationality": "🇬🇲 Gambia",
-   "foot": "DER",
-   "number": 9,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/3379806.jpg?size=120x&lossy=1",
-   "value": 2750000,
-   "loanedFrom": "reims",
-   "loanedFromName": "Stade de Reims",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/2421.jpg?size=120x&lossy=1"
-  },
-  {
    "id": "ch-4",
    "name": "F. Mbemba",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 62,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 23,
    "height": 175,
-   "mainPct": 80,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 20
+     "pos": "MI"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -1748,15 +1768,15 @@ window.DB.belgium = {
   {
    "id": "ch-5",
    "name": "A. Bernier",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 74,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 28,
    "height": 170,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 19
+     "pos": "EI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -1768,15 +1788,15 @@ window.DB.belgium = {
   {
    "id": "ch-6",
    "name": "A. Scheidler",
-   "position": "delantero",
+   "position": "DC",
    "skill": 75,
+   "potencial": 79,
+   "tendencia": ">",
    "age": 28,
    "height": 192,
-   "mainPct": 99,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 1
+     "pos": "MC"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -1788,15 +1808,15 @@ window.DB.belgium = {
   {
    "id": "ch-7",
    "name": "B. Dembaga",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 42,
+   "potencial": 60,
+   "tendencia": ">",
    "age": 20,
    "height": 191,
-   "mainPct": 74,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 26
+     "pos": "MC"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -1808,15 +1828,15 @@ window.DB.belgium = {
   {
    "id": "ch-8",
    "name": "Amine Boukamir",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 44,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 19,
    "height": 172,
-   "mainPct": 73,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 27
+     "pos": "MC"
     }
    ],
    "nationality": "🇲🇦 Marruecos",
@@ -1828,15 +1848,15 @@ window.DB.belgium = {
   {
    "id": "ch-9",
    "name": "Isaac Cisse",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 54,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 19,
    "height": 191,
-   "mainPct": 80,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 20
+     "pos": "MC"
     }
    ],
    "nationality": "🇨🇮 Costa de Marfil",
@@ -1848,15 +1868,15 @@ window.DB.belgium = {
   {
    "id": "ch-10",
    "name": "Y. Khalifi",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 56,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 21,
    "height": 173,
-   "mainPct": 95,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 5
+     "pos": "DC"
     }
    ],
    "nationality": "🇲🇦 Marruecos",
@@ -1868,15 +1888,15 @@ window.DB.belgium = {
   {
    "id": "ch-11",
    "name": "J. Romsaas",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 70,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 22,
    "height": 187,
-   "mainPct": 80,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 20
+     "pos": "DC"
     }
    ],
    "nationality": "🇳🇴 Noruega",
@@ -1888,15 +1908,15 @@ window.DB.belgium = {
   {
    "id": "ch-12",
    "name": "P. Pflücke",
-   "position": "medio_der",
+   "position": "MD",
    "skill": 71,
+   "potencial": 71,
+   "tendencia": "=",
    "age": 29,
    "height": 170,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 13
+     "pos": "ED"
     }
    ],
    "nationality": "🇩🇪 Alemania",
@@ -1908,15 +1928,15 @@ window.DB.belgium = {
   {
    "id": "ch-13",
    "name": "Rafaël Teugels",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 48,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 20,
    "height": 175,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 16
+     "pos": "DFC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -1928,15 +1948,15 @@ window.DB.belgium = {
   {
    "id": "ch-14",
    "name": "Massamba Sow",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 54,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 22,
    "height": 180,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 14
+     "pos": "LI"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -1948,15 +1968,15 @@ window.DB.belgium = {
   {
    "id": "ch-15",
    "name": "N. Solheid",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 62,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 23,
    "height": 191,
-   "mainPct": 94,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 6
+     "pos": "DC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -1968,15 +1988,15 @@ window.DB.belgium = {
   {
    "id": "ch-16",
    "name": "K. Van Den Kerkhof",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 69,
+   "potencial": 69,
+   "tendencia": "=",
    "age": 30,
    "height": 190,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 16
+     "pos": "MD"
     }
    ],
    "nationality": "🇩🇿 Argelia",
@@ -1988,15 +2008,15 @@ window.DB.belgium = {
   {
    "id": "ch-17",
    "name": "M. Nzita",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 70,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 26,
    "height": 178,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 10
+     "pos": "EI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2008,11 +2028,12 @@ window.DB.belgium = {
   {
    "id": "ch-18",
    "name": "Check Keita",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 74,
+   "potencial": 84,
+   "tendencia": ">",
    "age": 23,
    "height": 185,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇲🇱 Mali",
    "foot": "DER",
@@ -2023,15 +2044,15 @@ window.DB.belgium = {
   {
    "id": "ch-19",
    "name": "Aiham Ousou",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 74,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 26,
    "height": 186,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 2
+     "pos": "LD"
     }
    ],
    "nationality": "🇸🇾 Siria",
@@ -2045,9 +2066,10 @@ window.DB.belgium = {
    "name": "A. Cremer",
    "position": "POR",
    "skill": 53,
+   "potencial": 57,
+   "tendencia": ">",
    "age": 26,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -2060,9 +2082,10 @@ window.DB.belgium = {
    "name": "Mohamed Kone",
    "position": "POR",
    "skill": 62,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 24,
    "height": 186,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇨🇮 Costa de Marfil",
    "foot": "DER",
@@ -2075,9 +2098,10 @@ window.DB.belgium = {
    "name": "M. Delavallée",
    "position": "POR",
    "skill": 71,
+   "potencial": 81,
+   "tendencia": ">",
    "age": 22,
    "height": 185,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -2088,15 +2112,15 @@ window.DB.belgium = {
   {
    "id": "ch-23",
    "name": "Anthony Descotte",
-   "position": "delantero",
+   "position": "DC",
    "skill": 57,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 23,
    "height": 180,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 11
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2111,15 +2135,15 @@ window.DB.belgium = {
   {
    "id": "ch-24",
    "name": "M. Boukamir",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 50,
+   "potencial": 60,
+   "tendencia": ">",
    "age": 22,
    "height": 188,
-   "mainPct": 93,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 7
+     "pos": "LD"
     }
    ],
    "nationality": "🇲🇦 Marruecos",
@@ -2134,15 +2158,15 @@ window.DB.belgium = {
   {
    "id": "ch-25",
    "name": "Raymond Asante",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 50,
+   "potencial": 60,
+   "tendencia": ">",
    "age": 22,
    "height": null,
-   "mainPct": 80,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 20
+     "pos": "DC"
     }
    ],
    "nationality": "🇬🇭 Ghana",
@@ -2159,15 +2183,15 @@ window.DB.belgium = {
   {
    "id": "cb-1",
    "name": "Wisdom Mike",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 38,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 17,
    "height": 176,
-   "mainPct": 94,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 6
+     "pos": "DC"
     }
    ],
    "nationality": "🇩🇪 Alemania",
@@ -2179,15 +2203,15 @@ window.DB.belgium = {
   {
    "id": "cb-2",
    "name": "M. Diakhon",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 58,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 20,
    "height": 180,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 10
+     "pos": "MI"
     }
    ],
    "nationality": "🇸🇳 Senegal",
@@ -2199,15 +2223,15 @@ window.DB.belgium = {
   {
    "id": "cb-3",
    "name": "A. Vasović",
-   "position": "delantero",
+   "position": "DC",
    "skill": 63,
+   "potencial": 88,
+   "tendencia": ">",
    "age": 18,
    "height": 187,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 2
+     "pos": "MC"
     }
    ],
    "nationality": "🇨🇭 Suiza",
@@ -2219,15 +2243,15 @@ window.DB.belgium = {
   {
    "id": "cb-4",
    "name": "Gustaf Nilsson",
-   "position": "delantero",
+   "position": "DC",
    "skill": 64,
+   "potencial": 64,
+   "tendencia": "=",
    "age": 29,
    "height": 197,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 2
+     "pos": "EI"
     }
    ],
    "nationality": "🇸🇪 Suecia",
@@ -2239,15 +2263,15 @@ window.DB.belgium = {
   {
    "id": "cb-5",
    "name": "Jan Virgili",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 66,
+   "potencial": 84,
+   "tendencia": ">",
    "age": 20,
    "height": 177,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 18
+     "pos": "MD"
     }
    ],
    "nationality": "🇪🇸 España",
@@ -2259,15 +2283,15 @@ window.DB.belgium = {
   {
    "id": "cb-6",
    "name": "Carlos Forbs",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 70,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 22,
    "height": 169,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 18
+     "pos": "EI"
     }
    ],
    "nationality": "🇵🇹 Portugal",
@@ -2279,15 +2303,15 @@ window.DB.belgium = {
   {
    "id": "cb-7",
    "name": "Romeo Vermant",
-   "position": "delantero",
+   "position": "DC",
    "skill": 71,
+   "potencial": 81,
+   "tendencia": ">",
    "age": 22,
    "height": 184,
-   "mainPct": 94,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 6
+     "pos": "MCO"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2299,15 +2323,15 @@ window.DB.belgium = {
   {
    "id": "cb-8",
    "name": "Nicolò Tresoldi",
-   "position": "delantero",
+   "position": "DC",
    "skill": 75,
+   "potencial": 85,
+   "tendencia": ">",
    "age": 22,
    "height": 186,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 2
+     "pos": "MI"
     }
    ],
    "nationality": "🇩🇪 Alemania",
@@ -2319,15 +2343,15 @@ window.DB.belgium = {
   {
    "id": "cb-9",
    "name": "L. Audoor",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 58,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 22,
    "height": 182,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 11
+     "pos": "MCO"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2339,15 +2363,15 @@ window.DB.belgium = {
   {
    "id": "cb-10",
    "name": "Freddie Potts",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 64,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 22,
    "height": 183,
-   "mainPct": 75,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 25
+     "pos": "MC"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",
@@ -2359,15 +2383,15 @@ window.DB.belgium = {
   {
    "id": "cb-11",
    "name": "C. Tsawa",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 65,
+   "potencial": 83,
+   "tendencia": ">",
    "age": 19,
    "height": 185,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 17
+     "pos": "MCD"
     }
    ],
    "nationality": "🇨🇭 Suiza",
@@ -2379,15 +2403,15 @@ window.DB.belgium = {
   {
    "id": "cb-12",
    "name": "Hugo Vetlesen",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 69,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 26,
    "height": 174,
-   "mainPct": 92,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 8
+     "pos": "MCO"
     }
    ],
    "nationality": "🇳🇴 Noruega",
@@ -2399,15 +2423,15 @@ window.DB.belgium = {
   {
    "id": "cb-13",
    "name": "F. Lemaréchal",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 69,
+   "potencial": 79,
+   "tendencia": ">",
    "age": 23,
    "height": 180,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 12
+     "pos": "MCD"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -2419,15 +2443,15 @@ window.DB.belgium = {
   {
    "id": "cb-14",
    "name": "Hans Vanaken",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 84,
+   "potencial": 84,
+   "tendencia": "<",
    "age": 34,
    "height": 195,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 19
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2439,15 +2463,15 @@ window.DB.belgium = {
   {
    "id": "cb-15",
    "name": "Hugo Siquet",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 61,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 24,
    "height": 180,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 15
+     "pos": "MD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2459,15 +2483,15 @@ window.DB.belgium = {
   {
    "id": "cb-16",
    "name": "Matteo Dams",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 66,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 22,
    "height": 184,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 19
+     "pos": "DFC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2479,15 +2503,15 @@ window.DB.belgium = {
   {
    "id": "cb-17",
    "name": "Jorne Spileers",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 70,
+   "potencial": 88,
+   "tendencia": ">",
    "age": 21,
    "height": 188,
-   "mainPct": 95,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 5
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2499,15 +2523,15 @@ window.DB.belgium = {
   {
    "id": "cb-18",
    "name": "K. Sabbe",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 72,
+   "potencial": 90,
+   "tendencia": ">",
    "age": 21,
    "height": 175,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 13
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2519,15 +2543,15 @@ window.DB.belgium = {
   {
    "id": "cb-19",
    "name": "Joaquin Seys",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 75,
+   "potencial": 93,
+   "tendencia": ">",
    "age": 21,
    "height": 178,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 15
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2539,15 +2563,15 @@ window.DB.belgium = {
   {
    "id": "cb-20",
    "name": "Han-Beom Lee",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 76,
+   "potencial": 86,
+   "tendencia": ">",
    "age": 24,
    "height": 188,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 3
+     "pos": "LD"
     }
    ],
    "nationality": "🇰🇷 Corea del Sur",
@@ -2559,15 +2583,15 @@ window.DB.belgium = {
   {
    "id": "cb-21",
    "name": "Brandon Mechele",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 84,
+   "potencial": 84,
+   "tendencia": "<",
    "age": 33,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 1
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2579,15 +2603,15 @@ window.DB.belgium = {
   {
    "id": "cb-22",
    "name": "Joel Ordóñez",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 85,
+   "potencial": 95,
+   "tendencia": ">",
    "age": 22,
    "height": 188,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 3
+     "pos": "LD"
     }
    ],
    "nationality": "🇪🇨 Ecuador",
@@ -2601,9 +2625,10 @@ window.DB.belgium = {
    "name": "N. Jackers",
    "position": "POR",
    "skill": 68,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 28,
    "height": 187,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -2616,9 +2641,10 @@ window.DB.belgium = {
    "name": "Yann Sommer",
    "position": "POR",
    "skill": 82,
+   "potencial": 82,
+   "tendencia": "<",
    "age": 37,
    "height": 183,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇨🇭 Suiza",
    "foot": "DER",
@@ -2631,15 +2657,15 @@ window.DB.belgium = {
   {
    "id": "genk-1",
    "name": "A. Yokoyama",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 56,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 23,
    "height": 172,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 17
+     "pos": "DC"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -2651,15 +2677,15 @@ window.DB.belgium = {
   {
    "id": "genk-2",
    "name": "Jerry Afriyie",
-   "position": "delantero",
+   "position": "DC",
    "skill": 60,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 19,
    "height": 180,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 2
+     "pos": "EI"
     }
    ],
    "nationality": "🇬🇭 Ghana",
@@ -2671,15 +2697,15 @@ window.DB.belgium = {
   {
    "id": "genk-3",
    "name": "Adedeji-Sternberg",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 63,
+   "potencial": 81,
+   "tendencia": ">",
    "age": 21,
    "height": 180,
-   "mainPct": 91,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 9
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2691,15 +2717,15 @@ window.DB.belgium = {
   {
    "id": "genk-4",
    "name": "Aaron Bibout",
-   "position": "delantero",
+   "position": "DC",
    "skill": 66,
+   "potencial": 84,
+   "tendencia": ">",
    "age": 21,
    "height": 193,
-   "mainPct": 99,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 1
+     "pos": "EI"
     }
    ],
    "nationality": "🇨🇲 Camerún",
@@ -2711,15 +2737,15 @@ window.DB.belgium = {
   {
    "id": "genk-5",
    "name": "Rafiu Durosinmi",
-   "position": "delantero",
+   "position": "DC",
    "skill": 68,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 23,
    "height": 192,
-   "mainPct": 95,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 5
+     "pos": "EI"
     }
    ],
    "nationality": "🇳🇬 Nigeria",
@@ -2731,15 +2757,15 @@ window.DB.belgium = {
   {
    "id": "genk-6",
    "name": "J. Steuckers",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 77,
+   "potencial": 87,
+   "tendencia": ">",
    "age": 24,
    "height": 180,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 17
+     "pos": "MCO"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2751,15 +2777,15 @@ window.DB.belgium = {
   {
    "id": "genk-7",
    "name": "Junya Ito",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 81,
+   "potencial": 81,
+   "tendencia": "<",
    "age": 33,
    "height": 177,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 13
+     "pos": "MD"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -2771,11 +2797,12 @@ window.DB.belgium = {
   {
    "id": "genk-8",
    "name": "Kenan Haroun",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 45,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 20,
    "height": 188,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -2786,15 +2813,15 @@ window.DB.belgium = {
   {
    "id": "genk-9",
    "name": "I. Bangoura",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 62,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 22,
    "height": 190,
-   "mainPct": 73,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 27
+     "pos": "MC"
     }
    ],
    "nationality": "🇬🇳 Guinea",
@@ -2806,15 +2833,15 @@ window.DB.belgium = {
   {
    "id": "genk-10",
    "name": "N. Sattlberger",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 65,
+   "potencial": 75,
+   "tendencia": ">",
    "age": 22,
    "height": 192,
-   "mainPct": 75,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 25
+     "pos": "MC"
     }
    ],
    "nationality": "🇦🇹 Austria",
@@ -2826,15 +2853,15 @@ window.DB.belgium = {
   {
    "id": "genk-11",
    "name": "J. Erenbjerg",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 71,
+   "potencial": 75,
+   "tendencia": ">",
    "age": 26,
    "height": 184,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 10
+     "pos": "EI"
     }
    ],
    "nationality": "🇩🇰 Dinamarca",
@@ -2846,15 +2873,15 @@ window.DB.belgium = {
   {
    "id": "genk-12",
    "name": "B. Heynen",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 80,
+   "potencial": 80,
+   "tendencia": "=",
    "age": 29,
    "height": 184,
-   "mainPct": 91,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 9
+     "pos": "MCD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2866,15 +2893,15 @@ window.DB.belgium = {
   {
    "id": "genk-13",
    "name": "D. Heymans",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 81,
+   "potencial": 85,
+   "tendencia": ">",
    "age": 27,
    "height": 191,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 17
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2886,15 +2913,15 @@ window.DB.belgium = {
   {
    "id": "genk-14",
    "name": "Adrián Palacios",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 49,
+   "potencial": 59,
+   "tendencia": ">",
    "age": 22,
    "height": 187,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 18
+     "pos": "LI"
     }
    ],
    "nationality": "🇻🇪 Venezuela",
@@ -2906,15 +2933,15 @@ window.DB.belgium = {
   {
    "id": "genk-15",
    "name": "Christian Akpan",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 50,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 21,
    "height": 176,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 19
+     "pos": "MC"
     }
    ],
    "nationality": "🇳🇬 Nigeria",
@@ -2926,15 +2953,15 @@ window.DB.belgium = {
   {
    "id": "genk-16",
    "name": "Josué Kongolo",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 53,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 20,
    "height": 186,
-   "mainPct": 96,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 4
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2946,15 +2973,15 @@ window.DB.belgium = {
   {
    "id": "genk-17",
    "name": "K. Nkuba",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 63,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 24,
    "height": 179,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "carrilero_der",
-     "pct": 19
+     "pos": "CAD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -2966,15 +2993,15 @@ window.DB.belgium = {
   {
    "id": "genk-18",
    "name": "K. Amaro",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 66,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 22,
    "height": 177,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 16
+     "pos": "ED"
     }
    ],
    "nationality": "🇺🇾 Uruguay",
@@ -2986,15 +3013,15 @@ window.DB.belgium = {
   {
    "id": "genk-19",
    "name": "Yaimar Medina",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 66,
+   "potencial": 84,
+   "tendencia": ">",
    "age": 21,
    "height": 173,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 16
+     "pos": "EI"
     }
    ],
    "nationality": "🇪🇨 Ecuador",
@@ -3006,15 +3033,15 @@ window.DB.belgium = {
   {
    "id": "genk-20",
    "name": "Joris Kayembe",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 78,
+   "potencial": 78,
+   "tendencia": "=",
    "age": 32,
    "height": 180,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "carrilero_izq",
-     "pct": 17
+     "pos": "CAI"
     }
    ],
    "nationality": "🇨🇩 RD Congo",
@@ -3026,15 +3053,15 @@ window.DB.belgium = {
   {
    "id": "genk-21",
    "name": "Matte Smets",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 79,
+   "potencial": 89,
+   "tendencia": ">",
    "age": 22,
    "height": 185,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 3
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3046,15 +3073,15 @@ window.DB.belgium = {
   {
    "id": "genk-22",
    "name": "Mujaid Sadick",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 79,
+   "potencial": 83,
+   "tendencia": ">",
    "age": 26,
    "height": 183,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 3
+     "pos": "LD"
     }
    ],
    "nationality": "🇪🇸 España",
@@ -3066,15 +3093,15 @@ window.DB.belgium = {
   {
    "id": "genk-23",
    "name": "Z. El Ouahdi",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 81,
+   "potencial": 91,
+   "tendencia": ">",
    "age": 24,
    "height": 171,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 18
+     "pos": "MD"
     }
    ],
    "nationality": "🇲🇦 Marruecos",
@@ -3088,9 +3115,10 @@ window.DB.belgium = {
    "name": "Lucca Brughmans",
    "position": "POR",
    "skill": 55,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 18,
    "height": 200,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -3103,9 +3131,10 @@ window.DB.belgium = {
    "name": "H. Van Crombrugge",
    "position": "POR",
    "skill": 64,
+   "potencial": 64,
+   "tendencia": "<",
    "age": 33,
    "height": 189,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -3118,9 +3147,10 @@ window.DB.belgium = {
    "name": "T. Lawal",
    "position": "POR",
    "skill": 70,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 26,
    "height": 194,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇦🇹 Austria",
    "foot": "DER",
@@ -3131,15 +3161,15 @@ window.DB.belgium = {
   {
    "id": "genk-27",
    "name": "Jusef Erabi",
-   "position": "delantero",
+   "position": "DC",
    "skill": 60,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 23,
    "height": 183,
-   "mainPct": 99,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 1
+     "pos": "ED"
     }
    ],
    "nationality": "🇸🇪 Suecia",
@@ -3156,11 +3186,12 @@ window.DB.belgium = {
   {
    "id": "kaa-1",
    "name": "I. Cissé",
-   "position": "delantero",
+   "position": "DC",
    "skill": 40,
+   "potencial": 65,
+   "tendencia": ">",
    "age": 18,
    "height": 196,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇸🇳 Senegal",
    "foot": "DER",
@@ -3171,15 +3202,15 @@ window.DB.belgium = {
   {
    "id": "kaa-2",
    "name": "El Hadji Seck",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 48,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 19,
    "height": 176,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 16
+     "pos": "DC"
     }
    ],
    "nationality": "🇸🇳 Senegal",
@@ -3191,15 +3222,15 @@ window.DB.belgium = {
   {
    "id": "kaa-3",
    "name": "K. Wilson",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 53,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 21,
    "height": 180,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 14
+     "pos": "EI"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",
@@ -3211,15 +3242,15 @@ window.DB.belgium = {
   {
    "id": "kaa-4",
    "name": "Hyllarion Goore",
-   "position": "delantero",
+   "position": "DC",
    "skill": 56,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 21,
    "height": 183,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 11
+     "pos": "EI"
     }
    ],
    "nationality": "🇨🇮 Costa de Marfil",
@@ -3231,15 +3262,15 @@ window.DB.belgium = {
   {
    "id": "kaa-5",
    "name": "Max Dean",
-   "position": "delantero",
+   "position": "DC",
    "skill": 59,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 22,
    "height": 178,
-   "mainPct": 93,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 7
+     "pos": "EI"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",
@@ -3251,15 +3282,15 @@ window.DB.belgium = {
   {
    "id": "kaa-6",
    "name": "J. Vergara",
-   "position": "delantero",
+   "position": "DC",
    "skill": 60,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 19,
    "height": 196,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 3
+     "pos": "MI"
     }
    ],
    "nationality": "🇵🇦 Panamá",
@@ -3271,15 +3302,15 @@ window.DB.belgium = {
   {
    "id": "kaa-7",
    "name": "M. Sonko",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 60,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 21,
    "height": 176,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 15
+     "pos": "ED"
     }
    ],
    "nationality": "🇸🇪 Suecia",
@@ -3291,15 +3322,15 @@ window.DB.belgium = {
   {
    "id": "kaa-8",
    "name": "Aimé Omgba",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 51,
+   "potencial": 61,
+   "tendencia": ">",
    "age": 23,
    "height": 190,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 15
+     "pos": "MC"
     }
    ],
    "nationality": "🇳🇱 Países Bajos",
@@ -3311,15 +3342,15 @@ window.DB.belgium = {
   {
    "id": "kaa-9",
    "name": "Wout Asselman",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 53,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 21,
    "height": 177,
-   "mainPct": 71,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 29
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3331,15 +3362,15 @@ window.DB.belgium = {
   {
    "id": "kaa-10",
    "name": "Leonardo Lopes",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 65,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 27,
    "height": 176,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 14
+     "pos": "MCD"
     }
    ],
    "nationality": "🇵🇹 Portugal",
@@ -3351,15 +3382,15 @@ window.DB.belgium = {
   {
    "id": "kaa-11",
    "name": "T. De Vlieger",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 65,
+   "potencial": 83,
+   "tendencia": ">",
    "age": 20,
    "height": 184,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 10
+     "pos": "MI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3371,15 +3402,15 @@ window.DB.belgium = {
   {
    "id": "kaa-12",
    "name": "A. Kadri",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 66,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 26,
    "height": 170,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 18
+     "pos": "MC"
     }
    ],
    "nationality": "🇩🇿 Argelia",
@@ -3391,15 +3422,15 @@ window.DB.belgium = {
   {
    "id": "kaa-13",
    "name": "L. Bénes",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 66,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 28,
    "height": 181,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 16
+     "pos": "MCO"
     }
    ],
    "nationality": "🇸🇰 Eslovaquia",
@@ -3411,15 +3442,15 @@ window.DB.belgium = {
   {
    "id": "kaa-14",
    "name": "M. Delorge",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 76,
+   "potencial": 86,
+   "tendencia": ">",
    "age": 22,
    "height": 189,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 10
+     "pos": "MI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3431,15 +3462,15 @@ window.DB.belgium = {
   {
    "id": "kaa-15",
    "name": "P. Gerkens",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 73,
+   "potencial": 73,
+   "tendencia": "=",
    "age": 31,
    "height": 179,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 19
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3451,15 +3482,15 @@ window.DB.belgium = {
   {
    "id": "kaa-16",
    "name": "Atsuki Ito",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 73,
+   "potencial": 77,
+   "tendencia": ">",
    "age": 28,
    "height": 185,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 10
+     "pos": "MCD"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -3471,15 +3502,15 @@ window.DB.belgium = {
   {
    "id": "kaa-17",
    "name": "M. Diallo",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 45,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 19,
    "height": 185,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 17
+     "pos": "LI"
     }
    ],
    "nationality": "🇸🇳 Senegal",
@@ -3491,15 +3522,15 @@ window.DB.belgium = {
   {
    "id": "kaa-18",
    "name": "M. Volckaert",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 57,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 23,
    "height": 186,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 15
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3511,15 +3542,15 @@ window.DB.belgium = {
   {
    "id": "kaa-19",
    "name": "G. De Meyer",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 58,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 19,
    "height": 179,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 14
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3531,15 +3562,15 @@ window.DB.belgium = {
   {
    "id": "kaa-20",
    "name": "H. Gambor",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 58,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 23,
    "height": 186,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 14
+     "pos": "LD"
     }
    ],
    "nationality": "🇨🇫 Rep. Centroafricana",
@@ -3551,15 +3582,15 @@ window.DB.belgium = {
   {
    "id": "kaa-21",
    "name": "Tiago Araújo",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 68,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 25,
    "height": 184,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 12
+     "pos": "EI"
     }
    ],
    "nationality": "🇵🇹 Portugal",
@@ -3571,15 +3602,15 @@ window.DB.belgium = {
   {
    "id": "kaa-22",
    "name": "M. Ngom",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 70,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 26,
    "height": 183,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 11
+     "pos": "LD"
     }
    ],
    "nationality": "🇸🇳 Senegal",
@@ -3591,15 +3622,15 @@ window.DB.belgium = {
   {
    "id": "kaa-23",
    "name": "S. Van Der Heyden",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 73,
+   "potencial": 77,
+   "tendencia": ">",
    "age": 28,
    "height": 185,
-   "mainPct": 95,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 5
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3611,15 +3642,15 @@ window.DB.belgium = {
   {
    "id": "kaa-24",
    "name": "M. Paskotsi",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 75,
+   "potencial": 85,
+   "tendencia": ">",
    "age": 23,
    "height": 188,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 12
+     "pos": "LD"
     }
    ],
    "nationality": "🇪🇪 Estonia",
@@ -3631,15 +3662,15 @@ window.DB.belgium = {
   {
    "id": "kaa-25",
    "name": "M. Samoise",
-   "position": "carrilero_der",
+   "position": "CAD",
    "skill": 78,
+   "potencial": 88,
+   "tendencia": ">",
    "age": 24,
    "height": 180,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 10
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3651,11 +3682,12 @@ window.DB.belgium = {
   {
    "id": "kaa-26",
    "name": "Christian Burgess",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 82,
+   "potencial": 82,
+   "tendencia": "<",
    "age": 34,
    "height": 196,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",
    "foot": "DER",
@@ -3668,9 +3700,10 @@ window.DB.belgium = {
    "name": "T. Vandenberghe",
    "position": "POR",
    "skill": 54,
+   "potencial": 54,
+   "tendencia": "<",
    "age": 34,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -3683,9 +3716,10 @@ window.DB.belgium = {
    "name": "K. Peersman",
    "position": "POR",
    "skill": 59,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 22,
    "height": 194,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -3698,9 +3732,10 @@ window.DB.belgium = {
    "name": "Davy Roef",
    "position": "POR",
    "skill": 79,
+   "potencial": 79,
+   "tendencia": "=",
    "age": 32,
    "height": 187,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -3711,11 +3746,12 @@ window.DB.belgium = {
   {
    "id": "kaa-30",
    "name": "H. Essaoubi",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 59,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 25,
    "height": 189,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇲🇦 Marruecos",
    "foot": "DER",
@@ -3731,11 +3767,12 @@ window.DB.belgium = {
   {
    "id": "kvk-1",
    "name": "Abdou Diop",
-   "position": "delantero",
+   "position": "DC",
    "skill": 26,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 21,
    "height": null,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇸🇳 Senegal",
    "foot": "DER",
@@ -3746,15 +3783,15 @@ window.DB.belgium = {
   {
    "id": "kvk-2",
    "name": "Sixtus Ogbuehi",
-   "position": "delantero",
+   "position": "DC",
    "skill": 50,
+   "potencial": 60,
+   "tendencia": ">",
    "age": 23,
    "height": 191,
-   "mainPct": 95,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 5
+     "pos": "MI"
     }
    ],
    "nationality": "🇳🇬 Nigeria",
@@ -3766,15 +3803,15 @@ window.DB.belgium = {
   {
    "id": "kvk-3",
    "name": "S. Campbell",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 51,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 21,
    "height": 178,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 17
+     "pos": "MI"
     }
    ],
    "nationality": "🇿🇦 Sudáfrica",
@@ -3786,15 +3823,15 @@ window.DB.belgium = {
   {
    "id": "kvk-4",
    "name": "Bryan Adinany",
-   "position": "delantero",
+   "position": "DC",
    "skill": 62,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 26,
    "height": 190,
-   "mainPct": 93,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 7
+     "pos": "ED"
     }
    ],
    "nationality": "🇲🇬 Madagascar",
@@ -3804,40 +3841,17 @@ window.DB.belgium = {
    "value": 1180000
   },
   {
-   "id": "kvk-5",
-   "name": "G. Koyalipou",
-   "position": "delantero",
-   "skill": 64,
-   "age": 26,
-   "height": 184,
-   "mainPct": 85,
-   "otherPositions": [
-    {
-     "pos": "extremo_der",
-     "pct": 15
-    }
-   ],
-   "nationality": "🇨🇫 Rep. Centroafricana",
-   "foot": "DER",
-   "number": 9,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/397868.jpg?size=120x&lossy=1",
-   "value": 5680000,
-   "loanedFrom": "lens",
-   "loanedFromName": "RC Lens",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/1544.jpg?size=120x&lossy=1"
-  },
-  {
    "id": "kvk-6",
    "name": "Lenn De Smet",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 68,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 22,
    "height": 174,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "carrilero_der",
-     "pct": 15
+     "pos": "CAD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3849,15 +3863,15 @@ window.DB.belgium = {
   {
    "id": "kvk-7",
    "name": "S. Podgoreanu",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 68,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 24,
    "height": 193,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 18
+     "pos": "ED"
     }
    ],
    "nationality": "🇮🇱 Israel",
@@ -3869,15 +3883,15 @@ window.DB.belgium = {
   {
    "id": "kvk-8",
    "name": "Thierry Ambrose",
-   "position": "delantero",
+   "position": "DC",
    "skill": 68,
+   "potencial": 68,
+   "tendencia": "=",
    "age": 29,
    "height": 178,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 14
+     "pos": "EI"
     }
    ],
    "nationality": "🇬🇵 Guadalupe",
@@ -3889,15 +3903,15 @@ window.DB.belgium = {
   {
    "id": "kvk-9",
    "name": "J. Van Landschoot",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 69,
+   "potencial": 69,
+   "tendencia": "=",
    "age": 29,
    "height": 183,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 10
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3909,11 +3923,12 @@ window.DB.belgium = {
   {
    "id": "kvk-10",
    "name": "Guust Lamerand",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 26,
+   "potencial": 51,
+   "tendencia": ">",
    "age": 18,
    "height": null,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "IZQ",
@@ -3924,15 +3939,15 @@ window.DB.belgium = {
   {
    "id": "kvk-11",
    "name": "N. Mehssatou",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 59,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 24,
    "height": 173,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 13
+     "pos": "LD"
     }
    ],
    "nationality": "🇨🇱 Chile",
@@ -3944,15 +3959,15 @@ window.DB.belgium = {
   {
    "id": "kvk-12",
    "name": "Liam De Smet",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 63,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 22,
    "height": 175,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 18
+     "pos": "MCD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3964,15 +3979,15 @@ window.DB.belgium = {
   {
    "id": "kvk-13",
    "name": "L. Hens",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 63,
+   "potencial": 63,
+   "tendencia": "=",
    "age": 30,
    "height": 182,
-   "mainPct": 74,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 26
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -3984,15 +3999,15 @@ window.DB.belgium = {
   {
    "id": "kvk-14",
    "name": "Ken Masui",
-   "position": "medio_izq",
+   "position": "MI",
    "skill": 65,
+   "potencial": 75,
+   "tendencia": ">",
    "age": 25,
    "height": 173,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 10
+     "pos": "MD"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -4007,15 +4022,15 @@ window.DB.belgium = {
   {
    "id": "kvk-15",
    "name": "B. Lambert",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 65,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 26,
    "height": 187,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 18
+     "pos": "DFC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4027,15 +4042,15 @@ window.DB.belgium = {
   {
    "id": "kvk-16",
    "name": "B. Dejaegere",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 66,
+   "potencial": 66,
+   "tendencia": "<",
    "age": 35,
    "height": 173,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 16
+     "pos": "MCD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4047,15 +4062,15 @@ window.DB.belgium = {
   {
    "id": "kvk-17",
    "name": "M. Fofana",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 40,
+   "potencial": 58,
+   "tendencia": ">",
    "age": 20,
    "height": 180,
-   "mainPct": 70,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 30
+     "pos": "DFC"
     }
    ],
    "nationality": "🇨🇮 Costa de Marfil",
@@ -4067,15 +4082,15 @@ window.DB.belgium = {
   {
    "id": "kvk-18",
    "name": "Gilles Dewaele",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 47,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 30,
    "height": 182,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "carrilero_der",
-     "pct": 15
+     "pos": "CAD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4087,15 +4102,15 @@ window.DB.belgium = {
   {
    "id": "kvk-19",
    "name": "H. Murray-Campbell",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 55,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 20,
    "height": 189,
-   "mainPct": 91,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 9
+     "pos": "LD"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",
@@ -4105,20 +4120,20 @@ window.DB.belgium = {
    "value": 380000,
    "loanedFrom": "chelsea",
    "loanedFromName": "Chelsea U23",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/752.jpg?size=120x&lossy=1"
+   "loanedFromLogo": "https://cdn.resfu.com/img_data/equipos/752.png?size=120x&lossy=1"
   },
   {
    "id": "kvk-20",
    "name": "Rudy Kohon",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 63,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 22,
    "height": 187,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 11
+     "pos": "LD"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -4130,15 +4145,15 @@ window.DB.belgium = {
   {
    "id": "kvk-21",
    "name": "Matthew Anderson",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 67,
+   "potencial": 77,
+   "tendencia": ">",
    "age": 22,
    "height": 178,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "carrilero_izq",
-     "pct": 16
+     "pos": "CAI"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Escocia",
@@ -4150,15 +4165,15 @@ window.DB.belgium = {
   {
    "id": "kvk-22",
    "name": "James Ndjeungoue",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 68,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 23,
    "height": 185,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 3
+     "pos": "LI"
     }
    ],
    "nationality": "🇨🇲 Camerún",
@@ -4170,15 +4185,15 @@ window.DB.belgium = {
   {
    "id": "kvk-23",
    "name": "G. Ruyssen",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 69,
+   "potencial": 69,
+   "tendencia": "=",
    "age": 32,
    "height": 186,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 2
+     "pos": "MCD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4192,9 +4207,10 @@ window.DB.belgium = {
    "name": "P. Gunnarsson",
    "position": "POR",
    "skill": 69,
+   "potencial": 79,
+   "tendencia": ">",
    "age": 25,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇮🇸 Islandia",
    "foot": "DER",
@@ -4207,9 +4223,10 @@ window.DB.belgium = {
    "name": "E. De Vlaeminck",
    "position": "POR",
    "skill": 42,
+   "potencial": 60,
+   "tendencia": ">",
    "age": 20,
    "height": 184,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -4222,9 +4239,10 @@ window.DB.belgium = {
    "name": "Marko Ilić",
    "position": "POR",
    "skill": 66,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 28,
    "height": 191,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇷🇸 Serbia",
    "foot": "DER",
@@ -4237,15 +4255,15 @@ window.DB.belgium = {
   {
    "id": "kvm-1",
    "name": "Shina Ayodele",
-   "position": "delantero",
+   "position": "DC",
    "skill": 45,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 20,
    "height": null,
-   "mainPct": 75,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 25
+     "pos": "ED"
     }
    ],
    "nationality": "🇳🇬 Nigeria",
@@ -4257,11 +4275,12 @@ window.DB.belgium = {
   {
    "id": "kvm-2",
    "name": "M. Mbasi",
-   "position": "delantero",
+   "position": "DC",
    "skill": 41,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 18,
    "height": 188,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -4272,15 +4291,15 @@ window.DB.belgium = {
   {
    "id": "kvm-3",
    "name": "B. Antonio",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 54,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 23,
    "height": 177,
-   "mainPct": 80,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 20
+     "pos": "MD"
     }
    ],
    "nationality": "🇿🇼 Zimbabue",
@@ -4292,15 +4311,15 @@ window.DB.belgium = {
   {
    "id": "kvm-4",
    "name": "C. Van Meirvenne",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 55,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 21,
    "height": 176,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 15
+     "pos": "MD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4312,15 +4331,15 @@ window.DB.belgium = {
   {
    "id": "kvm-5",
    "name": "K. Vanrafelghem",
-   "position": "delantero",
+   "position": "DC",
    "skill": 58,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 23,
    "height": 171,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 13
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4332,15 +4351,15 @@ window.DB.belgium = {
   {
    "id": "kvm-6",
    "name": "B. Boersma",
-   "position": "delantero",
+   "position": "DC",
    "skill": 60,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 21,
    "height": 178,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 3
+     "pos": "EI"
     }
    ],
    "nationality": "🇳🇱 Países Bajos",
@@ -4352,15 +4371,15 @@ window.DB.belgium = {
   {
    "id": "kvm-7",
    "name": "Benito Raman",
-   "position": "delantero",
+   "position": "DC",
    "skill": 65,
+   "potencial": 65,
+   "tendencia": "=",
    "age": 31,
    "height": 172,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 13
+     "pos": "EI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4372,15 +4391,15 @@ window.DB.belgium = {
   {
    "id": "kvm-8",
    "name": "M. Van Brederode",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 76,
+   "potencial": 86,
+   "tendencia": ">",
    "age": 23,
    "height": 174,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 10
+     "pos": "DC"
     }
    ],
    "nationality": "🇳🇱 Países Bajos",
@@ -4392,11 +4411,12 @@ window.DB.belgium = {
   {
    "id": "kvm-9",
    "name": "A. Ouahabi",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 37,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 18,
    "height": 185,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇲🇦 Marruecos",
    "foot": "DER",
@@ -4407,11 +4427,12 @@ window.DB.belgium = {
   {
    "id": "kvm-10",
    "name": "M. Van Helden",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 46,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 20,
    "height": 185,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -4422,15 +4443,15 @@ window.DB.belgium = {
   {
    "id": "kvm-11",
    "name": "M. Decoene",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 46,
+   "potencial": 56,
+   "tendencia": ">",
    "age": 22,
    "height": 184,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 18
+     "pos": "DFC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4442,15 +4463,15 @@ window.DB.belgium = {
   {
    "id": "kvm-12",
    "name": "Halil Özdemir",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 51,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 21,
    "height": 177,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 11
+     "pos": "MD"
     }
    ],
    "nationality": "🇹🇷 Turquía",
@@ -4462,15 +4483,15 @@ window.DB.belgium = {
   {
    "id": "kvm-13",
    "name": "M. Kireev",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 52,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 22,
    "height": 182,
-   "mainPct": 80,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 20
+     "pos": "DC"
     }
    ],
    "nationality": "🇧🇾 Bielorrusia",
@@ -4482,15 +4503,15 @@ window.DB.belgium = {
   {
    "id": "kvm-14",
    "name": "S. Michez",
-   "position": "medio_der",
+   "position": "MD",
    "skill": 54,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 24,
    "height": 178,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 10
+     "pos": "ED"
     }
    ],
    "nationality": "🇨🇲 Camerún",
@@ -4502,15 +4523,15 @@ window.DB.belgium = {
   {
    "id": "kvm-15",
    "name": "B. Bafdili",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 55,
+   "potencial": 65,
+   "tendencia": ">",
    "age": 22,
    "height": 180,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 10
+     "pos": "EI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4522,15 +4543,15 @@ window.DB.belgium = {
   {
    "id": "kvm-16",
    "name": "Dikeni Salifou",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 59,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 23,
    "height": 191,
-   "mainPct": 77,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 23
+     "pos": "MCD"
     }
    ],
    "nationality": "🇩🇪 Alemania",
@@ -4542,15 +4563,15 @@ window.DB.belgium = {
   {
    "id": "kvm-17",
    "name": "Noah Makanza",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 59,
+   "potencial": 77,
+   "tendencia": ">",
    "age": 21,
    "height": 177,
-   "mainPct": 92,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 8
+     "pos": "MCO"
     }
    ],
    "nationality": "🇨🇩 RD Congo",
@@ -4562,15 +4583,15 @@ window.DB.belgium = {
   {
    "id": "kvm-18",
    "name": "Ryan Teague",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 64,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 24,
    "height": 182,
-   "mainPct": 73,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 27
+     "pos": "MC"
     }
    ],
    "nationality": "🇦🇺 Australia",
@@ -4582,15 +4603,15 @@ window.DB.belgium = {
   {
    "id": "kvm-19",
    "name": "Dennis Praet",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 67,
+   "potencial": 67,
+   "tendencia": "=",
    "age": 32,
    "height": 181,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 16
+     "pos": "MCO"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4602,15 +4623,15 @@ window.DB.belgium = {
   {
    "id": "kvm-20",
    "name": "F. Hammar",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 72,
+   "potencial": 82,
+   "tendencia": ">",
    "age": 25,
    "height": 182,
-   "mainPct": 80,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 20
+     "pos": "MC"
     }
    ],
    "nationality": "🇸🇪 Suecia",
@@ -4622,15 +4643,15 @@ window.DB.belgium = {
   {
    "id": "kvm-21",
    "name": "Lovro Golič",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 43,
+   "potencial": 61,
+   "tendencia": ">",
    "age": 20,
    "height": 193,
-   "mainPct": 96,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 4
+     "pos": "LI"
     }
    ],
    "nationality": "🇸🇮 Eslovenia",
@@ -4642,15 +4663,15 @@ window.DB.belgium = {
   {
    "id": "kvm-22",
    "name": "Leo Hjelde",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 45,
+   "potencial": 55,
+   "tendencia": ">",
    "age": 23,
    "height": 190,
-   "mainPct": 79,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 21
+     "pos": "LI"
     }
    ],
    "nationality": "🇳🇴 Noruega",
@@ -4662,15 +4683,15 @@ window.DB.belgium = {
   {
    "id": "kvm-23",
    "name": "Kobe Corbanie",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 49,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 21,
    "height": 187,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 16
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4682,15 +4703,15 @@ window.DB.belgium = {
   {
    "id": "kvm-24",
    "name": "Ian Struyf",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 52,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 19,
    "height": 191,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 11
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -4702,15 +4723,15 @@ window.DB.belgium = {
   {
    "id": "kvm-25",
    "name": "G. Diouf",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 62,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 22,
    "height": 185,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 15
+     "pos": "LI"
     }
    ],
    "nationality": "🇸🇳 Senegal",
@@ -4722,15 +4743,15 @@ window.DB.belgium = {
   {
    "id": "kvm-26",
    "name": "M. Eerdhuijzen",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 63,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 26,
    "height": 194,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 2
+     "pos": "LI"
     }
    ],
    "nationality": "🇳🇱 Países Bajos",
@@ -4742,15 +4763,15 @@ window.DB.belgium = {
   {
    "id": "kvm-27",
    "name": "Luc Marijnissen",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 64,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 23,
    "height": 190,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 14
+     "pos": "LD"
     }
    ],
    "nationality": "🇳🇱 Países Bajos",
@@ -4762,15 +4783,15 @@ window.DB.belgium = {
   {
    "id": "kvm-28",
    "name": "T. Koudou",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 72,
+   "potencial": 90,
+   "tendencia": ">",
    "age": 21,
    "height": 178,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "carrilero_der",
-     "pct": 16
+     "pos": "CAD"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -4782,15 +4803,15 @@ window.DB.belgium = {
   {
    "id": "kvm-29",
    "name": "T. St. Jago",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 72,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 26,
    "height": 186,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 15
+     "pos": "LD"
     }
    ],
    "nationality": "🇨🇼 Curazao",
@@ -4802,15 +4823,15 @@ window.DB.belgium = {
   {
    "id": "kvm-30",
    "name": "José Marsà",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 73,
+   "potencial": 83,
+   "tendencia": ">",
    "age": 24,
    "height": 185,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 12
+     "pos": "LI"
     }
    ],
    "nationality": "🇪🇸 España",
@@ -4824,9 +4845,10 @@ window.DB.belgium = {
    "name": "T. Van Ingelgom",
    "position": "POR",
    "skill": 38,
+   "potencial": 56,
+   "tendencia": ">",
    "age": 19,
    "height": 194,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -4839,9 +4861,10 @@ window.DB.belgium = {
    "name": "O. De Wolf",
    "position": "POR",
    "skill": 64,
+   "potencial": 64,
+   "tendencia": "=",
    "age": 29,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "IZQ",
@@ -4854,9 +4877,10 @@ window.DB.belgium = {
    "name": "Nacho Miras",
    "position": "POR",
    "skill": 70,
+   "potencial": 70,
+   "tendencia": "=",
    "age": 29,
    "height": 187,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇪🇸 España",
    "foot": "DER",
@@ -4867,11 +4891,12 @@ window.DB.belgium = {
   {
    "id": "kvm-34",
    "name": "M. Lenaerts",
-   "position": "delantero",
+   "position": "DC",
    "skill": 43,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 18,
    "height": 184,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -4887,11 +4912,12 @@ window.DB.belgium = {
   {
    "id": "wst-1",
    "name": "N. Bohamdi-Kamoni",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 32,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 19,
    "height": 173,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇲🇦 Marruecos",
    "foot": "DER",
@@ -4902,11 +4928,12 @@ window.DB.belgium = {
   {
    "id": "wst-2",
    "name": "D. Amegnaglo",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 48,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 21,
    "height": 186,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇫🇷 Francia",
    "foot": "DER",
@@ -4917,15 +4944,15 @@ window.DB.belgium = {
   {
    "id": "wst-3",
    "name": "E. Tsimba",
-   "position": "delantero",
+   "position": "DC",
    "skill": 51,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 20,
    "height": 188,
-   "mainPct": 94,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 6
+     "pos": "ED"
     }
    ],
    "nationality": "🇨🇭 Suiza",
@@ -4937,15 +4964,15 @@ window.DB.belgium = {
   {
    "id": "wst-4",
    "name": "S. Saito",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 53,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 21,
    "height": 174,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 16
+     "pos": "MI"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -4955,63 +4982,17 @@ window.DB.belgium = {
    "value": 980000
   },
   {
-   "id": "wst-5",
-   "name": "Norman Bassette",
-   "position": "delantero",
-   "skill": 56,
-   "age": 21,
-   "height": 186,
-   "mainPct": 93,
-   "otherPositions": [
-    {
-     "pos": "medio_izq",
-     "pct": 7
-    }
-   ],
-   "nationality": "🇧🇪 Bélgica",
-   "foot": "DER",
-   "number": 9,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/3179423.jpg?size=120x&lossy=1",
-   "value": 2320000,
-   "loanedFrom": "coventry-city",
-   "loanedFromName": "Coventry City",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/9189.jpg?size=120x&lossy=1"
-  },
-  {
-   "id": "wst-6",
-   "name": "Min-Hyuk Yang",
-   "position": "extremo_der",
-   "skill": 58,
-   "age": 20,
-   "height": 176,
-   "mainPct": 84,
-   "otherPositions": [
-    {
-     "pos": "extremo_izq",
-     "pct": 16
-    }
-   ],
-   "nationality": "🇰🇷 Corea del Sur",
-   "foot": "DER",
-   "number": 47,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/3310236.jpg?size=120x&lossy=1",
-   "value": 4270000,
-   "loanedFrom": "tottenham",
-   "loanedFromName": "Tottenham Hotspur",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/2523.jpg?size=120x&lossy=1"
-  },
-  {
    "id": "wst-7",
    "name": "C. Congreve",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 66,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 22,
    "height": 180,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 15
+     "pos": "MD"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁷󠁬󠁳󠁿 Gales",
@@ -5023,15 +5004,15 @@ window.DB.belgium = {
   {
    "id": "wst-8",
    "name": "Afonso Patrão",
-   "position": "delantero",
+   "position": "DC",
    "skill": 51,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 19,
    "height": 182,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 10
+     "pos": "ED"
     }
    ],
    "nationality": "🇵🇹 Portugal",
@@ -5043,15 +5024,15 @@ window.DB.belgium = {
   {
    "id": "wst-9",
    "name": "K. Borys",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 49,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 19,
    "height": 174,
-   "mainPct": 78,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 22
+     "pos": "MC"
     }
    ],
    "nationality": "🇵🇱 Polonia",
@@ -5063,15 +5044,15 @@ window.DB.belgium = {
   {
    "id": "wst-10",
    "name": "Pape Diong",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 52,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 20,
    "height": 193,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 18
+     "pos": "MC"
     }
    ],
    "nationality": "🇸🇳 Senegal",
@@ -5083,15 +5064,15 @@ window.DB.belgium = {
   {
    "id": "wst-11",
    "name": "Ibrahim Fofana",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 57,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 22,
    "height": 178,
-   "mainPct": 73,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 27
+     "pos": "MC"
     }
    ],
    "nationality": "🇨🇮 Costa de Marfil",
@@ -5103,15 +5084,15 @@ window.DB.belgium = {
   {
    "id": "wst-12",
    "name": "S. Sydorchuk",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 58,
+   "potencial": 58,
+   "tendencia": "<",
    "age": 35,
    "height": 189,
-   "mainPct": 74,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 26
+     "pos": "MC"
     }
    ],
    "nationality": "🇺🇦 Ucrania",
@@ -5123,15 +5104,15 @@ window.DB.belgium = {
   {
    "id": "wst-13",
    "name": "R. Laalaoui",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 58,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 21,
    "height": 190,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 18
+     "pos": "MCO"
     }
    ],
    "nationality": "🇲🇦 Marruecos",
@@ -5143,15 +5124,15 @@ window.DB.belgium = {
   {
    "id": "wst-14",
    "name": "Cisse Sandra",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 60,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 22,
    "height": 183,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 10
+     "pos": "MI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5163,15 +5144,15 @@ window.DB.belgium = {
   {
    "id": "wst-15",
    "name": "T. Van Den Keybus",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 61,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 25,
    "height": 181,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 14
+     "pos": "EI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5183,15 +5164,15 @@ window.DB.belgium = {
   {
    "id": "wst-16",
    "name": "D. Haspolat",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 72,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 26,
    "height": 177,
-   "mainPct": 77,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 23
+     "pos": "MC"
     }
    ],
    "nationality": "🇹🇷 Turquía",
@@ -5203,15 +5184,15 @@ window.DB.belgium = {
   {
    "id": "wst-17",
    "name": "I. Sakamoto",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 75,
+   "potencial": 85,
+   "tendencia": ">",
    "age": 23,
    "height": 173,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 17
+     "pos": "DC"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -5223,15 +5204,15 @@ window.DB.belgium = {
   {
    "id": "wst-18",
    "name": "Michée Ndembi",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 43,
+   "potencial": 61,
+   "tendencia": ">",
    "age": 19,
    "height": 187,
-   "mainPct": 91,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 9
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5243,15 +5224,15 @@ window.DB.belgium = {
   {
    "id": "wst-19",
    "name": "L. Mbamba",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 47,
+   "potencial": 65,
+   "tendencia": ">",
    "age": 20,
    "height": 170,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 15
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5263,15 +5244,15 @@ window.DB.belgium = {
   {
    "id": "wst-20",
    "name": "A. Lapage",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 58,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 21,
    "height": 188,
-   "mainPct": 96,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 4
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5283,15 +5264,15 @@ window.DB.belgium = {
   {
    "id": "wst-21",
    "name": "Dylan Ourega",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 59,
+   "potencial": 77,
+   "tendencia": ">",
    "age": 21,
    "height": 183,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 14
+     "pos": "MI"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -5303,15 +5284,15 @@ window.DB.belgium = {
   {
    "id": "wst-22",
    "name": "Reno Münz",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 61,
+   "potencial": 79,
+   "tendencia": ">",
    "age": 20,
    "height": 188,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 12
+     "pos": "LI"
     }
    ],
    "nationality": "🇩🇪 Alemania",
@@ -5323,15 +5304,15 @@ window.DB.belgium = {
   {
    "id": "wst-23",
    "name": "F. Ferraro",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 64,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 23,
    "height": 180,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 10
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5343,15 +5324,15 @@ window.DB.belgium = {
   {
    "id": "wst-24",
    "name": "S. Kimura",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 69,
+   "potencial": 79,
+   "tendencia": ">",
    "age": 25,
    "height": 186,
-   "mainPct": 95,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 5
+     "pos": "LI"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -5363,15 +5344,15 @@ window.DB.belgium = {
   {
    "id": "wst-25",
    "name": "L. Flø",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 60,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 20,
    "height": 187,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 13
+     "pos": "MD"
     }
    ],
    "nationality": "🇩🇰 Dinamarca",
@@ -5385,9 +5366,10 @@ window.DB.belgium = {
    "name": "A. Jungdal",
    "position": "POR",
    "skill": 71,
+   "potencial": 81,
+   "tendencia": ">",
    "age": 24,
    "height": 195,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇩🇰 Dinamarca",
    "foot": "DER",
@@ -5400,9 +5382,10 @@ window.DB.belgium = {
    "name": "J. Wiegel",
    "position": "POR",
    "skill": 48,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 21,
    "height": 195,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇸🇷 Surinam",
    "foot": "DER",
@@ -5415,9 +5398,10 @@ window.DB.belgium = {
    "name": "B. Lathouwers",
    "position": "POR",
    "skill": 62,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 26,
    "height": 192,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -5430,9 +5414,10 @@ window.DB.belgium = {
    "name": "Oskar Annell",
    "position": "POR",
    "skill": 40,
+   "potencial": 58,
+   "tendencia": ">",
    "age": 21,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -5448,11 +5433,12 @@ window.DB.belgium = {
   {
    "id": "lom-1",
    "name": "Niek Corthouts",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 35,
+   "potencial": 53,
+   "tendencia": ">",
    "age": 20,
    "height": null,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -5463,11 +5449,12 @@ window.DB.belgium = {
   {
    "id": "lom-2",
    "name": "A. Reumers",
-   "position": "delantero",
+   "position": "DC",
    "skill": 39,
+   "potencial": 57,
+   "tendencia": ">",
    "age": 19,
    "height": 189,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -5478,15 +5465,15 @@ window.DB.belgium = {
   {
    "id": "lom-3",
    "name": "S. Appuah",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 54,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 22,
    "height": 185,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 16
+     "pos": "MD"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -5496,20 +5483,20 @@ window.DB.belgium = {
    "value": 785000,
    "loanedFrom": "palermo-fc",
    "loanedFromName": "Palermo FC",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/1906.jpg?size=120x&lossy=1"
+   "loanedFromLogo": "https://cdn.resfu.com/img_data/equipos/1906.png?size=120x&lossy=1"
   },
   {
    "id": "lom-4",
    "name": "D. Konadu",
-   "position": "delantero",
+   "position": "DC",
    "skill": 56,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 20,
    "height": 184,
-   "mainPct": 91,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 9
+     "pos": "EI"
     }
    ],
    "nationality": "🇳🇱 Países Bajos",
@@ -5524,15 +5511,15 @@ window.DB.belgium = {
   {
    "id": "lom-5",
    "name": "Zalán Vancsa",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 61,
+   "potencial": 79,
+   "tendencia": ">",
    "age": 21,
    "height": 175,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 10
+     "pos": "MCO"
     }
    ],
    "nationality": "🇭🇺 Hungría",
@@ -5544,15 +5531,15 @@ window.DB.belgium = {
   {
    "id": "lom-6",
    "name": "J. Van Duiven",
-   "position": "delantero",
+   "position": "DC",
    "skill": 64,
+   "potencial": 82,
+   "tendencia": ">",
    "age": 21,
    "height": 175,
-   "mainPct": 91,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 9
+     "pos": "ED"
     }
    ],
    "nationality": "🇳🇱 Países Bajos",
@@ -5564,15 +5551,15 @@ window.DB.belgium = {
   {
    "id": "lom-7",
    "name": "Tom Reyners",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 64,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 26,
    "height": 169,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 17
+     "pos": "DC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5584,15 +5571,15 @@ window.DB.belgium = {
   {
    "id": "lom-8",
    "name": "R. Seuntjens",
-   "position": "delantero",
+   "position": "DC",
    "skill": 66,
+   "potencial": 66,
+   "tendencia": "<",
    "age": 37,
    "height": 194,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 15
+     "pos": "MCD"
     }
    ],
    "nationality": "🇳🇱 Países Bajos",
@@ -5604,15 +5591,15 @@ window.DB.belgium = {
   {
    "id": "lom-9",
    "name": "Mohamed Salah",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 66,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 22,
    "height": 180,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 19
+     "pos": "MD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5624,15 +5611,15 @@ window.DB.belgium = {
   {
    "id": "lom-10",
    "name": "Juho Talvitie",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 71,
+   "potencial": 89,
+   "tendencia": ">",
    "age": 21,
    "height": 186,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 11
+     "pos": "MD"
     }
    ],
    "nationality": "🇫🇮 Finlandia",
@@ -5644,15 +5631,15 @@ window.DB.belgium = {
   {
    "id": "lom-11",
    "name": "Leon Lalic",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 49,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 20,
    "height": 185,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 19
+     "pos": "MC"
     }
    ],
    "nationality": "🇭🇷 Croacia",
@@ -5664,11 +5651,12 @@ window.DB.belgium = {
   {
    "id": "lom-12",
    "name": "L. Beirinckx",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 28,
+   "potencial": 53,
+   "tendencia": ">",
    "age": 18,
    "height": null,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -5679,11 +5667,12 @@ window.DB.belgium = {
   {
    "id": "lom-13",
    "name": "Théo Mununga",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 31,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 19,
    "height": 182,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -5694,15 +5683,15 @@ window.DB.belgium = {
   {
    "id": "lom-14",
    "name": "Isaiah Dada-Mascoll",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 33,
+   "potencial": 51,
+   "tendencia": ">",
    "age": 20,
    "height": 192,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 14
+     "pos": "DFC"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",
@@ -5714,15 +5703,15 @@ window.DB.belgium = {
   {
    "id": "lom-15",
    "name": "D. Gordic",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 56,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 21,
    "height": 188,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 14
+     "pos": "MCO"
     }
    ],
    "nationality": "🇷🇸 Serbia",
@@ -5734,15 +5723,15 @@ window.DB.belgium = {
   {
    "id": "lom-16",
    "name": "Joey Pelupessy",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 62,
+   "potencial": 62,
+   "tendencia": "<",
    "age": 33,
    "height": 180,
-   "mainPct": 79,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 21
+     "pos": "MC"
     }
    ],
    "nationality": "🇮🇩 Indonesia",
@@ -5752,40 +5741,17 @@ window.DB.belgium = {
    "value": 482000
   },
   {
-   "id": "lom-17",
-   "name": "Sverre Nypan",
-   "position": "mediocentro",
-   "skill": 64,
-   "age": 19,
-   "height": 182,
-   "mainPct": 90,
-   "otherPositions": [
-    {
-     "pos": "delantero",
-     "pct": 10
-    }
-   ],
-   "nationality": "🇳🇴 Noruega",
-   "foot": "DER",
-   "number": 41,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/3170906.jpg?size=120x&lossy=1",
-   "value": 13340000,
-   "loanedFrom": "manchester-city",
-   "loanedFromName": "Manchester City",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/1633.jpg?size=120x&lossy=1"
-  },
-  {
    "id": "lom-18",
    "name": "N. Rommens",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 65,
+   "potencial": 65,
+   "tendencia": "=",
    "age": 31,
    "height": 186,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 17
+     "pos": "MCD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5797,15 +5763,15 @@ window.DB.belgium = {
   {
    "id": "lom-19",
    "name": "F. Krastev",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 67,
+   "potencial": 77,
+   "tendencia": ">",
    "age": 24,
    "height": 178,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 19
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇬 Bulgaria",
@@ -5817,15 +5783,15 @@ window.DB.belgium = {
   {
    "id": "lom-20",
    "name": "L. Schoofs",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 69,
+   "potencial": 69,
+   "tendencia": "=",
    "age": 29,
    "height": 186,
-   "mainPct": 94,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 6
+     "pos": "MCO"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5837,11 +5803,12 @@ window.DB.belgium = {
   {
    "id": "lom-21",
    "name": "E. Vandecraen",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 38,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 18,
    "height": null,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -5852,15 +5819,15 @@ window.DB.belgium = {
   {
    "id": "lom-22",
    "name": "J. Banguera",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 52,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 22,
    "height": 195,
-   "mainPct": 91,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 9
+     "pos": "LD"
     }
    ],
    "nationality": "🇨🇴 Colombia",
@@ -5872,15 +5839,15 @@ window.DB.belgium = {
   {
    "id": "lom-23",
    "name": "Henry Oware",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 59,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 22,
    "height": 184,
-   "mainPct": 77,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 23
+     "pos": "LI"
     }
    ],
    "nationality": "🇬🇭 Ghana",
@@ -5892,15 +5859,15 @@ window.DB.belgium = {
   {
    "id": "lom-24",
    "name": "Tristan Gooijer",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 60,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 21,
    "height": 185,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 16
+     "pos": "DFC"
     }
    ],
    "nationality": "🇳🇱 Países Bajos",
@@ -5912,15 +5879,15 @@ window.DB.belgium = {
   {
    "id": "lom-25",
    "name": "J. Tolinsson",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 61,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 23,
    "height": 190,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 16
+     "pos": "LD"
     }
    ],
    "nationality": "🇸🇪 Suecia",
@@ -5932,15 +5899,15 @@ window.DB.belgium = {
   {
    "id": "lom-26",
    "name": "T. Eyoma",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 61,
+   "potencial": 65,
+   "tendencia": ">",
    "age": 26,
    "height": 183,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 18
+     "pos": "LD"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",
@@ -5952,15 +5919,15 @@ window.DB.belgium = {
   {
    "id": "lom-27",
    "name": "S. Adewoye",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 66,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 26,
    "height": 185,
-   "mainPct": 96,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 4
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5972,15 +5939,15 @@ window.DB.belgium = {
   {
    "id": "lom-28",
    "name": "D. Wouters",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 68,
+   "potencial": 68,
+   "tendencia": "=",
    "age": 29,
    "height": 191,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 11
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -5994,9 +5961,10 @@ window.DB.belgium = {
    "name": "R. Vercauteren",
    "position": "POR",
    "skill": 35,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 25,
    "height": 186,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -6009,9 +5977,10 @@ window.DB.belgium = {
    "name": "N. Ivezić",
    "position": "POR",
    "skill": 47,
+   "potencial": 57,
+   "tendencia": ">",
    "age": 23,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇲🇪 Montenegro",
    "foot": "DER",
@@ -6024,9 +5993,10 @@ window.DB.belgium = {
    "name": "M. Pieklak",
    "position": "POR",
    "skill": 62,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 19,
    "height": 195,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -6037,15 +6007,15 @@ window.DB.belgium = {
   {
    "id": "lom-32",
    "name": "Faniel Tewelde",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 62,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 19,
    "height": 178,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 17
+     "pos": "DC"
     }
    ],
    "nationality": "🇪🇷 Eritrea",
@@ -6060,15 +6030,15 @@ window.DB.belgium = {
   {
    "id": "lom-33",
    "name": "John Montaño",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 45,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 19,
    "height": 176,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 16
+     "pos": "EI"
     }
    ],
    "nationality": "🇨🇴 Colombia",
@@ -6085,15 +6055,15 @@ window.DB.belgium = {
   {
    "id": "ohl-1",
    "name": "K. Vaesen",
-   "position": "delantero",
+   "position": "DC",
    "skill": 56,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 25,
    "height": 190,
-   "mainPct": 94,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 6
+     "pos": "MD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6105,15 +6075,15 @@ window.DB.belgium = {
   {
    "id": "ohl-2",
    "name": "Abdoul Traoré",
-   "position": "delantero",
+   "position": "DC",
    "skill": 56,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 19,
    "height": 178,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 16
+     "pos": "MD"
     }
    ],
    "nationality": "🇬🇳 Guinea",
@@ -6125,15 +6095,15 @@ window.DB.belgium = {
   {
    "id": "ohl-3",
    "name": "Henok Teklab",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 58,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 27,
    "height": 174,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "carrilero_izq",
-     "pct": 18
+     "pos": "CAI"
     }
    ],
    "nationality": "🇩🇪 Alemania",
@@ -6145,15 +6115,15 @@ window.DB.belgium = {
   {
    "id": "ohl-4",
    "name": "S. Yamada",
-   "position": "delantero",
+   "position": "DC",
    "skill": 60,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 26,
    "height": 175,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 10
+     "pos": "ED"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -6168,15 +6138,15 @@ window.DB.belgium = {
   {
    "id": "ohl-5",
    "name": "E. Addai",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 61,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 25,
    "height": 173,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 19
+     "pos": "MI"
     }
    ],
    "nationality": "🇬🇭 Ghana",
@@ -6188,15 +6158,15 @@ window.DB.belgium = {
   {
    "id": "ohl-6",
    "name": "Thibaud Verlinden",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 69,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 27,
    "height": 174,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 14
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6208,15 +6178,15 @@ window.DB.belgium = {
   {
    "id": "ohl-7",
    "name": "C. Ikwuemesi",
-   "position": "delantero",
+   "position": "DC",
    "skill": 70,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 25,
    "height": 195,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 2
+     "pos": "EI"
     }
    ],
    "nationality": "🇳🇬 Nigeria",
@@ -6228,11 +6198,12 @@ window.DB.belgium = {
   {
    "id": "ohl-8",
    "name": "S. Murru",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 45,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 19,
    "height": 172,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -6243,11 +6214,12 @@ window.DB.belgium = {
   {
    "id": "ohl-9",
    "name": "M. Heremans",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 49,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 20,
    "height": 175,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -6258,15 +6230,15 @@ window.DB.belgium = {
   {
    "id": "ohl-10",
    "name": "H. Bulut",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 50,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 19,
    "height": 168,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 17
+     "pos": "ED"
     }
    ],
    "nationality": "🇹🇷 Turquía",
@@ -6278,15 +6250,15 @@ window.DB.belgium = {
   {
    "id": "ohl-11",
    "name": "W. George",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 54,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 24,
    "height": 172,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 11
+     "pos": "MD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6298,15 +6270,15 @@ window.DB.belgium = {
   {
    "id": "ohl-12",
    "name": "Manuel Osifo",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 56,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 23,
    "height": 185,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 15
+     "pos": "DFC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6318,15 +6290,15 @@ window.DB.belgium = {
   {
    "id": "ohl-13",
    "name": "B. Kayo",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 56,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 24,
    "height": 185,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 10
+     "pos": "MCO"
     }
    ],
    "nationality": "🇺🇸 Estados Unidos",
@@ -6338,15 +6310,15 @@ window.DB.belgium = {
   {
    "id": "ohl-14",
    "name": "W. Balikwisha",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 62,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 27,
    "height": 173,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 13
+     "pos": "EI"
     }
    ],
    "nationality": "🇨🇩 RD Congo",
@@ -6358,15 +6330,15 @@ window.DB.belgium = {
   {
    "id": "ohl-15",
    "name": "B. Verstraete",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 62,
+   "potencial": 62,
+   "tendencia": "=",
    "age": 32,
    "height": 174,
-   "mainPct": 77,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 23
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6378,15 +6350,15 @@ window.DB.belgium = {
   {
    "id": "ohl-16",
    "name": "Lukasz Lakomy",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 66,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 25,
    "height": 183,
-   "mainPct": 75,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 25
+     "pos": "MC"
     }
    ],
    "nationality": "🇵🇱 Polonia",
@@ -6398,15 +6370,15 @@ window.DB.belgium = {
   {
    "id": "ohl-17",
    "name": "S. Schrijvers",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 72,
+   "potencial": 72,
+   "tendencia": "=",
    "age": 30,
    "height": 179,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 15
+     "pos": "DC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6418,11 +6390,12 @@ window.DB.belgium = {
   {
    "id": "ohl-18",
    "name": "Christ Souanga",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 40,
+   "potencial": 58,
+   "tendencia": ">",
    "age": 19,
    "height": 186,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -6433,11 +6406,12 @@ window.DB.belgium = {
   {
    "id": "ohl-19",
    "name": "Davis Opoku",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 47,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 18,
    "height": 180,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -6448,15 +6422,15 @@ window.DB.belgium = {
   {
    "id": "ohl-20",
    "name": "T. Vlietinck",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 52,
+   "potencial": 52,
+   "tendencia": "=",
    "age": 29,
    "height": 180,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 15
+     "pos": "MD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6468,15 +6442,15 @@ window.DB.belgium = {
   {
    "id": "ohl-21",
    "name": "T. Ogiwara",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 63,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 26,
    "height": 175,
-   "mainPct": 96,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 4
+     "pos": "LD"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -6491,15 +6465,15 @@ window.DB.belgium = {
   {
    "id": "ohl-22",
    "name": "Óscar Gil",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 67,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 28,
    "height": 175,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "carrilero_der",
-     "pct": 11
+     "pos": "CAD"
     }
    ],
    "nationality": "🇪🇸 España",
@@ -6511,15 +6485,15 @@ window.DB.belgium = {
   {
    "id": "ohl-23",
    "name": "J. Lawrence",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 70,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 23,
    "height": 201,
-   "mainPct": 99,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 1
+     "pos": "MC"
     }
    ],
    "nationality": "🇩🇪 Alemania",
@@ -6531,15 +6505,15 @@ window.DB.belgium = {
   {
    "id": "ohl-24",
    "name": "E. Pletinckx",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 72,
+   "potencial": 82,
+   "tendencia": ">",
    "age": 25,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 1
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6551,15 +6525,15 @@ window.DB.belgium = {
   {
    "id": "ohl-25",
    "name": "N. Dussenne",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 76,
+   "potencial": 76,
+   "tendencia": "<",
    "age": 34,
    "height": 192,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 3
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6573,9 +6547,10 @@ window.DB.belgium = {
    "name": "M. Van Dijck",
    "position": "POR",
    "skill": 36,
+   "potencial": 61,
+   "tendencia": ">",
    "age": 18,
    "height": null,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -6588,9 +6563,10 @@ window.DB.belgium = {
    "name": "D. Van Den Heuvel",
    "position": "POR",
    "skill": 53,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 23,
    "height": 188,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇳🇱 Países Bajos",
    "foot": "DER",
@@ -6603,9 +6579,10 @@ window.DB.belgium = {
    "name": "Tobe Leysen",
    "position": "POR",
    "skill": 73,
+   "potencial": 83,
+   "tendencia": ">",
    "age": 24,
    "height": 189,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "IZQ",
@@ -6618,15 +6595,15 @@ window.DB.belgium = {
   {
    "id": "ral-1",
    "name": "Q. Benaets",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 50,
+   "potencial": 60,
+   "tendencia": ">",
    "age": 23,
    "height": 176,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 16
+     "pos": "DC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6638,15 +6615,15 @@ window.DB.belgium = {
   {
    "id": "ral-2",
    "name": "Z. Gruber",
-   "position": "delantero",
+   "position": "DC",
    "skill": 63,
+   "potencial": 81,
+   "tendencia": ">",
    "age": 21,
    "height": 180,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 17
+     "pos": "ED"
     }
    ],
    "nationality": "🇭🇺 Hungría",
@@ -6658,15 +6635,15 @@ window.DB.belgium = {
   {
    "id": "ral-3",
    "name": "M. Ubandoma",
-   "position": "delantero",
+   "position": "DC",
    "skill": 63,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 22,
    "height": 175,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 17
+     "pos": "EI"
     }
    ],
    "nationality": "🇳🇬 Nigeria",
@@ -6678,15 +6655,15 @@ window.DB.belgium = {
   {
    "id": "ral-4",
    "name": "L. Rousseau",
-   "position": "delantero",
+   "position": "DC",
    "skill": 64,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 23,
    "height": 185,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 11
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6698,15 +6675,15 @@ window.DB.belgium = {
   {
    "id": "ral-5",
    "name": "M. Belkheir",
-   "position": "delantero",
+   "position": "DC",
    "skill": 67,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 27,
    "height": 185,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 14
+     "pos": "ED"
     }
    ],
    "nationality": "🇩🇿 Argelia",
@@ -6718,15 +6695,15 @@ window.DB.belgium = {
   {
    "id": "ral-6",
    "name": "E. Filet",
-   "position": "delantero",
+   "position": "DC",
    "skill": 68,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 24,
    "height": 186,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 3
+     "pos": "ED"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -6738,15 +6715,15 @@ window.DB.belgium = {
   {
    "id": "ral-7",
    "name": "N. Ntemo",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 39,
+   "potencial": 57,
+   "tendencia": ">",
    "age": 19,
    "height": 178,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 18
+     "pos": "DC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6758,15 +6735,15 @@ window.DB.belgium = {
   {
    "id": "ral-8",
    "name": "B. Soumaré",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 44,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 27,
    "height": 180,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 17
+     "pos": "ED"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -6776,40 +6753,17 @@ window.DB.belgium = {
    "value": 354000
   },
   {
-   "id": "ral-9",
-   "name": "M. Courcoul",
-   "position": "medio_def",
-   "skill": 48,
-   "age": 19,
-   "height": 182,
-   "mainPct": 83,
-   "otherPositions": [
-    {
-     "pos": "mediocentro",
-     "pct": 17
-    }
-   ],
-   "nationality": "🇫🇷 Francia",
-   "foot": "DER",
-   "number": 29,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/3242282.jpg?size=120x&lossy=1",
-   "value": 1180000,
-   "loanedFrom": "angers",
-   "loanedFromName": "Angers SCO",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/224.jpg?size=120x&lossy=1"
-  },
-  {
    "id": "ral-10",
    "name": "Mame Wade",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 51,
+   "potencial": 61,
+   "tendencia": ">",
    "age": 23,
    "height": 189,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 18
+     "pos": "MCO"
     }
    ],
    "nationality": "🇸🇳 Senegal",
@@ -6819,40 +6773,17 @@ window.DB.belgium = {
    "value": 176000
   },
   {
-   "id": "ral-11",
-   "name": "A. Tajaouart",
-   "position": "mediocentro",
-   "skill": 55,
-   "age": 20,
-   "height": 167,
-   "mainPct": 83,
-   "otherPositions": [
-    {
-     "pos": "medio_def",
-     "pct": 17
-    }
-   ],
-   "nationality": "🇲🇦 Marruecos",
-   "foot": "DER",
-   "number": 78,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/3218035.jpg?size=120x&lossy=1",
-   "value": 1720000,
-   "loanedFrom": "anderlecht",
-   "loanedFromName": "Anderlecht",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/218.jpg?size=120x&lossy=1"
-  },
-  {
    "id": "ral-12",
    "name": "I. Coulibaly",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 62,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 25,
    "height": 183,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 15
+     "pos": "MCD"
     }
    ],
    "nationality": "🇲🇱 Mali",
@@ -6864,15 +6795,15 @@ window.DB.belgium = {
   {
    "id": "ral-13",
    "name": "M. Kovács",
-   "position": "medio_der",
+   "position": "MD",
    "skill": 63,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 23,
    "height": 181,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "carrilero_der",
-     "pct": 17
+     "pos": "CAD"
     }
    ],
    "nationality": "🇭🇺 Hungría",
@@ -6884,15 +6815,15 @@ window.DB.belgium = {
   {
    "id": "ral-14",
    "name": "S. Gueulette",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 64,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 26,
    "height": 182,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 15
+     "pos": "MCD"
     }
    ],
    "nationality": "🇷🇼 Ruanda",
@@ -6904,15 +6835,15 @@ window.DB.belgium = {
   {
    "id": "ral-15",
    "name": "Joël Ito",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 68,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 28,
    "height": 166,
-   "mainPct": 75,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 25
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6924,15 +6855,15 @@ window.DB.belgium = {
   {
    "id": "ral-16",
    "name": "S. Lahssaini",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 69,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 27,
    "height": 177,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 15
+     "pos": "MCD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -6942,36 +6873,14 @@ window.DB.belgium = {
    "value": 1830000
   },
   {
-   "id": "ral-17",
-   "name": "M. Boukamir",
-   "position": "defensa_central",
-   "skill": 50,
-   "age": 22,
-   "height": 188,
-   "mainPct": 93,
-   "otherPositions": [
-    {
-     "pos": "lateral_der",
-     "pct": 7
-    }
-   ],
-   "nationality": "🇲🇦 Marruecos",
-   "foot": "DER",
-   "number": 44,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/3176476.jpg?size=120x&lossy=1",
-   "value": 1930000,
-   "loanedFrom": "charleroi",
-   "loanedFromName": "Charleroi",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/7514.jpg?size=120x&lossy=1"
-  },
-  {
    "id": "ral-18",
    "name": "Patrick Nkoa",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 62,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 27,
    "height": 192,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇩🇪 Alemania",
    "foot": "DER",
@@ -6982,15 +6891,15 @@ window.DB.belgium = {
   {
    "id": "ral-19",
    "name": "Nolan Gillot",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 62,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 23,
    "height": 183,
-   "mainPct": 72,
    "otherPositions": [
     {
-     "pos": "carrilero_izq",
-     "pct": 28
+     "pos": "CAI"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -7002,15 +6911,15 @@ window.DB.belgium = {
   {
    "id": "ral-20",
    "name": "S. Delos",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 63,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 27,
    "height": 183,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "carrilero_der",
-     "pct": 16
+     "pos": "CAD"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -7022,11 +6931,12 @@ window.DB.belgium = {
   {
    "id": "ral-21",
    "name": "S. Gourville",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 64,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 26,
    "height": 198,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇫🇷 Francia",
    "foot": "DER",
@@ -7037,15 +6947,15 @@ window.DB.belgium = {
   {
    "id": "ral-22",
    "name": "T. Lutonda",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 64,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 25,
    "height": 167,
-   "mainPct": 79,
    "otherPositions": [
     {
-     "pos": "carrilero_izq",
-     "pct": 21
+     "pos": "CAI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7057,15 +6967,15 @@ window.DB.belgium = {
   {
    "id": "ral-23",
    "name": "Y. Okou",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 66,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 23,
    "height": 191,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 2
+     "pos": "LI"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -7077,15 +6987,15 @@ window.DB.belgium = {
   {
    "id": "ral-24",
    "name": "W. Faye",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 70,
+   "potencial": 70,
+   "tendencia": "=",
    "age": 32,
    "height": 185,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 3
+     "pos": "LD"
     }
    ],
    "nationality": "🇸🇳 Senegal",
@@ -7097,15 +7007,15 @@ window.DB.belgium = {
   {
    "id": "ral-25",
    "name": "D. Lamego",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 70,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 23,
    "height": 183,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "carrilero_izq",
-     "pct": 2
+     "pos": "CAI"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -7119,9 +7029,10 @@ window.DB.belgium = {
    "name": "L. Monteiro",
    "position": "POR",
    "skill": 37,
+   "potencial": 55,
+   "tendencia": ">",
    "age": 21,
    "height": 192,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇵🇹 Portugal",
    "foot": "DER",
@@ -7134,9 +7045,10 @@ window.DB.belgium = {
    "name": "T. Radelet",
    "position": "POR",
    "skill": 44,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 18,
    "height": 193,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -7149,9 +7061,10 @@ window.DB.belgium = {
    "name": "M. Peano",
    "position": "POR",
    "skill": 69,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 27,
    "height": 187,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇦🇷 Argentina",
    "foot": "DER",
@@ -7164,11 +7077,12 @@ window.DB.belgium = {
   {
    "id": "st-1",
    "name": "J. Mbalanda",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 42,
+   "potencial": 60,
+   "tendencia": ">",
    "age": 19,
    "height": 180,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -7179,15 +7093,15 @@ window.DB.belgium = {
   {
    "id": "st-2",
    "name": "Shion Shinkawa",
-   "position": "delantero",
+   "position": "DC",
    "skill": 45,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 19,
    "height": 171,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 11
+     "pos": "MD"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -7199,15 +7113,15 @@ window.DB.belgium = {
   {
    "id": "st-3",
    "name": "K. Matsuzawa",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 45,
+   "potencial": 55,
+   "tendencia": ">",
    "age": 25,
    "height": 176,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 15
+     "pos": "ED"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -7219,11 +7133,12 @@ window.DB.belgium = {
   {
    "id": "st-4",
    "name": "Oumar Diouf",
-   "position": "delantero",
+   "position": "DC",
    "skill": 50,
+   "potencial": 60,
+   "tendencia": ">",
    "age": 23,
    "height": 180,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇸🇳 Senegal",
    "foot": "IZQ",
@@ -7234,15 +7149,15 @@ window.DB.belgium = {
   {
    "id": "st-5",
    "name": "F. Soelle",
-   "position": "delantero",
+   "position": "DC",
    "skill": 51,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 20,
    "height": 190,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 18
+     "pos": "MI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7254,15 +7169,15 @@ window.DB.belgium = {
   {
    "id": "st-6",
    "name": "S. Baždar",
-   "position": "delantero",
+   "position": "DC",
    "skill": 59,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 22,
    "height": 189,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 11
+     "pos": "MCO"
     }
    ],
    "nationality": "🇧🇦 Bosnia y Herzegovina",
@@ -7274,15 +7189,15 @@ window.DB.belgium = {
   {
    "id": "st-7",
    "name": "Arbnor Muja",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 64,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 27,
    "height": 179,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 18
+     "pos": "EI"
     }
    ],
    "nationality": "🇦🇱 Albania",
@@ -7294,15 +7209,15 @@ window.DB.belgium = {
   {
    "id": "st-8",
    "name": "I. Sebaoui",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 73,
+   "potencial": 83,
+   "tendencia": ">",
    "age": 24,
    "height": 180,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 12
+     "pos": "MI"
     }
    ],
    "nationality": "🇲🇦 Marruecos",
@@ -7314,11 +7229,12 @@ window.DB.belgium = {
   {
    "id": "st-9",
    "name": "I. Benachour",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 44,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 19,
    "height": 175,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇲🇦 Marruecos",
    "foot": "DER",
@@ -7329,15 +7245,15 @@ window.DB.belgium = {
   {
    "id": "st-10",
    "name": "Alouis Diriken",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 46,
+   "potencial": 56,
+   "tendencia": ">",
    "age": 22,
    "height": 186,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 17
+     "pos": "DFC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7349,15 +7265,15 @@ window.DB.belgium = {
   {
    "id": "st-11",
    "name": "R. Merlen",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 61,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 24,
    "height": 188,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 11
+     "pos": "MCO"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -7369,15 +7285,15 @@ window.DB.belgium = {
   {
    "id": "st-12",
    "name": "Nelson Ishiwatari",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 62,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 21,
    "height": 185,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 17
+     "pos": "MCD"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -7389,15 +7305,15 @@ window.DB.belgium = {
   {
    "id": "st-13",
    "name": "R. Araki",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 64,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 24,
    "height": 170,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 14
+     "pos": "DC"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -7409,15 +7325,15 @@ window.DB.belgium = {
   {
    "id": "st-14",
    "name": "A. Sissako",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 71,
+   "potencial": 75,
+   "tendencia": ">",
    "age": 28,
    "height": 181,
-   "mainPct": 76,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 24
+     "pos": "MC"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -7429,11 +7345,12 @@ window.DB.belgium = {
   {
    "id": "st-15",
    "name": "Rune Verheyden",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 39,
+   "potencial": 57,
+   "tendencia": ">",
    "age": 19,
    "height": null,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "IZQ",
@@ -7444,15 +7361,15 @@ window.DB.belgium = {
   {
    "id": "st-16",
    "name": "W. Janssens",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 43,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 31,
    "height": 185,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 12
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7464,15 +7381,15 @@ window.DB.belgium = {
   {
    "id": "st-17",
    "name": "J. Pupe",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 61,
+   "potencial": 61,
+   "tendencia": "=",
    "age": 29,
    "height": 190,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 13
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7484,15 +7401,15 @@ window.DB.belgium = {
   {
    "id": "st-18",
    "name": "R. Vanwesemael",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 69,
+   "potencial": 79,
+   "tendencia": ">",
    "age": 24,
    "height": 176,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 10
+     "pos": "MI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7504,15 +7421,15 @@ window.DB.belgium = {
   {
    "id": "st-19",
    "name": "Shogo Taniguchi",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 71,
+   "potencial": 71,
+   "tendencia": "<",
    "age": 35,
    "height": 185,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 10
+     "pos": "MCD"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -7524,15 +7441,15 @@ window.DB.belgium = {
   {
    "id": "st-20",
    "name": "Visar Musliu",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 72,
+   "potencial": 72,
+   "tendencia": "=",
    "age": 31,
    "height": 187,
-   "mainPct": 99,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 1
+     "pos": "MC"
     }
    ],
    "nationality": "🇲🇰 Macedonia del Norte",
@@ -7544,15 +7461,15 @@ window.DB.belgium = {
   {
    "id": "st-21",
    "name": "T. Hata",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 72,
+   "potencial": 82,
+   "tendencia": ">",
    "age": 24,
    "height": 177,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 10
+     "pos": "MD"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -7566,9 +7483,10 @@ window.DB.belgium = {
    "name": "A. Abu Rasen",
    "position": "POR",
    "skill": 26,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 22,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇸🇦 Arabia Saudí",
    "foot": "DER",
@@ -7581,9 +7499,10 @@ window.DB.belgium = {
    "name": "M. Lendfers",
    "position": "POR",
    "skill": 43,
+   "potencial": 61,
+   "tendencia": ">",
    "age": 20,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -7596,9 +7515,10 @@ window.DB.belgium = {
    "name": "Leo Kokubo",
    "position": "POR",
    "skill": 69,
+   "potencial": 79,
+   "tendencia": ">",
    "age": 25,
    "height": 193,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇯🇵 Japón",
    "foot": "DER",
@@ -7609,15 +7529,15 @@ window.DB.belgium = {
   {
    "id": "st-25",
    "name": "Adam Nhaili",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 45,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 21,
    "height": 164,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 15
+     "pos": "MD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7632,15 +7552,15 @@ window.DB.belgium = {
   {
    "id": "st-26",
    "name": "Andrés Ferrari",
-   "position": "delantero",
+   "position": "DC",
    "skill": 58,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 23,
    "height": 190,
-   "mainPct": 89,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 11
+     "pos": "ED"
     }
    ],
    "nationality": "🇺🇾 Uruguay",
@@ -7655,11 +7575,12 @@ window.DB.belgium = {
   {
    "id": "st-27",
    "name": "H. Lambotte",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 43,
+   "potencial": 61,
+   "tendencia": ">",
    "age": 20,
    "height": 188,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -7675,11 +7596,12 @@ window.DB.belgium = {
   {
    "id": "sbv-1",
    "name": "Junior Diouf",
-   "position": "delantero",
+   "position": "DC",
    "skill": 35,
+   "potencial": 53,
+   "tendencia": ">",
    "age": 19,
    "height": 185,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇸🇳 Senegal",
    "foot": "DER",
@@ -7690,11 +7612,12 @@ window.DB.belgium = {
   {
    "id": "sbv-2",
    "name": "M. Kaboré",
-   "position": "delantero",
+   "position": "DC",
    "skill": 49,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 19,
    "height": 180,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇫 Burkina Faso",
    "foot": "DER",
@@ -7708,15 +7631,15 @@ window.DB.belgium = {
   {
    "id": "sbv-3",
    "name": "Ilyes Najim",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 53,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 23,
    "height": 173,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 10
+     "pos": "DC"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -7728,15 +7651,15 @@ window.DB.belgium = {
   {
    "id": "sbv-4",
    "name": "C. Lokesa",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 56,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 21,
    "height": 179,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 10
+     "pos": "DC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7748,15 +7671,15 @@ window.DB.belgium = {
   {
    "id": "sbv-5",
    "name": "Jearl Margaritha",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 67,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 26,
    "height": 181,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 14
+     "pos": "ED"
     }
    ],
    "nationality": "🇨🇼 Curazao",
@@ -7768,15 +7691,15 @@ window.DB.belgium = {
   {
    "id": "sbv-6",
    "name": "K. Abrahams",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 68,
+   "potencial": 68,
+   "tendencia": "=",
    "age": 29,
    "height": 172,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 12
+     "pos": "DC"
     }
    ],
    "nationality": "🇿🇦 Sudáfrica",
@@ -7788,15 +7711,15 @@ window.DB.belgium = {
   {
    "id": "sbv-7",
    "name": "L. Mertens",
-   "position": "delantero",
+   "position": "DC",
    "skill": 73,
+   "potencial": 73,
+   "tendencia": "<",
    "age": 34,
    "height": 188,
-   "mainPct": 99,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 1
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7808,11 +7731,12 @@ window.DB.belgium = {
   {
    "id": "sbv-8",
    "name": "Tibe S'Jongers",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 39,
+   "potencial": 57,
+   "tendencia": ">",
    "age": 19,
    "height": null,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -7823,15 +7747,15 @@ window.DB.belgium = {
   {
    "id": "sbv-9",
    "name": "Ferre Slegers",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 49,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 21,
    "height": 182,
-   "mainPct": 78,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 22
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7843,15 +7767,15 @@ window.DB.belgium = {
   {
    "id": "sbv-10",
    "name": "Noah Mawete",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 49,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 20,
    "height": 186,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 18
+     "pos": "DFC"
     }
    ],
    "nationality": "🇨🇩 RD Congo",
@@ -7863,15 +7787,15 @@ window.DB.belgium = {
   {
    "id": "sbv-11",
    "name": "L. Kuavita",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 54,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 22,
    "height": 180,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 10
+     "pos": "MCD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7883,15 +7807,15 @@ window.DB.belgium = {
   {
    "id": "sbv-12",
    "name": "D. Rigo",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 59,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 27,
    "height": 180,
-   "mainPct": 79,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 21
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7903,15 +7827,15 @@ window.DB.belgium = {
   {
    "id": "sbv-13",
    "name": "Cheick Conde",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 59,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 26,
    "height": 185,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 19
+     "pos": "MC"
     }
    ],
    "nationality": "🇬🇳 Guinea",
@@ -7923,15 +7847,15 @@ window.DB.belgium = {
   {
    "id": "sbv-14",
    "name": "G. De Schryver",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 66,
+   "potencial": 66,
+   "tendencia": "=",
    "age": 29,
    "height": 182,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 14
+     "pos": "DC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7943,15 +7867,15 @@ window.DB.belgium = {
   {
    "id": "sbv-15",
    "name": "S. Dewaele",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 66,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 27,
    "height": 180,
-   "mainPct": 78,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 22
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7963,15 +7887,15 @@ window.DB.belgium = {
   {
    "id": "sbv-16",
    "name": "C. Brüls",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 66,
+   "potencial": 66,
+   "tendencia": "<",
    "age": 37,
    "height": 179,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 17
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -7981,40 +7905,17 @@ window.DB.belgium = {
    "value": 53000
   },
   {
-   "id": "sbv-17",
-   "name": "J. Robatsch",
-   "position": "defensa_central",
-   "skill": 49,
-   "age": 21,
-   "height": 190,
-   "mainPct": 86,
-   "otherPositions": [
-    {
-     "pos": "carrilero_izq",
-     "pct": 14
-    }
-   ],
-   "nationality": "🇦🇹 Austria",
-   "foot": "IZQ",
-   "number": 48,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/3181342.jpg?size=120x&lossy=1",
-   "value": 1380000,
-   "loanedFrom": "st-pauli",
-   "loanedFromName": "FC St. Pauli",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/2418.jpg?size=120x&lossy=1"
-  },
-  {
    "id": "sbv-18",
    "name": "Yoni Gomis",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 54,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 20,
    "height": 186,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 14
+     "pos": "LD"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -8026,15 +7927,15 @@ window.DB.belgium = {
   {
    "id": "sbv-19",
    "name": "V. Boone",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 67,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 28,
    "height": 191,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 2
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -8046,15 +7947,15 @@ window.DB.belgium = {
   {
    "id": "sbv-20",
    "name": "C. Janssens",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 67,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 28,
    "height": 182,
-   "mainPct": 92,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 8
+     "pos": "DFC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -8066,15 +7967,15 @@ window.DB.belgium = {
   {
    "id": "sbv-21",
    "name": "B. Godeau",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 68,
+   "potencial": 68,
+   "tendencia": "<",
    "age": 34,
    "height": 190,
-   "mainPct": 92,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 8
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -8086,15 +7987,15 @@ window.DB.belgium = {
   {
    "id": "sbv-22",
    "name": "L. Jans",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 71,
+   "potencial": 71,
+   "tendencia": "<",
    "age": 34,
    "height": 178,
-   "mainPct": 91,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 9
+     "pos": "LI"
     }
    ],
    "nationality": "🇱🇺 Luxemburgo",
@@ -8106,15 +8007,15 @@ window.DB.belgium = {
   {
    "id": "sbv-23",
    "name": "D. Thompson",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 63,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 26,
    "height": 183,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "carrilero_izq",
-     "pct": 15
+     "pos": "CAI"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",
@@ -8128,9 +8029,10 @@ window.DB.belgium = {
    "name": "Maxim Deman",
    "position": "POR",
    "skill": 35,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 24,
    "height": 194,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "IZQ",
@@ -8143,9 +8045,10 @@ window.DB.belgium = {
    "name": "J. Lusamba",
    "position": "POR",
    "skill": 40,
+   "potencial": 58,
+   "tendencia": ">",
    "age": 21,
    "height": null,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇨🇩 RD Congo",
    "foot": "DER",
@@ -8158,9 +8061,10 @@ window.DB.belgium = {
    "name": "Johannes Schenk",
    "position": "POR",
    "skill": 67,
+   "potencial": 77,
+   "tendencia": ">",
    "age": 23,
    "height": 191,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇩🇪 Alemania",
    "foot": "DER",
@@ -8176,9 +8080,10 @@ window.DB.belgium = {
    "name": "Milan De Schutter",
    "position": "POR",
    "skill": 43,
+   "potencial": 53,
+   "tendencia": ">",
    "age": 22,
    "height": 194,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -8191,11 +8096,12 @@ window.DB.belgium = {
   {
    "id": "std-1",
    "name": "B. Nguene",
-   "position": "delantero",
+   "position": "DC",
    "skill": 35,
+   "potencial": 53,
+   "tendencia": ">",
    "age": 20,
    "height": 178,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇨🇲 Camerún",
    "foot": "DER",
@@ -8206,15 +8112,15 @@ window.DB.belgium = {
   {
    "id": "std-2",
    "name": "B. Nsimba",
-   "position": "delantero",
+   "position": "DC",
    "skill": 64,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 26,
    "height": 187,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 10
+     "pos": "MCO"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -8226,15 +8132,15 @@ window.DB.belgium = {
   {
    "id": "std-3",
    "name": "Thomas Henry",
-   "position": "delantero",
+   "position": "DC",
    "skill": 66,
+   "potencial": 66,
+   "tendencia": "=",
    "age": 31,
    "height": 191,
-   "mainPct": 95,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 5
+     "pos": "EI"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -8246,15 +8152,15 @@ window.DB.belgium = {
   {
    "id": "std-4",
    "name": "Sylvester Jasper",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 66,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 24,
    "height": 180,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 15
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇬 Bulgaria",
@@ -8266,15 +8172,15 @@ window.DB.belgium = {
   {
    "id": "std-5",
    "name": "T. Nkada",
-   "position": "delantero",
+   "position": "DC",
    "skill": 67,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 27,
    "height": 180,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 12
+     "pos": "EI"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -8286,15 +8192,15 @@ window.DB.belgium = {
   {
    "id": "std-6",
    "name": "A. Abid",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 71,
+   "potencial": 81,
+   "tendencia": ">",
    "age": 23,
    "height": 167,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 13
+     "pos": "EI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -8306,15 +8212,15 @@ window.DB.belgium = {
   {
    "id": "std-7",
    "name": "D. Eckert",
-   "position": "delantero",
+   "position": "DC",
    "skill": 74,
+   "potencial": 74,
+   "tendencia": "=",
    "age": 29,
    "height": 182,
-   "mainPct": 93,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 7
+     "pos": "MCO"
     }
    ],
    "nationality": "🇮🇷 Irán",
@@ -8326,15 +8232,15 @@ window.DB.belgium = {
   {
    "id": "std-8",
    "name": "A. Trouillet",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 57,
+   "potencial": 67,
+   "tendencia": ">",
    "age": 25,
    "height": 175,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 3
+     "pos": "MCO"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -8346,15 +8252,15 @@ window.DB.belgium = {
   {
    "id": "std-9",
    "name": "L. Goemaere",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 60,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 20,
    "height": 182,
-   "mainPct": 75,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 25
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -8366,15 +8272,15 @@ window.DB.belgium = {
   {
    "id": "std-10",
    "name": "R. Touzghar",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 61,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 22,
    "height": 182,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 13
+     "pos": "MCO"
     }
    ],
    "nationality": "🇲🇦 Marruecos",
@@ -8386,15 +8292,15 @@ window.DB.belgium = {
   {
    "id": "std-11",
    "name": "Mo El Hankouri",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 67,
+   "potencial": 67,
+   "tendencia": "=",
    "age": 29,
    "height": 176,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 10
+     "pos": "MC"
     }
    ],
    "nationality": "🇲🇦 Marruecos",
@@ -8406,15 +8312,15 @@ window.DB.belgium = {
   {
    "id": "std-12",
    "name": "Casper Nielsen",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 67,
+   "potencial": 67,
+   "tendencia": "=",
    "age": 32,
    "height": 182,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 15
+     "pos": "MCD"
     }
    ],
    "nationality": "🇩🇰 Dinamarca",
@@ -8426,15 +8332,15 @@ window.DB.belgium = {
   {
    "id": "std-13",
    "name": "Ryan Fosso",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 68,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 24,
    "height": 183,
-   "mainPct": 76,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 24
+     "pos": "MC"
     }
    ],
    "nationality": "🇨🇲 Camerún",
@@ -8446,15 +8352,15 @@ window.DB.belgium = {
   {
    "id": "std-14",
    "name": "M. Ilaimaharitra",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 71,
+   "potencial": 71,
+   "tendencia": "=",
    "age": 31,
    "height": 178,
-   "mainPct": 77,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 23
+     "pos": "MC"
     }
    ],
    "nationality": "🇲🇬 Madagascar",
@@ -8466,11 +8372,12 @@ window.DB.belgium = {
   {
    "id": "std-15",
    "name": "Noah Sy",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 40,
+   "potencial": 58,
+   "tendencia": ">",
    "age": 19,
    "height": 175,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -8481,11 +8388,12 @@ window.DB.belgium = {
   {
    "id": "std-16",
    "name": "D. Dierckx",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 56,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 23,
    "height": 192,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -8496,15 +8404,15 @@ window.DB.belgium = {
   {
    "id": "std-17",
    "name": "G. Mortensen",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 63,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 22,
    "height": 175,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 15
+     "pos": "MI"
     }
    ],
    "nationality": "🇩🇰 Dinamarca",
@@ -8516,15 +8424,15 @@ window.DB.belgium = {
   {
    "id": "std-18",
    "name": "Ibe Hautekiet",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 68,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 24,
    "height": 188,
-   "mainPct": 92,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 8
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -8536,15 +8444,15 @@ window.DB.belgium = {
   {
    "id": "std-19",
    "name": "Ibrahim Karamoko",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 69,
+   "potencial": 79,
+   "tendencia": ">",
    "age": 25,
    "height": 190,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 19
+     "pos": "MC"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -8556,15 +8464,15 @@ window.DB.belgium = {
   {
    "id": "std-20",
    "name": "J. Homawoo",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 70,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 28,
    "height": 191,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 3
+     "pos": "LI"
     }
    ],
    "nationality": "🇹🇬 Togo",
@@ -8576,15 +8484,15 @@ window.DB.belgium = {
   {
    "id": "std-21",
    "name": "Tobias Mohr",
-   "position": "carrilero_izq",
+   "position": "CAI",
    "skill": 70,
+   "potencial": 70,
+   "tendencia": "=",
    "age": 31,
    "height": 182,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 16
+     "pos": "EI"
     }
    ],
    "nationality": "🇩🇪 Alemania",
@@ -8596,15 +8504,15 @@ window.DB.belgium = {
   {
    "id": "std-22",
    "name": "H. Lawrence",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 70,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 24,
    "height": 175,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 15
+     "pos": "DFC"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",
@@ -8616,15 +8524,15 @@ window.DB.belgium = {
   {
    "id": "std-23",
    "name": "Marlon Fossey",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 72,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 27,
    "height": 179,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "carrilero_der",
-     "pct": 18
+     "pos": "CAD"
     }
    ],
    "nationality": "🇺🇸 Estados Unidos",
@@ -8636,15 +8544,15 @@ window.DB.belgium = {
   {
    "id": "std-24",
    "name": "D. Lavalée",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 76,
+   "potencial": 76,
+   "tendencia": "=",
    "age": 29,
    "height": 187,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 14
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -8658,9 +8566,10 @@ window.DB.belgium = {
    "name": "B. Dizdarević",
    "position": "POR",
    "skill": 44,
+   "potencial": 54,
+   "tendencia": ">",
    "age": 25,
    "height": 189,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇦 Bosnia y Herzegovina",
    "foot": "DER",
@@ -8673,9 +8582,10 @@ window.DB.belgium = {
    "name": "L. Pirard",
    "position": "POR",
    "skill": 58,
+   "potencial": 58,
+   "tendencia": "=",
    "age": 31,
    "height": 191,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -8688,9 +8598,10 @@ window.DB.belgium = {
    "name": "Matthieu Epolo",
    "position": "POR",
    "skill": 70,
+   "potencial": 88,
+   "tendencia": ">",
    "age": 21,
    "height": 189,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇨🇩 RD Congo",
    "foot": "DER",
@@ -8701,15 +8612,15 @@ window.DB.belgium = {
   {
    "id": "std-28",
    "name": "B. Šutalo",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 65,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 26,
    "height": 188,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 16
+     "pos": "LD"
     }
    ],
    "nationality": "🇭🇷 Croacia",
@@ -8724,15 +8635,15 @@ window.DB.belgium = {
   {
    "id": "std-29",
    "name": "S. Assengue",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 42,
+   "potencial": 60,
+   "tendencia": ">",
    "age": 21,
    "height": 175,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 15
+     "pos": "ED"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -8747,15 +8658,15 @@ window.DB.belgium = {
   {
    "id": "std-30",
    "name": "Salieu Drammeh",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 68,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 23,
    "height": 175,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 18
+     "pos": "ED"
     }
    ],
    "nationality": "🇬🇲 Gambia",
@@ -8769,11 +8680,12 @@ window.DB.belgium = {
   {
    "id": "uni-1",
    "name": "Ilan Hurtevent",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 50,
+   "potencial": 68,
+   "tendencia": ">",
    "age": 21,
    "height": 180,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -8784,15 +8696,15 @@ window.DB.belgium = {
   {
    "id": "uni-2",
    "name": "Marc Giger",
-   "position": "delantero",
+   "position": "DC",
    "skill": 56,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 22,
    "height": 186,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 15
+     "pos": "MCO"
     }
    ],
    "nationality": "🇨🇭 Suiza",
@@ -8804,15 +8716,15 @@ window.DB.belgium = {
   {
    "id": "uni-3",
    "name": "M. Fuseini",
-   "position": "delantero",
+   "position": "DC",
    "skill": 66,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 24,
    "height": 169,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 16
+     "pos": "EI"
     }
    ],
    "nationality": "🇬🇭 Ghana",
@@ -8824,15 +8736,15 @@ window.DB.belgium = {
   {
    "id": "uni-4",
    "name": "Guilherme Smith",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 67,
+   "potencial": 77,
+   "tendencia": ">",
    "age": 23,
    "height": 184,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 19
+     "pos": "DC"
     }
    ],
    "nationality": "🇧🇷 Brasil",
@@ -8844,15 +8756,15 @@ window.DB.belgium = {
   {
    "id": "uni-5",
    "name": "R. Florucz",
-   "position": "delantero",
+   "position": "DC",
    "skill": 69,
+   "potencial": 79,
+   "tendencia": ">",
    "age": 25,
    "height": 182,
-   "mainPct": 80,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 20
+     "pos": "ED"
     }
    ],
    "nationality": "🇦🇹 Austria",
@@ -8864,15 +8776,15 @@ window.DB.belgium = {
   {
    "id": "uni-6",
    "name": "Kevin Rodríguez",
-   "position": "delantero",
+   "position": "DC",
    "skill": 70,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 26,
    "height": 190,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 3
+     "pos": "EI"
     }
    ],
    "nationality": "🇪🇨 Ecuador",
@@ -8884,15 +8796,15 @@ window.DB.belgium = {
   {
    "id": "uni-7",
    "name": "R. Mofokeng",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 75,
+   "potencial": 93,
+   "tendencia": ">",
    "age": 21,
    "height": 168,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 15
+     "pos": "MCO"
     }
    ],
    "nationality": "🇿🇦 Sudáfrica",
@@ -8904,15 +8816,15 @@ window.DB.belgium = {
   {
    "id": "uni-8",
    "name": "Mateo Biondić",
-   "position": "delantero",
+   "position": "DC",
    "skill": 47,
+   "potencial": 57,
+   "tendencia": ">",
    "age": 23,
    "height": 190,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 16
+     "pos": "ED"
     }
    ],
    "nationality": "🇩🇪 Alemania",
@@ -8924,15 +8836,15 @@ window.DB.belgium = {
   {
    "id": "uni-9",
    "name": "Ivan Pavlić",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 51,
+   "potencial": 61,
+   "tendencia": ">",
    "age": 24,
    "height": 185,
-   "mainPct": 95,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 5
+     "pos": "MI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -8944,15 +8856,15 @@ window.DB.belgium = {
   {
    "id": "uni-10",
    "name": "Besfort Zeneli",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 67,
+   "potencial": 77,
+   "tendencia": ">",
    "age": 23,
    "height": 187,
-   "mainPct": 92,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 8
+     "pos": "MD"
     }
    ],
    "nationality": "🇸🇪 Suecia",
@@ -8964,15 +8876,15 @@ window.DB.belgium = {
   {
    "id": "uni-11",
    "name": "O. Kričfaluši",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 68,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 22,
    "height": 195,
-   "mainPct": 79,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 21
+     "pos": "DFC"
     }
    ],
    "nationality": "🇨🇿 República Checa",
@@ -8984,15 +8896,15 @@ window.DB.belgium = {
   {
    "id": "uni-12",
    "name": "O. Niang",
-   "position": "medio_izq",
+   "position": "MI",
    "skill": 70,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 24,
    "height": 168,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 13
+     "pos": "EI"
     }
    ],
    "nationality": "🇸🇳 Senegal",
@@ -9004,15 +8916,15 @@ window.DB.belgium = {
   {
    "id": "uni-13",
    "name": "K. Van De Perre",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 73,
+   "potencial": 83,
+   "tendencia": ">",
    "age": 22,
    "height": 181,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 17
+     "pos": "MCD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -9024,15 +8936,15 @@ window.DB.belgium = {
   {
    "id": "uni-14",
    "name": "R. Schoofs",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 73,
+   "potencial": 73,
+   "tendencia": "=",
    "age": 32,
    "height": 178,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 14
+     "pos": "MCD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -9044,15 +8956,15 @@ window.DB.belgium = {
   {
    "id": "uni-15",
    "name": "A. El Hadj",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 78,
+   "potencial": 88,
+   "tendencia": ">",
    "age": 24,
    "height": 167,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 17
+     "pos": "MC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -9064,15 +8976,15 @@ window.DB.belgium = {
   {
    "id": "uni-16",
    "name": "A. Zorgane",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 81,
+   "potencial": 85,
+   "tendencia": ">",
    "age": 26,
    "height": 184,
-   "mainPct": 82,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 18
+     "pos": "MCD"
     }
    ],
    "nationality": "🇩🇿 Argelia",
@@ -9084,15 +8996,15 @@ window.DB.belgium = {
   {
    "id": "uni-17",
    "name": "D. Olaru",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 76,
+   "potencial": 80,
+   "tendencia": ">",
    "age": 28,
    "height": 177,
-   "mainPct": 79,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 21
+     "pos": "MC"
     }
    ],
    "nationality": "🇷🇴 Rumanía",
@@ -9104,11 +9016,12 @@ window.DB.belgium = {
   {
    "id": "uni-18",
    "name": "Massiré Sylla",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 51,
+   "potencial": 69,
+   "tendencia": ">",
    "age": 21,
    "height": 196,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇸🇳 Senegal",
    "foot": "DER",
@@ -9119,11 +9032,12 @@ window.DB.belgium = {
   {
    "id": "uni-19",
    "name": "Nohim Chibani",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 52,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 22,
    "height": 189,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇫🇷 Francia",
    "foot": "DER",
@@ -9134,15 +9048,15 @@ window.DB.belgium = {
   {
    "id": "uni-20",
    "name": "Louis Patris",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 64,
+   "potencial": 74,
+   "tendencia": ">",
    "age": 25,
    "height": 187,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 14
+     "pos": "DFC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -9154,15 +9068,15 @@ window.DB.belgium = {
   {
    "id": "uni-21",
    "name": "N. Havenaar",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 71,
+   "potencial": 71,
+   "tendencia": "=",
    "age": 31,
    "height": 200,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 2
+     "pos": "LI"
     }
    ],
    "nationality": "🇯🇵 Japón",
@@ -9174,15 +9088,15 @@ window.DB.belgium = {
   {
    "id": "uni-22",
    "name": "Ross Sykes",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 81,
+   "potencial": 85,
+   "tendencia": ">",
    "age": 27,
    "height": 200,
-   "mainPct": 99,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 1
+     "pos": "LI"
     }
    ],
    "nationality": "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra",
@@ -9194,15 +9108,15 @@ window.DB.belgium = {
   {
    "id": "uni-23",
    "name": "Kevin Mac Allister",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 84,
+   "potencial": 88,
+   "tendencia": ">",
    "age": 28,
    "height": 175,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 10
+     "pos": "LD"
     }
    ],
    "nationality": "🇦🇷 Argentina",
@@ -9216,9 +9130,10 @@ window.DB.belgium = {
    "name": "Keo Boets",
    "position": "POR",
    "skill": 37,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 22,
    "height": 189,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -9231,9 +9146,10 @@ window.DB.belgium = {
    "name": "G. Kavlashvili",
    "position": "POR",
    "skill": 43,
+   "potencial": 61,
+   "tendencia": ">",
    "age": 19,
    "height": 195,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇬🇪 Georgia",
    "foot": "IZQ",
@@ -9246,9 +9162,10 @@ window.DB.belgium = {
    "name": "V. Chambaere",
    "position": "POR",
    "skill": 56,
+   "potencial": 66,
+   "tendencia": ">",
    "age": 23,
    "height": 191,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -9257,35 +9174,17 @@ window.DB.belgium = {
    "value": 612000
   },
   {
-   "id": "uni-27",
-   "name": "Hervé Koffi",
-   "position": "POR",
-   "skill": 71,
-   "age": 29,
-   "height": 186,
-   "mainPct": 99,
-   "otherPositions": [],
-   "nationality": "🇧🇫 Burkina Faso",
-   "foot": "DER",
-   "number": 70,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/330096.jpg?size=120x&lossy=1",
-   "value": 6080000,
-   "loanedFrom": "lens",
-   "loanedFromName": "RC Lens",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/1544.jpg?size=120x&lossy=1"
-  },
-  {
    "id": "uni-28",
    "name": "Fedde Leysen",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 68,
+   "potencial": 78,
+   "tendencia": ">",
    "age": 23,
    "height": 191,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "lateral_izq",
-     "pct": 15
+     "pos": "LI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -9295,20 +9194,20 @@ window.DB.belgium = {
    "value": 8370000,
    "loanedTo": "sassuolo",
    "loanedToName": "US Sassuolo",
-   "loanedToLogo": "https://cdn.resfu.com/img_data/escudos/medium/2634.jpg?size=120x&lossy=1"
+   "loanedToLogo": "https://cdn.resfu.com/img_data/equipos/2634.png?size=120x&lossy=1"
   },
   {
    "id": "uni-29",
    "name": "Promise David",
-   "position": "delantero",
+   "position": "DC",
    "skill": 72,
+   "potencial": 82,
+   "tendencia": ">",
    "age": 25,
    "height": 195,
-   "mainPct": 99,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 1
+     "pos": "EI"
     }
    ],
    "nationality": "🇨🇦 Canadá",
@@ -9318,16 +9217,17 @@ window.DB.belgium = {
    "value": 20500000,
    "loanedTo": "brighton",
    "loanedToName": "Brighton & Hove Albion",
-   "loanedToLogo": "https://cdn.resfu.com/img_data/escudos/medium/5652.jpg?size=120x&lossy=1"
+   "loanedToLogo": "https://cdn.resfu.com/img_data/equipos/5652.png?size=120x&lossy=1"
   },
   {
    "id": "uni-30",
    "name": "M. Barry",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 42,
+   "potencial": 60,
+   "tendencia": ">",
    "age": 21,
    "height": null,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇸🇳 Senegal",
    "foot": "DER",
@@ -9343,15 +9243,15 @@ window.DB.belgium = {
   {
    "id": "zw-1",
    "name": "Musa Malik",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 38,
+   "potencial": 63,
+   "tendencia": ">",
    "age": 18,
    "height": null,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "medio_izq",
-     "pct": 14
+     "pos": "MI"
     }
    ],
    "nationality": "🇳🇬 Nigeria",
@@ -9366,11 +9266,12 @@ window.DB.belgium = {
   {
    "id": "zw-2",
    "name": "K. Vemba",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 47,
+   "potencial": 65,
+   "tendencia": ">",
    "age": 21,
    "height": 188,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -9381,15 +9282,15 @@ window.DB.belgium = {
   {
    "id": "zw-3",
    "name": "M. Mbaye",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 52,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 22,
    "height": 173,
-   "mainPct": 84,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 16
+     "pos": "MD"
     }
    ],
    "nationality": "🇸🇳 Senegal",
@@ -9401,15 +9302,15 @@ window.DB.belgium = {
   {
    "id": "zw-4",
    "name": "Hemsley Akpa-Chukwu",
-   "position": "delantero",
+   "position": "DC",
    "skill": 55,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 21,
    "height": 189,
-   "mainPct": 97,
    "otherPositions": [
     {
-     "pos": "extremo_izq",
-     "pct": 3
+     "pos": "EI"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -9421,15 +9322,15 @@ window.DB.belgium = {
   {
    "id": "zw-5",
    "name": "N. Mituljikić",
-   "position": "extremo_der",
+   "position": "ED",
    "skill": 55,
+   "potencial": 65,
+   "tendencia": ">",
    "age": 23,
    "height": 180,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_der",
-     "pct": 15
+     "pos": "MD"
     }
    ],
    "nationality": "🇷🇸 Serbia",
@@ -9441,15 +9342,15 @@ window.DB.belgium = {
   {
    "id": "zw-6",
    "name": "I. Atrok",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 59,
+   "potencial": 77,
+   "tendencia": ">",
    "age": 20,
    "height": 184,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 17
+     "pos": "MCO"
     }
    ],
    "nationality": "🇭🇺 Hungría",
@@ -9461,15 +9362,15 @@ window.DB.belgium = {
   {
    "id": "zw-7",
    "name": "Tobias Hedl",
-   "position": "delantero",
+   "position": "DC",
    "skill": 62,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 23,
    "height": 185,
-   "mainPct": 91,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 9
+     "pos": "ED"
     }
    ],
    "nationality": "🇦🇹 Austria",
@@ -9481,15 +9382,15 @@ window.DB.belgium = {
   {
    "id": "zw-8",
    "name": "Marley Aké",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 66,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 25,
    "height": 178,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "extremo_der",
-     "pct": 12
+     "pos": "ED"
     }
    ],
    "nationality": "🇫🇷 Francia",
@@ -9501,11 +9402,12 @@ window.DB.belgium = {
   {
    "id": "zw-9",
    "name": "A. Ementa",
-   "position": "delantero",
+   "position": "DC",
    "skill": 71,
+   "potencial": 81,
+   "tendencia": ">",
    "age": 24,
    "height": 202,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇩🇰 Dinamarca",
    "foot": "DER",
@@ -9516,15 +9418,15 @@ window.DB.belgium = {
   {
    "id": "zw-10",
    "name": "Tristan Panduro",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 45,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 18,
    "height": 172,
-   "mainPct": 88,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 12
+     "pos": "MCD"
     }
    ],
    "nationality": "🇩🇰 Dinamarca",
@@ -9536,15 +9438,15 @@ window.DB.belgium = {
   {
    "id": "zw-11",
    "name": "Dirk Asare",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 54,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 22,
    "height": 173,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "medio_def",
-     "pct": 17
+     "pos": "MCD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -9556,15 +9458,15 @@ window.DB.belgium = {
   {
    "id": "zw-12",
    "name": "E. Lofolomo",
-   "position": "medio_def",
+   "position": "MCD",
    "skill": 58,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 26,
    "height": 185,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 15
+     "pos": "DFC"
     }
    ],
    "nationality": "🇩🇪 Alemania",
@@ -9576,15 +9478,15 @@ window.DB.belgium = {
   {
    "id": "zw-13",
    "name": "S. Ujka",
-   "position": "medio_ofensivo",
+   "position": "MCO",
    "skill": 68,
+   "potencial": 72,
+   "tendencia": ">",
    "age": 28,
    "height": 190,
-   "mainPct": 81,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 19
+     "pos": "MC"
     }
    ],
    "nationality": "🇦🇱 Albania",
@@ -9596,15 +9498,15 @@ window.DB.belgium = {
   {
    "id": "zw-14",
    "name": "T. Claes",
-   "position": "mediocentro",
+   "position": "MC",
    "skill": 69,
+   "potencial": 79,
+   "tendencia": ">",
    "age": 22,
    "height": 181,
-   "mainPct": 85,
    "otherPositions": [
     {
-     "pos": "medio_ofensivo",
-     "pct": 15
+     "pos": "MCO"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -9616,11 +9518,12 @@ window.DB.belgium = {
   {
    "id": "zw-15",
    "name": "F. Tangala",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 47,
+   "potencial": 65,
+   "tendencia": ">",
    "age": 21,
    "height": 182,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -9631,15 +9534,15 @@ window.DB.belgium = {
   {
    "id": "zw-16",
    "name": "Youssoupha Mbodji",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 51,
+   "potencial": 61,
+   "tendencia": ">",
    "age": 22,
    "height": 190,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "defensa_central",
-     "pct": 14
+     "pos": "DFC"
     }
    ],
    "nationality": "🇸🇳 Senegal",
@@ -9654,11 +9557,12 @@ window.DB.belgium = {
   {
    "id": "zw-17",
    "name": "Benoit De Jaegere",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 52,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 22,
    "height": 189,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -9669,11 +9573,12 @@ window.DB.belgium = {
   {
    "id": "zw-18",
    "name": "K. Seven",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 54,
+   "potencial": 64,
+   "tendencia": ">",
    "age": 23,
    "height": 187,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇹🇷 Turquía",
    "foot": "IZQ",
@@ -9684,15 +9589,15 @@ window.DB.belgium = {
   {
    "id": "zw-19",
    "name": "W. Paugain",
-   "position": "lateral_der",
+   "position": "LD",
    "skill": 60,
+   "potencial": 70,
+   "tendencia": ">",
    "age": 25,
    "height": 180,
-   "mainPct": 83,
    "otherPositions": [
     {
-     "pos": "carrilero_der",
-     "pct": 17
+     "pos": "CAD"
     }
    ],
    "nationality": "🇭🇹 Haití",
@@ -9704,15 +9609,15 @@ window.DB.belgium = {
   {
    "id": "zw-20",
    "name": "Y. Cappelle",
-   "position": "lateral_izq",
+   "position": "LI",
    "skill": 61,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 23,
    "height": 180,
-   "mainPct": 87,
    "otherPositions": [
     {
-     "pos": "delantero",
-     "pct": 13
+     "pos": "DC"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -9722,40 +9627,17 @@ window.DB.belgium = {
    "value": 2460000
   },
   {
-   "id": "zw-21",
-   "name": "Salim Diakite",
-   "position": "lateral_der",
-   "skill": 65,
-   "age": 26,
-   "height": 186,
-   "mainPct": 81,
-   "otherPositions": [
-    {
-     "pos": "defensa_central",
-     "pct": 19
-    }
-   ],
-   "nationality": "🇲🇱 Mali",
-   "foot": "DER",
-   "number": 23,
-   "avatar": "https://cdn.resfu.com/img_data/players/medium/881077.jpg?size=120x&lossy=1",
-   "value": 2400000,
-   "loanedFrom": "palermo-fc",
-   "loanedFromName": "Palermo FC",
-   "loanedFromLogo": "https://cdn.resfu.com/img_data/escudos/medium/1906.jpg?size=120x&lossy=1"
-  },
-  {
    "id": "zw-22",
    "name": "L. Lemoine",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 67,
+   "potencial": 71,
+   "tendencia": ">",
    "age": 28,
    "height": 186,
-   "mainPct": 90,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 10
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -9767,15 +9649,15 @@ window.DB.belgium = {
   {
    "id": "zw-23",
    "name": "Jakob Kiilerich",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 69,
+   "potencial": 73,
+   "tendencia": ">",
    "age": 26,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 1
+     "pos": "LD"
     }
    ],
    "nationality": "🇩🇰 Dinamarca",
@@ -9787,15 +9669,15 @@ window.DB.belgium = {
   {
    "id": "zw-24",
    "name": "A. Tanghe",
-   "position": "defensa_central",
+   "position": "DFC",
    "skill": 72,
+   "potencial": 76,
+   "tendencia": ">",
    "age": 27,
    "height": 194,
-   "mainPct": 98,
    "otherPositions": [
     {
-     "pos": "lateral_der",
-     "pct": 2
+     "pos": "LD"
     }
    ],
    "nationality": "🇧🇪 Bélgica",
@@ -9809,9 +9691,10 @@ window.DB.belgium = {
    "name": "Arnaud Dobbels",
    "position": "POR",
    "skill": 44,
+   "potencial": 62,
+   "tendencia": ">",
    "age": 21,
    "height": 186,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -9824,9 +9707,10 @@ window.DB.belgium = {
    "name": "L. Bostyn",
    "position": "POR",
    "skill": 44,
+   "potencial": 50,
+   "tendencia": ">",
    "age": 32,
    "height": 195,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -9839,9 +9723,10 @@ window.DB.belgium = {
    "name": "Brent Gabriël",
    "position": "POR",
    "skill": 71,
+   "potencial": 75,
+   "tendencia": ">",
    "age": 27,
    "height": 190,
-   "mainPct": 99,
    "otherPositions": [],
    "nationality": "🇧🇪 Bélgica",
    "foot": "DER",
@@ -9852,15 +9737,15 @@ window.DB.belgium = {
   {
    "id": "zw-28",
    "name": "D. Demuynck",
-   "position": "extremo_izq",
+   "position": "EI",
    "skill": 42,
+   "potencial": 52,
+   "tendencia": ">",
    "age": 22,
    "height": 166,
-   "mainPct": 86,
    "otherPositions": [
     {
-     "pos": "mediocentro",
-     "pct": 14
+     "pos": "MC"
     }
    ],
    "nationality": "🇵🇭 Filipinas",
