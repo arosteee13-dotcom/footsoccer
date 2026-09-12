@@ -11755,18 +11755,97 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 
 /* ===== MÓVIL: solo compactación de tamaño en pantallas estrechas ===== */
 @media (max-width: 430px) {
-  :root { --header-height: 48px; }
-  .db-card { padding: 12px; border-radius: 12px; }
-  .db-card-head { margin-bottom: 8px; }
+  :root { --header-height: 46px; }
+
+  /* Contenedor y encabezados: menos margen vertical (se mantiene el lateral) */
+  #app-content { padding: 8px 10px 4px; }
+  #view-calendar { padding: 6px 10px; }
+  .view-header { margin-bottom: 10px; }
+  .db-scroll-cols { gap: 8px; }
+
+  /* Tarjetas genéricas del dashboard */
+  .db-card { padding: 10px; border-radius: 12px; }
+  .db-card-head { margin-bottom: 6px; }
+  .db-card-title { font-size: 11px; }
+  .db-card-arrow { font-size: 12px; }
+
+  /* Tarjeta próximo partido */
+  .db-next-body { gap: 10px; }
+  .db-next-info { gap: 6px; }
+  .db-next-stadium { font-size: 11px; }
+  .db-next-rival { font-size: 16px; }
+  .db-next-loc { font-size: 12px; }
+  .db-next-badges { gap: 4px; }
+  .db-next-chip { padding: 3px 7px; font-size: 10px; border-radius: 7px; }
+  .db-next-crest { padding-left: 10px; }
+  .db-next-logo { width: 44px; height: 44px; }
+
+  /* Tarjeta gestión del equipo */
+  .db-mgmt-body { gap: 10px; }
+  .db-mgmt-info { gap: 6px; }
+  .db-mgmt-bar { height: 5px; }
+  .db-mgmt-line2 { font-size: 13px; }
+  .db-mgmt-footline { gap: 8px; }
+  .db-mgmt-art { padding-left: 10px; }
+  .db-mgmt-crest { width: 44px; height: 44px; }
+
+  /* Marcadores de forma */
+  .db-form-dot { width: 16px; height: 16px; font-size: 9px; }
+  .db-mgmt-form .db-form-dot { width: 14px; height: 14px; }
+
+  /* Tarjeta del rival / enfrentamiento */
+  .db-match-teams { gap: 10px; margin: 2px 0 6px; }
+  .db-team-logo { width: 36px; height: 36px; }
+  .db-team-label { font-size: 11px; }
+  .db-vs { font-size: 12px; }
+  .db-match-detail { padding: 6px 8px; margin-bottom: 6px; }
+  .db-loc { font-size: 11px; }
+  .db-lines { gap: 6px; margin-bottom: 8px; }
+  .db-line { padding: 6px 4px; gap: 2px; }
+  .db-line-label { font-size: 9px; }
+  .db-line-val { font-size: 14px; }
+
+  /* Calendario del dashboard */
+  .db-cal-row { padding: 5px 0; gap: 6px; }
+  .db-cal-week { width: 38px; font-size: 10px; }
+  .db-cal-logo { width: 20px; height: 20px; }
+  .db-cal-name { font-size: 11px; }
+  .db-cal-loc { width: 16px; height: 16px; font-size: 10px; }
+
+  /* Clasificación */
+  .db-stand-row { padding: 4px 6px; gap: 6px; }
+  .db-stand-name { font-size: 11px; }
+  .db-stand-pos { width: 18px; font-size: 12px; }
+  .db-stand-pts { font-size: 12px; }
+  .db-stand-logo { width: 18px; height: 18px; }
+
+  /* Estadísticas de jugadores */
+  .db-ps-row { padding: 5px 0; gap: 8px; }
+  .db-ps-avatar, .db-ps-icon { width: 26px; height: 26px; font-size: 14px; }
+
+  /* Competiciones (playoff / copa) */
+  .db-comp-status { font-size: 14px; margin-bottom: 6px; }
+  .db-bracket-mini { padding: 8px; font-size: 11px; }
+
+  /* Tarjetas de información del club */
+  .team-info-card { padding: 8px 10px; }
+  .tic-grid { gap: 8px; margin: 6px 0; }
+
+  /* Plantilla */
+  .squad-grid { gap: 8px; }
   .player-card { padding: 10px; gap: 10px; }
-  .player-avatar { width: 40px; height: 40px; font-size: 13px; }
+  .player-avatar { width: 38px; height: 38px; font-size: 13px; }
+
+  /* Táctica */
+  .tactics-section { margin-bottom: 12px; }
+  .tactics-btn { padding: 8px; }
+
+  /* Modales */
+  .modal-scroll { padding: 16px 16px 12px; }
+
+  /* Botones */
   .btn-primary { padding: 12px; font-size: 14px; }
   .btn-secondary { padding: 11px; font-size: 13px; }
-  .view-header { margin-bottom: 12px; }
-  .team-info-card { padding: 9px 10px; }
-  .tic-grid { gap: 8px; }
-  .modal-scroll { padding: 20px 16px 14px; }
-  .squad-grid { gap: 8px; }
 }
 @media (max-width: 370px) {
   .header-title { font-size: 15px; }
