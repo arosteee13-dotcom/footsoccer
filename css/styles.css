@@ -11715,13 +11715,68 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 .pp-close { background: #DC2626; }
 .pp-close:hover { background: #B91C1C; }
 
-/* ===== MÓVIL: márgenes simétricos + escala por ancho de pantalla ===== */
+/* ===== MÓVIL: responsive — márgenes simétricos y tamaño adaptado ===== */
+
+/* 1) Contenedor: margen lateral simétrico + safe-area (muesca) en móvil.
+      En pantallas >= 481px se mantiene el diseño actual sin cambios. */
 @media (max-width: 480px) {
   #app {
-    padding-left: max(12px, env(safe-area-inset-left));
-    padding-right: max(12px, env(safe-area-inset-right));
+    padding-top: env(safe-area-inset-top, 0);
+    padding-left: max(12px, env(safe-area-inset-left, 0));
+    padding-right: max(12px, env(safe-area-inset-right, 0));
   }
 }
-@media (max-width: 430px) { #app { zoom: 0.95; } }
-@media (max-width: 395px) { #app { zoom: 0.90; } }
-@media (max-width: 365px) { #app { zoom: 0.86; } }
+
+/* 2) Modales "pantalla completa" y hojas inferiores: también respetan el
+      margen lateral para que el contenido no quede pegado a los bordes. */
+@media (max-width: 480px) {
+  /* Contenido posicionado absoluto (rellena todo el overlay): se mete el
+     padding en el propio contenido */
+  #player-modal .modal-content,
+  #settings-modal .modal-content {
+    padding-left: max(12px, env(safe-area-inset-left, 0)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0)) !important;
+  }
+
+  /* Hojas inferiores y overlays con contenido en flujo: el padding del
+     overlay mete el contenido. Se fuerza con !important porque varios
+     llevan padding:0 inline. */
+  #player-detail-modal.modal-overlay,
+  #match-result-modal.modal-overlay,
+  #season-progression-modal.modal-overlay {
+    padding-left: max(12px, env(safe-area-inset-left, 0)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0)) !important;
+  }
+
+  /* El contenido de estos dos usa width:100vw (ignora el padding del
+     overlay): se pasa a 100% para que el margen lateral se respete. */
+  #match-result-modal > div,
+  #season-progression-modal > div {
+    width: 100% !important;
+  }
+}
+
+/* 3) Tamaño adaptado a móvil: se compactan las tarjetas, botones y listas
+      principales para que quepan mejor en pantallas estrechas. */
+@media (max-width: 430px) {
+  :root { --header-height: 48px; }
+  .db-card { padding: 12px; border-radius: 12px; }
+  .db-card-head { margin-bottom: 8px; }
+  .player-card { padding: 10px; gap: 10px; }
+  .player-avatar { width: 40px; height: 40px; font-size: 13px; }
+  .btn-primary { padding: 12px; font-size: 14px; }
+  .btn-secondary { padding: 11px; font-size: 13px; }
+  .view-header { margin-bottom: 12px; }
+  .team-info-card { padding: 9px 10px; }
+  .tic-grid { gap: 8px; }
+  .modal-scroll { padding: 20px 16px 14px; }
+  .squad-grid { gap: 8px; }
+}
+@media (max-width: 370px) {
+  .header-title { font-size: 15px; }
+  .player-name { font-size: 13px; }
+  .player-rating-num { font-size: 14px; }
+  .db-card-title { font-size: 11px; }
+  .cal-list-row { font-size: 10px; }
+  .cal-list-semana { font-size: 10px; }
+}
