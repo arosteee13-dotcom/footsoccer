@@ -4146,25 +4146,6 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 #market-results-content .market-pager { padding: 4px 0; }
 #market-results-content .mp-btn { height: 28px; min-width: 28px; font-size: 12px; }
 #market-results-content .mp-count { font-size: 11px; }
-
-/* Textos de las tarjetas de mercado centrados en altura: celdas con recuadro
-   (badge de posición y power) se vuelven flex para centrar su contenido, y el
-   resto usa line-height compacto para que cuadre con el alto fijo de la fila. */
-#market-results-content .market-card { align-items: center; }
-#market-results-content .market-card .mc-name { line-height: 1.2; }
-#market-results-content .market-card .mc-team-name { line-height: 1.2; }
-#market-results-content .market-card .tp-cell-pos-badge,
-#market-results-content .market-card .tp-cell-power,
-#market-results-content .market-card .tp-cell-age,
-#market-results-content .market-card .tp-cell-market {
-  display: flex;
-  align-items: center;
-  line-height: 1.2;
-}
-#market-results-content .market-card .tp-cell-pos-badge { justify-content: center; }
-#market-results-content .market-card .tp-cell-power { justify-content: center; }
-#market-results-content .market-card .tp-cell-age { justify-content: center; }
-#market-results-content .market-card .tp-cell-market { justify-content: flex-end; }
 /* Pantalla de Ventas / Gestión */
 .ms-section { margin-bottom: 18px; }
 .ms-title {
@@ -10031,11 +10012,11 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
   align-items: center;
   justify-content: center;
   background: rgba(16,185,129,0.1);
-  border-radius: 10px;
-  padding: 8px 10px;
-  margin-bottom: 8px;
+  border-radius: 12px;
+  padding: 14px 12px;
+  margin-bottom: 10px;
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 800;
   color: #059669;
 }
@@ -10056,7 +10037,7 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 .db-eco-inc b.positive,
 .db-eco-exp b.negative {
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
 }
 .db-eco-inc b.positive { color: #10B981; }
@@ -11733,144 +11714,3 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 .pp-reject { background: #DC2626; }
 .pp-close { background: #DC2626; }
 .pp-close:hover { background: #B91C1C; }
-
-/* ===== MARGINALES GLOBALES: márgenes simétricos (móvil y escritorio) ===== */
-
-/* 1) Contenedor: margen lateral simétrico + safe-area (muesca).
-      Se aplica en todas las pantallas: en el móvil separa del borde de la
-      pantalla y en escritorio, dentro de la columna centrada de 480px. */
-#app {
-  padding-top: env(safe-area-inset-top, 0);
-  padding-left: max(30px, env(safe-area-inset-left, 0));
-  padding-right: max(30px, env(safe-area-inset-right, 0));
-}
-
-/* 2) Modales "pantalla completa" y hojas inferiores: también respetan el
-      margen lateral para que el contenido no quede pegado a los bordes. */
-/* Contenido posicionado absoluto (rellena todo el overlay): se mete el
-   padding en el propio contenido */
-#player-modal .modal-content,
-#settings-modal .modal-content {
-  padding-left: max(30px, env(safe-area-inset-left, 0)) !important;
-  padding-right: max(30px, env(safe-area-inset-right, 0)) !important;
-}
-
-/* Hojas inferiores y overlays con contenido en flujo: el padding del
-   overlay mete el contenido. Se fuerza con !important porque varios
-   llevan padding:0 inline. */
-#player-detail-modal.modal-overlay,
-#match-result-modal.modal-overlay,
-#season-progression-modal.modal-overlay {
-  padding-left: max(30px, env(safe-area-inset-left, 0)) !important;
-  padding-right: max(30px, env(safe-area-inset-right, 0)) !important;
-}
-
-/* El contenido de estos dos usa width:100vw (ignora el padding del
-   overlay): se pasa a 100% para que el margen lateral se respete. */
-#match-result-modal > div,
-#season-progression-modal > div {
-  width: 100% !important;
-}
-
-/* ===== MÓVIL: solo compactación de tamaño en pantallas estrechas ===== */
-@media (max-width: 430px) {
-  :root { --header-height: 46px; }
-
-  /* Contenedor y encabezados: menos margen vertical (se mantiene el lateral) */
-  #app-content { padding: 8px 10px 4px; }
-  #view-calendar { padding: 6px 10px; }
-  .view-header { margin-bottom: 10px; }
-  .db-scroll-cols { gap: 8px; }
-
-  /* Tarjetas genéricas del dashboard */
-  .db-card { padding: 10px; border-radius: 12px; }
-  .db-card-head { margin-bottom: 6px; }
-  .db-card-title { font-size: 11px; }
-  .db-card-arrow { font-size: 12px; }
-
-  /* Tarjeta próximo partido */
-  .db-next-body { gap: 10px; }
-  .db-next-info { gap: 6px; }
-  .db-next-stadium { font-size: 11px; }
-  .db-next-rival { font-size: 16px; }
-  .db-next-loc { font-size: 12px; }
-  .db-next-badges { gap: 4px; }
-  .db-next-chip { padding: 3px 7px; font-size: 10px; border-radius: 7px; }
-  .db-next-crest { padding-left: 10px; }
-  .db-next-logo { width: 44px; height: 44px; }
-
-  /* Tarjeta gestión del equipo */
-  .db-mgmt-body { gap: 10px; }
-  .db-mgmt-info { gap: 6px; }
-  .db-mgmt-bar { height: 5px; }
-  .db-mgmt-line2 { font-size: 12px; }
-  .db-mgmt-footline { gap: 8px; }
-  .db-mgmt-art { padding-left: 10px; }
-  .db-mgmt-crest { width: 44px; height: 44px; }
-
-  /* Marcadores de forma */
-  .db-form-dot { width: 16px; height: 16px; font-size: 9px; }
-  .db-mgmt-form .db-form-dot { width: 14px; height: 14px; }
-
-  /* Tarjeta del rival / enfrentamiento */
-  .db-match-teams { gap: 10px; margin: 2px 0 6px; }
-  .db-team-logo { width: 36px; height: 36px; }
-  .db-team-label { font-size: 11px; }
-  .db-vs { font-size: 12px; }
-  .db-match-detail { padding: 6px 8px; margin-bottom: 6px; }
-  .db-loc { font-size: 11px; }
-  .db-lines { gap: 6px; margin-bottom: 8px; }
-  .db-line { padding: 6px 4px; gap: 2px; }
-  .db-line-label { font-size: 9px; }
-  .db-line-val { font-size: 14px; }
-
-  /* Calendario del dashboard */
-  .db-cal-row { padding: 5px 0; gap: 6px; }
-  .db-cal-week { width: 38px; font-size: 10px; }
-  .db-cal-logo { width: 20px; height: 20px; }
-  .db-cal-name { font-size: 11px; }
-  .db-cal-loc { width: 16px; height: 16px; font-size: 10px; }
-
-  /* Clasificación */
-  .db-stand-row { padding: 4px 6px; gap: 6px; }
-  .db-stand-name { font-size: 11px; }
-  .db-stand-pos { width: 18px; font-size: 12px; }
-  .db-stand-pts { font-size: 12px; }
-  .db-stand-logo { width: 18px; height: 18px; }
-
-  /* Estadísticas de jugadores */
-  .db-ps-row { padding: 5px 0; gap: 8px; }
-  .db-ps-avatar, .db-ps-icon { width: 26px; height: 26px; font-size: 14px; }
-
-  /* Competiciones (playoff / copa) */
-  .db-comp-status { font-size: 14px; margin-bottom: 6px; }
-  .db-bracket-mini { padding: 8px; font-size: 11px; }
-
-  /* Tarjetas de información del club */
-  .team-info-card { padding: 8px 10px; }
-  .tic-grid { gap: 8px; margin: 6px 0; }
-
-  /* Plantilla */
-  .squad-grid { gap: 8px; }
-  .player-card { padding: 10px; gap: 10px; }
-  .player-avatar { width: 38px; height: 38px; font-size: 13px; }
-
-  /* Táctica */
-  .tactics-section { margin-bottom: 12px; }
-  .tactics-btn { padding: 8px; }
-
-  /* Modales */
-  .modal-scroll { padding: 16px 16px 12px; }
-
-  /* Botones */
-  .btn-primary { padding: 12px; font-size: 14px; }
-  .btn-secondary { padding: 11px; font-size: 13px; }
-}
-@media (max-width: 370px) {
-  .header-title { font-size: 15px; }
-  .player-name { font-size: 13px; }
-  .player-rating-num { font-size: 14px; }
-  .db-card-title { font-size: 11px; }
-  .cal-list-row { font-size: 10px; }
-  .cal-list-semana { font-size: 10px; }
-}
