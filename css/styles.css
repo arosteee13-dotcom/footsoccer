@@ -4146,6 +4146,25 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 #market-results-content .market-pager { padding: 4px 0; }
 #market-results-content .mp-btn { height: 28px; min-width: 28px; font-size: 12px; }
 #market-results-content .mp-count { font-size: 11px; }
+
+/* Textos de las tarjetas de mercado centrados en altura: celdas con recuadro
+   (badge de posición y power) se vuelven flex para centrar su contenido, y el
+   resto usa line-height compacto para que cuadre con el alto fijo de la fila. */
+#market-results-content .market-card { align-items: center; }
+#market-results-content .market-card .mc-name { line-height: 1.2; }
+#market-results-content .market-card .mc-team-name { line-height: 1.2; }
+#market-results-content .market-card .tp-cell-pos-badge,
+#market-results-content .market-card .tp-cell-power,
+#market-results-content .market-card .tp-cell-age,
+#market-results-content .market-card .tp-cell-market {
+  display: flex;
+  align-items: center;
+  line-height: 1.2;
+}
+#market-results-content .market-card .tp-cell-pos-badge { justify-content: center; }
+#market-results-content .market-card .tp-cell-power { justify-content: center; }
+#market-results-content .market-card .tp-cell-age { justify-content: center; }
+#market-results-content .market-card .tp-cell-market { justify-content: flex-end; }
 /* Pantalla de Ventas / Gestión */
 .ms-section { margin-bottom: 18px; }
 .ms-title {
@@ -10012,11 +10031,11 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
   align-items: center;
   justify-content: center;
   background: rgba(16,185,129,0.1);
-  border-radius: 12px;
-  padding: 14px 12px;
-  margin-bottom: 10px;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 800;
   color: #059669;
 }
@@ -10037,7 +10056,7 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 .db-eco-inc b.positive,
 .db-eco-exp b.negative {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
 }
 .db-eco-inc b.positive { color: #10B981; }
@@ -11784,7 +11803,7 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
   .db-mgmt-body { gap: 10px; }
   .db-mgmt-info { gap: 6px; }
   .db-mgmt-bar { height: 5px; }
-  .db-mgmt-line2 { font-size: 13px; }
+  .db-mgmt-line2 { font-size: 12px; }
   .db-mgmt-footline { gap: 8px; }
   .db-mgmt-art { padding-left: 10px; }
   .db-mgmt-crest { width: 44px; height: 44px; }
