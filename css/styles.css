@@ -11714,3 +11714,14 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 .pp-reject { background: #DC2626; }
 .pp-close { background: #DC2626; }
 .pp-close:hover { background: #B91C1C; }
+
+/* ===== MÓVIL: márgenes simétricos + escala por ancho de pantalla ===== */
+@media (max-width: 480px) {
+  #app {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+}
+@media (max-width: 430px) { #app { zoom: 0.95; } }
+@media (max-width: 395px) { #app { zoom: 0.90; } }
+@media (max-width: 365px) { #app { zoom: 0.86; } }
