@@ -6285,10 +6285,12 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
   #view-home #home-content .db-scroll-cols .db-mgmt-bar {
     height: 4px;
   }
-  #view-home #home-content .db-scroll-cols .db-mgmt-card .db-next-badges {
+  #view-home #home-content .db-scroll-cols .db-mgmt-card .db-next-badges,
+  #view-home #home-content .db-scroll-cols .db-next-card .db-next-badges {
     gap: 4px;
   }
-  #view-home #home-content .db-scroll-cols .db-mgmt-card .db-next-chip {
+  #view-home #home-content .db-scroll-cols .db-mgmt-card .db-next-chip,
+  #view-home #home-content .db-scroll-cols .db-next-card .db-next-chip {
     padding: 3px 7px;
   }
   #view-home #home-content .db-scroll-cols .db-mgmt-form .db-form-dot {
