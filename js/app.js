@@ -17766,6 +17766,10 @@ function offerRowHtml(of) {
   }
   var clubLogo = of.teamLogo || getTeamLogo(of.teamId || of.clubId) || NOPHOTO
   var isLoan = of.type === 'cesion'
+  /* Una oferta recibida (no solicitada por el usuario) nunca debe mostrarse
+     por debajo del valor actual del jugador, aunque el valor haya cambiado
+     desde que se gener\u00f3 la oferta. */
+  if (!isLoan && pp.value && (of.amount || 0) < pp.value) of.amount = Math.round(pp.value)
   return '<div class="ms-row ms-offer-row" data-oid="' + of.id + '">' +
     msOfferRowCells(pp) +
     '<span class="ms-val">' + formatShort(pp.value || 0) + '</span>' +
@@ -17918,6 +17922,10 @@ function openOfferDecision(oid) {
   var found = findPlayerInPools(o.playerId)
   if (!found) return
   var p = found.pool[found.idx]
+  /* Una oferta recibida (no solicitada por el usuario) nunca debe quedar por
+     debajo del valor actual del jugador, aunque el valor haya cambiado desde
+     que se generó la oferta. */
+  if (o.type !== 'cesion' && p.value && o.amount < p.value) o.amount = Math.round(p.value)
   var modal = document.getElementById('offer-decision-modal')
   var body = document.getElementById('od-body')
   var clubLogo = getTeamLogo(o.clubId)
@@ -19942,9 +19950,11 @@ function startGame() {
   actualizarIndicadorTemporada()
   checkTransferWindow()
   generarMockHistorial()
-  /* Recalcular valores de jugadores al cargar (para partidas existentes) */
-  state.players.forEach(function(p) { p.value = calcValue(p.skill, p.age, p.position) })
-  state.leagueTeams.forEach(function(t) { (t.players || []).forEach(function(p) { p.value = calcValue(p.skill, p.age, p.position) }) })
+  /* Rellenar el valor de jugadores que no lo traigan (partidas existentes de
+     antes de guardar este campo); no se sobreescribe el valor real ya
+     asignado, para no invalidar ofertas ya generadas contra ese valor. */
+  state.players.forEach(function(p) { if (p.value == null) p.value = calcValue(p.skill, p.age, p.position) })
+  state.leagueTeams.forEach(function(t) { (t.players || []).forEach(function(p) { if (p.value == null) p.value = calcValue(p.skill, p.age, p.position) }) })
 }
 
 function generarMockHistorial() {
