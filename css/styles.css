@@ -6186,13 +6186,15 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
     padding: 0 20px;
   }
 
-  /* App content becomes a non-scrolling flex column that fills the height */
+  /* App content becomes a non-scrolling flex column that fills the height.
+     El padding lateral usa el safe-area-inset para no pisarse con muescas /
+     isla dinámica del iPhone cuando el móvil está en horizontal. */
   #app-content {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding: 14px 16px;
+    padding: 14px max(20px, env(safe-area-inset-right)) 14px max(20px, env(safe-area-inset-left));
   }
 
   #view-home.active {
@@ -6237,6 +6239,38 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
   }
   #view-home #home-content .db-scroll-cols .db-card-head {
     margin-bottom: 6px;
+  }
+
+  /* Gestión del equipo: compactar para que la racha de resultados no quede
+     cortada por la altura fija de la tarjeta en el dashboard horizontal */
+  #view-home #home-content .db-scroll-cols .db-mgmt-card {
+    display: flex;
+    flex-direction: column;
+  }
+  #view-home #home-content .db-scroll-cols .db-mgmt-card .db-card-head {
+    flex-shrink: 0;
+  }
+  #view-home #home-content .db-scroll-cols .db-mgmt-body {
+    flex: 1;
+    min-height: 0;
+  }
+  #view-home #home-content .db-scroll-cols .db-mgmt-info {
+    gap: 5px;
+    justify-content: center;
+  }
+  #view-home #home-content .db-scroll-cols .db-mgmt-bar {
+    height: 4px;
+  }
+  #view-home #home-content .db-scroll-cols .db-mgmt-card .db-next-badges {
+    gap: 4px;
+  }
+  #view-home #home-content .db-scroll-cols .db-mgmt-card .db-next-chip {
+    padding: 3px 7px;
+  }
+  #view-home #home-content .db-scroll-cols .db-mgmt-form .db-form-dot {
+    width: 14px;
+    height: 14px;
+    font-size: 8px;
   }
 
   /* Calendario del dashboard: compacto para que quepan 5 equipos */
@@ -6445,6 +6479,8 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
   }
   #view-club #club-tactics-content .tc-layout {
     display: flex;
+    flex-direction: row;
+    min-height: 0;
     gap: 14px;
     align-items: stretch;
   }
@@ -6470,12 +6506,12 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
     flex: 1 1 320px;
     min-width: 200px;
     max-width: 420px;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 6px;
     height: auto;
     max-height: none;
-    overflow-y: auto;
   }
   #view-club #club-tactics-content .tc-right .tc-section-label {
     flex-shrink: 0;
@@ -6964,10 +7000,54 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 
 /* ───────── GRID TACTICS LAYOUT ───────── */
 
+/* El scroll de la pestaña Táctica debe quedar limitado a la zona de
+   sustitutos/reservas: el campo y las tarjetas de capitán/presión/formación
+   permanecen siempre visibles, sin pisarse ni perder información. */
+#app-content:has(#club-tactics-content:not(.hidden)) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#app-content:has(#club-tactics-content:not(.hidden)) #view-club {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#club-tactics-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+#club-tactics-content .tc-layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+#club-tactics-content .tc-left {
+  flex-shrink: 0;
+}
+#club-tactics-content .tc-right {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tc-subs-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .tc-top-cards {
   display: flex;
   gap: 6px;
   margin-bottom: 10px;
+  flex-shrink: 0;
 }
 .tc-card {
   flex: 1;
@@ -8539,7 +8619,7 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 /* Layout: competiciones (izq) | clasificación (centro, con scroll) | goleador/asistente (der) */
 .league-layout {
   display: grid;
-  grid-template-columns: 200px 1fr 300px;
+  grid-template-columns: 200px 1fr 220px;
   gap: 12px;
   align-items: start;
   margin-top: 12px;
@@ -10058,8 +10138,8 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 .md-view {
   display: flex;
   flex-direction: column;
-  height: calc(100dvh - 46px);
-  max-height: calc(100dvh - 46px);
+  height: calc(100dvh - 70px);
+  max-height: calc(100dvh - 70px);
   overflow: hidden;
 }
 .md-top {
@@ -10149,8 +10229,8 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 .pv-view {
   display: flex;
   flex-direction: column;
-  height: calc(100dvh - 46px);
-  max-height: calc(100dvh - 46px);
+  height: calc(100dvh - 70px);
+  max-height: calc(100dvh - 70px);
   overflow: hidden;
 }
 .pv-round {
@@ -10258,8 +10338,7 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
   padding: 4px 12px;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: visible;
   align-items: flex-start;
 }
 .pv-column {
