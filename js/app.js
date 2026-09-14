@@ -2164,8 +2164,8 @@ function renderEntrenamientoScreen() {
   html += '<div class="tr-squad">'
   html += '<div class="tp-table-header" style="padding:8px 10px">' +
     '<span class="tp-th-pos">POS</span><span style="flex:1;text-align:left;min-width:0;margin-right:-8px;max-width:50%">JUGADOR</span>' +
-    '<span style="width:64px;text-align:center">VALORACI\u00d3N</span>' +
-    '<span class="tp-th-age">EDAD</span><span style="width:54px;text-align:center">TENDENCIA</span>' +
+    '<span class="tp-th-age">EDAD</span>' +
+    '<span style="width:64px;text-align:center">VALORACI\u00d3N</span><span style="width:54px;text-align:center">TENDENCIA</span>' +
     '<span style="width:68px;text-align:center">POTENCIAL</span>' +
   '</div>'
   html += '<div class="tp-list">'
@@ -2176,8 +2176,8 @@ function renderEntrenamientoScreen() {
     return '<div class="tp-row" style="cursor:pointer" data-player-id="' + p.id + '" onclick="openPlayerDetail(state.players.find(function(x){return x.id===\'' + p.id + '\'}))">' +
       '<span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span>' +
       '<div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-head">' + playerFlagHtml(p.nationality) + '<span class="tp-cell-name">' + p.name + '</span></span></div></div>' +
-      '<span class="tr-grl"><b style="color:' + skillColor(p.skill || 0) + '">' + (p.skill || 0) + '</b></span>' +
       '<span class="tp-cell-age">' + (p.age || '-') + '</span>' +
+      '<span class="tr-grl"><b style="color:' + skillColor(p.skill || 0) + '">' + (p.skill || 0) + '</b></span>' +
       '<span style="width:54px;text-align:center">' + tendenciaJugador(p) + '</span>' +
       '<span style="width:68px;text-align:center;font-size:11px;font-weight:700;color:' + skillColor(potencial) + '">' + potencial + '</span>' +
     '</div>'
@@ -2247,8 +2247,8 @@ function renderCanteraScreen() {
   html += '<div class="tr-squad">'
   html += '<div class="tp-table-header" style="padding:8px 10px">' +
     '<span class="tp-th-pos">POS</span><span style="flex:1;text-align:left;min-width:0;margin-right:-8px;max-width:50%">JUGADOR</span>' +
-    '<span style="width:64px;text-align:center">VALORACI\u00d3N</span>' +
-    '<span class="tp-th-age">EDAD</span><span style="width:54px;text-align:center">TENDENCIA</span>' +
+    '<span class="tp-th-age">EDAD</span>' +
+    '<span style="width:64px;text-align:center">VALORACI\u00d3N</span><span style="width:54px;text-align:center">TENDENCIA</span>' +
     '<span style="width:68px;text-align:center">POTENCIAL</span>' +
   '</div>'
   html += '<div class="tp-list">'
@@ -2262,8 +2262,8 @@ function renderCanteraScreen() {
       return '<div class="tp-row" style="cursor:pointer" data-player-id="' + p.id + '" onclick="openPlayerDetail(state.filial2Squad.find(function(x){return x.id===\'' + p.id + '\'}))">' +
         '<span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span>' +
         '<div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'"><div class="tp-cell-info"><span class="tp-cell-head">' + playerFlagHtml(p.nationality) + '<span class="tp-cell-name">' + p.name + '</span></span></div></div>' +
-        '<span class="tr-grl"><b style="color:' + skillColor(p.skill || 0) + '">' + (p.skill || 0) + '</b></span>' +
         '<span class="tp-cell-age">' + (p.age || '-') + '</span>' +
+        '<span class="tr-grl"><b style="color:' + skillColor(p.skill || 0) + '">' + (p.skill || 0) + '</b></span>' +
         '<span style="width:54px;text-align:center">' + tendenciaJugador(p) + '</span>' +
         '<span style="width:68px;text-align:center;font-size:11px;font-weight:700;color:' + skillColor(potencial) + '">' + potencial + '</span>' +
       '</div>'
@@ -14688,6 +14688,28 @@ function mdResultRowHtml(f) {
     '</div>'
 }
 
+/* Fila de un partido de copa/ronda con el mismo diseño que el listado de
+   partidos de jornada (md-row): equipo | vs (o marcador si ya se jugó) |
+   equipo, en vez de los guiones "- - -" de antes. Si algún rival aún no se
+   conoce (ronda futura), se muestra la silueta con interrogante. */
+function copaFixtureRowHtml(f, legLabel) {
+  var isUser = f.home === state.teamId || f.away === state.teamId
+  var homeKnown = !!f.home, awayKnown = !!f.away
+  var homeName = homeKnown ? getTeamName(f.home) : '???'
+  var awayName = awayKnown ? getTeamName(f.away) : '???'
+  var mid = f.played
+    ? '<span class="md-score">' + (f.homeScore != null ? f.homeScore : '-') + ' - ' + (f.awayScore != null ? f.awayScore : '-') + '</span>'
+    : '<span class="md-vs">vs</span>'
+  return '<div class="md-row copa-md-row' + (isUser ? ' md-user' : '') + '">' +
+    '<span class="md-name md-name-left">' + homeName + '</span>' +
+    (homeKnown ? '<img class="md-logo" src="' + getTeamLogo(f.home) + '" alt="" onerror="this.style.display=\'none\'">' : '<span class="copa-silhouette"></span>') +
+    mid +
+    (awayKnown ? '<img class="md-logo" src="' + getTeamLogo(f.away) + '" alt="" onerror="this.style.display=\'none\'">' : '<span class="copa-silhouette"></span>') +
+    '<span class="md-name md-name-right">' + awayName + '</span>' +
+    (legLabel ? '<span class="copa-leg-label">' + legLabel + '</span>' : '') +
+    '</div>'
+}
+
 /* Pantalla "Jornada X - Resultados". */
 function renderMatchdayResults(container) {
   var md = state.currentMatchday || 1
@@ -19123,17 +19145,7 @@ function renderCopaView(viewType, selectedRoundIdx) {
     var eflFixtures = eflCupData.allFixtures.filter(function(f) { return f.week === (eflCupData.schedule[selectedRoundIdx] ? eflCupData.schedule[selectedRoundIdx].week : -1) })
     if (eflFixtures.length === 0 && eflCupData.allFixtures.length > 0) eflFixtures = eflCupData.allFixtures
     eflFixtures.forEach(function(f) {
-      var played = f.played
-      var homeS = f.homeScore != null ? f.homeScore : '-'
-      var awayS = f.awayScore != null ? f.awayScore : '-'
-      var cls = played ? '' : ' copa-fixture-pending'
-      var isUser = f.home === state.teamId || f.away === state.teamId
-      html += '<div class="copa-fixture' + cls + '">' +
-        '<span class="copa-fixture-round">' + f.label + '</span>' +
-        '<span class="copa-fixture-team' + (f.home === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.home) + '"> ' + getTeamName(f.home) + '</span>' +
-        '<span class="copa-fixture-score">' + homeS + ' - ' + awayS + '</span>' +
-        '<span class="copa-fixture-team' + (f.away === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.away) + '"> ' + getTeamName(f.away) + '</span>' +
-        '</div>'
+      html += copaFixtureRowHtml(f)
     })
     if (state.eflCupChampion) {
       html += '<div class="copa-winner">\ud83c\udfc6 <img class="copa-team-logo" src="' + getTeamLogo(state.eflCupChampion) + '"> ' + getTeamName(state.eflCupChampion) + '</div>'
@@ -19160,18 +19172,7 @@ function renderCopaView(viewType, selectedRoundIdx) {
     allSupercopaFixtures.forEach(function(f) {
       var fRound = f.round === 'SF' ? 0 : 1
       if (hasScFixtures && selectedRoundIdx >= 0 && fRound !== selectedRoundIdx) return
-      var played = f.played
-      var homeS = f.homeScore != null ? f.homeScore : '-'
-      var awayS = f.awayScore != null ? f.awayScore : '-'
-      var cls = played ? '' : ' copa-fixture-pending'
-      var elimLabel = f.round === 'SF' ? 'Semifinal' : 'Final'
-      var isUser = f.home === state.teamId || f.away === state.teamId
-      html += '<div class="copa-fixture' + cls + '">' +
-        '<span class="copa-fixture-round">' + elimLabel + '</span>' +
-        '<span class="copa-fixture-team' + (f.home === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.home) + '"> ' + getTeamName(f.home) + '</span>' +
-        '<span class="copa-fixture-score">' + homeS + ' - ' + awayS + '</span>' +
-        '<span class="copa-fixture-team' + (f.away === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.away) + '"> ' + getTeamName(f.away) + '</span>' +
-        '</div>'
+      html += copaFixtureRowHtml(f)
     })
     if (supercopa.winner) {
       html += '<div class="copa-winner">\ud83c\udfc6 <img class="copa-team-logo" src="' + getTeamLogo(supercopa.winner) + '"> ' + getTeamName(supercopa.winner) + '</div>'
@@ -19208,20 +19209,8 @@ function renderCopaView(viewType, selectedRoundIdx) {
       html += '<div class="copa-round">'
       if (hasFixtures) {
         roundFixtures.forEach(function(f) {
-          var played = f.played
-          var homeS = f.homeScore != null ? f.homeScore : '-'
-          var awayS = f.awayScore != null ? f.awayScore : '-'
-          var cls = played ? '' : ' copa-fixture-pending'
-          var isUser = f.home === state.teamId || f.away === state.teamId
-          var homeName = f.home ? getTeamName(f.home) : '???'
-          var awayName = f.away ? getTeamName(f.away) : '???'
-          var legLabel = f.isTwoLegged ? (f.leg === 1 ? ' (Ida)' : ' (Vuelta)') : ''
-          html += '<div class="copa-fixture' + cls + '">' +
-            '<span class="copa-fixture-team' + (f.home === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.home) + '"> ' + homeName + '</span>' +
-            '<span class="copa-fixture-score">' + homeS + ' - ' + awayS + '</span>' +
-            '<span class="copa-fixture-team' + (f.away === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.away) + '"> ' + awayName + '</span>' +
-            '<span style="font-size:10px;color:var(--text-muted);margin-left:4px">' + legLabel + '</span>' +
-            '</div>'
+          var legLabel = f.isTwoLegged ? (f.leg === 1 ? 'Ida' : 'Vuelta') : ''
+          html += copaFixtureRowHtml(f, legLabel)
         })
         /* Show aggregate for two-legged if both legs played */
         var twoLeggedPairs = {}
@@ -19244,11 +19233,7 @@ function renderCopaView(viewType, selectedRoundIdx) {
         var count = actualIdx < matchCounts.length ? matchCounts[actualIdx] : 2
         if (count > 6) count = 4
         for (var si = 0; si < count; si++) {
-          html += '<div class="copa-fixture copa-fixture-pending">' +
-            '<span class="copa-fixture-team"><span class="copa-silhouette"></span></span>' +
-            '<span class="copa-fixture-score">-</span>' +
-            '<span class="copa-fixture-team"><span class="copa-silhouette"></span></span>' +
-            '</div>'
+          html += copaFixtureRowHtml({ home: null, away: null, played: false })
         }
       }
       html += '</div>'
@@ -19290,24 +19275,12 @@ function renderCopaView(viewType, selectedRoundIdx) {
       html += '<div class="copa-round">'
       if (hasFixtures) {
         roundFixtures.forEach(function(f) {
-          var played = f.played
-          var homeS = f.homeScore != null ? f.homeScore : '-'
-          var awayS = f.awayScore != null ? f.awayScore : '-'
-          var cls = played ? '' : ' copa-fixture-pending'
-          html += '<div class="copa-fixture' + cls + '">' +
-            '<span class="copa-fixture-team' + (f.home === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.home) + '"> ' + getTeamName(f.home) + '</span>' +
-            '<span class="copa-fixture-score">' + homeS + ' - ' + awayS + '</span>' +
-            '<span class="copa-fixture-team' + (f.away === state.teamId ? ' copa-user' : '') + '"><img class="copa-team-logo" src="' + getTeamLogo(f.away) + '"> ' + getTeamName(f.away) + '</span>' +
-            '</div>'
+          html += copaFixtureRowHtml(f)
         })
       } else {
         var count = realRi === 0 ? 4 : realRi === 1 ? 2 : 1
         for (var si = 0; si < count; si++) {
-          html += '<div class="copa-fixture copa-fixture-pending">' +
-            '<span class="copa-fixture-team"><span class="copa-silhouette"></span></span>' +
-            '<span class="copa-fixture-score">-</span>' +
-            '<span class="copa-fixture-team"><span class="copa-silhouette"></span></span>' +
-            '</div>'
+          html += copaFixtureRowHtml({ home: null, away: null, played: false })
         }
       }
       html += '</div>'
@@ -20871,7 +20844,7 @@ function renderPerformanceTable(players) {
       overageHtml += '<span class="player-badge" style="font-size:8px;background:#EF4444;color:#fff;padding:1px 5px;border-radius:3px;margin-top:2px">\u26a0 Excedente</span>'
     }
     var avg = playerAvgRating(p)
-    return '<div class="tp-row" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'">' + playerFlagHtml(p.nationality) + '<div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span>' + (overageHtml ? '<span class="tp-cell-value">' + overageHtml + '</span>' : '') + '</div></div><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.matches || 0) + '</span><span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.goals || 0) + '</span><span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + (p.assists || 0) + '</span><span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">' + (p.yellowCards || 0) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">' + (p.redCards || 0) + '</span><span style="width:36px;text-align:center;font-size:12px;font-weight:700;color:' + (avg != null ? '#16803C' : 'var(--text-muted)') + '">' + (avg != null ? avg.toFixed(1) : '\u2014') + '</span></div>'
+    return '<div class="tp-row" data-player-id="' + p.id + '"><span class="tp-cell-pos-badge" style="background:' + posColor + ';color:#fff">' + (POS_ABBR[p.position] || p.position) + '</span><div class="tp-cell"><img class="tp-cell-img" src="' + (p.avatar || NOPHOTO) + '" alt="" onerror="this.src=\'' + NOPHOTO + '\'">' + playerFlagHtml(p.nationality) + '<div class="tp-cell-info"><span class="tp-cell-name">' + p.name + '</span>' + (overageHtml ? '<span class="tp-cell-value">' + overageHtml + '</span>' : '') + '</div></div><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + playerSeasonMatches(p) + '</span><span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + playerSeasonGoals(p) + '</span><span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">' + playerSeasonAssists(p) + '</span><span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">' + playerSeasonYellows(p) + '</span><span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">' + playerSeasonReds(p) + '</span><span style="width:36px;text-align:center;font-size:12px;font-weight:700;color:' + (avg != null ? '#16803C' : 'var(--text-muted)') + '">' + (avg != null ? avg.toFixed(1) : '\u2014') + '</span></div>'
   }).join('')
   html += '</div>'
   return html

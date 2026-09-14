@@ -1776,6 +1776,34 @@ html, body {
   gap: 6px;
 }
 
+/* Economía en vertical: el balance/ingresos/gastos quedan siempre visibles
+   arriba; solo el listado de movimientos hace scroll, en su propia zona. */
+@media (orientation: portrait) {
+  #app-content:has(#view-finances.active) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #view-finances.active {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #view-finances .view-header,
+  #view-finances .finance-card,
+  #view-finances .finance-resumen,
+  #view-finances .finance-section-title {
+    flex-shrink: 0;
+  }
+  #view-finances #finance-history {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
 .finance-item {
   display: flex;
   align-items: center;
@@ -3773,7 +3801,7 @@ html, body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 110px;
+  max-width: 145px;
 }
 
 .league-row-user {
@@ -6446,9 +6474,10 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
   #view-finances.active {
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
+    overflow: hidden;
     display: grid;
     grid-template-columns: minmax(240px, 320px) 1fr;
+    grid-template-rows: auto auto 1fr;
     column-gap: 18px;
     row-gap: 12px;
     align-items: start;
@@ -6469,9 +6498,14 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
     grid-column: 2;
     grid-row: 2;
   }
+  /* Solo el listado de movimientos (columna derecha) hace scroll; el
+     balance/ingresos/gastos de la izquierda quedan siempre visibles. */
   #view-finances #finance-history {
     grid-column: 2;
     grid-row: 3;
+    align-self: stretch;
+    min-height: 0;
+    overflow-y: auto;
   }
   #view-club #club-tactics-content .tc-layout {
     display: flex;
@@ -8436,12 +8470,19 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 .copa-title { font-size: 15px; font-weight: 700; color: var(--text); }
 .copa-round { margin-bottom: 10px; }
 .copa-round-title { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-.copa-fixture { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,0.04); margin-bottom: 4px; flex-wrap: nowrap; }
-.copa-fixture-pending { opacity: 0.5; }
-.copa-fixture-team { display: inline-flex; align-items: center; gap: 4px; flex: 1; font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.copa-fixture-team.copa-user { color: #10B981; font-weight: 700; }
-.copa-fixture-round { font-size: 10px; color: var(--text-muted); width: 48px; flex-shrink: 0; }
-.copa-fixture-score { font-size: 13px; font-weight: 700; color: var(--accent); min-width: 36px; text-align: center; flex-shrink: 0; }
+/* Filas de partido de copa/ronda: mismo diseño que el listado de partidos
+   de jornada (.md-row), solo con un pequeño margen entre filas ya que aquí
+   no viven dentro de .md-list. */
+.copa-section .md-row, .copa-round .md-row {
+  margin-bottom: 4px;
+  background: rgba(255,255,255,0.04);
+}
+.copa-leg-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-left: 4px;
+}
 
 .copa-team-logo { width: 16px; height: 16px; vertical-align: middle; margin-right: 2px; border-radius: 4px; object-fit: contain; }
 
@@ -8616,7 +8657,7 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 /* Layout: competiciones (izq) | clasificación (centro, con scroll) | goleador/asistente (der) */
 .league-layout {
   display: grid;
-  grid-template-columns: 200px 1fr 220px;
+  grid-template-columns: 190px 1fr 190px;
   gap: 12px;
   align-items: start;
   margin-top: 12px;
@@ -9316,9 +9357,12 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
   gap: 9px;
 }
 .db-next-stadium {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #818188;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .db-next-rival {
   font-family: var(--font-display);
