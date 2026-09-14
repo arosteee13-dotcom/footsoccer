@@ -3739,41 +3739,41 @@ html, body {
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .league-table th {
-  padding: 7px 4px;
+  padding: 6px 2px;
   background: var(--bg-surface);
   font-weight: 600;
   color: var(--text);
   text-align: center;
-  font-size: 10px;
+  font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.2px;
 }
 
-.league-table th:first-child { padding: 7px 4px; text-align: center; width: 32px; }
-.league-table th:nth-child(2) { text-align: left; padding-left: 4px; padding-right: 10px; }
-.league-table th:last-child { padding-right: 8px; }
+.league-table th:first-child { padding: 6px 2px; text-align: center; width: 24px; }
+.league-table th:nth-child(2) { text-align: left; padding-left: 4px; padding-right: 6px; }
+.league-table th:last-child { padding-right: 6px; }
 
 .league-table td {
-  padding: 6px 4px;
+  padding: 5px 2px;
   text-align: center;
   border-top: 1px solid var(--border);
   color: var(--text);
 }
 
-.league-table td:first-child { padding: 6px 4px; text-align: center; font-weight: 700; font-size: 11px; }
+.league-table td:first-child { padding: 5px 2px; text-align: center; font-weight: 700; font-size: 10px; }
 .league-table td:nth-child(2) {
   text-align: left;
   font-weight: 600;
   padding-left: 4px;
-  padding-right: 10px;
+  padding-right: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 170px;
+  max-width: 110px;
 }
 
 .league-row-user {
@@ -3812,10 +3812,6 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 
 /* Clasificación compacta en móvil horizontal (landscape) y pantallas bajas */
 @media (orientation: landscape) and (max-height: 520px) {
-  .league-table { font-size: 11px; }
-  .league-table th, .league-table td { padding: 5px 3px; }
-  .league-table td:first-child { padding: 5px 3px; }
-  .league-table td:nth-child(2) { padding-left: 4px; padding-right: 8px; }
   .league-table-scroll .league-table { min-width: 0; }
   .table-legend { flex-wrap: wrap; gap: 4px 10px; padding-left: 8px; }
 }
@@ -8082,10 +8078,11 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 }
 .ls-grid {
   flex: 1; overflow-y: auto; padding: 12px;
-  display: flex; flex-direction: column; gap: 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
   -webkit-overflow-scrolling: touch;
 }
 .ls-slot {
+  width: 100%; max-width: 440px;
   display: flex; align-items: center; gap: 12px;
   padding: 14px; border-radius: 14px;
   background: var(--bg-card); border: 1px solid var(--border);
@@ -8672,6 +8669,16 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 }
 
 @media (orientation: portrait) {
+  .league-layout { grid-template-columns: 1fr; }
+  .league-logos, .league-center, .league-col-right { grid-column: 1; max-height: none; }
+  .league-logos { flex-direction: row; overflow-x: auto; }
+  .league-col-right .comp-stats-row { flex-direction: row; }
+}
+
+/* Móviles en horizontal pero no muy anchos (p.ej. 667-780px): la clasificación
+   de 3 columnas no deja sitio para la tabla sin scroll horizontal, así que se
+   apila igual que en vertical. */
+@media (orientation: landscape) and (max-width: 780px) {
   .league-layout { grid-template-columns: 1fr; }
   .league-logos, .league-center, .league-col-right { grid-column: 1; max-height: none; }
   .league-logos { flex-direction: row; overflow-x: auto; }
