@@ -8313,7 +8313,9 @@ function renderTactics(tactic) {
       '<div class="tc-card" id="tc-formation-btn" style="cursor:pointer"><span class="tc-card-label">Formaci\u00f3n</span><span class="tc-card-value tc-accent">' + tactic.formation + '</span></div>' +
     '</div>'
 
-    /* 3. Subs section */
+    /* 3. Subs + reservas: zona con scroll propio para que el campo y las
+       tarjetas de capitán/presión/formación queden siempre visibles. */
+    html += '<div class="tc-subs-scroll">'
     html += '<div class="tc-section-label">SUSTITUTOS (' + bench.length + '/' + maxBench + ')</div>' +
       '<div class="tc-subs-grid">'
     for (var i = 0; i < maxBench; i++) {
@@ -8342,6 +8344,7 @@ function renderTactics(tactic) {
       }
     }
     html += '</div>'
+    html += '</div>' /* fin tc-subs-scroll */
     html += '</div></div>'
 
     container.innerHTML = html
