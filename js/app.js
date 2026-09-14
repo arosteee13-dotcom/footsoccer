@@ -7761,9 +7761,9 @@ function renderHome() {
           '<div class="db-next-stadium">' + (mCompHeader ? mCompHeader + ' - ' : '') + mStadium + '</div>' +
           '<div class="db-next-rival">' + mRivalName + ' <span class="db-next-loc">' + locTag + '</span></div>' +
           '<div class="db-next-badges">' +
-            '<span class="db-next-chip">DEF: ' + pow.DEF.avg + '</span>' +
-            '<span class="db-next-chip">MED: ' + pow.MED.avg + '</span>' +
             '<span class="db-next-chip">ATA: ' + pow.ATA.avg + '</span>' +
+            '<span class="db-next-chip">CEN: ' + pow.MED.avg + '</span>' +
+            '<span class="db-next-chip">DEF: ' + pow.DEF.avg + '</span>' +
           '</div>' +
         '</div>' +
         '<div class="db-next-crest">' +
@@ -7965,9 +7965,9 @@ function renderHome() {
             '<div class="db-mgmt-bar"><div class="db-mgmt-bar-fill" style="width:' + energyPct + '%"></div></div>' +
             '<div class="db-mgmt-line2">' + formStr + ' - Energ\u00eda: ' + energyPct + '%</div>' +
             '<div class="db-next-badges">' +
-              '<span class="db-next-chip">DEF: ' + ownAvgs.DEF + '</span>' +
-              '<span class="db-next-chip">MED: ' + ownAvgs.MED + '</span>' +
               '<span class="db-next-chip">ATA: ' + ownAvgs.ATA + '</span>' +
+              '<span class="db-next-chip">CEN: ' + ownAvgs.MED + '</span>' +
+              '<span class="db-next-chip">DEF: ' + ownAvgs.DEF + '</span>' +
             '</div>' +
             '<div class="db-mgmt-footline">' +
               '<span class="db-mgmt-form">' + ((last5.length ? last5 : []).map(function(r) { var g = r === 'V' ? 'G' : r === 'E' ? 'E' : 'P'; var cls = r === 'V' ? 'db-form-v' : r === 'E' ? 'db-form-e' : 'db-form-d'; return '<span class="db-form-dot ' + cls + '">' + g + '</span>' }).join('') || '<span class="db-form-dot db-form-e">-</span>') + '</span>' +
