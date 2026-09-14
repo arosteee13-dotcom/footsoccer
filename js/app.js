@@ -2162,9 +2162,9 @@ function renderEntrenamientoScreen() {
 
   /* Tabla de plantilla */
   html += '<div class="tr-squad">'
-  html += '<div class="tp-table-header" style="padding:6px 14px">' +
-    '<span class="tp-th-pos">POS</span><span style="flex:1;text-align:left;min-width:0">JUGADOR</span>' +
-    '<span class="tp-th-value" style="width:64px">VALORACI\u00d3N</span>' +
+  html += '<div class="tp-table-header" style="padding:8px 10px">' +
+    '<span class="tp-th-pos">POS</span><span style="flex:1;text-align:left;min-width:0;margin-right:-8px;max-width:50%">JUGADOR</span>' +
+    '<span style="width:64px;text-align:center">VALORACI\u00d3N</span>' +
     '<span class="tp-th-age">EDAD</span><span style="width:54px;text-align:center">TENDENCIA</span>' +
     '<span style="width:68px;text-align:center">POTENCIAL</span>' +
   '</div>'
@@ -2179,7 +2179,7 @@ function renderEntrenamientoScreen() {
       '<span class="tr-grl"><b style="color:' + skillColor(p.skill || 0) + '">' + (p.skill || 0) + '</b></span>' +
       '<span class="tp-cell-age">' + (p.age || '-') + '</span>' +
       '<span style="width:54px;text-align:center">' + tendenciaJugador(p) + '</span>' +
-      '<span style="width:68px;text-align:center;font-size:11px;font-weight:700;color:var(--text)">' + potencial + '</span>' +
+      '<span style="width:68px;text-align:center;font-size:11px;font-weight:700;color:' + skillColor(potencial) + '">' + potencial + '</span>' +
     '</div>'
   }).join('')
   html += '</div>'
@@ -2245,9 +2245,9 @@ function renderCanteraScreen() {
 
   /* Tabla de la plantilla del Sub-18 */
   html += '<div class="tr-squad">'
-  html += '<div class="tp-table-header" style="padding:6px 14px">' +
-    '<span class="tp-th-pos">POS</span><span style="flex:1;text-align:left;min-width:0">JUGADOR</span>' +
-    '<span class="tp-th-value" style="width:64px">VALORACI\u00d3N</span>' +
+  html += '<div class="tp-table-header" style="padding:8px 10px">' +
+    '<span class="tp-th-pos">POS</span><span style="flex:1;text-align:left;min-width:0;margin-right:-8px;max-width:50%">JUGADOR</span>' +
+    '<span style="width:64px;text-align:center">VALORACI\u00d3N</span>' +
     '<span class="tp-th-age">EDAD</span><span style="width:54px;text-align:center">TENDENCIA</span>' +
     '<span style="width:68px;text-align:center">POTENCIAL</span>' +
   '</div>'
@@ -2265,7 +2265,7 @@ function renderCanteraScreen() {
         '<span class="tr-grl"><b style="color:' + skillColor(p.skill || 0) + '">' + (p.skill || 0) + '</b></span>' +
         '<span class="tp-cell-age">' + (p.age || '-') + '</span>' +
         '<span style="width:54px;text-align:center">' + tendenciaJugador(p) + '</span>' +
-        '<span style="width:68px;text-align:center;font-size:11px;font-weight:700;color:var(--text)">' + potencial + '</span>' +
+        '<span style="width:68px;text-align:center;font-size:11px;font-weight:700;color:' + skillColor(potencial) + '">' + potencial + '</span>' +
       '</div>'
     }).join('')
   }
@@ -10340,6 +10340,18 @@ function procesarEconomiaSemanal() {
     state.finances.balance -= gastos
     state.finances.history.push({ reason: 'Gastos operativos semanales', amount: -gastos })
   }
+
+  /* Sueldos semanales de la plantilla (cedidos a otro club no cuentan: los
+     paga su club de destino mientras dura la cesión). */
+  var wageBill = (state.players || []).reduce(function(sum, p) {
+    if (p.onLoan && p.loanTo) return sum
+    return sum + playerSalary(p)
+  }, 0)
+  if (wageBill > 0) {
+    state.finances.balance -= wageBill
+    state.finances.history.push({ reason: 'Sueldos de la plantilla', amount: -wageBill })
+  }
+
   procesarIngresosPatrocinio()
   procesarLesiones()
   recuperarPorterosAl100()

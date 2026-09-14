@@ -7003,12 +7003,12 @@ td.pos-bar.bar-europa-4 { border-left-color: #6FBF8E }
 /* El scroll de la pestaña Táctica debe quedar limitado a la zona de
    sustitutos/reservas: el campo y las tarjetas de capitán/presión/formación
    permanecen siempre visibles, sin pisarse ni perder información. */
-#app-content:has(#club-tactics-content:not(.hidden)) {
+#app-content:has(#view-club.active #club-tactics-content:not(.hidden)) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
-#app-content:has(#club-tactics-content:not(.hidden)) #view-club {
+#app-content:has(#view-club.active #club-tactics-content:not(.hidden)) #view-club.active {
   flex: 1;
   min-height: 0;
   display: flex;
