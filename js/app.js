@@ -2524,6 +2524,35 @@ function playerAvgRating(p) {
   return rated.length ? (rated.reduce(function(s, m) { return s + m.rating }, 0) / rated.length) : null
 }
 
+/* Estadísticas de la temporada con el club actual. Usa p.teamStats como
+   fuente única de verdad (igual que la ficha del jugador) en vez del
+   contador plano p.matches/p.goals/..., que puede desincronizarse de
+   teamStats según qué función haya procesado el último partido. */
+function getPlayerCurrentTeamStats(p) {
+  if (!p || !p.teamStats) return null
+  return p.teamStats[p.teamId] || p.teamStats[p.loanTo || ''] || Object.values(p.teamStats)[0] || null
+}
+function playerSeasonMatches(p) {
+  var ts = getPlayerCurrentTeamStats(p)
+  return ts ? (ts.matches || 0) : (p.matches || 0)
+}
+function playerSeasonGoals(p) {
+  var ts = getPlayerCurrentTeamStats(p)
+  return ts ? (ts.goals || 0) : (p.goals || 0)
+}
+function playerSeasonAssists(p) {
+  var ts = getPlayerCurrentTeamStats(p)
+  return ts ? (ts.assists || 0) : (p.assists || 0)
+}
+function playerSeasonYellows(p) {
+  var ts = getPlayerCurrentTeamStats(p)
+  return ts ? (ts.yellowCards || ts.amarillas || 0) : (p.yellowCards || 0)
+}
+function playerSeasonReds(p) {
+  var ts = getPlayerCurrentTeamStats(p)
+  return ts ? (ts.redCards || ts.rojas || 0) : (p.redCards || 0)
+}
+
 const TRANSFER_WINDOW_SUMMER_START = 1
 const TRANSFER_WINDOW_SUMMER_END = 6
 const TRANSFER_WINDOW_WINTER_START = 15
@@ -5857,9 +5886,17 @@ function gestionarLesionPortero(startingIds) {
 function seleccionarTitularesCPU(players) {
   if (!players) return []
   var avail = players.filter(function(p) { return p && !p.injury && !p._suspended && !(p.onLoan && p.loanTo) })
+  /* Mismo criterio de "skill efectivo" que assignAIStats() (lineal con la
+     energía, no el staminaMod suave de 0.85-1.0 usado en el partido en sí):
+     con staminaMod un titular agotado (5% energía) seguía rindiendo al 85%
+     nominal, así que este selector lo consideraba titular semana tras
+     semana sin dejarlo descansar nunca, mientras que assignAIStats() (que sí
+     usa la fórmula lineal) dejaba de darle partidos por esa misma fatiga:
+     el jugador se quedaba sin energía para siempre y sin que le contara
+     como jugado. */
   var byEff = function(a, b) {
-    var aEff = (a.skill || 0) * staminaMod(a.energy)
-    var bEff = (b.skill || 0) * staminaMod(b.energy)
+    var aEff = (a.skill || 0) * Math.min(1, (a.energy != null ? a.energy : 80) / 100)
+    var bEff = (b.skill || 0) * Math.min(1, (b.energy != null ? b.energy : 80) / 100)
     return bEff - aEff
   }
   var gkPool = avail.filter(function(p) { return esPortero(p) }).sort(byEff)
@@ -5888,7 +5925,13 @@ function aplicarFatigaEquipo(team, gamePlan) {
       drain = getBaseDrain(gamePlan) * getPlayerStaminaFactor(p)
       p.energy = Math.round(Math.max(5, e - drain))
     } else {
-      p.energy = Math.round(e + getDailyRecovery() * 2)
+      /* ~20-25 por jornada, tal y como indica el comentario de arriba.
+         getDailyRecovery()*2 (=4) se quedaba muy por debajo de eso y del
+         desgaste real (~22-33 por partido jugado), así que un jugador
+         fatigado tardaba muchísimas semanas en recuperarse: mientras tanto
+         algún suplente de menos nivel, siempre descansado, quedaba con
+         mejor "skill efectivo" y le quitaba el puesto partido tras partido. */
+      p.energy = Math.round(e + 20 + Math.floor(Math.random() * 6))
     }
     p.energy = Math.round(Math.min(100, p.energy))
   })
@@ -7061,11 +7104,11 @@ function renderPerformance(players) {
         </div>
       </div>
       <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
-      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.matches || 0}</span>
-      <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.goals || 0}</span>
-      <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.assists || 0}</span>
-      <span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">${p.yellowCards || 0}</span>
-      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">${p.redCards || 0}</span>
+      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${playerSeasonMatches(p)}</span>
+      <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${playerSeasonGoals(p)}</span>
+      <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${playerSeasonAssists(p)}</span>
+      <span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">${playerSeasonYellows(p)}</span>
+      <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">${playerSeasonReds(p)}</span>
       <span style="width:36px;text-align:center;font-size:12px;font-weight:700;color:${avg != null ? '#16803C' : 'var(--text-muted)'}">${avg != null ? avg.toFixed(1) : '—'}</span>
     </div>`
   }).join('')
@@ -7095,11 +7138,11 @@ function renderPerformance(players) {
           </div>
         </div>
         <span class="tp-cell-pos-badge" style="background:${posColor};color:#fff">${POS_ABBR[p.position] || p.position}</span>
-        <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.matches || 0}</span>
-        <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.goals || 0}</span>
-        <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${p.assists || 0}</span>
-        <span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">${p.yellowCards || 0}</span>
-        <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">${p.redCards || 0}</span>
+        <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${playerSeasonMatches(p)}</span>
+        <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${playerSeasonGoals(p)}</span>
+        <span style="width:38px;text-align:center;font-size:12px;font-weight:600;color:var(--text)">${playerSeasonAssists(p)}</span>
+        <span style="width:30px;text-align:center;font-size:12px;font-weight:600;color:#F59E0B">${playerSeasonYellows(p)}</span>
+        <span style="width:28px;text-align:center;font-size:12px;font-weight:600;color:#EF4444">${playerSeasonReds(p)}</span>
       </div>`
     })
     html += '</div>'
@@ -10641,6 +10684,7 @@ function procesarVentanaTransferencias() {
   }
   gestionarFilialesCPU()
   procesarCesionesCPU()
+  procesarExcedentesPosicionCPU()
   /* Run the new SimuladorMercadoIA (3-8 global operations per call) */
   var mktResult = simularMercadoIA()
   /* Generate offers to the human player (van a Mercado » Ventas » Ofertas recibidas) */
@@ -11272,6 +11316,62 @@ function detectarExcedentesCantera() {
     /* Generar ofertas automáticas para el excedente */
     generarOfertasParaJugador(p, { forzada: true, categoriaEquipo: item.category })
   })
+}
+
+/* ============ LIMPIEZA DE EXCEDENTES POR POSICIÓN (CPU) ============
+   Si un club CPU acumula más jugadores de la cuenta en una demarcación
+   (p. ej. 4+ porteros que nunca van a jugar todos), el peor de los
+   sobrantes se traspasa o cede a otro club de la misma liga con hueco en
+   esa posición, en vez de quedarse indefinidamente sin jugar mientras un
+   compañero de mucho menos nivel se lleva todos los minutos. */
+function procesarExcedentesPosicionCPU() {
+  if (!state.transferWindowOpen) return
+  var SURPLUS_MAX = { POR: 3 }
+  var DEFAULT_MAX = 5
+  var teams = (state.leagueTeams || []).filter(function(t) { return t.teamId !== state.teamId && t.players })
+  teams.forEach(function(team) {
+    var posCount = {}
+    team.players.forEach(function(p) { if (!p.onLoan) posCount[p.position] = (posCount[p.position] || 0) + 1 })
+    Object.keys(posCount).forEach(function(pos) {
+      var maxOk = SURPLUS_MAX[pos] || DEFAULT_MAX
+      if (posCount[pos] <= maxOk) return
+      var inPos = team.players.filter(function(p) { return p.position === pos && !p.onLoan })
+      inPos.sort(function(a, b) { return a.skill - b.skill })
+      var surplus = inPos.slice(0, inPos.length - maxOk)
+      surplus.forEach(function(p) {
+        if (Math.random() < 0.5) return /* no vaciar el excedente de golpe */
+        var idx = team.players.indexOf(p)
+        if (idx < 0) return
+        /* Preferir un club con menos efectivos que el de origen en esa
+           posición (mejora relativa); si nadie está mejor, se libera al
+           jugador directamente en vez de dejarlo acumulado sin jugar. */
+        var bestDest = null, bestCount = posCount[pos]
+        teams.forEach(function(t) {
+          if (t === team) return
+          var c = t.players.filter(function(x) { return x.position === pos && !x.onLoan }).length
+          if (c < bestCount) { bestCount = c; bestDest = t }
+        })
+        team.players.splice(idx, 1)
+        if (bestDest) {
+          if (p.age <= 24) {
+            bestDest.players.push(Object.assign({}, p, {
+              id: bestDest.teamId + '-loan-' + Date.now() + '-' + Math.random().toString(36).slice(2, 4),
+              onLoan: true, loanFrom: team.teamId, loanUntil: '30/06/' + (2026 + (state.seasonNumber || 1) + 1),
+              energy: randInt(70, 100)
+            }))
+          } else {
+            bestDest.players.push(Object.assign({}, p, {
+              id: bestDest.teamId + '-surplus-' + Date.now() + '-' + Math.random().toString(36).slice(2, 4),
+              energy: randInt(70, 100)
+            }))
+          }
+        }
+        /* Si no hay ningún club mejor situado, se libera (retiro/rescisión):
+           el club de origen deja de arrastrar un jugador que nunca juega. */
+      })
+    })
+  })
+  rebuildGlobalPlayerPool()
 }
 
 /* ============ LOAN SYSTEM ============ */
@@ -18874,6 +18974,13 @@ function getEflCupForView() {
 }
 
 function renderCopaView(viewType, selectedRoundIdx) {
+  /* Igual que renderLeague(): mantiene el botón de país/bandera sincronizado
+     con el país realmente mostrado, para que no se quede con datos de una
+     navegación anterior al entrar a una copa/supercopa/ronda pendiente. */
+  initLeagueViewScope()
+  renderCountrySelectorButton()
+  renderCountrySelectorList()
+
   var activeCountry = state.leagueViewCountry || state.countryId || 'spain'
   var tdl = state.tacaDaLiga
   var eflCupData = state.eflCup
@@ -20682,20 +20789,30 @@ function openMyCompetition() {
   state.leagueViewCountry = null
   state.leagueViewContinental = false
   var kind = getPendingCompKind()
+  /* Para copa/supercopa/rondas, primero se construye la franja de
+     competiciones (#league-logos) vía renderLeague() con el
+     leagueLogoSelected ya puesto: así el logo resaltado como activo
+     coincide con lo que realmente se muestra, incluso la primera vez que
+     se abre "Competiciones" en la partida (antes de haber jugado nunca la
+     liga). renderCopaView() sobrescribe después la tabla/paneles. */
   if (kind === 'tacaDaLiga') {
     state.leagueLogoSelected = 'taca_da_liga'
+    if (typeof renderLeague === 'function' && state.leagueId) renderLeague(state.leagueId)
     if (typeof renderCopaView === 'function') renderCopaView('tacaDaLiga')
     setLeagueLogoActive('taca_da_liga')
   } else if (kind === 'eflCup') {
     state.leagueLogoSelected = 'efl_cup'
+    if (typeof renderLeague === 'function' && state.leagueId) renderLeague(state.leagueId)
     if (typeof renderCopaView === 'function') renderCopaView('eflCup')
     setLeagueLogoActive('efl_cup')
   } else if (kind === 'copa') {
     state.leagueLogoSelected = 'copa_del_rey'
+    if (typeof renderLeague === 'function' && state.leagueId) renderLeague(state.leagueId)
     if (typeof renderCopaView === 'function') renderCopaView('copa')
     setLeagueLogoActive('copa_del_rey')
   } else if (kind === 'supercopa') {
     state.leagueLogoSelected = 'supercopa'
+    if (typeof renderLeague === 'function' && state.leagueId) renderLeague(state.leagueId)
     if (typeof renderCopaView === 'function') renderCopaView('supercopa')
     setLeagueLogoActive('supercopa')
   } else {
